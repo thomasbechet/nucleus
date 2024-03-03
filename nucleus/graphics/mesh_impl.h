@@ -12,10 +12,15 @@ nu__mesh_cleanup (void *data)
     nugl__mesh_free(mesh);
 #endif
 }
+nu_object_type_t
+nu_mesh (void)
+{
+    return _ctx.graphics.obj_mesh;
+}
 nu_mesh_t
 nu_mesh_new (nu_primitive_t primitive, nu_size_t capacity)
 {
-    nu__mesh_t *mesh = nu_object_new(_ctx.graphics.obj_mesh);
+    nu__mesh_t *mesh = nu_object_new(nu_mesh());
     mesh->primitive  = primitive;
     mesh->capacity   = capacity;
 #ifdef NU_BUILD_GRAPHICS_GL

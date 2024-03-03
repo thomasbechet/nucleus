@@ -89,6 +89,7 @@ NU_API nu_camera_t nu_camera_new(void);
 NU_API void        nu_camera_set_view(nu_camera_t camera, nu_m4_t view);
 NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_m4_t proj);
 
+NU_API nu_object_type_t nu_mesh(void);
 NU_API nu_mesh_t nu_mesh_new(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_set_uvs(nu_mesh_t      mesh,
                                  nu_size_t      first,
@@ -119,9 +120,10 @@ NU_API void              nu_texture_set_data(nu_texture_t     texture,
 NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
 NU_API nu_image_t        nu_texture_image(nu_texture_t texture);
 
-NU_API nu_material_t nu_material_new(nu_material_type_t type);
-NU_API nu_material_t nu_material_new_color(nu_material_type_t type,
-                                           nu_color_t         color);
+NU_API nu_object_type_t nu_material(void);
+NU_API nu_material_t    nu_material_new(nu_material_type_t type);
+NU_API nu_material_t    nu_material_new_color(nu_material_type_t type,
+                                              nu_color_t         color);
 NU_API void nu_material_set_color(nu_material_t material, nu_color_t color);
 NU_API void nu_material_set_texture(nu_material_t material,
                                     nu_texture_t  texture);

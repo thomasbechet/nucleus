@@ -3,10 +3,15 @@
 
 #include <nucleus/internal.h>
 
+nu_object_type_t
+nu_material (void)
+{
+    return _ctx.graphics.obj_material;
+}
 nu_material_t
 nu_material_new (nu_material_type_t type)
 {
-    nu__material_t *mat = nu_object_new(_ctx.graphics.obj_material);
+    nu__material_t *mat = nu_object_new(nu_material());
     mat->type           = type;
     switch (mat->type)
     {

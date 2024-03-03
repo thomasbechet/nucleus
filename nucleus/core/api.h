@@ -168,11 +168,11 @@
 #define NU_Q4_FMT     NU_V4_FMT
 #define NU_Q4_ARGS(q) NU_V4_ARGS(q)
 #define NU_M4_FMT     NU_V4_FMT NU_V4_FMT NU_V4_FMT NU_V4_FMT
-#define NU_M4_ARGS(m)                      \
-    NU_V4_ARGS((nu_v4_t *)((m)->data + 0)) \
-    NU_V4_ARGS((nu_v4_t *)((m)->data + 4)) \
-    NU_V4_ARGS((nu_v4_t *)((m)->data + 8)) \
-    NU_V4_ARGS((nu_v4_t *)((m)->data + 12))
+#define NU_M4_ARGS(m)                           \
+    NU_V4_ARGS((nu_v4_t *)((m)->data + 0)),     \
+        NU_V4_ARGS((nu_v4_t *)((m)->data + 4)), \
+        NU_V4_ARGS((nu_v4_t *)((m)->data + 8)), \
+        NU_V4_ARGS((nu_v4_t *)((m)->data + 12))
 
 #define NU_STR_FMT       "%.*s"
 #define NU_STR_ARGS(str) (int)str.size, str.data

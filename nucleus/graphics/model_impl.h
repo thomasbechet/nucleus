@@ -63,14 +63,16 @@ nu_model_load (nu_seria_t seria)
         nu_seria_read_ref(seria, NU_STR("mesh"), nu_mesh(), 1, &mesh);
         nu_seria_read_ref(
             seria, NU_STR("material"), nu_material(), 1, &material);
-        nu_seria_read_1m4(seria, NU_STR("transform"));
+        nu_m4_t transform = nu_seria_read_1m4(seria, NU_STR("transform"));
         nu_model_set(model, i, mesh, material, transform);
     }
     nu_seria_end(seria);
+    return model;
 }
 void
 nu_model_save (nu_model_t model, nu_seria_t seria)
 {
+    nu_seria_begin(seria);
 }
 
 #endif

@@ -128,6 +128,17 @@ nu__seria_nbin_write_primitive_data (nu__seria_ctx_t     *ctx,
             }
         }
         break;
+        case NU_SERIA_M4: {
+            const nu_m4_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                for (nu_size_t j = 0; j < NU_M4_SIZE; ++j)
+                {
+                    nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].data[j]));
+                }
+            }
+        }
+        break;
     }
 }
 static void
@@ -180,6 +191,17 @@ nu__seria_nbin_read_primitive_data (nu__seria_ctx_t     *ctx,
                 p[i].y = nu__seria_u32_le(nu__seria_read_4b(ctx));
                 p[i].z = nu__seria_u32_le(nu__seria_read_4b(ctx));
                 p[i].w = nu__seria_u32_le(nu__seria_read_4b(ctx));
+            }
+        }
+        break;
+        case NU_SERIA_M4: {
+            nu_m4_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                for (nu_size_t j = 0; j < NU_M4_SIZE; ++j)
+                {
+                    p[i].data[j] = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                }
             }
         }
         break;
