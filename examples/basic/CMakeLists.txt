@@ -43,7 +43,7 @@ enable_c_compiler_flag_if_supported("-Wno-stringop-truncation")
 enable_c_compiler_flag_if_supported("-Wno-missing-field-initializers")
 enable_c_compiler_flag_if_supported("-Wno-unused-parameter")
 enable_c_compiler_flag_if_supported("-Wno-sign-compare")
-enable_c_compiler_flag_if_supported("-Os")
+# enable_c_compiler_flag_if_supported("-Os")
 # enable_c_compiler_flag_if_supported("-O0")
 # enable_c_compiler_flag_if_supported("-g")
 

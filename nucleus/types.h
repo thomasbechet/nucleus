@@ -4,6 +4,17 @@
 #include <nucleus/config.h>
 
 //////////////////////////////////////////////////////////////////////////
+//////                          Error Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    NU_ERROR_NONE            = 0,
+    NU_ERROR_UNSUPPORTED_API = 1,
+    NU_ERROR_BACKEND         = 2,
+} nu_error_t;
+
+//////////////////////////////////////////////////////////////////////////
 //////                          Basic Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
@@ -100,47 +111,92 @@ typedef struct
 //////                        Surface Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
+typedef enum
+{
+    NU_SURFACE_API_NONE,
+    NU_SURFACE_API_GLFW,
+} nu_surface_api_t;
+
+typedef struct
+{
+    nu_u32_t width;
+    nu_u32_t height;
+} nu_surface_info_t;
+
 //////////////////////////////////////////////////////////////////////////
 //////                         Input Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
+typedef enum
+{
+    NU_INPUT_API_NONE,
+    NU_INPUT_API_GLFW,
+} nu_input_api_t;
+
 typedef struct
 {
     nu_u32_t count;
-} nu_input_action_t;
+} nu_action_t;
 
 typedef enum
 {
-    NU_INPUT_RANGE_CLAMPED,
-    NU_INPUT_RANGE_NORMALIZED,
-    NU_INPUT_RANGE_CLAMED_NORMALIZED,
-    NU_INPUT_RANGE_INFINITE
-} nu_input_range_type_t;
-
-typedef union
-{
-    struct
-    {
-        nu_fix_t min;
-        nu_fix_t max;
-    } clamped;
-    struct
-    {
-        nu_fix_t norm;
-    } normalized;
-    struct
-    {
-        nu_fix_t min;
-        nu_fix_t max;
-        nu_fix_t norm;
-    } clamped_normalized;
-} nu_input_range_mode_t;
+    NU_RANGE_TYPE_CLAMPED,
+    NU_RANGE_TYPE_NORMALIZED,
+    NU_RANGE_TYPE_CLAMED_NORMALIZED,
+    NU_RANGE_TYPE_INFINITE
+} nu_range_type_t;
 
 typedef struct
 {
-    nu_fix_t              value;
-    nu_input_range_type_t type;
-    nu_input_range_mode_t mode;
-} nu_input_range_t;
+    nu_fix_t        value;
+    nu_range_type_t type;
+    union
+    {
+        struct
+        {
+            nu_fix_t min;
+            nu_fix_t max;
+        } clamped;
+        struct
+        {
+            nu_fix_t norm;
+        } normalized;
+        struct
+        {
+            nu_fix_t min;
+            nu_fix_t max;
+            nu_fix_t norm;
+        } clamped_normalized;
+    };
+} nu_range_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                       Graphics Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    NU_GRAPHICS_API_NONE,
+    NU_GRAPHICS_API_OPENGL,
+} nu_graphics_api_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                        Context Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_surface_api_t  surface_api;
+    nu_input_api_t    input_api;
+    nu_graphics_api_t graphics_api;
+} nu_context_info_t;
+
+typedef struct
+{
+    nu_context_info_t _info;
+#ifdef NU_BUILD_GLFW
+    GLFWwindow *_glfw_window;
+#endif
+} nu_context_t;
 
 #endif

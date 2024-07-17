@@ -60,4 +60,16 @@
 #define NU_CXX
 #endif
 
+// Select backends
+#if !defined(NU_NO_GLFW)
+#if defined(NU_PLATFORM_WINDOWS) || defined(NU_PLATFORM_UNIX) \
+    || defined(NU_PLATFORM_APPLE)
+#define NU_BUILD_GLFW
+#endif
+#endif
+
+#ifdef NU_BUILD_GLFW
+#include <nucleus/external/glfw.h>
+#endif
+
 #endif

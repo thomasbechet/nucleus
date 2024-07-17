@@ -59,7 +59,7 @@ nu__stdlib_alloctor_callback (
     }
 }
 
-#define NU_ALLOC                                                      \
+#define NU_STDLIB_ALLOCATOR                                           \
     (nu_allocator_t)                                                  \
     {                                                                 \
         .callback = nu__stdlib_alloctor_callback, .userdata = NU_NULL \
