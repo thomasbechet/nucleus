@@ -5,13 +5,12 @@
 int
 main (void)
 {
-    nu_vec2_t v = {
-        .x = 0,
-        .y = 1
-    };
+    nu_vec2_t v = { .x = 0, .y = 1 };
     NU_ASSERT(v.x == v.data[0]);
 
-    if(!glfwInit())
+    nu_surface_create(NU_ALLOC);
+
+    if (!glfwInit())
     {
         return -1;
     }
