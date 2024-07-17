@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [ -DNU_IMPL, -DNULANG_IMPL, -DNU_DEBUG, -DNU_STDLIB ]
