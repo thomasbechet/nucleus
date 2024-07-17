@@ -88,10 +88,11 @@ NU_DEFINE_VEC4_TYPE(nu_ivec4_t, nu_int_t);
 
 typedef struct
 {
-    void *(*callback)(void     *ptr,
-                      nu_size_t size,
-                      nu_size_t align,
-                      void     *userdata);
+    void *(*callback)(void     *p, // pointer (NULL if malloc)
+                      nu_size_t s, // current size (0 if malloc)
+                      nu_size_t n, // new size (0 if free)
+                      nu_size_t a, // alignment
+                      void     *u);    // userdata
     void *userdata;
 } nu_allocator_t;
 

@@ -6,37 +6,55 @@
 #define NU_DEFAULT_ALIGN 16
 
 NU_API void *nu_alloc(nu_allocator_t alloc, nu_size_t s);
-NU_API void  nu_free(nu_allocator_t alloc, void *ptr);
+NU_API void *nu_realloc(nu_allocator_t alloc,
+                        void          *ptr,
+                        nu_size_t      s,
+                        nu_size_t      n);
+NU_API void  nu_free(nu_allocator_t alloc, void *ptr, nu_size_t s);
 
 #ifdef NU_IMPLEMENTATION
 
 void *
 nu_alloc (nu_allocator_t alloc, nu_size_t s)
 {
-    return alloc.callback(NU_NULL, s, NU_DEFAULT_ALIGN, alloc.userdata);
+    return alloc.callback(NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc.userdata);
+}
+void *
+nu_realloc (nu_allocator_t alloc, void *ptr, nu_size_t s, nu_size_t n)
+{
+    if (s == n)
+    {
+        return ptr;
+    }
+    return alloc.callback(ptr, s, n, NU_DEFAULT_ALIGN, alloc.userdata);
 }
 void
-nu_free (nu_allocator_t alloc, void *ptr)
+nu_free (nu_allocator_t alloc, void *ptr, nu_size_t s)
 {
-    alloc.callback(ptr, 0, NU_DEFAULT_ALIGN, alloc.userdata);
+    alloc.callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc.userdata);
 }
 
 #if defined(NU_STDLIB) && !defined(NU_ALLOC)
 #include <stdlib.h>
 
 static void *
-nu__stdlib_alloctor_callback (void     *ptr,
-                              nu_size_t size,
-                              nu_size_t align,
-                              void     *userdata)
+nu__stdlib_alloctor_callback (
+    void *p, nu_size_t s, nu_size_t n, nu_size_t a, void *u)
 {
-    if (size)
+    (void)s;
+    (void)a;
+    (void)u;
+    if (p && n)
     {
-        return malloc(size);
+        return realloc(p, n);
+    }
+    else if (n)
+    {
+        return malloc(n);
     }
     else
     {
-        free(ptr);
+        free(p);
         return NU_NULL;
     }
 }
