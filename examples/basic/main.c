@@ -5,18 +5,18 @@
 #define WIDTH  640
 #define HEIGHT 400
 
-static nu_allocator_t alloc = NU_STDLIB_ALLOCATOR;
+static nu_allocator_t alloc;
 static nu_context_t   ctx;
 
-static nu_action_t begin_draw;
-static nu_action_t end_draw;
-static nu_range_t  cursor_x;
-static nu_range_t  cursor_y;
+static nu_input_t draw;
+static nu_input_t cursor_x;
+static nu_input_t cursor_y;
 
 int
 main (void)
 {
     nu_error_t error;
+    alloc = NU_STDLIB_ALLOCATOR;
 
     // Create context
     nu_context_info_t cinfo = {
@@ -33,39 +33,30 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
-    cursor_x.type        = NU_RANGE_TYPE_CLAMPED;
-    cursor_x.clamped.min = 0;
-    cursor_x.clamped.max = 0;
-    cursor_y.type        = NU_RANGE_TYPE_CLAMPED;
-    cursor_y.clamped.min = 0;
-    cursor_y.clamped.max = 0;
+    draw     = NU_INPUT(1);
+    cursor_x = NU_INPUT(WIDTH);
+    cursor_y = NU_INPUT(HEIGHT);
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
 
     while (!nu_exit_requested(&ctx))
     {
+        // Poll events
+        nu_poll_events(&ctx);
+
         // Update inputs
-        nu_update_action(&ctx, &begin_draw);
-        nu_update_action(&ctx, &end_draw);
-        nu_update_range(&ctx, &cursor_x);
-        nu_update_range(&ctx, &cursor_y);
+        nu_update_inputs(
+            &ctx, (nu_input_t *[]) { &draw, &cursor_x, &cursor_y }, 3);
 
         // Detect drawing
-        if (begin_draw.count)
+        if (nu_input_changed(&cursor_x) || nu_input_changed(&cursor_y))
         {
-            drawing          = NU_TRUE;
-            begin_draw.count = 0;
-        }
-        if (end_draw.count)
-        {
-            drawing          = NU_FALSE;
-            end_draw.count = 0;
         }
 
         // Draw pixels
         (void)drawing;
-    
+
         // Refresh surface
         nu_swap_buffers(&ctx);
     }

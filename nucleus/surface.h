@@ -10,15 +10,12 @@ NU_API nu_error_t nu_swap_buffers(nu_context_t *ctx);
 
 #ifdef NU_IMPLEMENTATION
 
-#ifdef NU_BUILD_GLFW
-#include <nucleus/external/glfw.h>
-#endif
-
 nu_error_t
 nu_open_surface (nu_context_t            *ctx,
                  const nu_surface_info_t *info,
                  nu_allocator_t          *alloc)
 {
+    NU_UNUSED(alloc);
     switch (ctx->_info.surface_api)
     {
         case NU_SURFACE_API_NONE:

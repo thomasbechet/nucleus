@@ -72,7 +72,6 @@ static _GLFWinitconfig _glfwInitHints =
 //
 static void* defaultAllocate(size_t size, void* user)
 {
-    (void)user;
     return malloc(size);
 }
 
@@ -80,7 +79,6 @@ static void* defaultAllocate(size_t size, void* user)
 //
 static void defaultDeallocate(void* block, void* user)
 {
-    (void)user;
     free(block);
 }
 
@@ -88,7 +86,6 @@ static void defaultDeallocate(void* block, void* user)
 //
 static void* defaultReallocate(void* block, size_t size, void* user)
 {
-    (void)user;
     return realloc(block, size);
 }
 

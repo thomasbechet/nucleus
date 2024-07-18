@@ -68,8 +68,10 @@
 #endif
 #endif
 
+#define NU_UNUSED(x) (void)x
+
 #ifdef NU_BUILD_GLFW
-#include <nucleus/external/glfw.h>
+#include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
 #endif
 
 #endif

@@ -2,15 +2,19 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(basic LANGUAGES C VERSION 0.0.1)
 
-include_directories(../../)
+# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 add_executable(
     ${PROJECT_NAME}
     main.c
 )
 
-set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_BUILD_TYPE Release)
+# Compile GLFW (TODO: find header only library)
+add_subdirectory(../../nucleus/external/glfw-3.4 glfw)
+target_link_libraries(${PROJECT_NAME} glfw)
+
+include_directories(../../)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
 
@@ -29,31 +33,14 @@ endfunction()
 enable_c_compiler_flag_if_supported("-Wall")
 enable_c_compiler_flag_if_supported("-Wextra")
 enable_c_compiler_flag_if_supported("-Werror")
-# enable_c_compiler_flag_if_supported("-pedantic")
+enable_c_compiler_flag_if_supported("-pedantic")
 enable_c_compiler_flag_if_supported("-ansi")
 # enable_c_compiler_flag_if_supported("-nostdlib")
 enable_c_compiler_flag_if_supported("-Wstrict-prototypes")
-# enable_c_compiler_flag_if_supported("-Wold-style-definition")
 enable_c_compiler_flag_if_supported("-fstrict-aliasing")
 enable_c_compiler_flag_if_supported("-Wstrict-aliasing=3")
-enable_c_compiler_flag_if_supported("-fno-eliminate-unused-debug-types")
 # Temporary to remove unused lua functions
-enable_c_compiler_flag_if_supported("-Wno-unused-function")
-enable_c_compiler_flag_if_supported("-Wno-stringop-truncation")
-enable_c_compiler_flag_if_supported("-Wno-missing-field-initializers")
-enable_c_compiler_flag_if_supported("-Wno-unused-parameter")
-enable_c_compiler_flag_if_supported("-Wno-sign-compare")
+# enable_c_compiler_flag_if_supported("-Wno-unused-function")
 # enable_c_compiler_flag_if_supported("-Os")
 # enable_c_compiler_flag_if_supported("-O0")
 # enable_c_compiler_flag_if_supported("-g")
-
-find_package(X11 REQUIRED)
-find_package(OpenGL REQUIRED)
-find_library(MATH_LIBRARY m)
-target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${X11_Xrandr_LIB})
-target_link_libraries(${PROJECT_NAME} ${MATH_LIBRARY})
-# target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} GL)
-
-

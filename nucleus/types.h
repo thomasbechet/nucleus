@@ -52,46 +52,11 @@ typedef nu_fix_t nu_quat_t[4];
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define NU_DEFINE_VEC2_TYPE(NAME, T) \
-    typedef union                    \
-    {                                \
-        struct                       \
-        {                            \
-            T x;                     \
-            T y;                     \
-        };                           \
-        T data[2];                   \
-    } NAME;
-#define NU_DEFINE_VEC3_TYPE(NAME, T) \
-    typedef union                    \
-    {                                \
-        struct                       \
-        {                            \
-            T x;                     \
-            T y;                     \
-            T z;                     \
-        };                           \
-        T data[3];                   \
-    } NAME;
-#define NU_DEFINE_VEC4_TYPE(NAME, T) \
-    typedef union                    \
-    {                                \
-        struct                       \
-        {                            \
-            T x;                     \
-            T y;                     \
-            T z;                     \
-            T w;                     \
-        };                           \
-        T data[4];                   \
-    } NAME;
-
-NU_DEFINE_VEC2_TYPE(nu_vec2_t, nu_fix_t);
-NU_DEFINE_VEC2_TYPE(nu_ivec2_t, nu_int_t);
-NU_DEFINE_VEC3_TYPE(nu_vec3_t, nu_fix_t);
-NU_DEFINE_VEC3_TYPE(nu_ivec3_t, nu_int_t);
-NU_DEFINE_VEC4_TYPE(nu_vec4_t, nu_fix_t);
-NU_DEFINE_VEC4_TYPE(nu_ivec4_t, nu_int_t);
+#define NU_VEC2_SIZE 3
+#define NU_VEC3_SIZE 3
+#define NU_VEC4_SIZE 4
+#define NU_MAT3_SIZE 9
+#define NU_MAT4_SIZE 16
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Allocator Types                        //////
@@ -135,40 +100,16 @@ typedef enum
 
 typedef struct
 {
-    nu_u32_t count;
-} nu_action_t;
+    nu_u32_t value;
+    nu_u32_t prev;
+    nu_u32_t max;
+} nu_input_t;
 
-typedef enum
-{
-    NU_RANGE_TYPE_CLAMPED,
-    NU_RANGE_TYPE_NORMALIZED,
-    NU_RANGE_TYPE_CLAMED_NORMALIZED,
-    NU_RANGE_TYPE_INFINITE
-} nu_range_type_t;
-
-typedef struct
-{
-    nu_fix_t        value;
-    nu_range_type_t type;
-    union
-    {
-        struct
-        {
-            nu_fix_t min;
-            nu_fix_t max;
-        } clamped;
-        struct
-        {
-            nu_fix_t norm;
-        } normalized;
-        struct
-        {
-            nu_fix_t min;
-            nu_fix_t max;
-            nu_fix_t norm;
-        } clamped_normalized;
-    };
-} nu_range_t;
+#define NU_INPUT(m)                     \
+    (nu_input_t)                        \
+    {                                   \
+        .value = 0, .prev = 0, .max = m \
+    }
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Graphics Types                         //////
@@ -194,6 +135,7 @@ typedef struct
 typedef struct
 {
     nu_context_info_t _info;
+    nu_bool_t         _close_requested;
 #ifdef NU_BUILD_GLFW
     GLFWwindow *_glfw_window;
 #endif

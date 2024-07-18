@@ -7,20 +7,20 @@ NU_API nu_error_t nu_init(const nu_context_info_t *info,
                           nu_allocator_t          *alloc,
                           nu_context_t            *ctx);
 NU_API nu_error_t nu_terminate(nu_context_t *ctx, nu_allocator_t *alloc);
-NU_API nu_bool_t  nu_exit_requested(nu_context_t *ctx);
+NU_API nu_error_t nu_poll_events(nu_context_t *ctx);
+NU_API nu_bool_t  nu_exit_requested(const nu_context_t *ctx);
 
 #ifdef NU_IMPLEMENTATION
-
-#ifdef NU_BUILD_GLFW
-#include <nucleus/external/glfw.h>
-#endif
 
 nu_error_t
 nu_init (const nu_context_info_t *info,
          nu_allocator_t          *alloc,
          nu_context_t            *ctx)
 {
-    ctx->_info = *info;
+    NU_UNUSED(ctx);
+    NU_UNUSED(alloc);
+    ctx->_info            = *info;
+    ctx->_close_requested = NU_FALSE;
 
     // Surface API
     switch (info->surface_api)
@@ -69,6 +69,7 @@ nu_init (const nu_context_info_t *info,
 nu_error_t
 nu_terminate (nu_context_t *ctx, nu_allocator_t *alloc)
 {
+    NU_UNUSED(alloc);
     switch (ctx->_info.surface_api)
     {
         case NU_SURFACE_API_NONE:
@@ -81,8 +82,8 @@ nu_terminate (nu_context_t *ctx, nu_allocator_t *alloc)
     }
     return NU_ERROR_NONE;
 }
-nu_bool_t
-nu_exit_requested (nu_context_t *ctx)
+nu_error_t
+nu_poll_events (nu_context_t *ctx)
 {
     switch (ctx->_info.surface_api)
     {
@@ -92,13 +93,19 @@ nu_exit_requested (nu_context_t *ctx)
 #ifdef NU_BUILD_GLFW
             if (ctx->_glfw_window)
             {
-                glfwPollEvents(); 
-                return glfwWindowShouldClose(ctx->_glfw_window);
+                glfwPollEvents();
+                ctx->_close_requested
+                    = glfwWindowShouldClose(ctx->_glfw_window);
             }
 #endif
             break;
     }
-    return NU_FALSE;
+    return NU_ERROR_NONE;
+}
+nu_bool_t
+nu_exit_requested (const nu_context_t *ctx)
+{
+    return ctx->_close_requested;
 }
 
 #endif
