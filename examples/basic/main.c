@@ -37,6 +37,8 @@ main (void)
     cursor_x = NU_INPUT(WIDTH);
     cursor_y = NU_INPUT(HEIGHT);
 
+    // Bind inputs
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
 

@@ -3,7 +3,6 @@
 
 #include <nucleus/config.h>
 #include <nucleus/types.h>
-#include <nucleus/error.h>
 #include <nucleus/allocator.h>
 #include <nucleus/surface.h>
 #include <nucleus/input.h>

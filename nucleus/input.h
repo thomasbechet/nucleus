@@ -11,8 +11,6 @@ NU_API nu_bool_t  nu_input_changed(const nu_input_t *input);
 
 #ifdef NU_IMPLEMENTATION
 
-#include <nucleus/error.h>
-
 nu_error_t
 nu_update_input (nu_context_t *ctx, nu_input_t *input)
 {

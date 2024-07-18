@@ -1,7 +1,9 @@
 #ifndef NU_CONFIG_H
 #define NU_CONFIG_H
 
-// Platform detection
+//////////////////////////////////////////////////////////////////////////
+//////                       Platform Detection                     //////
+//////////////////////////////////////////////////////////////////////////
 #if (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__) \
      || defined(_WIN32))
 #define NU_PLATFORM_WINDOWS
@@ -12,7 +14,9 @@
 #define NU_PLATFORM_APPLE
 #endif
 
-// Import standard libs
+//////////////////////////////////////////////////////////////////////////
+//////                         Error Macros                         //////
+//////////////////////////////////////////////////////////////////////////
 #ifdef NU_STDLIB
 #include <assert.h>
 #endif
@@ -23,7 +27,41 @@
 #define NU_ASSERT(x) (void)(x)
 #endif
 
-// Configure core macros per platform
+#if defined(NU_DEBUG) && defined(NU_STDLIB)
+#define NU_ASSERT(x) assert(x)
+#else
+#define NU_ASSERT(x) (void)(x)
+#endif
+
+#define _NU_S(x)      #x
+#define _NU_S_(x)     _NU_S(x)
+#define _NU_S__LINE__ _NU_S_(__LINE__)
+
+#ifdef NU_DEBUG
+#define _NU_CHECK(check, action, file, line) \
+    if (!(check))                            \
+    {                                        \
+        action;                              \
+    }
+#else
+#define _NU_CHECK(check, action, file, line) \
+    if (!(check))                            \
+    {                                        \
+        action;                              \
+    }
+#endif
+
+#define NU_CHECK(check, action) \
+    _NU_CHECK(check, action, __FILE__, _NU_S__LINE__)
+
+#define NU_ERROR_CHECK(error, action) \
+    _NU_CHECK(error == NU_ERROR_NONE, action, __FILE__, _NU_S__LINE__)
+
+#define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
+
+//////////////////////////////////////////////////////////////////////////
+//////                     Import/Export Macros                     //////
+//////////////////////////////////////////////////////////////////////////
 #if defined(NU_PLATFORM_WINDOWS)
 
 // API
@@ -55,12 +93,9 @@
 
 #define NU_API NU_API_EXPORT
 
-// C++
-#ifdef __cplusplus
-#define NU_CXX
-#endif
-
-// Select backends
+//////////////////////////////////////////////////////////////////////////
+//////                     Backends Selection                       //////
+//////////////////////////////////////////////////////////////////////////
 #if !defined(NU_NO_GLFW)
 #if defined(NU_PLATFORM_WINDOWS) || defined(NU_PLATFORM_UNIX) \
     || defined(NU_PLATFORM_APPLE)
@@ -68,10 +103,14 @@
 #endif
 #endif
 
-#define NU_UNUSED(x) (void)x
-
 #ifdef NU_BUILD_GLFW
 #include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                      Additional Macros                       //////
+//////////////////////////////////////////////////////////////////////////
+
+#define NU_UNUSED(x) (void)x
 
 #endif
