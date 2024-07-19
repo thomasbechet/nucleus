@@ -64,28 +64,24 @@
 //////////////////////////////////////////////////////////////////////////
 #if defined(NU_PLATFORM_WINDOWS)
 
-// API
 #define NU_API_EXPORT __declspec(dllexport)
 #define NU_API_IMPORT __declspec(dllimport)
-// Memory alignment
 #if defined(_MSC_VER)
 #define NU_ALIGN(X) __declspec(align(X))
 #else
 #define NU_ALIGN(X) __attribute((aligned(X)))
 #endif
+
 #elif defined(NU_PLATFORM_UNIX)
-// API
+
 #define NU_API_EXPORT __attribute__((visibility("default")))
 #define NU_API_IMPORT
-// Memory alignment
 #define NU_ALIGN(X) __attribute((aligned(X)))
 
 #else
 
-// API
 #define NU_API_EXPORT
 #define NU_API_IMPORT
-// Memory alignment
 #define NU_ALIGN(X)
 #pragma warning Unknown linkage directive import / export semantics.
 

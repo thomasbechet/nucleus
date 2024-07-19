@@ -12,6 +12,10 @@ NU_API void *nu_realloc(nu_allocator_t alloc,
                         nu_size_t      n);
 NU_API void  nu_free(nu_allocator_t alloc, void *ptr, nu_size_t s);
 
+#ifdef NU_STDLIB
+NU_API void nuext_init_stdlib_allocator(nu_allocator_t *alloc);
+#endif
+
 #ifdef NU_IMPLEMENTATION
 
 void *
@@ -34,7 +38,7 @@ nu_free (nu_allocator_t alloc, void *ptr, nu_size_t s)
     alloc.callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc.userdata);
 }
 
-#if defined(NU_STDLIB) && !defined(NU_ALLOC)
+#ifdef NU_STDLIB
 #include <stdlib.h>
 
 static void *
@@ -59,11 +63,13 @@ nu__stdlib_alloctor_callback (
     }
 }
 
-#define NU_STDLIB_ALLOCATOR                                           \
-    (nu_allocator_t)                                                  \
-    {                                                                 \
-        .callback = nu__stdlib_alloctor_callback, .userdata = NU_NULL \
-    }
+void
+nuext_init_stdlib_allocator (nu_allocator_t *alloc)
+{
+    alloc->callback = nu__stdlib_alloctor_callback;
+    alloc->userdata = NU_NULL;
+}
+
 #endif
 
 #endif

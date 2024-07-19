@@ -43,10 +43,7 @@ typedef int           nu_word_t;
 //////                          Math Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-typedef nu_int_t nu_fix_t;
-typedef nu_fix_t nu_mat3_t[9];
-typedef nu_fix_t nu_mat4_t[16];
-typedef nu_fix_t nu_quat_t[4];
+typedef nu_i32_t nu_fix_t;
 
 #define NU_FIX_FRAC  16
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -76,50 +73,23 @@ typedef struct
 //////                        Surface Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
-typedef enum
-{
-    NU_SURFACE_API_NONE,
-    NU_SURFACE_API_GLFW,
-} nu_surface_api_t;
-
-typedef struct
-{
-    nu_u32_t width;
-    nu_u32_t height;
-} nu_surface_info_t;
-
 //////////////////////////////////////////////////////////////////////////
 //////                         Input Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-typedef enum
-{
-    NU_INPUT_API_NONE,
-    NU_INPUT_API_GLFW,
-} nu_input_api_t;
+#define NU_INPUT_PRESSED       1.0f
+#define NU_INPUT_RELEASED      0.0f
+#define NU_INPUT_IS_PRESSED(x) (x > 0.5f)
 
 typedef struct
 {
-    nu_u32_t value;
-    nu_u32_t prev;
-    nu_u32_t max;
+    float _value;
+    float _previous;
 } nu_input_t;
-
-#define NU_INPUT(m)                     \
-    (nu_input_t)                        \
-    {                                   \
-        .value = 0, .prev = 0, .max = m \
-    }
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Graphics Types                         //////
 //////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-    NU_GRAPHICS_API_NONE,
-    NU_GRAPHICS_API_OPENGL,
-} nu_graphics_api_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Context Types                         //////
@@ -127,9 +97,8 @@ typedef enum
 
 typedef struct
 {
-    nu_surface_api_t  surface_api;
-    nu_input_api_t    input_api;
-    nu_graphics_api_t graphics_api;
+    nu_u32_t width;
+    nu_u32_t height;
 } nu_context_info_t;
 
 typedef struct

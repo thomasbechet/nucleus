@@ -16,26 +16,22 @@ int
 main (void)
 {
     nu_error_t error;
-    alloc = NU_STDLIB_ALLOCATOR;
+
+    // Create allocator
+    nuext_init_stdlib_allocator(&alloc);
 
     // Create context
-    nu_context_info_t cinfo = {
-        .surface_api  = NU_SURFACE_API_GLFW,
-        .input_api    = NU_INPUT_API_NONE,
-        .graphics_api = NU_GRAPHICS_API_OPENGL,
-    };
-    error = nu_init(&cinfo, &alloc, &ctx);
-    NU_ERROR_ASSERT(error);
-
-    // Create surface
-    nu_surface_info_t sinfo = { .width = WIDTH, .height = HEIGHT };
-    error                   = nu_open_surface(&ctx, &sinfo, &alloc);
+    nu_context_info_t cinfo;
+    nu_context_info_default(&cinfo);
+    cinfo.width  = WIDTH;
+    cinfo.height = HEIGHT;
+    error        = nu_init(&cinfo, &alloc, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
-    draw     = NU_INPUT(1);
-    cursor_x = NU_INPUT(WIDTH);
-    cursor_y = NU_INPUT(HEIGHT);
+    nu_init_input(&draw);
+    nu_init_input(&cursor_x);
+    nu_init_input(&cursor_y);
 
     // Bind inputs
 
