@@ -26,7 +26,7 @@ nu_init (const nu_context_info_t *info,
          nu_allocator_t          *alloc,
          nu_context_t            *ctx)
 {
-    NU_UNUSED(ctx);
+    nu_error_t error;
     NU_UNUSED(alloc);
     if (info)
     {
@@ -38,19 +38,9 @@ nu_init (const nu_context_info_t *info,
     }
     ctx->_close_requested = NU_FALSE;
 
-    // GLFW initialization
 #ifdef NU_BUILD_GLFW
-    if (!glfwInit())
-    {
-        return NU_ERROR_BACKEND;
-    }
-    ctx->_glfw_window = glfwCreateWindow(
-        ctx->_info.width, ctx->_info.height, "", NU_NULL, NU_NULL);
-    if (!ctx->_glfw_window)
-    {
-        return NU_ERROR_BACKEND;
-    }
-    glfwMakeContextCurrent(ctx->_glfw_window);
+    error = nuglfw__init(ctx, &ctx->_info);
+    NU_ERROR_CHECK(error, return error);
 #endif
 
     return NU_ERROR_NONE;
@@ -58,10 +48,9 @@ nu_init (const nu_context_info_t *info,
 nu_error_t
 nu_terminate (nu_context_t *ctx, nu_allocator_t *alloc)
 {
-    NU_UNUSED(ctx);
     NU_UNUSED(alloc);
 #ifdef NU_BUILD_GLFW
-    glfwTerminate();
+    nuglfw__terminate(&ctx->_glfw);
 #endif
     return NU_ERROR_NONE;
 }
@@ -69,11 +58,7 @@ nu_error_t
 nu_poll_events (nu_context_t *ctx)
 {
 #ifdef NU_BUILD_GLFW
-    if (ctx->_glfw_window)
-    {
-        glfwPollEvents();
-        ctx->_close_requested = glfwWindowShouldClose(ctx->_glfw_window);
-    }
+    nuglfw__poll_events(ctx);
 #endif
     return NU_ERROR_NONE;
 }

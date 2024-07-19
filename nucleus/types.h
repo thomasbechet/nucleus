@@ -95,6 +95,13 @@ typedef struct
 //////                        Context Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef NU_BUILD_GLFW
+typedef struct
+{
+    GLFWwindow *win;
+} nu__glfw_backend_t;
+#endif
+
 typedef struct
 {
     nu_u32_t width;
@@ -106,7 +113,7 @@ typedef struct
     nu_context_info_t _info;
     nu_bool_t         _close_requested;
 #ifdef NU_BUILD_GLFW
-    GLFWwindow *_glfw_window;
+    nu__glfw_backend_t _glfw;
 #endif
 } nu_context_t;
 

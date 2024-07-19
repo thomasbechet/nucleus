@@ -11,10 +11,7 @@ nu_error_t
 nu_swap_buffers (nu_context_t *ctx)
 {
 #ifdef NU_BUILD_GLFW
-    if (ctx->_glfw_window)
-    {
-        glfwSwapBuffers(ctx->_glfw_window);
-    }
+    nuglfw__swap_buffers(ctx);
 #endif
     return NU_ERROR_NONE;
 }
