@@ -1,5 +1,5 @@
-#ifndef NU_ALLOCATOR_H
-#define NU_ALLOCATOR_H
+#ifndef NU_MEMORY_H
+#define NU_MEMORY_H
 
 #include <nucleus/types.h>
 
