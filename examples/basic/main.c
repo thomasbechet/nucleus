@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
@@ -11,6 +12,7 @@ static nu_context_t   ctx;
 static nu_input_t draw;
 static nu_input_t cursor_x;
 static nu_input_t cursor_y;
+static nu_input_t quit;
 
 int
 main (void)
@@ -32,24 +34,43 @@ main (void)
     nu_init_input(&draw);
     nu_init_input(&cursor_x);
     nu_init_input(&cursor_y);
+    nu_init_input(&quit);
 
     // Bind inputs
+    error = nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_W);
+    NU_ERROR_ASSERT(error);
+    nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_MOUSE_LEFT);
+    NU_ERROR_ASSERT(error);
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
+    nu_bool_t running = NU_TRUE;
 
-    while (!nu_exit_requested(&ctx))
+    while (!nu_exit_requested(&ctx) && running)
     {
         // Poll events
         nu_poll_events(&ctx);
 
         // Update inputs
         nu_update_inputs(
-            &ctx, (nu_input_t *[]) { &draw, &cursor_x, &cursor_y }, 3);
+            &ctx, (nu_input_t *[]) { &draw, &cursor_x, &cursor_y, &quit }, 4);
 
         // Detect drawing
         if (nu_input_changed(&cursor_x) || nu_input_changed(&cursor_y))
         {
+        }
+
+        if (nu_input_pressed(&quit))
+        {
+            printf("pressed\n");
+        }
+        if (nu_input_just_pressed(&quit))
+        {
+            printf("just pressed\n");
+        }
+        if (nu_input_just_released(&quit))
+        {
+            printf("just released\n");
         }
 
         // Draw pixels

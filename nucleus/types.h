@@ -12,6 +12,8 @@ typedef enum
     NU_ERROR_NONE            = 0,
     NU_ERROR_UNSUPPORTED_API = 1,
     NU_ERROR_BACKEND         = 2,
+    NU_ERROR_DUPLICATED      = 3,
+    NU_ERROR_OUT_OF_RESOURCE = 4,
 } nu_error_t;
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,7 +58,7 @@ typedef nu_i32_t nu_fix_t;
 #define NU_MAT4_SIZE 16
 
 //////////////////////////////////////////////////////////////////////////
-//////                       Allocator Types                        //////
+//////                        Memory Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
 typedef struct
@@ -85,7 +87,93 @@ typedef struct
 {
     float _value;
     float _previous;
+#ifdef NU_BUILD_GLFW
+    nu_u32_t _glfwid;
+#endif
 } nu_input_t;
+
+typedef enum
+{
+    // Keys
+    NUEXT_BUTTON_A = 0,
+    NUEXT_BUTTON_B = 1,
+    NUEXT_BUTTON_C = 2,
+    NUEXT_BUTTON_D = 3,
+    NUEXT_BUTTON_E = 4,
+    NUEXT_BUTTON_F = 5,
+    NUEXT_BUTTON_G = 6,
+    NUEXT_BUTTON_H = 7,
+    NUEXT_BUTTON_I = 8,
+    NUEXT_BUTTON_J = 9,
+    NUEXT_BUTTON_K = 10,
+    NUEXT_BUTTON_L = 11,
+    NUEXT_BUTTON_M = 12,
+    NUEXT_BUTTON_N = 13,
+    NUEXT_BUTTON_O = 14,
+    NUEXT_BUTTON_P = 15,
+    NUEXT_BUTTON_Q = 16,
+    NUEXT_BUTTON_R = 17,
+    NUEXT_BUTTON_S = 18,
+    NUEXT_BUTTON_T = 19,
+    NUEXT_BUTTON_U = 20,
+    NUEXT_BUTTON_V = 21,
+    NUEXT_BUTTON_W = 22,
+    NUEXT_BUTTON_X = 23,
+    NUEXT_BUTTON_Y = 24,
+    NUEXT_BUTTON_Z = 25,
+
+    NUEXT_BUTTON_F1  = 26,
+    NUEXT_BUTTON_F2  = 27,
+    NUEXT_BUTTON_F3  = 28,
+    NUEXT_BUTTON_F4  = 29,
+    NUEXT_BUTTON_F5  = 30,
+    NUEXT_BUTTON_F6  = 31,
+    NUEXT_BUTTON_F7  = 32,
+    NUEXT_BUTTON_F8  = 33,
+    NUEXT_BUTTON_F9  = 34,
+    NUEXT_BUTTON_F10 = 35,
+    NUEXT_BUTTON_F11 = 36,
+    NUEXT_BUTTON_F12 = 37,
+
+    NUEXT_BUTTON_0 = 38,
+    NUEXT_BUTTON_1 = 39,
+    NUEXT_BUTTON_2 = 40,
+    NUEXT_BUTTON_3 = 41,
+    NUEXT_BUTTON_4 = 42,
+    NUEXT_BUTTON_5 = 43,
+    NUEXT_BUTTON_6 = 44,
+    NUEXT_BUTTON_7 = 45,
+    NUEXT_BUTTON_8 = 46,
+    NUEXT_BUTTON_9 = 47,
+
+    NUEXT_BUTTON_ESCAPE       = 48,
+    NUEXT_BUTTON_SPACE        = 49,
+    NUEXT_BUTTON_ENTER        = 50,
+    NUEXT_BUTTON_TAB          = 51,
+    NUEXT_BUTTON_BACKSPACE    = 52,
+    NUEXT_BUTTON_LEFT_SHIFT   = 53,
+    NUEXT_BUTTON_LEFT_CONTROL = 54,
+    NUEXT_BUTTON_LEFT         = 55,
+    NUEXT_BUTTON_RIGHT        = 56,
+    NUEXT_BUTTON_UP           = 57,
+    NUEXT_BUTTON_DOWN         = 58,
+
+    // Mouse
+    NUEXT_BUTTON_MOUSE_LEFT   = 59,
+    NUEXT_BUTTON_MOUSE_RIGHT  = 60,
+    NUEXT_BUTTON_MOUSE_MIDDLE = 61,
+    NUEXT_BUTTON_MOUSE_1      = 62,
+    NUEXT_BUTTON_MOUSE_2      = 63,
+    NUEXT_BUTTON_MOUSE_3      = 64,
+    NUEXT_BUTTON_MOUSE_4      = 65,
+    NUEXT_BUTTON_MOUSE_5      = 66,
+} nuext_button_t;
+
+typedef enum
+{
+    NUEXT_AXIS_MOUSE_X,
+    NUEXT_AXIS_MOUSE_Y,
+} nuext_axis_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Graphics Types                         //////
@@ -96,10 +184,33 @@ typedef struct
 //////////////////////////////////////////////////////////////////////////
 
 #ifdef NU_BUILD_GLFW
+
+#define NUGLFW_ID_NONE     0xFFFFFFFF
+#define NUGLFW_MAX_BINDING 128
+#define NUGLFW_MAX_INPUT   128
+
 typedef struct
 {
-    GLFWwindow *win;
-} nu__glfw_backend_t;
+    nu_u32_t id;
+    nu_u32_t next;
+} nuglfw__binding_t;
+
+typedef union
+{
+    float    value;
+    nu_u32_t free;
+} nuglfw__input_t;
+
+typedef struct
+{
+    GLFWwindow       *win;
+    nu_u32_t          free_binding;
+    nu_u32_t          free_input;
+    nuglfw__binding_t bindings[NUGLFW_MAX_BINDING];
+    nuglfw__input_t   inputs[NUGLFW_MAX_INPUT];
+    nu_u32_t          key_to_first_binding[GLFW_KEY_LAST];
+    nu_u32_t          mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
+} nuglfw__backend_t;
 #endif
 
 typedef struct
@@ -113,7 +224,7 @@ typedef struct
     nu_context_info_t _info;
     nu_bool_t         _close_requested;
 #ifdef NU_BUILD_GLFW
-    nu__glfw_backend_t _glfw;
+    nuglfw__backend_t _glfw;
 #endif
 } nu_context_t;
 

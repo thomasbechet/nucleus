@@ -40,7 +40,10 @@ enable_c_compiler_flag_if_supported("-Wstrict-prototypes")
 enable_c_compiler_flag_if_supported("-fstrict-aliasing")
 enable_c_compiler_flag_if_supported("-Wstrict-aliasing=3")
 # Temporary to remove unused lua functions
-# enable_c_compiler_flag_if_supported("-Wno-unused-function")
 # enable_c_compiler_flag_if_supported("-Os")
 # enable_c_compiler_flag_if_supported("-O0")
 # enable_c_compiler_flag_if_supported("-g")
+
+enable_c_compiler_flag_if_supported("-Wno-unused-function")
+enable_c_compiler_flag_if_supported("-Wno-unused-parameter")
+enable_c_compiler_flag_if_supported("-Wno-unused-variable")
