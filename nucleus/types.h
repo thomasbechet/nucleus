@@ -3,6 +3,10 @@
 
 #include <nucleus/config.h>
 
+#ifdef NU_BUILD_GLFW
+#include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 //////                          Error Types                         //////
 //////////////////////////////////////////////////////////////////////////
@@ -210,6 +214,10 @@ typedef struct
     nuglfw__input_t   inputs[NUGLFW_MAX_INPUT];
     nu_u32_t          key_to_first_binding[GLFW_KEY_LAST];
     nu_u32_t          mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
+    float             mouse_position[NU_VEC2_SIZE];
+    float             mouse_old_position[NU_VEC2_SIZE];
+    float             mouse_scroll[NU_VEC2_SIZE];
+    float             mouse_motion[NU_VEC2_SIZE];
 } nuglfw__backend_t;
 #endif
 

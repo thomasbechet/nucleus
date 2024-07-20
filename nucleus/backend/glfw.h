@@ -149,6 +149,8 @@ static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
     nuglfw__backend_t *backend = glfwGetWindowUserPointer(window);
+    backend->mouse_position[0] = (float)xpos;
+    backend->mouse_position[1] = (float)ypos;
 }
 static void
 nuglfw__character_callback (GLFWwindow *window, int codepoint)
@@ -161,6 +163,8 @@ nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      yoffset)
 {
     nuglfw__backend_t *backend = glfwGetWindowUserPointer(window);
+    backend->mouse_scroll[0]   = (float)xoffset;
+    backend->mouse_scroll[1]   = (float)yoffset;
 }
 
 static nu_error_t
@@ -182,12 +186,28 @@ nuglfw__init (nu_context_t *ctx, const nu_context_info_t *info)
         return NU_ERROR_BACKEND;
     }
 
+    // Setup default cursor mode
+    if (glfwRawMouseMotionSupported())
+    {
+        glfwSetInputMode(ctx->_glfw.win, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
     // Bind callbacks
     glfwSetWindowUserPointer(ctx->_glfw.win,
                              &ctx->_glfw); // TODO: ctx struct might be moved
     glfwMakeContextCurrent(ctx->_glfw.win);
+
     glfwSetKeyCallback(ctx->_glfw.win, nuglfw__key_callback);
     glfwSetMouseButtonCallback(ctx->_glfw.win, nuglfw__mouse_button_callback);
+    glfwSetCursorPosCallback(ctx->_glfw.win, nuglfw__cursor_position_callback);
+    glfwSetScrollCallback(ctx->_glfw.win, nuglfw__mouse_scroll_callback);
+
+    // Get initial mouse position
+    double xpos, ypos;
+    glfwGetCursorPos(ctx->_glfw.win, &xpos, &ypos);
+    ctx->_glfw.mouse_position[0] = (float)xpos;
+    ctx->_glfw.mouse_position[1] = (float)ypos;
+    nu_vec2_copy(ctx->_glfw.mouse_position, ctx->_glfw.mouse_old_position);
 
     // Initialize inputs
     ctx->_glfw.free_input   = 0;
@@ -227,8 +247,17 @@ nuglfw__poll_events (nu_context_t *ctx)
 {
     if (ctx->_glfw.win)
     {
+        // Reset mouse scroll
+        nu_vec2_zero(ctx->_glfw.mouse_scroll);
+        // Poll events
         glfwPollEvents();
+        // Check close requested
         ctx->_close_requested = glfwWindowShouldClose(ctx->_glfw.win);
+        // Update mouse motion
+        nu_vec2_sub(ctx->_glfw.mouse_position,
+                    ctx->_glfw.mouse_old_position,
+                    ctx->_glfw.mouse_motion);
+        nu_vec2_copy(ctx->_glfw.mouse_position, ctx->_glfw.mouse_old_position);
     }
     return NU_ERROR_NONE;
 }
@@ -266,7 +295,7 @@ nuglfw__bind_button (nu_context_t  *ctx,
     // Insert input if needed
     if (input->_glfwid == NUGLFW_ID_NONE)
     {
-        input->_glfwid        = ctx->_glfw.free_input;
+        input->_glfwid = ctx->_glfw.free_input;
         if (input->_glfwid == NUGLFW_ID_NONE)
         {
             return NU_ERROR_OUT_OF_RESOURCE;

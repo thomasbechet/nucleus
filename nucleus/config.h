@@ -102,13 +102,11 @@
 #if !defined(NU_NO_GLFW)
 #if defined(NU_PLATFORM_WINDOWS) || defined(NU_PLATFORM_UNIX) \
     || defined(NU_PLATFORM_APPLE)
+#ifndef NU_BUILD_GLFW
 #define NU_BUILD_GLFW
 #endif
 #endif
-
-#ifdef NU_BUILD_GLFW
-#include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
-#include <nucleus/backend/glfw.h>
 #endif
+
 
 #endif

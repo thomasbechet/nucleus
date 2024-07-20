@@ -37,9 +37,11 @@ main (void)
     nu_init_input(&quit);
 
     // Bind inputs
-    error = nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_W);
+    error = nuext_bind_button(&ctx, &draw, NUEXT_BUTTON_W);
     NU_ERROR_ASSERT(error);
-    nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_MOUSE_LEFT);
+    error = nuext_bind_button(&ctx, &draw, NUEXT_BUTTON_MOUSE_LEFT);
+    NU_ERROR_ASSERT(error);
+    error = nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_ESCAPE);
     NU_ERROR_ASSERT(error);
 
     // Main loop
@@ -60,17 +62,22 @@ main (void)
         {
         }
 
-        if (nu_input_pressed(&quit))
+        if (nu_input_pressed(&draw))
         {
             printf("pressed\n");
         }
-        if (nu_input_just_pressed(&quit))
+        if (nu_input_just_pressed(&draw))
         {
             printf("just pressed\n");
         }
-        if (nu_input_just_released(&quit))
+        if (nu_input_just_released(&draw))
         {
             printf("just released\n");
+        }
+
+        if (nu_input_just_pressed(&quit))
+        {
+            running = NU_FALSE;
         }
 
         // Draw pixels

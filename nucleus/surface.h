@@ -3,6 +3,10 @@
 
 #include <nucleus/types.h>
 
+#ifdef NU_BUILD_GLFW
+#include <nucleus/backend/glfw.h>
+#endif
+
 NU_API nu_error_t nu_swap_buffers(nu_context_t *ctx);
 
 #ifdef NU_IMPLEMENTATION
