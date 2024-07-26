@@ -4,6 +4,9 @@
 #include <nucleus/config.h>
 
 #ifdef NU_BUILD_GLFW
+#define GLFW_INCLUDE_NONE
+#define GLAD_GL_IMPLEMENTATION
+#include <nucleus/external/glad/gl.h>
 #include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
 #endif
 
@@ -256,6 +259,7 @@ typedef enum
 
 typedef struct
 {
+    nu_error_t (*init)(void *ctx);
     nu_error_t (*clear)(void);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,

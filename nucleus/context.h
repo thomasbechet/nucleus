@@ -79,7 +79,7 @@ nu_poll_events (nu_context_t *ctx)
 {
 #ifdef NU_BUILD_GLFW
     nuglfw__poll_events(
-        &ctx->_glfw_surface, &ctx->_glfw_input, &ctx->_close_requested);
+        &ctx->_glfw_input, &ctx->_glfw_surface, &ctx->_close_requested);
 #endif
     return NU_ERROR_NONE;
 }

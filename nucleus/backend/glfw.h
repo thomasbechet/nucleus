@@ -1,7 +1,6 @@
 #ifndef NUGLFW_BACKEND_H
 #define NUGLFW_BACKEND_H
 
-#include <nucleus/types.h>
 #include <nucleus/math.h>
 
 #if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_GLFW)
@@ -124,7 +123,7 @@ nuglfw__update_viewport (nuglfw__viewport_t *v)
 
     float aspect_ratio = (float)v->screen[0] / (float)v->screen[1];
 
-    float size[NU_VEC2];
+    float size[NU_VEC2] = { 0 };
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
@@ -261,7 +260,7 @@ nuglfw__init (nu_context_t *ctx)
     }
 
     // Create window
-    surface->win = glfwCreateWindow(size[0], size[1], "", NU_NULL, NU_NULL);
+    surface->win = glfwCreateWindow(size[0], size[1], "nucleus", NU_NULL, NU_NULL);
     if (!surface->win)
     {
         return NU_ERROR_BACKEND;
@@ -291,6 +290,12 @@ nuglfw__init (nu_context_t *ctx)
     glfwSetCursorPosCallback(surface->win, nuglfw__cursor_position_callback);
     glfwSetScrollCallback(surface->win, nuglfw__mouse_scroll_callback);
     glfwSetWindowSizeCallback(surface->win, nuglfw__window_size_callback);
+
+    // Glad initialization
+    if (!gladLoadGL(glfwGetProcAddress))
+    {
+        return NU_ERROR_BACKEND;
+    }
 
     // Get initial mouse position
     double xpos, ypos;
@@ -333,8 +338,8 @@ nuglfw__terminate (void)
 }
 
 static nu_error_t
-nuglfw__poll_events (nuglfw__surface_t *surface,
-                     nuglfw__input_t   *ctx,
+nuglfw__poll_events (nuglfw__input_t   *ctx,
+                     nuglfw__surface_t *surface,
                      nu_bool_t         *close_requested)
 {
     if (surface->win)

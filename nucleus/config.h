@@ -109,7 +109,9 @@
 #endif
 
 #ifdef NU_BUILD_GLFW
+#ifndef NU_BUILD_RENDERER_GL
 #define NU_BUILD_RENDERER_GL
+#endif
 #endif
 
 #endif
