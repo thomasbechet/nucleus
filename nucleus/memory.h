@@ -12,6 +12,10 @@ NU_API void *nu_realloc(nu_allocator_t alloc,
                         nu_size_t      n);
 NU_API void  nu_free(nu_allocator_t alloc, void *ptr, nu_size_t s);
 
+NU_API void *nu_memset(void *dst, nu_word_t c, nu_size_t n);
+NU_API void  nu_memcpy(void *dst, const void *src, nu_size_t n);
+NU_API void *nu_memalign(void *ptr, nu_size_t align);
+
 #ifdef NU_STDLIB
 NU_API void nuext_init_stdlib_allocator(nu_allocator_t *alloc);
 #endif
@@ -71,6 +75,40 @@ nuext_init_stdlib_allocator (nu_allocator_t *alloc)
 }
 
 #endif
+
+void *
+nu_memset (void *dst, nu_word_t c, nu_size_t n)
+{
+    if (n != 0)
+    {
+        unsigned char *d = dst;
+        do
+        {
+            *d++ = (unsigned char)c;
+        } while (--n != 0);
+    }
+    return (dst);
+}
+
+void
+nu_memcpy (void *dst, const void *src, nu_size_t n)
+{
+    nu_size_t      i;
+    nu_u8_t       *u8_dst = dst;
+    const nu_u8_t *u8_src = src;
+
+    for (i = 0; i < n; ++i)
+    {
+        u8_dst[i] = u8_src[i];
+    }
+}
+
+void *
+nu_memalign (void *ptr, nu_size_t align)
+{
+    NU_ASSERT(align > 0);
+    return (void *)(((nu_size_t)ptr + align - 1) & ~(align - 1));
+}
 
 #endif
 

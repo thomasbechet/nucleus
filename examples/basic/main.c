@@ -25,9 +25,10 @@ main (void)
     // Create context
     nu_context_info_t cinfo;
     nu_context_info_default(&cinfo);
-    cinfo.width  = WIDTH;
-    cinfo.height = HEIGHT;
-    error        = nu_init(&cinfo, &alloc, &ctx);
+    cinfo.width    = WIDTH;
+    cinfo.height   = HEIGHT;
+    cinfo.renderer = NU_RENDERER_GL;
+    error          = nu_init(&cinfo, &alloc, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
@@ -82,6 +83,9 @@ main (void)
 
         // Draw pixels
         (void)drawing;
+
+        nu_clear(&ctx);
+        nu_render(&ctx);
 
         // Refresh surface
         nu_swap_buffers(&ctx);

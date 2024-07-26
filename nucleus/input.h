@@ -24,6 +24,10 @@ NU_API nu_error_t nuext_bind_axis(nu_context_t *ctx,
 
 #ifdef NU_IMPLEMENTATION
 
+#ifdef NU_BUILD_GLFW
+#include <nucleus/backend/glfw.h>
+#endif
+
 void
 nu_init_input (nu_input_t *input)
 {
@@ -39,7 +43,7 @@ nu_update_input (nu_context_t *ctx, nu_input_t *input)
     NU_UNUSED(ctx);
     input->_previous = input->_value;
 #ifdef NU_BUILD_GLFW
-    nuglfw__update_input(ctx, input);
+    nuglfw__update_input(&ctx->_glfw_input, input);
 #endif
     return NU_ERROR_NONE;
 }
@@ -90,7 +94,7 @@ nu_error_t
 nuext_bind_button (nu_context_t *ctx, nu_input_t *input, nuext_button_t button)
 {
 #ifdef NU_BUILD_GLFW
-    return nuglfw__bind_button(ctx, input, button);
+    return nuglfw__bind_button(&ctx->_glfw_input, input, button);
 #endif
     return NU_ERROR_NONE;
 }

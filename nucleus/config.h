@@ -108,5 +108,8 @@
 #endif
 #endif
 
+#ifdef NU_BUILD_GLFW
+#define NU_BUILD_RENDERER_GL
+#endif
 
 #endif

@@ -49,17 +49,14 @@ typedef int           nu_word_t;
 //////                          Math Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-typedef nu_i32_t nu_fix_t;
-
-#define NU_FIX_FRAC  16
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define NU_VEC2_SIZE 3
-#define NU_VEC3_SIZE 3
-#define NU_VEC4_SIZE 4
-#define NU_MAT3_SIZE 9
-#define NU_MAT4_SIZE 16
+#define NU_VEC2 2
+#define NU_VEC3 3
+#define NU_VEC4 4
+#define NU_MAT3 9
+#define NU_MAT4 16
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Memory Types                          //////
@@ -78,6 +75,37 @@ typedef struct
 //////////////////////////////////////////////////////////////////////////
 //////                        Surface Types                         //////
 //////////////////////////////////////////////////////////////////////////
+
+#ifdef NU_BUILD_GLFW
+
+#define NUGLFW_ID_NONE     0xFFFFFFFF
+#define NUGLFW_MAX_BINDING 128
+#define NUGLFW_MAX_INPUT   128
+
+typedef enum
+{
+    NUEXT_VIEWPORT_FIXED,
+    NUEXT_VIEWPORT_FIXED_BEST_FIT,
+    NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT,
+    NUEXT_VIEWPORT_STRETCH,
+} nuext_viewport_mode_t;
+
+typedef struct
+{
+    nuext_viewport_mode_t mode;
+    float                 scale_factor;
+    nu_i32_t              screen[NU_VEC2];
+    nu_i32_t              extent[NU_VEC4];
+    float                 viewport[NU_VEC4];
+} nuglfw__viewport_t;
+
+typedef struct
+{
+    GLFWwindow        *win;
+    nuglfw__viewport_t viewport;
+} nuglfw__surface_t;
+
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 //////                         Input Types                          //////
@@ -179,19 +207,7 @@ typedef enum
     NUEXT_AXIS_MOUSE_Y,
 } nuext_axis_t;
 
-//////////////////////////////////////////////////////////////////////////
-//////                       Graphics Types                         //////
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-//////                        Context Types                         //////
-//////////////////////////////////////////////////////////////////////////
-
 #ifdef NU_BUILD_GLFW
-
-#define NUGLFW_ID_NONE     0xFFFFFFFF
-#define NUGLFW_MAX_BINDING 128
-#define NUGLFW_MAX_INPUT   128
 
 typedef struct
 {
@@ -203,37 +219,88 @@ typedef union
 {
     float    value;
     nu_u32_t free;
+} nuglfw__input_data_t;
+
+typedef struct
+{
+    nu_u32_t             free_binding;
+    nu_u32_t             free_input;
+    nuglfw__binding_t    bindings[NUGLFW_MAX_BINDING];
+    nuglfw__input_data_t inputs[NUGLFW_MAX_INPUT];
+    nu_u32_t             key_to_first_binding[GLFW_KEY_LAST];
+    nu_u32_t             mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
+    float                mouse_position[NU_VEC2];
+    float                mouse_old_position[NU_VEC2];
+    float                mouse_scroll[NU_VEC2];
+    float                mouse_motion[NU_VEC2];
 } nuglfw__input_t;
 
-typedef struct
-{
-    GLFWwindow       *win;
-    nu_u32_t          free_binding;
-    nu_u32_t          free_input;
-    nuglfw__binding_t bindings[NUGLFW_MAX_BINDING];
-    nuglfw__input_t   inputs[NUGLFW_MAX_INPUT];
-    nu_u32_t          key_to_first_binding[GLFW_KEY_LAST];
-    nu_u32_t          mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
-    float             mouse_position[NU_VEC2_SIZE];
-    float             mouse_old_position[NU_VEC2_SIZE];
-    float             mouse_scroll[NU_VEC2_SIZE];
-    float             mouse_motion[NU_VEC2_SIZE];
-} nuglfw__backend_t;
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                       Renderer Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    NU_RENDERER_NULL,
+    NU_RENDERER_GL,
+    NU_RENDERER_DX11,
+    NU_RENDERER_SOFTRAST,
+} nu_renderer_backend_t;
 
 typedef struct
 {
-    nu_u32_t width;
-    nu_u32_t height;
+    nu_error_t (*clear)(void);
+    nu_error_t (*render)(void           *ctx,
+                         const nu_int_t *global_viewport,
+                         const float    *viewport);
+} nu_renderer_api_t;
+
+#ifdef NU_BUILD_RENDERER_GL
+
+typedef struct
+{
+    int temp;
+} nugl__context_t;
+
+#endif
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__context_t gl;
+#endif
+} nu__renderer_context_t;
+
+typedef struct
+{
+    nu_renderer_api_t      api;
+    void                  *ctx;
+    nu__renderer_context_t ctx_data;
+} nu__renderer_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                        Context Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_u32_t              width;
+    nu_u32_t              height;
+    nu_renderer_backend_t renderer;
 } nu_context_info_t;
 
 typedef struct
 {
-    nu_context_info_t _info;
-    nu_bool_t         _close_requested;
+    nu_i32_t              _surface_size[NU_VEC2];
+    nu_renderer_backend_t _renderer_backend;
+    nu_bool_t             _close_requested;
 #ifdef NU_BUILD_GLFW
-    nuglfw__backend_t _glfw;
+    nuglfw__surface_t _glfw_surface;
+    nuglfw__input_t   _glfw_input;
 #endif
+    nu__renderer_t _renderer;
 } nu_context_t;
 
 #endif
