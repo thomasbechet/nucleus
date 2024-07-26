@@ -117,8 +117,12 @@ typedef struct
 
 typedef struct
 {
-    float _value;
-    float _previous;
+    float value;
+    float previous;
+} nu__input_state_t;
+
+typedef struct
+{
 #ifdef NU_BUILD_GLFW
     nu_u32_t _glfwid;
 #endif
@@ -217,22 +221,23 @@ typedef struct
 
 typedef union
 {
-    float    value;
-    nu_u32_t free;
-} nuglfw__input_data_t;
+    nu__input_state_t state;
+    nu_u32_t          free;
+} nuglfw__input_state_t;
 
 typedef struct
 {
-    nu_u32_t             free_binding;
-    nu_u32_t             free_input;
-    nuglfw__binding_t    bindings[NUGLFW_MAX_BINDING];
-    nuglfw__input_data_t inputs[NUGLFW_MAX_INPUT];
-    nu_u32_t             key_to_first_binding[GLFW_KEY_LAST];
-    nu_u32_t             mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
-    float                mouse_position[NU_VEC2];
-    float                mouse_old_position[NU_VEC2];
-    float                mouse_scroll[NU_VEC2];
-    float                mouse_motion[NU_VEC2];
+    nu_u32_t              free_binding;
+    nu_u32_t              free_input;
+    nuglfw__binding_t     bindings[NUGLFW_MAX_BINDING];
+    nuglfw__input_state_t inputs[NUGLFW_MAX_INPUT];
+    nu_u32_t              input_count;
+    nu_u32_t              key_to_first_binding[GLFW_KEY_LAST];
+    nu_u32_t              mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
+    float                 mouse_position[NU_VEC2];
+    float                 mouse_old_position[NU_VEC2];
+    float                 mouse_scroll[NU_VEC2];
+    float                 mouse_motion[NU_VEC2];
 } nuglfw__input_t;
 
 #endif

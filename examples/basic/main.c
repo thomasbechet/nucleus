@@ -32,10 +32,14 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
-    nu_init_input(&draw);
-    nu_init_input(&cursor_x);
-    nu_init_input(&cursor_y);
-    nu_init_input(&quit);
+    error = nu_create_input(&ctx, &draw);
+    NU_ERROR_ASSERT(error);
+    error = nu_create_input(&ctx, &cursor_x);
+    NU_ERROR_ASSERT(error);
+    error = nu_create_input(&ctx, &cursor_y);
+    NU_ERROR_ASSERT(error);
+    error = nu_create_input(&ctx, &quit);
+    NU_ERROR_ASSERT(error);
 
     // Bind inputs
     error = nuext_bind_button(&ctx, &draw, NUEXT_BUTTON_W);
@@ -54,29 +58,26 @@ main (void)
         // Poll events
         nu_poll_events(&ctx);
 
-        // Update inputs
-        nu_update_inputs(
-            &ctx, (nu_input_t *[]) { &draw, &cursor_x, &cursor_y, &quit }, 4);
-
         // Detect drawing
-        if (nu_input_changed(&cursor_x) || nu_input_changed(&cursor_y))
+        if (nu_input_changed(&ctx, &cursor_x)
+            || nu_input_changed(&ctx, &cursor_y))
         {
         }
 
-        if (nu_input_pressed(&draw))
+        if (nu_input_pressed(&ctx, &draw))
         {
             printf("pressed\n");
         }
-        if (nu_input_just_pressed(&draw))
+        if (nu_input_just_pressed(&ctx, &draw))
         {
             printf("just pressed\n");
         }
-        if (nu_input_just_released(&draw))
+        if (nu_input_just_released(&ctx, &draw))
         {
             printf("just released\n");
         }
 
-        if (nu_input_just_pressed(&quit))
+        if (nu_input_just_pressed(&ctx, &quit))
         {
             running = NU_FALSE;
         }
