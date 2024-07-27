@@ -373,7 +373,6 @@ typedef union
 typedef struct
 {
     nu_error_t (*init)(void *ctx, const nu_int_t size[NU_VEC2]);
-    nu_error_t (*clear)(void);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,
                          const float    *viewport);

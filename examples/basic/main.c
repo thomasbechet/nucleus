@@ -101,8 +101,6 @@ main (void)
         // Draw pixels
         (void)drawing;
 
-        nu_clear(&ctx);
-
         // Refresh surface
         nu_render(&ctx);
     }

@@ -4,14 +4,26 @@
 static const nu_char_t *nugl__shader_blit_frag = 
 "#version 330 core\n"
 "\n"
-"out vec4 color;\n"
+"out vec4 out_color;\n"
 "in vec2 uv;\n"
 "\n"
 "uniform sampler2D t_surface;\n"
 "\n"
+"vec2 uv_filtering(in vec2 uv, in vec2 texture_size)\n"
+"{\n"
+"    vec2 pixel = uv * texture_size;\n"
+"    vec2 seam = floor(pixel + 0.5);\n"
+"    vec2 dudv = fwidth(pixel);\n"
+"    vec2 rel = (pixel - seam) / dudv;\n"
+"    vec2 mid_pix = vec2(0.5);\n"
+"    pixel = seam + clamp(rel, -mid_pix, mid_pix);\n"
+"    return pixel / texture_size;\n"
+"}\n"
+"\n"
 "void main()\n"
 "{\n"
-"    color = texture(t_surface, uv);\n"
+"    // vec2 uv = uv_filtering(in_uv, textureSize(t_surface, 0));\n"
+"    out_color = texture(t_surface, uv);\n"
 "}\n"
 ;
 static const nu_char_t *nugl__shader_blit_vert = 
@@ -33,11 +45,12 @@ static const nu_char_t *nugl__shader_blit_vert =
 static const nu_char_t *nugl__shader_flat_frag = 
 "#version 330 core\n"
 "\n"
+"in vec2 uv;\n"
 "out vec4 color;\n"
 "\n"
 "void main()\n"
 "{\n"
-"    color = vec4(1, 0, 0, 1);\n"
+"    color = vec4(uv, 0, 1);\n"
 "}\n"
 ;
 static const nu_char_t *nugl__shader_flat_vert = 
@@ -54,6 +67,7 @@ static const nu_char_t *nugl__shader_flat_vert =
 "\n"
 "void main()\n"
 "{\n"
+"    uv = in_uv;\n"
 "    gl_Position = projection * view * model * vec4(in_position, 1.0);\n"
 "}\n"
 ;

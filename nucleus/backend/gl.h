@@ -25,6 +25,12 @@ nugl__compile_shader (nugl__context_t *ctx,
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
+        GLint max_length = 0;
+        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
+        char *log = malloc(sizeof(char) * max_length);
+        glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
+        fprintf(stderr, "%s\n", log);
+
         glDeleteShader(vertex_shader);
         return NU_ERROR_SHADER_COMPILATION;
     }
@@ -35,6 +41,12 @@ nugl__compile_shader (nugl__context_t *ctx,
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
+        GLint max_length = 0;
+        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
+        char *log = malloc(sizeof(char) * max_length);
+        glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
+        fprintf(stderr, "%s\n", log);
+
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
         return NU_ERROR_SHADER_COMPILATION;
@@ -170,14 +182,12 @@ nugl__render (void          *ctx,
     GLuint projectionId = glGetUniformLocation(gl->flat_program, "projection");
     glUniformMatrix4fv(projectionId, 1, GL_FALSE, projection);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBindVertexArray(gl->mesh->vao);
     glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);
     glBindVertexArray(0);
 
     // Blit surface
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);

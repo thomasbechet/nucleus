@@ -3,8 +3,6 @@
 
 #include <nucleus/types.h>
 
-NU_API void nu_clear(nu_context_t *ctx);
-
 NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
                                        const nu_renderpass_info_t *info,
                                        nu_renderpass_t            *renderpass);
@@ -32,8 +30,12 @@ nu__renderer_null_init (void *ctx, const nu_int_t size[NU_VEC2])
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_clear (void)
+nu__renderer_null_render (void           *ctx,
+                          const nu_int_t *global_viewport,
+                          const float    *viewport)
 {
+    NU_UNUSED(ctx);
+    NU_UNUSED(viewport);
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -48,15 +50,6 @@ nu__renderer_null_delete_mesh (void *ctx, nu_mesh_t *mesh)
 {
     return NU_NULL;
 }
-static nu_error_t
-nu__renderer_null_render (void           *ctx,
-                          const nu_int_t *global_viewport,
-                          const float    *viewport)
-{
-    NU_UNUSED(ctx);
-    NU_UNUSED(viewport);
-    return NU_ERROR_NONE;
-}
 
 static nu_error_t
 nu__init_renderer (nu_context_t *ctx)
@@ -65,7 +58,6 @@ nu__init_renderer (nu_context_t *ctx)
     {
         case NU_RENDERER_NULL:
             ctx->_renderer.api.init        = nu__renderer_null_init;
-            ctx->_renderer.api.clear       = nu__renderer_null_clear;
             ctx->_renderer.api.render      = nu__renderer_null_render;
             ctx->_renderer.api.create_mesh = nu__renderer_null_create_mesh;
             ctx->_renderer.api.delete_mesh = nu__renderer_null_delete_mesh;
@@ -73,7 +65,6 @@ nu__init_renderer (nu_context_t *ctx)
             break;
         case NU_RENDERER_GL:
             ctx->_renderer.api.init        = nugl__init;
-            ctx->_renderer.api.clear       = nugl__clear;
             ctx->_renderer.api.render      = nugl__render;
             ctx->_renderer.api.create_mesh = nugl__create_mesh;
             ctx->_renderer.api.delete_mesh = nugl__delete_mesh;
@@ -94,11 +85,6 @@ static nu_error_t
 nu__terminate_renderer (nu_context_t *ctx)
 {
     return NU_ERROR_NONE;
-}
-
-void
-nu_clear (nu_context_t *ctx)
-{
 }
 
 nu_error_t
