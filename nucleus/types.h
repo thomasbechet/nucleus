@@ -16,11 +16,12 @@
 
 typedef enum
 {
-    NU_ERROR_NONE            = 0,
-    NU_ERROR_UNSUPPORTED_API = 1,
-    NU_ERROR_BACKEND         = 2,
-    NU_ERROR_DUPLICATED      = 3,
-    NU_ERROR_OUT_OF_RESOURCE = 4,
+    NU_ERROR_NONE               = 0,
+    NU_ERROR_UNSUPPORTED_API    = 1,
+    NU_ERROR_BACKEND            = 2,
+    NU_ERROR_DUPLICATED         = 3,
+    NU_ERROR_OUT_OF_RESOURCE    = 4,
+    NU_ERROR_SHADER_COMPILATION = 5,
 } nu_error_t;
 
 //////////////////////////////////////////////////////////////////////////
@@ -249,6 +250,21 @@ typedef struct
 //////                       Renderer Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef NU_BUILD_RENDERER_GL
+
+typedef struct
+{
+    GLuint blit_program;
+} nugl__context_t;
+
+typedef struct
+{
+    GLuint vao;
+    GLuint vbo;
+} nugl__mesh_t;
+
+#endif
+
 typedef enum
 {
     NU_RENDERER_NULL,
@@ -257,23 +273,45 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_backend_t;
 
+typedef enum
+{
+    NU_RENDERPASS_FLAT,
+    NU_RENDERPASS_TRANSPARENT,
+} nu_renderpass_type_t;
+
 typedef struct
 {
-    nu_error_t (*init)(void *ctx);
-    nu_error_t (*clear)(void);
-    nu_error_t (*render)(void           *ctx,
-                         const nu_int_t *global_viewport,
-                         const float    *viewport);
-} nu_renderer_api_t;
+    nu_renderpass_type_t type;
+} nu_renderpass_info_t;
 
+typedef enum
+{
+    NU_RENDER_CMD_DRAW_MESH,
+    NU_RENDER_CMD_DRAW_MESH_INSTANCED,
+} nu_render_command_type_t;
+
+typedef struct
+{
+    const float *positions;
+    const float *uvs;
+    nu_size_t    vertex_count;
+} nu_mesh_info_t;
+
+typedef struct
+{
+    nu_bool_t reset;
+    nu_u32_t  light_env;
+    nu_u32_t  camera;
+    nu_u32_t  render_target;
+    nu_u32_t  depth_buffer;
+} nu_submit_info_t;
+
+typedef union
+{
 #ifdef NU_BUILD_RENDERER_GL
-
-typedef struct
-{
-    int temp;
-} nugl__context_t;
-
+    nugl__mesh_t gl;
 #endif
+} nu_mesh_t;
 
 typedef union
 {
@@ -281,6 +319,33 @@ typedef union
     nugl__context_t gl;
 #endif
 } nu__renderer_context_t;
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nu_u32_t gl;
+#endif
+} nu_renderpass_t;
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nu_u32_t gl;
+#endif
+} nu_camera_t;
+
+typedef struct
+{
+    nu_error_t (*init)(void *ctx);
+    nu_error_t (*clear)(void);
+    nu_error_t (*render)(void           *ctx,
+                         const nu_int_t *global_viewport,
+                         const float    *viewport);
+    nu_error_t (*create_mesh)(void                 *ctx,
+                              const nu_mesh_info_t *info,
+                              nu_mesh_t            *mesh);
+    nu_error_t (*delete_mesh)(void *ctx, nu_mesh_t *mesh);
+} nu_renderer_api_t;
 
 typedef struct
 {

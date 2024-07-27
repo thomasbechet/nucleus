@@ -7,7 +7,7 @@
 #include <nucleus/backend/glfw.h>
 #endif
 
-NU_API nu_error_t nu_swap_buffers(nu_context_t *ctx);
+NU_API nu_error_t nu_render(nu_context_t *ctx);
 
 NU_API nu_error_t nuext_set_viewport_mode(nu_context_t         *ctx,
                                           nuext_viewport_mode_t mode);
@@ -26,8 +26,11 @@ nu__init_surface (nu_context_t *ctx)
 }
 
 nu_error_t
-nu_swap_buffers (nu_context_t *ctx)
+nu_render (nu_context_t *ctx)
 {
+    ctx->_renderer.api.render(ctx->_renderer.ctx,
+                              ctx->_glfw_surface.viewport.extent,
+                              ctx->_glfw_surface.viewport.viewport);
 #ifdef NU_BUILD_GLFW
     nuglfw__swap_buffers(&ctx->_glfw_surface);
 #endif

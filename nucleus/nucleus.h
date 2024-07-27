@@ -2,5 +2,6 @@
 #define NU_NUCLEUS_H
 
 #include <nucleus/context.h>
+#include <nucleus/geometry.h>
 
 #endif

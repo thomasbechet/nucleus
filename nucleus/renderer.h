@@ -3,8 +3,22 @@
 
 #include <nucleus/types.h>
 
-NU_API void       nu_clear(nu_context_t *ctx);
-NU_API nu_error_t nu_render(nu_context_t *ctx);
+NU_API void nu_clear(nu_context_t *ctx);
+
+NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
+                                       const nu_renderpass_info_t *info,
+                                       nu_renderpass_t            *renderpass);
+NU_API nu_error_t nu_create_mesh(nu_context_t         *ctx,
+                                 const nu_mesh_info_t *info,
+                                 nu_mesh_t            *mesh);
+NU_API nu_error_t nu_delete_mesh(nu_context_t *ctx, nu_mesh_t *mesh);
+
+NU_API nu_error_t nu_submit(nu_context_t *ctx, nu_renderpass_t *renderpass);
+
+NU_API void nu_draw(nu_renderpass_t *renderpass, const float *transform);
+NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
+                              const float     *transforms,
+                              nu_u32_t         count);
 
 #ifdef NU_IMPLEMENTATION
 
@@ -23,6 +37,18 @@ nu__renderer_null_clear (void)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nu__renderer_null_create_mesh (void                 *ctx,
+                               const nu_mesh_info_t *info,
+                               nu_mesh_t            *mesh)
+{
+    return NU_NULL;
+}
+static nu_error_t
+nu__renderer_null_delete_mesh (void *ctx, nu_mesh_t *mesh)
+{
+    return NU_NULL;
+}
+static nu_error_t
 nu__renderer_null_render (void           *ctx,
                           const nu_int_t *global_viewport,
                           const float    *viewport)
@@ -38,16 +64,20 @@ nu__init_renderer (nu_context_t *ctx)
     switch (ctx->_renderer_backend)
     {
         case NU_RENDERER_NULL:
-            ctx->_renderer.api.init   = nu__renderer_null_init;
-            ctx->_renderer.api.clear  = nu__renderer_null_clear;
-            ctx->_renderer.api.render = nu__renderer_null_render;
-            ctx->_renderer.ctx        = NU_NULL;
+            ctx->_renderer.api.init        = nu__renderer_null_init;
+            ctx->_renderer.api.clear       = nu__renderer_null_clear;
+            ctx->_renderer.api.render      = nu__renderer_null_render;
+            ctx->_renderer.api.create_mesh = nu__renderer_null_create_mesh;
+            ctx->_renderer.api.delete_mesh = nu__renderer_null_delete_mesh;
+            ctx->_renderer.ctx             = NU_NULL;
             break;
         case NU_RENDERER_GL:
-            ctx->_renderer.api.init   = nugl__init;
-            ctx->_renderer.api.clear  = nugl__clear;
-            ctx->_renderer.api.render = nugl__render;
-            ctx->_renderer.ctx        = &ctx->_renderer.ctx_data.gl;
+            ctx->_renderer.api.init        = nugl__init;
+            ctx->_renderer.api.clear       = nugl__clear;
+            ctx->_renderer.api.render      = nugl__render;
+            ctx->_renderer.api.create_mesh = nugl__create_mesh;
+            ctx->_renderer.api.delete_mesh = nugl__delete_mesh;
+            ctx->_renderer.ctx             = &ctx->_renderer.ctx_data.gl;
             break;
         case NU_RENDERER_DX11:
             break;
@@ -70,13 +100,16 @@ void
 nu_clear (nu_context_t *ctx)
 {
 }
+
 nu_error_t
-nu_render (nu_context_t *ctx)
+nu_create_mesh (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
-    ctx->_renderer.api.render(ctx->_renderer.ctx,
-                              ctx->_glfw_surface.viewport.extent,
-                              ctx->_glfw_surface.viewport.viewport);
-    return NU_ERROR_NONE;
+    return ctx->_renderer.api.create_mesh(&ctx->_renderer.ctx, info, mesh);
+}
+nu_error_t
+nu_delete_mesh (nu_context_t *ctx, nu_mesh_t *mesh)
+{
+    return ctx->_renderer.api.delete_mesh(&ctx->_renderer.ctx, mesh);
 }
 
 #endif

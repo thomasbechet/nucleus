@@ -1,5 +1,6 @@
 #include <stdio.h>
 #define NU_STDLIB
+#define NU_DEBUG
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -49,6 +50,17 @@ main (void)
     error = nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_ESCAPE);
     NU_ERROR_ASSERT(error);
 
+    // Create cube
+    float cube_positions[NU_CUBE_MESH_POSITION_SIZE];
+    float cube_uvs[NU_CUBE_MESH_UV_SIZE];
+    nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs);
+    nu_mesh_t      cube_mesh;
+    nu_mesh_info_t cube_info = { .positions    = cube_positions,
+                                 .uvs          = cube_uvs,
+                                 .vertex_count = NU_CUBE_MESH_VERTEX_SIZE };
+    error                    = nu_create_mesh(&ctx, &cube_info, &cube_mesh);
+    NU_ERROR_ASSERT(error);
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
@@ -86,11 +98,14 @@ main (void)
         (void)drawing;
 
         nu_clear(&ctx);
-        nu_render(&ctx);
 
         // Refresh surface
-        nu_swap_buffers(&ctx);
+        nu_render(&ctx);
     }
+
+    // Free cube
+    error = nu_delete_mesh(&ctx, &cube_mesh);
+    NU_ERROR_ASSERT(error);
 
     nu_terminate(&ctx, &alloc);
 

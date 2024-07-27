@@ -5,79 +5,58 @@
 
 #if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_RENDERER_GL)
 
-// #define GLBIND_IMPLEMENTATION
-// #include <nucleus/external/glbind/glbind.h>
+#include <nucleus/backend/gl_shader.h>
 
-static const char *nugl__quad_vertex
-    = " \
-    #version 330 core \n\
-    layout(location = 0) in vec2 vertex; \n\
-    layout(location = 1) in vec2 uv; \n\
-    out vec2 tex_coord; \n\
-    void main() { \n\
-        tex_coord = uv; \n\
-        gl_Position = vec4(vertex, 0, 1); \n\
-    }  \
-";
-static const char *nugl__quad_fragment
-    = " \
-    #version 330 core \n\
-    in vec2 tex_coord; \n\
-    uniform sampler2D image; \n\
-    out vec4 color; \n\
-    void main() { \n\
-        color = texture(image, tex_coord); \n\
-    }  \
-";
-static const float nugl__vertices[]
-    = { -1, -1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1 };
-static const float nugl__uvs[] = { 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0 };
-
-static void
-nugl__create_quad_shader (nugl__context_t *ctx)
+static nu_error_t
+nugl__compile_shader (nugl__context_t *ctx,
+                      const nu_char_t *vert,
+                      const nu_char_t *frag,
+                      GLuint          *program)
 {
     GLuint vertex_shader, fragment_shader;
     GLint  success;
 
+    NU_ASSERT(vert && frag);
+
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &nugl__quad_vertex, NULL);
+    glShaderSource(vertex_shader, 1, &vert, NULL);
     glCompileShader(vertex_shader);
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
-        /* nu_warning(NUGLFW_LOGGER_NAME
-                   "Failed to compile quad vertex shader.\n"); */
         glDeleteShader(vertex_shader);
+        return NU_ERROR_SHADER_COMPILATION;
     }
 
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &nugl__quad_fragment, 0);
+    glShaderSource(fragment_shader, 1, &frag, 0);
     glCompileShader(fragment_shader);
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
-        /* nu_warning(NUGLFW_LOGGER_NAME
-                   "Failed to compile quad fragment shader.\n"); */
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
+        return NU_ERROR_SHADER_COMPILATION;
     }
 
-    /* _module.quad_shader = glCreateProgram();
-    glAttachShader(_module.quad_shader, vertex_shader);
-    glAttachShader(_module.quad_shader, fragment_shader);
+    *program = glCreateProgram();
+    glAttachShader(*program, vertex_shader);
+    glAttachShader(*program, fragment_shader);
 
-    glLinkProgram(_module.quad_shader);
-    glGetProgramiv(_module.quad_shader, GL_LINK_STATUS, &success);
+    glLinkProgram(*program);
+    glGetProgramiv(*program, GL_LINK_STATUS, &success);
     if (success == GL_FALSE)
     {
-        nu_warning(NUGLFW_LOGGER_NAME "Failed to link quad shader.\n");
-        glDeleteProgram(_module.quad_shader);
+        glDeleteProgram(*program);
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
+        return NU_ERROR_SHADER_COMPILATION;
     }
 
     glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader); */
+    glDeleteShader(fragment_shader);
+
+    return NU_ERROR_NONE;
 }
 
 static nu_error_t
@@ -106,18 +85,30 @@ MessageCallback (GLenum        source,
 static nu_error_t
 nugl__init (void *ctx)
 {
-    // GLenum result = glbInit(NULL, NULL);
-    // NU_ASSERT(result == GL_NO_ERROR);
+    nu_error_t       error;
+    nugl__context_t *context = ctx;
 
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
+
+    // Compile programs
+    error = nugl__compile_shader(context,
+                                 nugl__shader_blit_vert,
+                                 nugl__shader_blit_frag,
+                                 &context->blit_program);
+    NU_ERROR_ASSERT(error);
+
     return NU_ERROR_NONE;
 }
 
 static nu_error_t
-nugl__render (void *ctx, const nu_int_t *global_viewport, const float *viewport)
+nugl__render (void          *ctx,
+              const nu_int_t global_viewport[NU_VEC4],
+              const float    viewport[NU_VEC4])
 {
+    nugl__context_t *gl = ctx;
+
     // Clear whole screen
     glViewport(global_viewport[0],
                global_viewport[1],
@@ -127,12 +118,73 @@ nugl__render (void *ctx, const nu_int_t *global_viewport, const float *viewport)
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Clear viewport
-    glEnable(GL_SCISSOR_TEST);
-    glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
-    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_SCISSOR_TEST);
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    glUseProgram(gl->blit_program);
+    glBindVertexArray(0);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    return NU_ERROR_NONE;
+}
+
+#define NUGL_VERTEX_SIZE (3 + 2)
+
+static nu_error_t
+nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
+{
+    NU_ASSERT(info->positions);
+
+    // Create VAO
+    glGenVertexArrays(1, &mesh->gl.vao);
+    glBindVertexArray(mesh->gl.vao);
+
+    // Create VBO
+    glGenBuffers(1, &mesh->gl.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.vbo);
+
+    // Format vertices
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(float) * info->vertex_count * NUGL_VERTEX_SIZE,
+                 NU_NULL,
+                 GL_STATIC_DRAW);
+    float *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    NU_ASSERT(ptr);
+    for (nu_size_t i = 0; i < info->vertex_count; ++i)
+    {
+        nu_memcpy(ptr + i * NUGL_VERTEX_SIZE,
+                  info->positions + i * NU_VEC3,
+                  sizeof(float) * NU_VEC3);
+        if (info->uvs)
+        {
+            nu_memcpy(ptr + i * NUGL_VERTEX_SIZE + NU_VEC3,
+                      info->uvs + i * NU_VEC2,
+                      sizeof(float) * NU_VEC2);
+        }
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+
+    // Configure VAO
+    glVertexAttribPointer(
+        0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NUGL_VERTEX_SIZE, (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1,
+                          2,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          sizeof(float) * NUGL_VERTEX_SIZE,
+                          (void *)(sizeof(float) * NU_VEC3));
+    glEnableVertexAttribArray(1);
+
+    // Unbind buffers
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_mesh (void *ctx, nu_mesh_t *mesh)
+{
+    glDeleteVertexArrays(1, &mesh->gl.vao);
+    glDeleteBuffers(1, &mesh->gl.vbo);
     return NU_ERROR_NONE;
 }
 
