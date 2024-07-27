@@ -1,6 +1,7 @@
 #ifndef NUGL_BACKEND_H
 #define NUGL_BACKEND_H
 
+#include "nucleus/math.h"
 #include <nucleus/types.h>
 
 #if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_RENDERER_GL)
@@ -83,21 +84,54 @@ MessageCallback (GLenum        source,
 }
 
 static nu_error_t
-nugl__init (void *ctx)
+nugl__init (void *ctx, const nu_int_t size[NU_VEC2])
 {
     nu_error_t       error;
-    nugl__context_t *context = ctx;
+    nugl__context_t *gl = ctx;
 
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
 
     // Compile programs
-    error = nugl__compile_shader(context,
-                                 nugl__shader_blit_vert,
-                                 nugl__shader_blit_frag,
-                                 &context->blit_program);
+    error = nugl__compile_shader(
+        gl, nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
     NU_ERROR_ASSERT(error);
+    error = nugl__compile_shader(
+        gl, nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
+    NU_ERROR_ASSERT(error);
+
+    // Create nearest sampler
+    glGenSamplers(1, &gl->nearest_sampler);
+    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // Create surface texture and framebuffer
+    nu_ivec2_copy(size, gl->surface_size);
+    glGenTextures(1, &gl->surface_texture);
+    glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGB,
+                 size[0],
+                 size[1],
+                 0,
+                 GL_RGB,
+                 GL_UNSIGNED_BYTE,
+                 NU_NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glGenFramebuffers(1, &gl->surface_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D,
+                           gl->surface_texture,
+                           0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     return NU_ERROR_NONE;
 }
@@ -109,29 +143,57 @@ nugl__render (void          *ctx,
 {
     nugl__context_t *gl = ctx;
 
-    // Clear whole screen
-    glViewport(global_viewport[0],
-               global_viewport[1],
-               global_viewport[2],
-               global_viewport[3]);
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    // Prepare matrix
+    float model[NU_MAT4];
+    nu_mat4_identity(model);
+    float view[NU_MAT4];
+    float eye[NU_VEC3]    = { 1.0f, 0.0f, 1.0f };
+    float center[NU_VEC3] = { 0.0f, 0.0f, 0.0f };
+    float up[NU_VEC3]     = NU_VEC3_UP;
+    nu_lookat(eye, center, up, view);
+    float projection[NU_MAT4];
+    float aspect = viewport[2] / viewport[3];
+    nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
+
+    // Bind surface
+    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
+    glViewport(0, 0, gl->surface_size[0], gl->surface_size[1]);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Clear viewport
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-    glUseProgram(gl->blit_program);
+    // Render
+    glUseProgram(gl->flat_program);
+    GLuint modelId = glGetUniformLocation(gl->flat_program, "model");
+    glUniformMatrix4fv(modelId, 1, GL_FALSE, model);
+    GLuint viewId = glGetUniformLocation(gl->flat_program, "view");
+    glUniformMatrix4fv(viewId, 1, GL_FALSE, view);
+    GLuint projectionId = glGetUniformLocation(gl->flat_program, "projection");
+    glUniformMatrix4fv(projectionId, 1, GL_FALSE, projection);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBindVertexArray(gl->mesh->vao);
+    glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);
     glBindVertexArray(0);
+
+    // Blit surface
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(gl->blit_program);
+    glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     return NU_ERROR_NONE;
 }
 
-#define NUGL_VERTEX_SIZE (3 + 2)
-
 static nu_error_t
 nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
     NU_ASSERT(info->positions);
+
+    mesh->gl.vertex_count = info->vertex_count;
 
     // Create VAO
     glGenVertexArrays(1, &mesh->gl.vao);

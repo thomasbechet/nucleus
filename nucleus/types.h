@@ -53,6 +53,8 @@ typedef int           nu_word_t;
 //////                          Math Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
+#define NU_PI 3.14159265359
+
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -61,6 +63,31 @@ typedef int           nu_word_t;
 #define NU_VEC4 4
 #define NU_MAT3 9
 #define NU_MAT4 16
+
+#define NU_VEC3_UP    \
+    {                 \
+        0.0, 1.0, 0.0 \
+    }
+#define NU_VEC3_DOWN   \
+    {                  \
+        0.0, -1.0, 0.0 \
+    }
+#define NU_VEC3_FORWARD \
+    {                   \
+        0.0, 0.0, -1.0  \
+    }
+#define NU_VEC3_BACKWARD \
+    {                    \
+        0.0, 0.0, -1.0   \
+    }
+#define NU_VEC3_LEFT   \
+    {                  \
+        -1.0, 0.0, 0.0 \
+    }
+#define NU_VEC3_RIGHT \
+    {                 \
+        1.0, 0.0, 0.0 \
+    }
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Memory Types                          //////
@@ -252,16 +279,25 @@ typedef struct
 
 #ifdef NU_BUILD_RENDERER_GL
 
-typedef struct
-{
-    GLuint blit_program;
-} nugl__context_t;
+#define NUGL_VERTEX_SIZE (3 + 2)
 
 typedef struct
 {
-    GLuint vao;
-    GLuint vbo;
+    GLuint    vao;
+    GLuint    vbo;
+    nu_size_t vertex_count;
 } nugl__mesh_t;
+
+typedef struct
+{
+    GLuint        blit_program;
+    GLuint        flat_program;
+    GLuint        nearest_sampler;
+    GLuint        surface_fbo;
+    GLuint        surface_texture;
+    nu_int_t      surface_size[NU_VEC2];
+    nugl__mesh_t *mesh;
+} nugl__context_t;
 
 #endif
 
@@ -336,7 +372,7 @@ typedef union
 
 typedef struct
 {
-    nu_error_t (*init)(void *ctx);
+    nu_error_t (*init)(void *ctx, const nu_int_t size[NU_VEC2]);
     nu_error_t (*clear)(void);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,

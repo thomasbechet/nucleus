@@ -253,6 +253,9 @@ nuglfw__init (nu_context_t *ctx)
     nuglfw__input_t   *input   = &ctx->_glfw_input;
     const nu_i32_t    *size    = ctx->_surface_size;
 
+    const nu_int_t width  = 1600;
+    const nu_int_t height = 900;
+
     // Initialize GLFW
     if (!glfwInit())
     {
@@ -260,7 +263,7 @@ nuglfw__init (nu_context_t *ctx)
     }
 
     // Create window
-    surface->win = glfwCreateWindow(size[0], size[1], "nucleus", NU_NULL, NU_NULL);
+    surface->win = glfwCreateWindow(width, height, "nucleus", NU_NULL, NU_NULL);
     if (!surface->win)
     {
         return NU_ERROR_BACKEND;
@@ -269,8 +272,10 @@ nuglfw__init (nu_context_t *ctx)
     // Initialize viewport
     surface->viewport.mode = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
     nu_ivec2_copy(size, surface->viewport.screen);
-    nu_ivec2_zero(surface->viewport.extent);
-    nu_ivec2_copy(size, surface->viewport.extent + 2);
+    surface->viewport.extent[0] = 0;
+    surface->viewport.extent[1] = 0;
+    surface->viewport.extent[2] = width;
+    surface->viewport.extent[3] = height;
     nu_vec4_zero(surface->viewport.viewport);
     nuglfw__update_viewport(&surface->viewport);
 

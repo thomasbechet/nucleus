@@ -27,7 +27,7 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
 #endif
 
 static nu_error_t
-nu__renderer_null_init (void *ctx)
+nu__renderer_null_init (void *ctx, const nu_int_t size[NU_VEC2])
 {
     return NU_ERROR_NONE;
 }
@@ -86,7 +86,7 @@ nu__init_renderer (nu_context_t *ctx)
     }
 
     // Initialize backend
-    ctx->_renderer.api.init(ctx->_renderer.ctx);
+    ctx->_renderer.api.init(ctx->_renderer.ctx, ctx->_surface_size);
 
     return NU_ERROR_NONE;
 }

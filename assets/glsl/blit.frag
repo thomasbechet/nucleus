@@ -1,8 +1,11 @@
 #version 330 core
 
 out vec4 color;
+in vec2 uv;
+
+uniform sampler2D t_surface;
 
 void main()
 {
-    color = vec4(0, 0, 1, 1);
+    color = texture(t_surface, uv);
 }

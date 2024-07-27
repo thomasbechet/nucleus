@@ -6,6 +6,8 @@
 
 #define WIDTH  640
 #define HEIGHT 400
+// #define WIDTH  640 / 2
+// #define HEIGHT 400 / 2
 
 static nu_allocator_t alloc;
 static nu_context_t   ctx;
@@ -60,6 +62,8 @@ main (void)
                                  .vertex_count = NU_CUBE_MESH_VERTEX_SIZE };
     error                    = nu_create_mesh(&ctx, &cube_info, &cube_mesh);
     NU_ERROR_ASSERT(error);
+
+    ctx._renderer.ctx_data.gl.mesh = &cube_mesh.gl; // TODO: remove me
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
