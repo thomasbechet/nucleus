@@ -35,6 +35,7 @@ NU_API void nu_iv2_copy(const nu_i32_t *a, nu_i32_t *d);
 NU_API void nu_iv4_copy(const nu_i32_t *a, nu_i32_t *d);
 
 NU_API void nu_m4_identity(float *m);
+NU_API void nu_m4_zero(float *m);
 NU_API void nu_m4_rotate_x(float x, float *d);
 NU_API
 void nu_m4_mul(const float *a, const float *b, float *d);
@@ -239,12 +240,21 @@ nu_m4_identity (float *m)
     m[15] = 1.0f;
 }
 void
+nu_m4_zero (float *m)
+{
+    for (nu_size_t i = 0; i < NU_M4; ++i)
+    {
+        m[i] = 0.0f;
+    }
+}
+void
 nu_m4_rotate_x (float x, float *d)
 {
 }
 void
 nu_m4_mul (const float *a, const float *b, float *d)
 {
+    nu_m4_zero(d);
     for (nu_size_t i = 0; i < 4; ++i)
     {
         for (nu_size_t j = 0; j < 4; ++j)

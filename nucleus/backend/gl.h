@@ -165,6 +165,9 @@ nugl__render (void          *ctx,
     float aspect = viewport[2] / viewport[3];
     nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
 
+    float view_projection[NU_M4];
+    nu_m4_mul(projection, view, view_projection);
+
     // Bind surface
     glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
     glViewport(0, 0, gl->surface_size[0], gl->surface_size[1]);
@@ -173,12 +176,10 @@ nugl__render (void          *ctx,
 
     // Render
     glUseProgram(gl->flat_program);
-    GLuint modelId = glGetUniformLocation(gl->flat_program, "model");
-    glUniformMatrix4fv(modelId, 1, GL_FALSE, model);
-    GLuint viewId = glGetUniformLocation(gl->flat_program, "view");
-    glUniformMatrix4fv(viewId, 1, GL_FALSE, view);
-    GLuint projectionId = glGetUniformLocation(gl->flat_program, "projection");
-    glUniformMatrix4fv(projectionId, 1, GL_FALSE, projection);
+    GLuint model_id = glGetUniformLocation(gl->flat_program, "model");
+    glUniformMatrix4fv(model_id, 1, GL_FALSE, model);
+    GLuint vp_id = glGetUniformLocation(gl->flat_program, "view_projection");
+    glUniformMatrix4fv(vp_id, 1, GL_FALSE, view_projection);
 
     glBindVertexArray(gl->mesh->vao);
     glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);

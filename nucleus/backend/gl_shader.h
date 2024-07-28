@@ -62,13 +62,12 @@ static const nu_char_t *nugl__shader_flat_vert =
 "layout(location = 1) in vec2 in_uv;\n"
 "\n"
 "uniform mat4 model;\n"
-"uniform mat4 view;\n"
-"uniform mat4 projection;\n"
+"uniform mat4 view_projection;\n"
 "\n"
 "void main()\n"
 "{\n"
 "    uv = in_uv;\n"
-"    gl_Position = projection * view * model * vec4(in_position, 1.0);\n"
+"    gl_Position = view_projection * model * vec4(in_position, 1.0);\n"
 "}\n"
 ;
 #endif
