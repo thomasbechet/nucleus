@@ -67,6 +67,10 @@ main (void)
     nu_camera_t camera;
     error = nu_create_camera(&ctx, &camera);
     NU_ERROR_ASSERT(error);
+    float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
+    float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
+    nu_v3_copy(eye, camera.eye);
+    nu_v3_copy(center, camera.center);
     error = nu_update_camera(&ctx, &camera);
     NU_ERROR_ASSERT(error);
 

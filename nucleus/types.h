@@ -288,6 +288,11 @@ typedef struct
 
 typedef struct
 {
+    GLuint diffuse;
+} nugl__material_t;
+
+typedef struct
+{
     GLuint          blit_program;
     GLuint          flat_program;
     GLuint          nearest_sampler;
@@ -372,6 +377,18 @@ typedef union
     nugl__mesh_t gl;
 #endif
 } nu_mesh_t;
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__material_t gl;
+#endif
+} nu__material_data_t;
+
+typedef struct
+{
+    nu__material_data_t _data;
+} nu_material_t;
 
 typedef union
 {

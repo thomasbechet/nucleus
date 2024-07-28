@@ -160,8 +160,6 @@ nugl__render (void          *ctx,
     // float view[NU_M4];
     // float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
     // float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
-    // nu_lookat(eye, center, NU_V3_UP, view);
-    // float projection[NU_M4];
     // float aspect = viewport[2] / viewport[3];
     // nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
 

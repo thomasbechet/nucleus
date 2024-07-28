@@ -16,7 +16,9 @@ NU_API nu_error_t nu_delete_mesh(nu_context_t *ctx, nu_mesh_t *mesh);
 
 NU_API nu_error_t nu_submit(nu_context_t *ctx, nu_renderpass_t *renderpass);
 
-NU_API void nu_draw(nu_renderpass_t *renderpass, const float *transform);
+NU_API void nu_draw(nu_renderpass_t *renderpass,
+                    const nu_mesh_t *mesh,
+                    const float     *transform);
 NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
                               const float     *transforms,
                               nu_u32_t         count);
@@ -61,12 +63,12 @@ nu__renderer_null_create_mesh (void                 *ctx,
                                const nu_mesh_info_t *info,
                                nu_mesh_t            *mesh)
 {
-    return NU_NULL;
+    return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__renderer_null_delete_mesh (void *ctx, nu_mesh_t *mesh)
 {
-    return NU_NULL;
+    return NU_ERROR_NONE;
 }
 
 static nu_error_t
@@ -101,7 +103,9 @@ nu__init_renderer (nu_context_t *ctx)
     }
 
     // Initialize backend
-    ctx->_renderer.api.init(ctx->_renderer.ctx, ctx->_surface_size);
+    nu_error_t error
+        = ctx->_renderer.api.init(ctx->_renderer.ctx, ctx->_surface_size);
+    NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;
 }
