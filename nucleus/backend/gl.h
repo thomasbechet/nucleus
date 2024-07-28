@@ -1,7 +1,6 @@
 #ifndef NUGL_BACKEND_H
 #define NUGL_BACKEND_H
 
-#include "nucleus/math.h"
 #include <nucleus/types.h>
 
 #if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_RENDERER_GL)
@@ -96,7 +95,7 @@ MessageCallback (GLenum        source,
 }
 
 static nu_error_t
-nugl__init (void *ctx, const nu_int_t size[NU_VEC2])
+nugl__init (void *ctx, const nu_int_t size[NU_V2])
 {
     nu_error_t       error;
     nugl__context_t *gl = ctx;
@@ -121,7 +120,7 @@ nugl__init (void *ctx, const nu_int_t size[NU_VEC2])
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     // Create surface texture and framebuffer
-    nu_ivec2_copy(size, gl->surface_size);
+    nu_iv2_copy(size, gl->surface_size);
     glGenTextures(1, &gl->surface_texture);
     glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
     glTexImage2D(GL_TEXTURE_2D,
@@ -150,20 +149,20 @@ nugl__init (void *ctx, const nu_int_t size[NU_VEC2])
 
 static nu_error_t
 nugl__render (void          *ctx,
-              const nu_int_t global_viewport[NU_VEC4],
-              const float    viewport[NU_VEC4])
+              const nu_int_t global_viewport[NU_V4],
+              const float    viewport[NU_V4])
 {
     nugl__context_t *gl = ctx;
 
     // Prepare matrix
-    float model[NU_MAT4];
+    float model[NU_M4];
     nu_mat4_identity(model);
-    float view[NU_MAT4];
-    float eye[NU_VEC3]    = { 1.0f, 0.0f, 1.0f };
-    float center[NU_VEC3] = { 0.0f, 0.0f, 0.0f };
-    float up[NU_VEC3]     = NU_VEC3_UP;
+    float view[NU_M4];
+    float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
+    float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
+    float up[NU_V3]     = NU_V3_UP;
     nu_lookat(eye, center, up, view);
-    float projection[NU_MAT4];
+    float projection[NU_M4];
     float aspect = viewport[2] / viewport[3];
     nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
 
@@ -223,13 +222,13 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
     for (nu_size_t i = 0; i < info->vertex_count; ++i)
     {
         nu_memcpy(ptr + i * NUGL_VERTEX_SIZE,
-                  info->positions + i * NU_VEC3,
-                  sizeof(float) * NU_VEC3);
+                  info->positions + i * NU_V3,
+                  sizeof(float) * NU_V3);
         if (info->uvs)
         {
-            nu_memcpy(ptr + i * NUGL_VERTEX_SIZE + NU_VEC3,
-                      info->uvs + i * NU_VEC2,
-                      sizeof(float) * NU_VEC2);
+            nu_memcpy(ptr + i * NUGL_VERTEX_SIZE + NU_V3,
+                      info->uvs + i * NU_V2,
+                      sizeof(float) * NU_V2);
         }
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -243,7 +242,7 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(float) * NUGL_VERTEX_SIZE,
-                          (void *)(sizeof(float) * NU_VEC3));
+                          (void *)(sizeof(float) * NU_V3));
     glEnableVertexAttribArray(1);
 
     // Unbind buffers

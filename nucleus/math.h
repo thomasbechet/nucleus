@@ -12,30 +12,32 @@ NU_API float     nu_cos(float x);
 NU_API float     nu_sin(float x);
 NU_API float     nu_tan(float x);
 
-NU_API void nu_vec2_copy(const float *s, float *d);
-NU_API void nu_vec2_zero(float *v);
-NU_API void nu_vec2_add(const float *a, const float *b, float *d);
-NU_API void nu_vec2_sub(const float *a, const float *b, float *d);
-NU_API void nu_vec2_mul(const float *a, const float *b, float *d);
-NU_API void nu_vec2_muls(const float *a, float s, float *d);
-NU_API void nu_vec2_div(const float *a, const float *b, float *d);
-NU_API void nu_vec2_divs(const float *a, float s, float *d);
-NU_API void nu_vec2_floor(const float *a, float *d);
+NU_API void nu_v2_copy(const float *s, float *d);
+NU_API void nu_v2_zero(float *v);
+NU_API void nu_v2_add(const float *a, const float *b, float *d);
+NU_API void nu_v2_sub(const float *a, const float *b, float *d);
+NU_API void nu_v2_mul(const float *a, const float *b, float *d);
+NU_API void nu_v2_muls(const float *a, float s, float *d);
+NU_API void nu_v2_div(const float *a, const float *b, float *d);
+NU_API void nu_v2_divs(const float *a, float s, float *d);
+NU_API void nu_v2_floor(const float *a, float *d);
 
-NU_API void nu_vec3_norm(const float *v, float *d);
-NU_API void nu_vec3_cross(const float *a, const float *b, float *d);
+NU_API void nu_v3_copy(const float *a, float *d);
+NU_API void nu_v3_zero(float *d);
+NU_API void nu_v3_norm(const float *v, float *d);
+NU_API void nu_v3_cross(const float *a, const float *b, float *d);
 
-NU_API void nu_vec4_zero(float *v);
+NU_API void nu_v4_zero(float *v);
 
-NU_API void nu_ivec2_zero(nu_i32_t *v);
-NU_API void nu_ivec2_copy(const nu_i32_t *a, nu_i32_t *d);
+NU_API void nu_iv2_zero(nu_i32_t *v);
+NU_API void nu_iv2_copy(const nu_i32_t *a, nu_i32_t *d);
 
-NU_API void nu_ivec4_copy(const nu_i32_t *a, nu_i32_t *d);
+NU_API void nu_iv4_copy(const nu_i32_t *a, nu_i32_t *d);
 
-NU_API void nu_mat4_identity(float *m);
-NU_API void nu_mat4_rotate_x(float x, float *d);
+NU_API void nu_m4_identity(float *m);
+NU_API void nu_m4_rotate_x(float x, float *d);
 NU_API
-void nu_mat4_mul(const float *a, const float *b, float *d);
+void nu_m4_mul(const float *a, const float *b, float *d);
 
 NU_API void nu_perspective(
     float fov, float aspect_ratio, float z_near, float z_far, float *m);
@@ -109,62 +111,76 @@ nu_tan (float x)
 }
 
 void
-nu_vec2_copy (const float *s, float *d)
+nu_v2_copy (const float *s, float *d)
 {
     d[0] = s[0];
     d[1] = s[1];
 }
 void
-nu_vec2_zero (float *v)
+nu_v2_zero (float *v)
 {
     v[0] = 0.0f;
     v[1] = 0.0f;
 }
 void
-nu_vec2_add (const float *a, const float *b, float *d)
+nu_v2_add (const float *a, const float *b, float *d)
 {
     d[0] = a[0] + b[0];
     d[1] = a[1] + b[1];
 }
 void
-nu_vec2_sub (const float *a, const float *b, float *d)
+nu_v2_sub (const float *a, const float *b, float *d)
 {
     d[0] = a[0] - b[0];
     d[1] = a[1] - b[1];
 }
 void
-nu_vec2_mul (const float *a, const float *b, float *d)
+nu_v2_mul (const float *a, const float *b, float *d)
 {
     d[0] = a[0] * b[0];
     d[1] = a[1] * b[1];
 }
 void
-nu_vec2_muls (const float *a, float s, float *d)
+nu_v2_muls (const float *a, float s, float *d)
 {
     d[0] = a[0] * s;
     d[1] = a[1] * s;
 }
 void
-nu_vec2_div (const float *a, const float *b, float *d)
+nu_v2_div (const float *a, const float *b, float *d)
 {
     d[0] = a[0] / b[0];
     d[1] = a[1] / b[1];
 }
 void
-nu_vec2_divs (const float *a, float s, float *d)
+nu_v2_divs (const float *a, float s, float *d)
 {
     d[0] = a[0] / s;
     d[1] = a[1] / s;
 }
 void
-nu_vec2_floor (const float *a, float *d)
+nu_v2_floor (const float *a, float *d)
 {
     d[0] = nu_floor(a[0]);
     d[1] = nu_floor(a[1]);
 }
 
 void
-nu_vec3_norm (const float *v, float *d)
+nu_v3_copy (const float *a, float *d)
+{
+    d[0] = a[0];
+    d[1] = a[1];
+    d[2] = a[2];
+}
+void
+nu_v3_zero (float *d)
+{
+    d[0] = 0.0f;
+    d[1] = 0.0f;
+    d[2] = 0.0f;
+}
+void
+nu_v3_norm (const float *v, float *d)
 {
     float length = nu_sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     d[0]         = v[0] / length;
@@ -172,7 +188,7 @@ nu_vec3_norm (const float *v, float *d)
     d[2]         = v[2] / length;
 }
 void
-nu_vec3_cross (const float *a, const float *b, float *d)
+nu_v3_cross (const float *a, const float *b, float *d)
 {
     d[0] = a[1] * b[2] - a[2] * b[1];
     d[1] = a[2] * b[0] - a[0] * b[2];
@@ -180,7 +196,7 @@ nu_vec3_cross (const float *a, const float *b, float *d)
 }
 
 void
-nu_vec4_zero (float *v)
+nu_v4_zero (float *v)
 {
     v[0] = 0.0f;
     v[1] = 0.0f;
@@ -189,20 +205,20 @@ nu_vec4_zero (float *v)
 }
 
 void
-nu_ivec2_zero (nu_i32_t *v)
+nu_iv2_zero (nu_i32_t *v)
 {
     v[0] = 0;
     v[1] = 0;
 }
 void
-nu_ivec2_copy (const nu_i32_t *a, nu_i32_t *d)
+nu_iv2_copy (const nu_i32_t *a, nu_i32_t *d)
 {
     d[0] = a[0];
     d[1] = a[1];
 }
 
 void
-nu_ivec4_copy (const nu_i32_t *a, nu_i32_t *d)
+nu_iv4_copy (const nu_i32_t *a, nu_i32_t *d)
 {
     d[0] = a[0];
     d[1] = a[1];
@@ -213,7 +229,7 @@ nu_ivec4_copy (const nu_i32_t *a, nu_i32_t *d)
 void
 nu_mat4_identity (float *m)
 {
-    for (nu_size_t i = 0; i < NU_MAT4; ++i)
+    for (nu_size_t i = 0; i < NU_M4; ++i)
     {
         m[i] = 0.0f;
     }
@@ -221,6 +237,10 @@ nu_mat4_identity (float *m)
     m[5]  = 1.0f;
     m[10] = 1.0f;
     m[15] = 1.0f;
+}
+void
+nu_mat4_rotate_x (float x, float *d)
+{
 }
 void
 nu_mat4_mul (const float *a, const float *b, float *d)
@@ -269,17 +289,17 @@ void
 nu_lookat (const float *eye, const float *center, const float *up, float *m)
 {
     float f[3] = { center[0] - eye[0], center[1] - eye[1], center[2] - eye[2] };
-    nu_vec3_norm(f, f);
+    nu_v3_norm(f, f);
 
     float u[3];
-    nu_vec3_norm(up, u);
+    nu_v3_norm(up, u);
 
     float s[3];
-    nu_vec3_cross(f, u, s);
-    nu_vec3_norm(s, s);
+    nu_v3_cross(f, u, s);
+    nu_v3_norm(s, s);
 
     float u_prime[3];
-    nu_vec3_cross(s, f, u_prime);
+    nu_v3_cross(s, f, u_prime);
 
     m[0] = s[0];
     m[1] = u_prime[0];

@@ -6,6 +6,9 @@
 NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
                                        const nu_renderpass_info_t *info,
                                        nu_renderpass_t            *renderpass);
+NU_API nu_error_t nu_create_camera(nu_context_t *ctx, nu_camera_t *camera);
+NU_API nu_error_t nu_delete_camera(nu_context_t *ctx, nu_camera_t *camera);
+NU_API nu_error_t nu_update_camera(nu_context_t *ctx, nu_camera_t *camera);
 NU_API nu_error_t nu_create_mesh(nu_context_t         *ctx,
                                  const nu_mesh_info_t *info,
                                  nu_mesh_t            *mesh);
@@ -25,7 +28,7 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
 #endif
 
 static nu_error_t
-nu__renderer_null_init (void *ctx, const nu_int_t size[NU_VEC2])
+nu__renderer_null_init (void *ctx, const nu_int_t size[NU_V2])
 {
     return NU_ERROR_NONE;
 }
@@ -87,6 +90,30 @@ nu__terminate_renderer (nu_context_t *ctx)
     return NU_ERROR_NONE;
 }
 
+nu_error_t
+nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
+{
+    camera->projection = NU_PROJECTION_PERSPECTIVE;
+    camera->fov        = 90.0f;
+    camera->near       = 0.01f;
+    camera->far        = 100.0f;
+    nu_v3_zero(camera->eye);
+    const float up[] = NU_V3_UP;
+    nu_v3_copy(up, camera->up);
+    const float forward[] = NU_V3_FORWARD;
+    nu_v3_copy(forward, camera->center);
+    return NU_ERROR_NONE;
+}
+nu_error_t
+nu_delete_camera (nu_context_t *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
+nu_error_t
+nu_update_camera (nu_context_t *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
 nu_error_t
 nu_create_mesh (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {

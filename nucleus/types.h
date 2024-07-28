@@ -58,33 +58,33 @@ typedef int           nu_word_t;
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define NU_VEC2 2
-#define NU_VEC3 3
-#define NU_VEC4 4
-#define NU_MAT3 9
-#define NU_MAT4 16
+#define NU_V2 2
+#define NU_V3 3
+#define NU_V4 4
+#define NU_M3 9
+#define NU_M4 16
 
-#define NU_VEC3_UP    \
+#define NU_V3_UP      \
     {                 \
         0.0, 1.0, 0.0 \
     }
-#define NU_VEC3_DOWN   \
+#define NU_V3_DOWN     \
     {                  \
         0.0, -1.0, 0.0 \
     }
-#define NU_VEC3_FORWARD \
-    {                   \
-        0.0, 0.0, -1.0  \
+#define NU_V3_FORWARD  \
+    {                  \
+        0.0, 0.0, -1.0 \
     }
-#define NU_VEC3_BACKWARD \
-    {                    \
-        0.0, 0.0, -1.0   \
+#define NU_V3_BACKWARD \
+    {                  \
+        0.0, 0.0, -1.0 \
     }
-#define NU_VEC3_LEFT   \
+#define NU_V3_LEFT     \
     {                  \
         -1.0, 0.0, 0.0 \
     }
-#define NU_VEC3_RIGHT \
+#define NU_V3_RIGHT   \
     {                 \
         1.0, 0.0, 0.0 \
     }
@@ -125,9 +125,9 @@ typedef struct
 {
     nuext_viewport_mode_t mode;
     float                 scale_factor;
-    nu_i32_t              screen[NU_VEC2];
-    nu_i32_t              extent[NU_VEC4];
-    float                 viewport[NU_VEC4];
+    nu_i32_t              screen[NU_V2];
+    nu_i32_t              extent[NU_V4];
+    float                 viewport[NU_V4];
 } nuglfw__viewport_t;
 
 typedef struct
@@ -265,10 +265,10 @@ typedef struct
     nu_u32_t              input_count;
     nu_u32_t              key_to_first_binding[GLFW_KEY_LAST];
     nu_u32_t              mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
-    float                 mouse_position[NU_VEC2];
-    float                 mouse_old_position[NU_VEC2];
-    float                 mouse_scroll[NU_VEC2];
-    float                 mouse_motion[NU_VEC2];
+    float                 mouse_position[NU_V2];
+    float                 mouse_old_position[NU_V2];
+    float                 mouse_scroll[NU_V2];
+    float                 mouse_motion[NU_V2];
 } nuglfw__input_t;
 
 #endif
@@ -280,6 +280,11 @@ typedef struct
 #ifdef NU_BUILD_RENDERER_GL
 
 #define NUGL_VERTEX_SIZE (3 + 2)
+
+typedef struct
+{
+    GLuint ubo;
+} nugl__camera_t;
 
 typedef struct
 {
@@ -295,7 +300,7 @@ typedef struct
     GLuint        nearest_sampler;
     GLuint        surface_fbo;
     GLuint        surface_texture;
-    nu_int_t      surface_size[NU_VEC2];
+    nu_int_t      surface_size[NU_V2];
     nugl__mesh_t *mesh;
 } nugl__context_t;
 
@@ -342,6 +347,31 @@ typedef struct
     nu_u32_t  depth_buffer;
 } nu_submit_info_t;
 
+typedef enum
+{
+    NU_PROJECTION_PERSPECTIVE,
+    NU_PROJECTION_ORTHOGRAPHIC,
+} nu_projection_t;
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__camera_t gl;
+#endif
+} nu__camera_data_t;
+
+typedef struct
+{
+    nu_projection_t   projection;
+    float             fov;
+    float             near;
+    float             far;
+    float             eye[NU_V3];
+    float             center[NU_V3];
+    float             up[NU_V3];
+    nu__camera_data_t _data;
+} nu_camera_t;
+
 typedef union
 {
 #ifdef NU_BUILD_RENDERER_GL
@@ -363,16 +393,9 @@ typedef union
 #endif
 } nu_renderpass_t;
 
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nu_u32_t gl;
-#endif
-} nu_camera_t;
-
 typedef struct
 {
-    nu_error_t (*init)(void *ctx, const nu_int_t size[NU_VEC2]);
+    nu_error_t (*init)(void *ctx, const nu_int_t size[NU_V2]);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,
                          const float    *viewport);
@@ -402,7 +425,7 @@ typedef struct
 
 typedef struct
 {
-    nu_i32_t              _surface_size[NU_VEC2];
+    nu_i32_t              _surface_size[NU_V2];
     nu_renderer_backend_t _renderer_backend;
     nu_bool_t             _close_requested;
 #ifdef NU_BUILD_GLFW

@@ -65,6 +65,13 @@ main (void)
 
     ctx._renderer.ctx_data.gl.mesh = &cube_mesh.gl; // TODO: remove me
 
+    // Create camera
+    nu_camera_t camera;
+    error = nu_create_camera(&ctx, &camera);
+    NU_ERROR_ASSERT(error);
+    error = nu_update_camera(&ctx, &camera);
+    NU_ERROR_ASSERT(error);
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
@@ -97,9 +104,6 @@ main (void)
         {
             running = NU_FALSE;
         }
-
-        // Draw pixels
-        (void)drawing;
 
         // Refresh surface
         nu_render(&ctx);

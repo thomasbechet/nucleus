@@ -4,8 +4,8 @@
 #include <nucleus/types.h>
 
 #define NU_CUBE_MESH_VERTEX_SIZE   36
-#define NU_CUBE_MESH_POSITION_SIZE 108
-#define NU_CUBE_MESH_UV_SIZE       72
+#define NU_CUBE_MESH_POSITION_SIZE (NU_CUBE_MESH_VERTEX_SIZE * NU_V3)
+#define NU_CUBE_MESH_UV_SIZE       (NU_CUBE_MESH_VERTEX_SIZE * NU_V2)
 
 NU_API void nu_generate_cube_mesh(float side_length,
                                   float positions[NU_CUBE_MESH_POSITION_SIZE],
