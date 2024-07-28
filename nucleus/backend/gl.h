@@ -160,8 +160,7 @@ nugl__render (void          *ctx,
     float view[NU_M4];
     float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
     float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
-    float up[NU_V3]     = NU_V3_UP;
-    nu_lookat(eye, center, up, view);
+    nu_lookat(eye, center, NU_V3_UP, view);
     float projection[NU_M4];
     float aspect = viewport[2] / viewport[3];
     nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
@@ -197,6 +196,16 @@ nugl__render (void          *ctx,
     return NU_ERROR_NONE;
 }
 
+static nu_error_t
+nugl__create_camera (void *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_camera (void *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
 static nu_error_t
 nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {

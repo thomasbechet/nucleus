@@ -63,7 +63,11 @@ main (void)
     error                    = nu_create_mesh(&ctx, &cube_info, &cube_mesh);
     NU_ERROR_ASSERT(error);
 
-    ctx._renderer.ctx_data.gl.mesh = &cube_mesh.gl; // TODO: remove me
+    ctx._renderer.backend.gl.mesh = &cube_mesh.gl; // TODO: remove me
+
+    // float v3[NU_V3] = NU_V3_UP;
+    float v3[NU_V3];
+    nu_v3_copy(NU_V3_UP, v3);
 
     // Create camera
     nu_camera_t camera;

@@ -42,6 +42,16 @@ nu__renderer_null_render (void           *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nu__renderer_null_create_camera (void *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_delete_camera (void *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nu__renderer_null_create_mesh (void                 *ctx,
                                const nu_mesh_info_t *info,
                                nu_mesh_t            *mesh)
@@ -60,18 +70,22 @@ nu__init_renderer (nu_context_t *ctx)
     switch (ctx->_renderer_backend)
     {
         case NU_RENDERER_NULL:
-            ctx->_renderer.api.init        = nu__renderer_null_init;
-            ctx->_renderer.api.render      = nu__renderer_null_render;
-            ctx->_renderer.api.create_mesh = nu__renderer_null_create_mesh;
-            ctx->_renderer.api.delete_mesh = nu__renderer_null_delete_mesh;
-            ctx->_renderer.ctx             = NU_NULL;
+            ctx->_renderer.api.init          = nu__renderer_null_init;
+            ctx->_renderer.api.render        = nu__renderer_null_render;
+            ctx->_renderer.api.create_camera = nu__renderer_null_create_camera;
+            ctx->_renderer.api.delete_camera = nu__renderer_null_delete_camera;
+            ctx->_renderer.api.create_mesh   = nu__renderer_null_create_mesh;
+            ctx->_renderer.api.delete_mesh   = nu__renderer_null_delete_mesh;
+            ctx->_renderer.ctx               = NU_NULL;
             break;
         case NU_RENDERER_GL:
-            ctx->_renderer.api.init        = nugl__init;
-            ctx->_renderer.api.render      = nugl__render;
-            ctx->_renderer.api.create_mesh = nugl__create_mesh;
-            ctx->_renderer.api.delete_mesh = nugl__delete_mesh;
-            ctx->_renderer.ctx             = &ctx->_renderer.ctx_data.gl;
+            ctx->_renderer.api.init          = nugl__init;
+            ctx->_renderer.api.render        = nugl__render;
+            ctx->_renderer.api.create_camera = nugl__create_camera;
+            ctx->_renderer.api.delete_camera = nugl__delete_camera;
+            ctx->_renderer.api.create_mesh   = nugl__create_mesh;
+            ctx->_renderer.api.delete_mesh   = nugl__delete_mesh;
+            ctx->_renderer.ctx               = &ctx->_renderer.backend.gl;
             break;
         case NU_RENDERER_DX11:
             break;
@@ -98,10 +112,8 @@ nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
     camera->near       = 0.01f;
     camera->far        = 100.0f;
     nu_v3_zero(camera->eye);
-    const float up[] = NU_V3_UP;
-    nu_v3_copy(up, camera->up);
-    const float forward[] = NU_V3_FORWARD;
-    nu_v3_copy(forward, camera->center);
+    nu_v3_copy(NU_V3_UP, camera->up);
+    nu_v3_copy(NU_V3_FORWARD, camera->center);
     return NU_ERROR_NONE;
 }
 nu_error_t

@@ -64,30 +64,12 @@ typedef int           nu_word_t;
 #define NU_M3 9
 #define NU_M4 16
 
-#define NU_V3_UP      \
-    {                 \
-        0.0, 1.0, 0.0 \
-    }
-#define NU_V3_DOWN     \
-    {                  \
-        0.0, -1.0, 0.0 \
-    }
-#define NU_V3_FORWARD  \
-    {                  \
-        0.0, 0.0, -1.0 \
-    }
-#define NU_V3_BACKWARD \
-    {                  \
-        0.0, 0.0, -1.0 \
-    }
-#define NU_V3_LEFT     \
-    {                  \
-        -1.0, 0.0, 0.0 \
-    }
-#define NU_V3_RIGHT   \
-    {                 \
-        1.0, 0.0, 0.0 \
-    }
+#define NU_V3_UP       ((const float[]) { 0.0, 1.0, 0.0 })
+#define NU_V3_DOWN     ((const float[]) { 0.0, -1.0, 0.0 })
+#define NU_V3_FORWARD  ((const float[]) { 0.0, 0.0, -1.0 })
+#define NU_V3_BACKWARD ((const float[]) { 0.0, 0.0, -1.0 })
+#define NU_V3_LEFT     ((const float[]) { -1.0, 0.0, 0.0 })
+#define NU_V3_RIGHT    ((const float[]) { 1.0, 0.0, 0.0 })
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Memory Types                          //////
@@ -384,7 +366,7 @@ typedef union
 #ifdef NU_BUILD_RENDERER_GL
     nugl__context_t gl;
 #endif
-} nu__renderer_context_t;
+} nu__renderer_backend_t;
 
 typedef union
 {
@@ -399,6 +381,8 @@ typedef struct
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,
                          const float    *viewport);
+    nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
+    nu_error_t (*delete_camera)(void *ctx, nu_camera_t *camera);
     nu_error_t (*create_mesh)(void                 *ctx,
                               const nu_mesh_info_t *info,
                               nu_mesh_t            *mesh);
@@ -409,7 +393,7 @@ typedef struct
 {
     nu_renderer_api_t      api;
     void                  *ctx;
-    nu__renderer_context_t ctx_data;
+    nu__renderer_backend_t backend;
 } nu__renderer_t;
 
 //////////////////////////////////////////////////////////////////////////
