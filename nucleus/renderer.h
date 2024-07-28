@@ -107,13 +107,13 @@ nu__terminate_renderer (nu_context_t *ctx)
 nu_error_t
 nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
 {
-    camera->projection = NU_PROJECTION_PERSPECTIVE;
-    camera->fov        = 90.0f;
-    camera->near       = 0.01f;
-    camera->far        = 100.0f;
-    nu_v3_zero(camera->eye);
-    nu_v3_copy(NU_V3_UP, camera->up);
-    nu_v3_copy(NU_V3_FORWARD, camera->center);
+    camera->projection = NU_CAMERA_DEFAULT_PROJECTION;
+    camera->fov        = NU_CAMERA_DEFAULT_FOV;
+    camera->near       = NU_CAMERA_DEFAULT_NEAR;
+    camera->far        = NU_CAMERA_DEFAULT_FAR;
+    nu_v3_copy(NU_CAMERA_DEFAULT_EYE, camera->eye);
+    nu_v3_copy(NU_CAMERA_DEFAULT_CENTER, camera->center);
+    nu_v3_copy(NU_CAMERA_DEFAULT_UP, camera->up);
     return NU_ERROR_NONE;
 }
 nu_error_t

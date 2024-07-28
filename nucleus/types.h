@@ -64,6 +64,7 @@ typedef int           nu_word_t;
 #define NU_M3 9
 #define NU_M4 16
 
+#define NU_V3_ZERO     ((const float[]) { 0.0, 0.0, 0.0 })
 #define NU_V3_UP       ((const float[]) { 0.0, 1.0, 0.0 })
 #define NU_V3_DOWN     ((const float[]) { 0.0, -1.0, 0.0 })
 #define NU_V3_FORWARD  ((const float[]) { 0.0, 0.0, -1.0 })
@@ -258,6 +259,14 @@ typedef struct
 //////////////////////////////////////////////////////////////////////////
 //////                       Renderer Types                         //////
 //////////////////////////////////////////////////////////////////////////
+
+#define NU_CAMERA_DEFAULT_FOV        90.0f
+#define NU_CAMERA_DEFAULT_PROJECTION NU_PROJECTION_PERSPECTIVE
+#define NU_CAMERA_DEFAULT_NEAR       0.01f
+#define NU_CAMERA_DEFAULT_FAR        100.0f
+#define NU_CAMERA_DEFAULT_EYE        NU_V3_ZERO
+#define NU_CAMERA_DEFAULT_CENTER     NU_V3_FORWARD
+#define NU_CAMERA_DEFAULT_UP         NU_V3_UP
 
 #ifdef NU_BUILD_RENDERER_GL
 
