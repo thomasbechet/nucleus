@@ -260,8 +260,8 @@ typedef struct
 //////                       Renderer Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
-#define NU_CAMERA_DEFAULT_FOV        90.0f
 #define NU_CAMERA_DEFAULT_PROJECTION NU_PROJECTION_PERSPECTIVE
+#define NU_CAMERA_DEFAULT_FOV        90.0f
 #define NU_CAMERA_DEFAULT_NEAR       0.01f
 #define NU_CAMERA_DEFAULT_FAR        100.0f
 #define NU_CAMERA_DEFAULT_EYE        NU_V3_ZERO
@@ -288,13 +288,14 @@ typedef struct
 
 typedef struct
 {
-    GLuint        blit_program;
-    GLuint        flat_program;
-    GLuint        nearest_sampler;
-    GLuint        surface_fbo;
-    GLuint        surface_texture;
-    nu_int_t      surface_size[NU_V2];
-    nugl__mesh_t *mesh;
+    GLuint          blit_program;
+    GLuint          flat_program;
+    GLuint          nearest_sampler;
+    GLuint          surface_fbo;
+    GLuint          surface_texture;
+    nu_int_t        surface_size[NU_V2];
+    nugl__mesh_t   *mesh;
+    nugl__camera_t *cam;
 } nugl__context_t;
 
 #endif

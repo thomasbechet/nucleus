@@ -121,17 +121,17 @@ nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
     nu_v3_copy(NU_CAMERA_DEFAULT_EYE, camera->eye);
     nu_v3_copy(NU_CAMERA_DEFAULT_CENTER, camera->center);
     nu_v3_copy(NU_CAMERA_DEFAULT_UP, camera->up);
-    return NU_ERROR_NONE;
+    return ctx->_renderer.api.create_camera(&ctx->_renderer.ctx, camera);
 }
 nu_error_t
 nu_delete_camera (nu_context_t *ctx, nu_camera_t *camera)
 {
-    return NU_ERROR_NONE;
+    return ctx->_renderer.api.delete_camera(&ctx->_renderer.ctx, camera);
 }
 nu_error_t
 nu_update_camera (nu_context_t *ctx, nu_camera_t *camera)
 {
-    return NU_ERROR_NONE;
+    return ctx->_renderer.api.update_camera(&ctx->_renderer.ctx, camera);
 }
 nu_error_t
 nu_create_mesh (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)

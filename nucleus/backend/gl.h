@@ -157,16 +157,16 @@ nugl__render (void          *ctx,
     // Prepare matrix
     float model[NU_M4];
     nu_m4_identity(model);
-    float view[NU_M4];
-    float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
-    float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
-    nu_lookat(eye, center, NU_V3_UP, view);
-    float projection[NU_M4];
-    float aspect = viewport[2] / viewport[3];
-    nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
+    // float view[NU_M4];
+    // float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
+    // float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
+    // nu_lookat(eye, center, NU_V3_UP, view);
+    // float projection[NU_M4];
+    // float aspect = viewport[2] / viewport[3];
+    // nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
 
-    float view_projection[NU_M4];
-    nu_m4_mul(projection, view, view_projection);
+    // float view_projection[NU_M4];
+    // nu_m4_mul(projection, view, view_projection);
 
     // Bind surface
     glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
@@ -179,7 +179,7 @@ nugl__render (void          *ctx,
     GLuint model_id = glGetUniformLocation(gl->flat_program, "model");
     glUniformMatrix4fv(model_id, 1, GL_FALSE, model);
     GLuint vp_id = glGetUniformLocation(gl->flat_program, "view_projection");
-    glUniformMatrix4fv(vp_id, 1, GL_FALSE, view_projection);
+    glUniformMatrix4fv(vp_id, 1, GL_FALSE, gl->cam->vp);
 
     glBindVertexArray(gl->mesh->vao);
     glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);
@@ -209,7 +209,7 @@ nugl__update_camera (void *ctx, nu_camera_t *camera)
     nu_perspective(
         nu_radian(camera->fov), aspect, camera->near, camera->far, projection);
 
-    nu_m4_mul(view, projection, camera->_data.gl.vp);
+    nu_m4_mul(projection, view, camera->_data.gl.vp);
 
     return NU_ERROR_NONE;
 }
