@@ -52,6 +52,11 @@ nu__renderer_null_delete_camera (void *ctx, nu_camera_t *camera)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nu__renderer_null_update_camera (void *ctx, nu_camera_t *camera)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nu__renderer_null_create_mesh (void                 *ctx,
                                const nu_mesh_info_t *info,
                                nu_mesh_t            *mesh)
@@ -74,6 +79,7 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.render        = nu__renderer_null_render;
             ctx->_renderer.api.create_camera = nu__renderer_null_create_camera;
             ctx->_renderer.api.delete_camera = nu__renderer_null_delete_camera;
+            ctx->_renderer.api.update_camera = nu__renderer_null_update_camera;
             ctx->_renderer.api.create_mesh   = nu__renderer_null_create_mesh;
             ctx->_renderer.api.delete_mesh   = nu__renderer_null_delete_mesh;
             ctx->_renderer.ctx               = NU_NULL;
@@ -83,6 +89,7 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.render        = nugl__render;
             ctx->_renderer.api.create_camera = nugl__create_camera;
             ctx->_renderer.api.delete_camera = nugl__delete_camera;
+            ctx->_renderer.api.update_camera = nugl__update_camera;
             ctx->_renderer.api.create_mesh   = nugl__create_mesh;
             ctx->_renderer.api.delete_mesh   = nugl__delete_mesh;
             ctx->_renderer.ctx               = &ctx->_renderer.backend.gl;

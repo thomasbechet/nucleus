@@ -275,6 +275,8 @@ typedef struct
 typedef struct
 {
     GLuint ubo;
+    float  vp[NU_M4];
+    float  ivp[NU_M4];
 } nugl__camera_t;
 
 typedef struct
@@ -392,6 +394,7 @@ typedef struct
                          const float    *viewport);
     nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
     nu_error_t (*delete_camera)(void *ctx, nu_camera_t *camera);
+    nu_error_t (*update_camera)(void *ctx, nu_camera_t *camera);
     nu_error_t (*create_mesh)(void                 *ctx,
                               const nu_mesh_info_t *info,
                               nu_mesh_t            *mesh);

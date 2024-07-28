@@ -156,7 +156,7 @@ nugl__render (void          *ctx,
 
     // Prepare matrix
     float model[NU_M4];
-    nu_mat4_identity(model);
+    nu_m4_identity(model);
     float view[NU_M4];
     float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
     float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
@@ -197,8 +197,27 @@ nugl__render (void          *ctx,
 }
 
 static nu_error_t
+nugl__update_camera (void *ctx, nu_camera_t *camera)
+{
+    nugl__context_t *gl = ctx;
+
+    float view[NU_M4];
+    nu_lookat(camera->eye, camera->center, camera->up, view);
+    float projection[NU_M4];
+    float aspect = (float)gl->surface_size[0] / (float)gl->surface_size[1];
+    nu_perspective(
+        nu_radian(camera->fov), aspect, camera->near, camera->far, projection);
+
+    nu_m4_mul(view, projection, camera->_data.gl.vp);
+
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nugl__create_camera (void *ctx, nu_camera_t *camera)
 {
+    nu_error_t error;
+    error = nugl__update_camera(ctx, camera);
+    NU_ERROR_CHECK(error, return error);
     return NU_ERROR_NONE;
 }
 static nu_error_t

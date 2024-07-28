@@ -227,7 +227,7 @@ nu_iv4_copy (const nu_i32_t *a, nu_i32_t *d)
 }
 
 void
-nu_mat4_identity (float *m)
+nu_m4_identity (float *m)
 {
     for (nu_size_t i = 0; i < NU_M4; ++i)
     {
@@ -239,11 +239,11 @@ nu_mat4_identity (float *m)
     m[15] = 1.0f;
 }
 void
-nu_mat4_rotate_x (float x, float *d)
+nu_m4_rotate_x (float x, float *d)
 {
 }
 void
-nu_mat4_mul (const float *a, const float *b, float *d)
+nu_m4_mul (const float *a, const float *b, float *d)
 {
     for (nu_size_t i = 0; i < 4; ++i)
     {
