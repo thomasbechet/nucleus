@@ -16,10 +16,9 @@ NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
 NU_API nu_error_t nu_delete_renderpass(nu_context_t    *ctx,
                                        nu_renderpass_t *pass);
 
-NU_API void nu_begin_renderpass(nu_context_t                *ctx,
-                                nu_renderpass_t             *pass,
-                                const nu_renderpass_begin_t *info);
-NU_API void nu_end_renderpass(nu_context_t *ctx, nu_renderpass_t *pass);
+NU_API void nu_submit_renderpass(nu_context_t                 *ctx,
+                                 nu_renderpass_t              *pass,
+                                 const nu_renderpass_submit_t *info);
 NU_API void nu_draw(nu_context_t    *ctx,
                     nu_renderpass_t *renderpass,
                     const nu_mesh_t *mesh,
@@ -88,13 +87,9 @@ nu__renderer_null_delete_renderpass (void *ctx, nu_renderpass_t *pass)
     return NU_ERROR_NONE;
 }
 static void
-nu__renderer_null_begin_renderpass (void                        *ctx,
-                                    nu_renderpass_t             *pass,
-                                    const nu_renderpass_begin_t *info)
-{
-}
-static void
-nu__renderer_null_end_renderpass (void *ctx, nu_renderpass_t *pass)
+nu__renderer_null_submit_renderpass (void                         *ctx,
+                                     nu_renderpass_t              *pass,
+                                     const nu_renderpass_submit_t *info)
 {
 }
 
@@ -117,10 +112,8 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.delete_renderpass
                 = nu__renderer_null_delete_renderpass;
 
-            ctx->_renderer.api.begin_renderpass
-                = nu__renderer_null_begin_renderpass;
-            ctx->_renderer.api.end_renderpass
-                = nu__renderer_null_end_renderpass;
+            ctx->_renderer.api.submit_renderpass
+                = nu__renderer_null_submit_renderpass;
 
             ctx->_renderer.ctx = NU_NULL;
             break;
@@ -128,17 +121,15 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.init   = nugl__init;
             ctx->_renderer.api.render = nugl__render;
 
-            ctx->_renderer.api.create_camera = nugl__create_camera;
-            ctx->_renderer.api.delete_camera = nugl__delete_camera;
-            ctx->_renderer.api.update_camera = nugl__update_camera;
-            ctx->_renderer.api.create_mesh   = nugl__create_mesh;
-            ctx->_renderer.api.delete_mesh   = nugl__delete_mesh;
-
+            ctx->_renderer.api.create_camera     = nugl__create_camera;
+            ctx->_renderer.api.delete_camera     = nugl__delete_camera;
+            ctx->_renderer.api.update_camera     = nugl__update_camera;
+            ctx->_renderer.api.create_mesh       = nugl__create_mesh;
+            ctx->_renderer.api.delete_mesh       = nugl__delete_mesh;
             ctx->_renderer.api.create_renderpass = nugl__create_renderpass;
             ctx->_renderer.api.delete_renderpass = nugl__delete_renderpass;
 
-            ctx->_renderer.api.begin_renderpass = nugl__begin_renderpass;
-            ctx->_renderer.api.end_renderpass   = nugl__end_renderpass;
+            ctx->_renderer.api.submit_renderpass = nugl__submit_renderpass;
 
             ctx->_renderer.ctx = &ctx->_renderer.backend.gl;
             break;
@@ -207,16 +198,10 @@ nu_delete_renderpass (nu_context_t *ctx, nu_renderpass_t *pass)
 }
 
 void
-nu_begin_renderpass (nu_context_t                *ctx,
-                     nu_renderpass_t             *pass,
-                     const nu_renderpass_begin_t *info)
+nu_submit_renderpass (nu_context_t                 *ctx,
+                      nu_renderpass_t              *pass,
+                      const nu_renderpass_submit_t *info)
 {
-    ctx->_renderer.api.begin_renderpass(ctx->_renderer.ctx, pass, info);
-}
-void
-nu_end_renderpass (nu_context_t *ctx, nu_renderpass_t *pass)
-{
-    ctx->_renderer.api.end_renderpass(ctx->_renderer.ctx, pass);
 }
 void
 nu_draw (nu_context_t    *ctx,

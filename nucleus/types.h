@@ -392,8 +392,8 @@ typedef struct
 
 typedef struct
 {
-    GLuint target;
-} nu_renderpass_begin_t;
+    nu_bool_t reset;
+} nu_renderpass_submit_t;
 
 typedef union
 {
@@ -424,10 +424,9 @@ typedef struct
     nu_error_t (*delete_renderpass)(void *ctx, nu_renderpass_t *pass);
 
     // Commands API
-    void (*begin_renderpass)(void                        *ctx,
-                             nu_renderpass_t             *pass,
-                             const nu_renderpass_begin_t *info);
-    void (*end_renderpass)(void *ctx, nu_renderpass_t *pass);
+    void (*submit_renderpass)(void                         *ctx,
+                              nu_renderpass_t              *pass,
+                              const nu_renderpass_submit_t *info);
 } nu_renderer_api_t;
 
 typedef struct

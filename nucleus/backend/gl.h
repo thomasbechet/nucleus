@@ -185,7 +185,6 @@ nugl__render (void          *ctx,
     // TODO: execute draw calls
     // TODO: ?? sort draw calls
 
-
     return NU_ERROR_NONE;
 }
 
@@ -292,13 +291,9 @@ nugl__delete_renderpass (void *ctx, nu_renderpass_t *pass)
     return NU_ERROR_NONE;
 }
 static void
-nugl__begin_renderpass (void                        *ctx,
-                        nu_renderpass_t             *pass,
-                        const nu_renderpass_begin_t *info)
-{
-}
-static void
-nugl__end_renderpass (void *ctx, nu_renderpass_t *pass)
+nugl__submit_renderpass (void                         *ctx,
+                         nu_renderpass_t              *pass,
+                         const nu_renderpass_submit_t *info)
 {
 }
 

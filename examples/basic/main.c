@@ -120,14 +120,12 @@ main (void)
         }
 
         // Render loop
-        nu_renderpass_begin_t begin_info;
-        nu_begin_renderpass(&ctx, &main_pass, &begin_info);
-
         float model[NU_M4];
         nu_m4_identity(model);
         nu_draw(&ctx, &main_pass, &cube_mesh, model);
 
-        nu_end_renderpass(&ctx, &main_pass);
+        nu_renderpass_submit_t submit;
+        nu_submit_renderpass(&ctx, &main_pass, &submit);
 
         // Refresh surface
         nu_render(&ctx);
