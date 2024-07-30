@@ -4,10 +4,10 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-#define WIDTH  640
-#define HEIGHT 400
-// #define WIDTH  640 / 2
-// #define HEIGHT 400 / 2
+// #define WIDTH  640
+// #define HEIGHT 400
+#define WIDTH  640 / 2
+#define HEIGHT 400 / 2
 
 static nu_allocator_t alloc;
 static nu_context_t   ctx;
@@ -135,6 +135,8 @@ main (void)
 
     // Free cube
     error = nu_delete_mesh(&ctx, &cube_mesh);
+    NU_ERROR_ASSERT(error);
+    error = nu_delete_renderpass(&ctx, &main_pass);
     NU_ERROR_ASSERT(error);
 
     nu_terminate(&ctx, &alloc);

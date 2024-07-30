@@ -71,12 +71,6 @@ nugl__compile_shader (nugl__context_t *ctx,
     return NU_ERROR_NONE;
 }
 
-static nu_error_t
-nugl__clear (void)
-{
-    return NU_ERROR_NONE;
-}
-
 void GLAPIENTRY
 MessageCallback (GLenum        source,
                  GLenum        type,
@@ -157,14 +151,6 @@ nugl__render (void          *ctx,
     // Prepare matrix
     float model[NU_M4];
     nu_m4_identity(model);
-    // float view[NU_M4];
-    // float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
-    // float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
-    // float aspect = viewport[2] / viewport[3];
-    // nu_perspective(nu_radian(70.0f), aspect, 0.01f, 100.0f, projection);
-
-    // float view_projection[NU_M4];
-    // nu_m4_mul(projection, view, view_projection);
 
     // Bind surface
     glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
@@ -191,6 +177,14 @@ nugl__render (void          *ctx,
     glUseProgram(gl->blit_program);
     glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    // TODO: resolve renderpass tree
+    // TODO: resolve renderpass targets
+    // TODO: batch render calls
+    // TODO: bind renderpass states
+    // TODO: execute draw calls
+    // TODO: ?? sort draw calls
+
 
     return NU_ERROR_NONE;
 }

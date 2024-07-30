@@ -296,6 +296,11 @@ typedef struct
 
 typedef struct
 {
+    GLuint id;
+} nugl__renderpass_t;
+
+typedef struct
+{
     GLuint          blit_program;
     GLuint          flat_program;
     GLuint          nearest_sampler;
@@ -385,17 +390,17 @@ typedef struct
     nu_renderpass_type_t type;
 } nu_renderpass_info_t;
 
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nu_u32_t gl;
-#endif
-} nu_renderpass_t;
-
 typedef struct
 {
     GLuint target;
 } nu_renderpass_begin_t;
+
+typedef union
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__renderpass_t gl;
+#endif
+} nu_renderpass_t;
 
 typedef struct
 {
