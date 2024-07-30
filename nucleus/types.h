@@ -58,19 +58,56 @@ typedef int           nu_word_t;
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define NU_V2 2
-#define NU_V3 3
-#define NU_V4 4
-#define NU_M3 9
-#define NU_M4 16
+#define NU_V2_SIZE 2
+#define NU_V3_SIZE 3
+#define NU_V4_SIZE 4
+#define NU_M3_SIZE 9
+#define NU_M4_SIZE 16
 
-#define NU_V3_ZERO     ((const float[]) { 0.0, 0.0, 0.0 })
-#define NU_V3_UP       ((const float[]) { 0.0, 1.0, 0.0 })
-#define NU_V3_DOWN     ((const float[]) { 0.0, -1.0, 0.0 })
-#define NU_V3_FORWARD  ((const float[]) { 0.0, 0.0, -1.0 })
-#define NU_V3_BACKWARD ((const float[]) { 0.0, 0.0, -1.0 })
-#define NU_V3_LEFT     ((const float[]) { -1.0, 0.0, 0.0 })
-#define NU_V3_RIGHT    ((const float[]) { 1.0, 0.0, 0.0 })
+#define NU_V3_ZERO     (nu_v3_t)({ .data = { 0, 0, 0 } })
+#define NU_V3_UP       (nu_v3_t)({ .data = { 0, 1, 0 } })
+#define NU_V3_DOWN     (nu_v3_t)({ .data = { 0, -1, 0 } })
+#define NU_V3_FORWARD  (nu_v3_t)({ .data = { 0, 0, -1 } })
+#define NU_V3_BACKWARD (nu_v3_t)({ .data = { 0, 0, 1 } })
+#define NU_V3_LEFT     (nu_v3_t)({ .data = { -1, 0, 0 } })
+#define NU_V3_RIGHT    (nu_v3_t)({ .data = { 1, 0, 0 } })
+
+typedef struct
+{
+    float data[NU_V2_SIZE];
+} nu_v2_t;
+
+typedef struct
+{
+    nu_int_t data[NU_V2_SIZE];
+} nu_iv2_t;
+
+typedef struct
+{
+    float data[NU_V3_SIZE];
+} nu_v3_t;
+
+typedef struct
+{
+    nu_int_t data[NU_V3_SIZE];
+} nu_iv3_t;
+
+typedef struct
+{
+    float data[NU_V4_SIZE];
+} nu_v4_t;
+
+typedef struct
+{
+    nu_int_t data[NU_V4_SIZE];
+} nu_iv4_t;
+
+typedef struct
+{
+    float data[NU_M4_SIZE];
+} nu_m4_t;
+
+typedef nu_iv4_t nu_extent_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Memory Types                          //////
@@ -111,9 +148,9 @@ typedef struct
 {
     nuext_viewport_mode_t mode;
     float                 scale_factor;
-    nu_i32_t              screen[NU_V2];
-    nu_i32_t              extent[NU_V4];
-    float                 viewport[NU_V4];
+    nu_iv2_t              screen;
+    nu_extent_t           extent;
+    nu_v4_t               viewport;
 } nuglfw__viewport_t;
 
 typedef struct
