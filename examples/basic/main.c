@@ -77,6 +77,15 @@ main (void)
     ctx._renderer.backend.gl.mesh = &cube_mesh.gl;    // TODO: remove me
     ctx._renderer.backend.gl.cam  = &camera._data.gl; // TODO: remove me
 
+    // Create renderpasses
+    nu_renderpass_t main_pass;
+    {
+        nu_renderpass_info_t info;
+        info.type = NU_RENDERPASS_FLAT;
+        error     = nu_create_renderpass(&ctx, &info, &main_pass);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
@@ -109,6 +118,16 @@ main (void)
         {
             running = NU_FALSE;
         }
+
+        // Render loop
+        nu_renderpass_begin_t begin_info;
+        nu_begin_renderpass(&ctx, &main_pass, &begin_info);
+
+        float model[NU_M4];
+        nu_m4_identity(model);
+        nu_draw(&ctx, &main_pass, &cube_mesh, model);
+
+        nu_end_renderpass(&ctx, &main_pass);
 
         // Refresh surface
         nu_render(&ctx);

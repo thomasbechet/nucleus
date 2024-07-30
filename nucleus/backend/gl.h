@@ -285,6 +285,28 @@ nugl__delete_mesh (void *ctx, nu_mesh_t *mesh)
     glDeleteBuffers(1, &mesh->gl.vbo);
     return NU_ERROR_NONE;
 }
+static nu_error_t
+nugl__create_renderpass (void                       *ctx,
+                         const nu_renderpass_info_t *info,
+                         nu_renderpass_t            *pass)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_renderpass (void *ctx, nu_renderpass_t *pass)
+{
+    return NU_ERROR_NONE;
+}
+static void
+nugl__begin_renderpass (void                        *ctx,
+                        nu_renderpass_t             *pass,
+                        const nu_renderpass_begin_t *info)
+{
+}
+static void
+nugl__end_renderpass (void *ctx, nu_renderpass_t *pass)
+{
+}
 
 #endif
 

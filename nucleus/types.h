@@ -316,38 +316,12 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_backend_t;
 
-typedef enum
-{
-    NU_RENDERPASS_FLAT,
-    NU_RENDERPASS_TRANSPARENT,
-} nu_renderpass_type_t;
-
-typedef struct
-{
-    nu_renderpass_type_t type;
-} nu_renderpass_info_t;
-
-typedef enum
-{
-    NU_RENDER_CMD_DRAW_MESH,
-    NU_RENDER_CMD_DRAW_MESH_INSTANCED,
-} nu_render_command_type_t;
-
 typedef struct
 {
     const float *positions;
     const float *uvs;
     nu_size_t    vertex_count;
 } nu_mesh_info_t;
-
-typedef struct
-{
-    nu_bool_t reset;
-    nu_u32_t  light_env;
-    nu_u32_t  camera;
-    nu_u32_t  render_target;
-    nu_u32_t  depth_buffer;
-} nu_submit_info_t;
 
 typedef enum
 {
@@ -400,6 +374,17 @@ typedef union
 #endif
 } nu__renderer_backend_t;
 
+typedef enum
+{
+    NU_RENDERPASS_FLAT,
+    NU_RENDERPASS_TRANSPARENT,
+} nu_renderpass_type_t;
+
+typedef struct
+{
+    nu_renderpass_type_t type;
+} nu_renderpass_info_t;
+
 typedef union
 {
 #ifdef NU_BUILD_RENDERER_GL
@@ -409,10 +394,18 @@ typedef union
 
 typedef struct
 {
+    GLuint target;
+} nu_renderpass_begin_t;
+
+typedef struct
+{
+    // Engine API
     nu_error_t (*init)(void *ctx, const nu_int_t size[NU_V2]);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,
                          const float    *viewport);
+
+    // Resources API
     nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
     nu_error_t (*delete_camera)(void *ctx, nu_camera_t *camera);
     nu_error_t (*update_camera)(void *ctx, nu_camera_t *camera);
@@ -420,6 +413,16 @@ typedef struct
                               const nu_mesh_info_t *info,
                               nu_mesh_t            *mesh);
     nu_error_t (*delete_mesh)(void *ctx, nu_mesh_t *mesh);
+    nu_error_t (*create_renderpass)(void                       *ctx,
+                                    const nu_renderpass_info_t *info,
+                                    nu_renderpass_t            *pass);
+    nu_error_t (*delete_renderpass)(void *ctx, nu_renderpass_t *pass);
+
+    // Commands API
+    void (*begin_renderpass)(void                        *ctx,
+                             nu_renderpass_t             *pass,
+                             const nu_renderpass_begin_t *info);
+    void (*end_renderpass)(void *ctx, nu_renderpass_t *pass);
 } nu_renderer_api_t;
 
 typedef struct
