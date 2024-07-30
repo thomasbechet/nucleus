@@ -253,8 +253,8 @@ nuglfw__init (nu_context_t *ctx)
     nuglfw__input_t   *input   = &ctx->_glfw_input;
     const nu_i32_t    *size    = ctx->_surface_size;
 
-    const nu_int_t width  = 1600;
-    const nu_int_t height = 900;
+    const nu_int_t width  = NUGLFW_WINDOW_WIDTH;
+    const nu_int_t height = NUGLFW_WINDOW_HEIGHT;
 
     // Initialize GLFW
     if (!glfwInit())

@@ -96,6 +96,9 @@ typedef struct
 #define NUGLFW_MAX_BINDING 128
 #define NUGLFW_MAX_INPUT   128
 
+#define NUGLFW_WINDOW_WIDTH  1280
+#define NUGLFW_WINDOW_HEIGHT 720
+
 typedef enum
 {
     NUEXT_VIEWPORT_FIXED,
