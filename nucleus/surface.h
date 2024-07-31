@@ -29,8 +29,8 @@ nu_error_t
 nu_render (nu_context_t *ctx)
 {
     ctx->_renderer.api.render(ctx->_renderer.ctx,
-                              ctx->_glfw_surface.viewport.extent,
-                              ctx->_glfw_surface.viewport.viewport);
+                              &ctx->_glfw_surface.viewport.extent,
+                              &ctx->_glfw_surface.viewport.viewport);
 #ifdef NU_BUILD_GLFW
     nuglfw__swap_buffers(&ctx->_glfw_surface);
 #endif

@@ -43,8 +43,7 @@ nu_init (const nu_context_info_t *info,
     {
         nu_context_info_default(&cinfo);
     }
-    ctx->_surface_size[0]  = (nu_i32_t)info->width;
-    ctx->_surface_size[1]  = (nu_i32_t)info->height;
+    ctx->_surface_size     = nu_uvec2(info->width, info->height);
     ctx->_renderer_backend = info->renderer;
     ctx->_close_requested  = NU_FALSE;
 

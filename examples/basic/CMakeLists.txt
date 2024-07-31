@@ -16,7 +16,7 @@ target_link_libraries(${PROJECT_NAME} glfw GL)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
 
 include(CheckCCompilerFlag)
 function(enable_c_compiler_flag_if_supported flag)

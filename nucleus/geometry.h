@@ -3,20 +3,19 @@
 
 #include <nucleus/types.h>
 
-#define NU_CUBE_MESH_VERTEX_SIZE   36
-#define NU_CUBE_MESH_POSITION_SIZE (NU_CUBE_MESH_VERTEX_SIZE * NU_V3)
-#define NU_CUBE_MESH_UV_SIZE       (NU_CUBE_MESH_VERTEX_SIZE * NU_V2)
+#define NU_CUBE_MESH_VERTEX_COUNT 36
 
-NU_API void nu_generate_cube_mesh(float side_length,
-                                  float positions[NU_CUBE_MESH_POSITION_SIZE],
-                                  float uvs[NU_CUBE_MESH_UV_SIZE]);
+NU_API void nu_generate_cube_mesh(
+    float     side_length,
+    nu_vec3_t positions[NU_CUBE_MESH_VERTEX_COUNT],
+    nu_vec2_t uvs[NU_CUBE_MESH_VERTEX_COUNT]);
 
 #ifdef NU_IMPLEMENTATION
 
 void
-nu_generate_cube_mesh (float side_length,
-                       float positions[NU_CUBE_MESH_POSITION_SIZE],
-                       float uvs[NU_CUBE_MESH_UV_SIZE])
+nu_generate_cube_mesh (float     side_length,
+                       nu_vec3_t positions[NU_CUBE_MESH_VERTEX_COUNT],
+                       nu_vec2_t uvs[NU_CUBE_MESH_VERTEX_COUNT])
 {
     float half_side = side_length / 2.0f;
 
@@ -54,21 +53,21 @@ nu_generate_cube_mesh (float side_length,
             { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
     // Flatten the triangle_vertices array into the vertex_positions array
-    nu_size_t position_index = 0;
-    nu_size_t uv_index       = 0;
+    nu_size_t index = 0;
     for (nu_size_t i = 0; i < 12; ++i)
     {
         for (nu_size_t j = 0; j < 3; ++j)
         {
-            int vertex_index            = faces[i][j];
-            positions[position_index++] = vertex_positions[vertex_index][0];
-            positions[position_index++] = vertex_positions[vertex_index][1];
-            positions[position_index++] = vertex_positions[vertex_index][2];
+            int vertex_index   = faces[i][j];
+            positions[index].x = vertex_positions[vertex_index][0];
+            positions[index].y = vertex_positions[vertex_index][1];
+            positions[index].z = vertex_positions[vertex_index][2];
             if (uvs)
             {
-                uvs[uv_index++] = vertex_uvs[vertex_index][0];
-                uvs[uv_index++] = vertex_uvs[vertex_index][1];
+                uvs[index].x = vertex_uvs[vertex_index][0];
+                uvs[index].y = vertex_uvs[vertex_index][1];
             }
+            ++index;
         }
     }
 }

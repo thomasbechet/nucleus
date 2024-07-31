@@ -89,7 +89,7 @@ MessageCallback (GLenum        source,
 }
 
 static nu_error_t
-nugl__init (void *ctx, const nu_int_t size[NU_V2])
+nugl__init (void *ctx, nu_uvec2_t size)
 {
     nu_error_t       error;
     nugl__context_t *gl = ctx;
@@ -114,14 +114,14 @@ nugl__init (void *ctx, const nu_int_t size[NU_V2])
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     // Create surface texture and framebuffer
-    nu_iv2_copy(size, gl->surface_size);
+    gl->surface_size = size;
     glGenTextures(1, &gl->surface_texture);
     glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_RGB,
-                 size[0],
-                 size[1],
+                 size.x,
+                 size.y,
                  0,
                  GL_RGB,
                  GL_UNSIGNED_BYTE,
@@ -142,28 +142,27 @@ nugl__init (void *ctx, const nu_int_t size[NU_V2])
 }
 
 static nu_error_t
-nugl__render (void          *ctx,
-              const nu_int_t global_viewport[NU_V4],
-              const float    viewport[NU_V4])
+nugl__render (void             *ctx,
+              const nu_uvec4_t *global_viewport,
+              const nu_vec4_t  *viewport)
 {
     nugl__context_t *gl = ctx;
 
     // Prepare matrix
-    float model[NU_M4];
-    nu_m4_identity(model);
+    nu_mat4_t model = nu_mat4_identity();
 
     // Bind surface
     glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
-    glViewport(0, 0, gl->surface_size[0], gl->surface_size[1]);
+    glViewport(0, 0, gl->surface_size.x, gl->surface_size.y);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Render
     glUseProgram(gl->flat_program);
     GLuint model_id = glGetUniformLocation(gl->flat_program, "model");
-    glUniformMatrix4fv(model_id, 1, GL_FALSE, model);
+    glUniformMatrix4fv(model_id, 1, GL_FALSE, model.data);
     GLuint vp_id = glGetUniformLocation(gl->flat_program, "view_projection");
-    glUniformMatrix4fv(vp_id, 1, GL_FALSE, gl->cam->vp);
+    glUniformMatrix4fv(vp_id, 1, GL_FALSE, gl->cam->vp.data);
 
     glBindVertexArray(gl->mesh->vao);
     glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);
@@ -171,7 +170,7 @@ nugl__render (void          *ctx,
 
     // Blit surface
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    glViewport(viewport->x, viewport->y, viewport->z, viewport->w);
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(gl->blit_program);
@@ -193,14 +192,12 @@ nugl__update_camera (void *ctx, nu_camera_t *camera)
 {
     nugl__context_t *gl = ctx;
 
-    float view[NU_M4];
-    nu_lookat(camera->eye, camera->center, camera->up, view);
-    float projection[NU_M4];
-    float aspect = (float)gl->surface_size[0] / (float)gl->surface_size[1];
-    nu_perspective(
-        nu_radian(camera->fov), aspect, camera->near, camera->far, projection);
+    nu_mat4_t view   = nu_lookat(camera->eye, camera->center, camera->up);
+    float     aspect = (float)gl->surface_size.x / (float)gl->surface_size.y;
+    nu_mat4_t projection = nu_perspective(
+        nu_radian(camera->fov), aspect, camera->near, camera->far);
 
-    nu_m4_mul(projection, view, camera->_data.gl.vp);
+    camera->_data.gl.vp = nu_mat4_mul(projection, view);
 
     return NU_ERROR_NONE;
 }
@@ -222,7 +219,7 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
     NU_ASSERT(info->positions);
 
-    mesh->gl.vertex_count = info->vertex_count;
+    mesh->gl.vertex_count = info->count;
 
     // Create VAO
     glGenVertexArrays(1, &mesh->gl.vao);
@@ -234,21 +231,20 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 
     // Format vertices
     glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(float) * info->vertex_count * NUGL_VERTEX_SIZE,
+                 sizeof(float) * info->count * NUGL_VERTEX_SIZE,
                  NU_NULL,
                  GL_STATIC_DRAW);
     float *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     NU_ASSERT(ptr);
-    for (nu_size_t i = 0; i < info->vertex_count; ++i)
+    for (nu_size_t i = 0; i < info->count; ++i)
     {
-        nu_memcpy(ptr + i * NUGL_VERTEX_SIZE,
-                  info->positions + i * NU_V3,
-                  sizeof(float) * NU_V3);
+        ptr[i * NUGL_VERTEX_SIZE + 0] = info->positions[i].x;
+        ptr[i * NUGL_VERTEX_SIZE + 1] = info->positions[i].y;
+        ptr[i * NUGL_VERTEX_SIZE + 2] = info->positions[i].z;
         if (info->uvs)
         {
-            nu_memcpy(ptr + i * NUGL_VERTEX_SIZE + NU_V3,
-                      info->uvs + i * NU_V2,
-                      sizeof(float) * NU_V2);
+            ptr[i * NUGL_VERTEX_SIZE + 3] = info->uvs[i].x;
+            ptr[i * NUGL_VERTEX_SIZE + 4] = info->uvs[i].y;
         }
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -262,7 +258,7 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(float) * NUGL_VERTEX_SIZE,
-                          (void *)(sizeof(float) * NU_V3));
+                          (void *)(sizeof(float) * NU_VEC3_SIZE));
     glEnableVertexAttribArray(1);
 
     // Unbind buffers

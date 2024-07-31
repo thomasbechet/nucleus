@@ -53,13 +53,13 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create cube
-    float cube_positions[NU_CUBE_MESH_POSITION_SIZE];
-    float cube_uvs[NU_CUBE_MESH_UV_SIZE];
+    nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
+    nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
     nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs);
     nu_mesh_t      cube_mesh;
-    nu_mesh_info_t cube_info = { .positions    = cube_positions,
-                                 .uvs          = cube_uvs,
-                                 .vertex_count = NU_CUBE_MESH_VERTEX_SIZE };
+    nu_mesh_info_t cube_info = { .positions = cube_positions,
+                                 .uvs       = cube_uvs,
+                                 .count     = NU_CUBE_MESH_VERTEX_COUNT };
     error                    = nu_create_mesh(&ctx, &cube_info, &cube_mesh);
     NU_ERROR_ASSERT(error);
 
@@ -67,11 +67,9 @@ main (void)
     nu_camera_t camera;
     error = nu_create_camera(&ctx, &camera);
     NU_ERROR_ASSERT(error);
-    float eye[NU_V3]    = { 1.0f, 0.0f, 1.0f };
-    float center[NU_V3] = { 0.0f, 0.0f, 0.0f };
-    nu_v3_copy(eye, camera.eye);
-    nu_v3_copy(center, camera.center);
-    error = nu_update_camera(&ctx, &camera);
+    camera.eye    = nu_vec3(1, 0, 1);
+    camera.center = NU_VEC3_ZERO;
+    error         = nu_update_camera(&ctx, &camera);
     NU_ERROR_ASSERT(error);
 
     ctx._renderer.backend.gl.mesh = &cube_mesh.gl;    // TODO: remove me
@@ -120,9 +118,8 @@ main (void)
         }
 
         // Render loop
-        float model[NU_M4];
-        nu_m4_identity(model);
-        nu_draw(&ctx, &main_pass, &cube_mesh, model);
+        nu_mat4_t model = nu_mat4_identity();
+        nu_draw(&ctx, &main_pass, &cube_mesh, &model);
 
         nu_renderpass_submit_t submit;
         nu_submit_renderpass(&ctx, &main_pass, &submit);

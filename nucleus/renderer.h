@@ -22,7 +22,7 @@ NU_API void nu_submit_renderpass(nu_context_t                 *ctx,
 NU_API void nu_draw(nu_context_t    *ctx,
                     nu_renderpass_t *renderpass,
                     const nu_mesh_t *mesh,
-                    const float     *transform);
+                    const nu_mat4_t *transform);
 NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
                               const float     *transforms,
                               nu_u32_t         count);
@@ -34,14 +34,14 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
 #endif
 
 static nu_error_t
-nu__renderer_null_init (void *ctx, nu_iv2_t size)
+nu__renderer_null_init (void *ctx, nu_uvec2_t size)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_render (void       *ctx,
-                          nu_extent_t global_viewport,
-                          nu_v4_t     viewport)
+nu__renderer_null_render (void             *ctx,
+                          const nu_uvec4_t *global_viewport,
+                          const nu_vec4_t  *viewport)
 {
     NU_UNUSED(ctx);
     NU_UNUSED(viewport);
@@ -207,7 +207,7 @@ void
 nu_draw (nu_context_t    *ctx,
          nu_renderpass_t *renderpass,
          const nu_mesh_t *mesh,
-         const float     *transform)
+         const nu_mat4_t *transform)
 {
 }
 

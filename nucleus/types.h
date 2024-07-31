@@ -58,58 +58,102 @@ typedef int           nu_word_t;
 #define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#define NU_V2_SIZE 2
-#define NU_V3_SIZE 3
-#define NU_V4_SIZE 4
-#define NU_M3_SIZE 9
-#define NU_M4_SIZE 16
+#define NU_VEC2_SIZE 2
+#define NU_VEC3_SIZE 3
+#define NU_VEC4_SIZE 4
+#define NU_MAT3_SIZE 9
+#define NU_MAT4_SIZE 16
 
-#define NU_V2_ZERO nu_v2(0, 0)
+#define NU_VEC2_ZERO nu_vec2(0, 0)
 
-#define NU_V3_ZERO     nu_v3(0, 0, 0)
-#define NU_V3_UP       nu_v3(0, 1, 0)
-#define NU_V3_DOWN     nu_v3(0, -1, 0)
-#define NU_V3_FORWARD  nu_v3(0, 0, -1)
-#define NU_V3_BACKWARD nu_v3(0, 0, 1)
-#define NU_V3_LEFT     nu_v3(-1, 0, 0)
-#define NU_V3_RIGHT    nu_v3(1, 0, 0)
+#define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
+#define NU_VEC3_UP       nu_vec3(0, 1, 0)
+#define NU_VEC3_DOWN     nu_vec3(0, -1, 0)
+#define NU_VEC3_FORWARD  nu_vec3(0, 0, -1)
+#define NU_VEC3_BACKWARD nu_vec3(0, 0, 1)
+#define NU_VEC3_LEFT     nu_vec3(-1, 0, 0)
+#define NU_VEC3_RIGHT    nu_vec3(1, 0, 0)
 
-typedef struct
+#define NU_VEC4_ZERO nu_vec4(0, 0, 0, 0)
+
+typedef union
 {
-    float data[NU_V2_SIZE];
-} nu_v2_t;
+    struct
+    {
+        float x;
+        float y;
+    };
+    float xy[NU_VEC2_SIZE];
+} nu_vec2_t;
 
-typedef struct
+typedef union
 {
-    nu_int_t data[NU_V2_SIZE];
-} nu_iv2_t;
+    struct
+    {
+        float x;
+        float y;
+        float z;
+    };
+    float xyz[NU_VEC3_SIZE];
+} nu_vec3_t;
 
-typedef struct
+typedef union
 {
-    float data[NU_V3_SIZE];
-} nu_v3_t;
+    struct
+    {
+        float x;
+        float y;
+        float z;
+        float w;
+    };
+    float xyzw[NU_VEC4_SIZE];
+} nu_vec4_t;
 
-typedef struct
+typedef union
 {
-    nu_int_t data[NU_V3_SIZE];
-} nu_iv3_t;
+    struct
+    {
+        nu_u32_t x;
+        nu_u32_t y;
+    };
+    nu_u32_t xy[NU_VEC2_SIZE];
+} nu_uvec2_t;
 
-typedef struct
+typedef union
 {
-    float data[NU_V4_SIZE];
-} nu_v4_t;
+    struct
+    {
+        nu_u32_t x;
+        nu_u32_t y;
+        nu_u32_t z;
+        nu_u32_t w;
+    };
+    nu_u32_t xyzw[NU_VEC4_SIZE];
+} nu_uvec4_t;
 
-typedef struct
+typedef union
 {
-    nu_int_t data[NU_V4_SIZE];
-} nu_iv4_t;
-
-typedef struct
-{
-    float data[NU_M4_SIZE];
-} nu_m4_t;
-
-typedef nu_iv4_t nu_extent_t;
+    struct
+    {
+        float x1;
+        float x2;
+        float x3;
+        float x4;
+        float y1;
+        float y2;
+        float y3;
+        float y4;
+        float z1;
+        float z2;
+        float z3;
+        float z4;
+        float w1;
+        float w2;
+        float w3;
+        float w4;
+    };
+    float data[NU_MAT4_SIZE];
+} nu_mat4_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Memory Types                          //////
@@ -150,9 +194,9 @@ typedef struct
 {
     nuext_viewport_mode_t mode;
     float                 scale_factor;
-    nu_iv2_t              screen;
-    nu_extent_t           extent;
-    nu_v4_t               viewport;
+    nu_uvec2_t            screen;
+    nu_uvec4_t            extent;
+    nu_vec4_t             viewport;
 } nuglfw__viewport_t;
 
 typedef struct
@@ -290,10 +334,10 @@ typedef struct
     nu_u32_t              input_count;
     nu_u32_t              key_to_first_binding[GLFW_KEY_LAST];
     nu_u32_t              mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
-    nu_v2_t               mouse_position;
-    nu_v2_t               mouse_old_position;
-    nu_v2_t               mouse_scroll;
-    nu_v2_t               mouse_motion;
+    nu_vec2_t             mouse_position;
+    nu_vec2_t             mouse_old_position;
+    nu_vec2_t             mouse_scroll;
+    nu_vec2_t             mouse_motion;
 } nuglfw__input_t;
 
 #endif
@@ -306,9 +350,9 @@ typedef struct
 #define NU_CAMERA_DEFAULT_FOV        90.0f
 #define NU_CAMERA_DEFAULT_NEAR       0.01f
 #define NU_CAMERA_DEFAULT_FAR        100.0f
-#define NU_CAMERA_DEFAULT_EYE        NU_V3_ZERO
-#define NU_CAMERA_DEFAULT_CENTER     NU_V3_FORWARD
-#define NU_CAMERA_DEFAULT_UP         NU_V3_UP
+#define NU_CAMERA_DEFAULT_EYE        NU_VEC3_ZERO
+#define NU_CAMERA_DEFAULT_CENTER     NU_VEC3_FORWARD
+#define NU_CAMERA_DEFAULT_UP         NU_VEC3_UP
 
 #ifdef NU_BUILD_RENDERER_GL
 
@@ -316,9 +360,9 @@ typedef struct
 
 typedef struct
 {
-    GLuint  ubo;
-    nu_m4_t vp;
-    nu_m4_t ivp;
+    GLuint    ubo;
+    nu_mat4_t vp;
+    nu_mat4_t ivp;
 } nugl__camera_t;
 
 typedef struct
@@ -345,7 +389,7 @@ typedef struct
     GLuint          nearest_sampler;
     GLuint          surface_fbo;
     GLuint          surface_texture;
-    nu_iv2_t        surface_size;
+    nu_uvec2_t      surface_size;
     nugl__mesh_t   *mesh;
     nugl__camera_t *cam;
 } nugl__context_t;
@@ -362,9 +406,9 @@ typedef enum
 
 typedef struct
 {
-    const float *positions;
-    const float *uvs;
-    nu_size_t    vertex_count;
+    const nu_vec3_t *positions;
+    const nu_vec2_t *uvs;
+    nu_size_t        count;
 } nu_mesh_info_t;
 
 typedef enum
@@ -386,9 +430,9 @@ typedef struct
     float             fov;
     float             near;
     float             far;
-    nu_v3_t           up;
-    nu_v3_t           center;
-    nu_v3_t           eye;
+    nu_vec3_t         up;
+    nu_vec3_t         center;
+    nu_vec3_t         eye;
     nu__camera_data_t _data;
 } nu_camera_t;
 
@@ -444,10 +488,10 @@ typedef union
 typedef struct
 {
     // Engine API
-    nu_error_t (*init)(void *ctx, nu_iv2_t size);
-    nu_error_t (*render)(void           *ctx,
-                         const nu_int_t *global_viewport,
-                         const float    *viewport);
+    nu_error_t (*init)(void *ctx, nu_uvec2_t size);
+    nu_error_t (*render)(void             *ctx,
+                         const nu_uvec4_t *global_viewport,
+                         const nu_vec4_t  *viewport);
 
     // Resources API
     nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
@@ -488,7 +532,7 @@ typedef struct
 
 typedef struct
 {
-    nu_iv2_t              _surface_size;
+    nu_uvec2_t            _surface_size;
     nu_renderer_backend_t _renderer_backend;
     nu_bool_t             _close_requested;
 #ifdef NU_BUILD_GLFW
