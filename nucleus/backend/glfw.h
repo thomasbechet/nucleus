@@ -109,68 +109,61 @@ nuglfw__find_binding (nuglfw__input_t *backend, nu_u32_t binding, nu_u32_t id)
 static void
 nuglfw__update_viewport (nuglfw__viewport_t *v)
 {
-    float global_pos[NU_V2] = {
-        (float)v->extent[0],
-        (float)v->extent[1],
-    };
-    nu_v2_floor(global_pos, global_pos);
+    nu_v2_t global_pos = nu_v2_floor(
+        nu_v2((float)v->extent.data[0], (float)v->extent.data[1]));
 
-    float global_size[NU_V2] = {
-        (float)v->extent[2],
-        (float)v->extent[3],
-    };
-    nu_v2_floor(global_size, global_size);
+    nu_v2_t global_size = nu_v2_floor(
+        nu_v2((float)v->extent.data[2], (float)v->extent.data[3]));
 
-    float aspect_ratio = (float)v->screen[0] / (float)v->screen[1];
+    float aspect_ratio = (float)v->screen.data[0] / (float)v->screen.data[1];
 
-    float size[NU_V2] = { 0 };
+    nu_v2_t size = NU_V2_ZERO;
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
-            size[0] = (float)v->screen[0] * v->scale_factor;
-            size[1] = (float)v->screen[1] * v->scale_factor;
+            size = nu_v2((float)v->screen.data[0] * v->scale_factor,
+                         (float)v->screen.data[1] * v->scale_factor);
         };
         break;
         case NUEXT_VIEWPORT_FIXED_BEST_FIT: {
-            float w_factor = global_size[0] / (float)v->screen[0];
-            float h_factor = global_size[1] / (float)v->screen[1];
+            float w_factor = global_size.data[0] / (float)v->screen.data[0];
+            float h_factor = global_size.data[1] / (float)v->screen.data[1];
             float min      = NU_MAX(1.0f, nu_floor(NU_MIN(w_factor, h_factor)));
-            size[0]        = v->screen[0] * min;
-            size[1]        = v->screen[1] * min;
+            size.data[0]   = v->screen.data[0] * min;
+            size.data[1]   = v->screen.data[1] * min;
         }
         break;
         case NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT: {
-            if (global_size[0] / global_size[1] >= aspect_ratio)
+            if (global_size.data[0] / global_size.data[1] >= aspect_ratio)
             {
-                size[0] = nu_floor(global_size[1] * aspect_ratio);
-                size[1] = nu_floor(global_size[1]);
+                size.data[0] = nu_floor(global_size.data[1] * aspect_ratio);
+                size.data[1] = nu_floor(global_size.data[1]);
             }
             else
             {
-                size[0] = nu_floor(global_size[0]);
-                size[1] = nu_floor(global_size[0] / aspect_ratio);
+                size.data[0] = nu_floor(global_size.data[0]);
+                size.data[1] = nu_floor(global_size.data[0] / aspect_ratio);
             }
         }
         break;
         case NUEXT_VIEWPORT_STRETCH:
-            nu_v2_copy(global_size, size);
+            size = global_size;
             break;
     }
 
-    nu_v2_sub(global_size, size, v->viewport);
-    nu_v2_divs(v->viewport, 2.0f, v->viewport);
-    nu_v2_add(v->viewport, global_pos, v->viewport);
-    nu_v2_copy(size, v->viewport + 2);
+    nu_v2_t vpos = nu_v2_sub(global_size, size);
+    vpos         = nu_v2_divs(vpos, 2.0f);
+    vpos         = nu_v2_add(vpos, global_pos);
+    v->viewport = nu_v4(vpos.data[0], vpos.data[1], size.data[0], size.data[1]);
 }
 static void
 nuglfw__viewport_cursor (const nuglfw__viewport_t *v,
-                         const float              *pos,
-                         float                    *cursor)
+                         nu_v2_t                   pos,
+                         nu_v2_t                  *cursor)
 {
-    float relpos[NU_V2];
-    nu_v2_sub(pos, v->viewport, relpos);
-    nu_v2_div(relpos, v->viewport + 2, cursor);
-    nu_v2_mul(cursor, v->viewport + 2, cursor);
+    nu_v2_t relpos = nu_v2_sub(pos, nu_v4_xy(v->viewport));
+    *cursor        = nu_v2_div(relpos, nu_v4_zw(v->viewport));
+    *cursor        = nu_v2_mul(*cursor, nu_v4_zw(v->viewport));
 }
 
 static void
@@ -219,9 +212,8 @@ nuglfw__mouse_button_callback (GLFWwindow *window,
 static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
-    nu_context_t *ctx                  = glfwGetWindowUserPointer(window);
-    ctx->_glfw_input.mouse_position[0] = (float)xpos;
-    ctx->_glfw_input.mouse_position[1] = (float)ypos;
+    nu_context_t *ctx               = glfwGetWindowUserPointer(window);
+    ctx->_glfw_input.mouse_position = nu_v2((float)xpos, (float)ypos);
 }
 static void
 nuglfw__character_callback (GLFWwindow *window, int codepoint)
@@ -233,16 +225,15 @@ nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      xoffset,
                                double      yoffset)
 {
-    nu_context_t *ctx                = glfwGetWindowUserPointer(window);
-    ctx->_glfw_input.mouse_scroll[0] = (float)xoffset;
-    ctx->_glfw_input.mouse_scroll[1] = (float)yoffset;
+    nu_context_t *ctx             = glfwGetWindowUserPointer(window);
+    ctx->_glfw_input.mouse_scroll = nu_v2((float)xoffset, (float)yoffset);
 }
 static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
-    nu_context_t *ctx                     = glfwGetWindowUserPointer(window);
-    ctx->_glfw_surface.viewport.extent[2] = width;
-    ctx->_glfw_surface.viewport.extent[3] = height;
+    nu_context_t *ctx = glfwGetWindowUserPointer(window);
+    ctx->_glfw_surface.viewport.extent.data[2] = width;
+    ctx->_glfw_surface.viewport.extent.data[3] = height;
     nuglfw__update_viewport(&ctx->_glfw_surface.viewport);
 }
 
@@ -251,7 +242,7 @@ nuglfw__init (nu_context_t *ctx)
 {
     nuglfw__surface_t *surface = &ctx->_glfw_surface;
     nuglfw__input_t   *input   = &ctx->_glfw_input;
-    const nu_i32_t    *size    = ctx->_surface_size;
+    nu_iv2_t           size    = ctx->_surface_size;
 
     const nu_int_t width  = NUGLFW_WINDOW_WIDTH;
     const nu_int_t height = NUGLFW_WINDOW_HEIGHT;
@@ -270,13 +261,10 @@ nuglfw__init (nu_context_t *ctx)
     }
 
     // Initialize viewport
-    surface->viewport.mode = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
-    nu_iv2_copy(size, surface->viewport.screen);
-    surface->viewport.extent[0] = 0;
-    surface->viewport.extent[1] = 0;
-    surface->viewport.extent[2] = width;
-    surface->viewport.extent[3] = height;
-    nu_v4_zero(surface->viewport.viewport);
+    surface->viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
+    surface->viewport.screen   = size;
+    surface->viewport.extent   = nu_v4(0, 0, width, height);
+    surface->viewport.viewport = NU_V4_ZERO;
     nuglfw__update_viewport(&surface->viewport);
 
     // Setup default cursor mode

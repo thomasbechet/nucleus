@@ -25,6 +25,11 @@ NU_API nu_v3_t nu_v3(float x, float y, float z);
 NU_API nu_v3_t nu_v3_normalize(nu_v3_t a);
 NU_API nu_v3_t nu_v3_cross(nu_v3_t a, nu_v3_t b);
 
+NU_API nu_v4_t nu_v4(float x, float y, float z, float w);
+NU_API nu_v2_t nu_v4_xy(nu_v4_t v);
+NU_API nu_v2_t nu_v4_zw(nu_v4_t v);
+
+NU_API nu_m4_t nu_m4_zero(void);
 NU_API nu_m4_t nu_m4_identity(void);
 NU_API nu_m4_t nu_m4_rotate_x(float x);
 NU_API nu_m4_t nu_m4_mul(nu_m4_t a, nu_m4_t b);
@@ -194,14 +199,47 @@ nu_v3_cross (nu_v3_t a, nu_v3_t b)
     return ret;
 }
 
+nu_v4_t
+nu_v4 (float x, float y, float z, float w)
+{
+    nu_v4_t v;
+    v.data[0] = x;
+    v.data[1] = y;
+    v.data[2] = z;
+    v.data[3] = w;
+    return v;
+}
+nu_v2_t
+nu_v4_xy (nu_v4_t v)
+{
+    nu_v2_t ret;
+    ret.data[0] = v.data[0];
+    ret.data[1] = v.data[1];
+    return ret;
+}
+nu_v2_t
+nu_v4_zw (nu_v4_t v)
+{
+    nu_v2_t ret;
+    ret.data[0] = v.data[2];
+    ret.data[1] = v.data[3];
+    return ret;
+}
+
 nu_m4_t
-nu_m4_identity (void)
+nu_m4_zero (void)
 {
     nu_m4_t m;
-    for (nu_size_t i = 0; i < NU_M4; ++i)
+    for (nu_size_t i = 0; i < NU_M4_SIZE; ++i)
     {
         m.data[i] = 0.0f;
     }
+    return m;
+}
+nu_m4_t
+nu_m4_identity (void)
+{
+    nu_m4_t m  = nu_m4_zero();
     m.data[0]  = 1.0f;
     m.data[5]  = 1.0f;
     m.data[10] = 1.0f;
@@ -217,7 +255,7 @@ nu_m4_rotate_x (float x)
 nu_m4_t
 nu_m4_mul (nu_m4_t a, nu_m4_t b)
 {
-    nu_m4_t m = NU_M4_ZERO;
+    nu_m4_t m = nu_m4_zero();
     for (nu_size_t i = 0; i < 4; ++i)
     {
         for (nu_size_t j = 0; j < 4; ++j)
@@ -299,6 +337,7 @@ nu_lookat (nu_v3_t eye, nu_v3_t center, nu_v3_t up)
     m.data[14] = f.data[0] * eye.data[0] + f.data[1] * eye.data[1]
                  + f.data[2] * eye.data[2];
     m.data[15] = 1.0f;
+    return m;
 }
 
 #endif

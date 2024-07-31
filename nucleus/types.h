@@ -64,13 +64,15 @@ typedef int           nu_word_t;
 #define NU_M3_SIZE 9
 #define NU_M4_SIZE 16
 
-#define NU_V3_ZERO     (nu_v3_t)({ .data = { 0, 0, 0 } })
-#define NU_V3_UP       (nu_v3_t)({ .data = { 0, 1, 0 } })
-#define NU_V3_DOWN     (nu_v3_t)({ .data = { 0, -1, 0 } })
-#define NU_V3_FORWARD  (nu_v3_t)({ .data = { 0, 0, -1 } })
-#define NU_V3_BACKWARD (nu_v3_t)({ .data = { 0, 0, 1 } })
-#define NU_V3_LEFT     (nu_v3_t)({ .data = { -1, 0, 0 } })
-#define NU_V3_RIGHT    (nu_v3_t)({ .data = { 1, 0, 0 } })
+#define NU_V2_ZERO nu_v2(0, 0)
+
+#define NU_V3_ZERO     nu_v3(0, 0, 0)
+#define NU_V3_UP       nu_v3(0, 1, 0)
+#define NU_V3_DOWN     nu_v3(0, -1, 0)
+#define NU_V3_FORWARD  nu_v3(0, 0, -1)
+#define NU_V3_BACKWARD nu_v3(0, 0, 1)
+#define NU_V3_LEFT     nu_v3(-1, 0, 0)
+#define NU_V3_RIGHT    nu_v3(1, 0, 0)
 
 typedef struct
 {
@@ -288,10 +290,10 @@ typedef struct
     nu_u32_t              input_count;
     nu_u32_t              key_to_first_binding[GLFW_KEY_LAST];
     nu_u32_t              mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
-    float                 mouse_position[NU_V2];
-    float                 mouse_old_position[NU_V2];
-    float                 mouse_scroll[NU_V2];
-    float                 mouse_motion[NU_V2];
+    nu_v2_t               mouse_position;
+    nu_v2_t               mouse_old_position;
+    nu_v2_t               mouse_scroll;
+    nu_v2_t               mouse_motion;
 } nuglfw__input_t;
 
 #endif
@@ -314,9 +316,9 @@ typedef struct
 
 typedef struct
 {
-    GLuint ubo;
-    float  vp[NU_M4];
-    float  ivp[NU_M4];
+    GLuint  ubo;
+    nu_m4_t vp;
+    nu_m4_t ivp;
 } nugl__camera_t;
 
 typedef struct
@@ -343,7 +345,7 @@ typedef struct
     GLuint          nearest_sampler;
     GLuint          surface_fbo;
     GLuint          surface_texture;
-    nu_int_t        surface_size[NU_V2];
+    nu_iv2_t        surface_size;
     nugl__mesh_t   *mesh;
     nugl__camera_t *cam;
 } nugl__context_t;
@@ -384,9 +386,9 @@ typedef struct
     float             fov;
     float             near;
     float             far;
-    float             eye[NU_V3];
-    float             center[NU_V3];
-    float             up[NU_V3];
+    nu_v3_t           up;
+    nu_v3_t           center;
+    nu_v3_t           eye;
     nu__camera_data_t _data;
 } nu_camera_t;
 
@@ -442,7 +444,7 @@ typedef union
 typedef struct
 {
     // Engine API
-    nu_error_t (*init)(void *ctx, const nu_int_t size[NU_V2]);
+    nu_error_t (*init)(void *ctx, nu_iv2_t size);
     nu_error_t (*render)(void           *ctx,
                          const nu_int_t *global_viewport,
                          const float    *viewport);
@@ -486,7 +488,7 @@ typedef struct
 
 typedef struct
 {
-    nu_i32_t              _surface_size[NU_V2];
+    nu_iv2_t              _surface_size;
     nu_renderer_backend_t _renderer_backend;
     nu_bool_t             _close_requested;
 #ifdef NU_BUILD_GLFW

@@ -34,14 +34,14 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
 #endif
 
 static nu_error_t
-nu__renderer_null_init (void *ctx, const nu_int_t size[NU_V2])
+nu__renderer_null_init (void *ctx, nu_iv2_t size)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_render (void           *ctx,
-                          const nu_int_t *global_viewport,
-                          const float    *viewport)
+nu__renderer_null_render (void       *ctx,
+                          nu_extent_t global_viewport,
+                          nu_v4_t     viewport)
 {
     NU_UNUSED(ctx);
     NU_UNUSED(viewport);
@@ -159,9 +159,9 @@ nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
     camera->fov        = NU_CAMERA_DEFAULT_FOV;
     camera->near       = NU_CAMERA_DEFAULT_NEAR;
     camera->far        = NU_CAMERA_DEFAULT_FAR;
-    nu_v3_copy(NU_CAMERA_DEFAULT_EYE, camera->eye);
-    nu_v3_copy(NU_CAMERA_DEFAULT_CENTER, camera->center);
-    nu_v3_copy(NU_CAMERA_DEFAULT_UP, camera->up);
+    camera->eye        = NU_CAMERA_DEFAULT_EYE;
+    camera->center     = NU_CAMERA_DEFAULT_CENTER;
+    camera->up         = NU_CAMERA_DEFAULT_UP;
     return ctx->_renderer.api.create_camera(ctx->_renderer.ctx, camera);
 }
 nu_error_t
