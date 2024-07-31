@@ -79,8 +79,9 @@ main (void)
     nu_renderpass_t main_pass;
     {
         nu_renderpass_info_t info;
-        info.type = NU_RENDERPASS_FLAT;
-        error     = nu_create_renderpass(&ctx, &info, &main_pass);
+        info.type      = NU_RENDERPASS_FLAT;
+        info.flat.todo = 0;
+        error          = nu_create_renderpass(&ctx, &info, &main_pass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -122,6 +123,9 @@ main (void)
         nu_draw(&ctx, &main_pass, &cube_mesh, &model);
 
         nu_renderpass_submit_t submit;
+        submit.reset             = NU_TRUE;
+        submit.flat.color_target = NU_NULL;
+        submit.flat.depth_target = NU_NULL;
         nu_submit_renderpass(&ctx, &main_pass, &submit);
 
         // Refresh surface

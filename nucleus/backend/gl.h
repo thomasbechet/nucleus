@@ -231,33 +231,33 @@ nugl__create_mesh (void *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 
     // Format vertices
     glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(float) * info->count * NUGL_VERTEX_SIZE,
+                 sizeof(float) * info->count * NUGL__VERTEX_SIZE,
                  NU_NULL,
                  GL_STATIC_DRAW);
     float *ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     NU_ASSERT(ptr);
     for (nu_size_t i = 0; i < info->count; ++i)
     {
-        ptr[i * NUGL_VERTEX_SIZE + 0] = info->positions[i].x;
-        ptr[i * NUGL_VERTEX_SIZE + 1] = info->positions[i].y;
-        ptr[i * NUGL_VERTEX_SIZE + 2] = info->positions[i].z;
+        ptr[i * NUGL__VERTEX_SIZE + 0] = info->positions[i].x;
+        ptr[i * NUGL__VERTEX_SIZE + 1] = info->positions[i].y;
+        ptr[i * NUGL__VERTEX_SIZE + 2] = info->positions[i].z;
         if (info->uvs)
         {
-            ptr[i * NUGL_VERTEX_SIZE + 3] = info->uvs[i].x;
-            ptr[i * NUGL_VERTEX_SIZE + 4] = info->uvs[i].y;
+            ptr[i * NUGL__VERTEX_SIZE + 3] = info->uvs[i].x;
+            ptr[i * NUGL__VERTEX_SIZE + 4] = info->uvs[i].y;
         }
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
     // Configure VAO
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NUGL_VERTEX_SIZE, (void *)0);
+        0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NUGL__VERTEX_SIZE, (void *)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1,
                           2,
                           GL_FLOAT,
                           GL_FALSE,
-                          sizeof(float) * NUGL_VERTEX_SIZE,
+                          sizeof(float) * NUGL__VERTEX_SIZE,
                           (void *)(sizeof(float) * NU_VEC3_SIZE));
     glEnableVertexAttribArray(1);
 
@@ -279,6 +279,15 @@ nugl__create_renderpass (void                       *ctx,
                          const nu_renderpass_info_t *info,
                          nu_renderpass_t            *pass)
 {
+    switch (info->type)
+    {
+        case NU_RENDERPASS_FLAT:
+            break;
+        case NU_RENDERPASS_TRANSPARENT:
+            break;
+    }
+    pass->gl.type       = info->type;
+    pass->gl.cmds.count = 0;
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -291,6 +300,36 @@ nugl__submit_renderpass (void                         *ctx,
                          nu_renderpass_t              *pass,
                          const nu_renderpass_submit_t *info)
 {
+    // Prepare pass
+    const nugl__renderpass_t *renderpass = &pass->gl;
+    switch (renderpass->type)
+    {
+        case NU_RENDERPASS_FLAT: {
+        }
+        break;
+        case NU_RENDERPASS_TRANSPARENT:
+            break;
+    }
+
+    // Execute pass
+    const nugl__command_buffer_t *cmds = &pass->gl.cmds;
+    for (nu_size_t i = 0; i < cmds->count; ++i)
+    {
+        switch (cmds->commands[i].type)
+        {
+            case NUGL__DRAW:
+                break;
+            case NUGL__DRAW_INSTANCED:
+                break;
+        }
+    }
+
+    // Terminate pass
+
+    if (info->reset)
+    {
+        pass->gl.cmds.count = 0;
+    }
 }
 
 #endif

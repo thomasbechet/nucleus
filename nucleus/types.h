@@ -354,9 +354,16 @@ typedef struct
 #define NU_CAMERA_DEFAULT_CENTER     NU_VEC3_FORWARD
 #define NU_CAMERA_DEFAULT_UP         NU_VEC3_UP
 
+typedef enum
+{
+    NU_RENDERPASS_FLAT,
+    NU_RENDERPASS_TRANSPARENT,
+} nu_renderpass_type_t;
+
 #ifdef NU_BUILD_RENDERER_GL
 
-#define NUGL_VERTEX_SIZE (3 + 2)
+#define NUGL__VERTEX_SIZE       (3 + 2)
+#define NUGL__MAX_COMMAND_COUNT 128
 
 typedef struct
 {
@@ -377,13 +384,37 @@ typedef struct
     GLuint diffuse;
 } nugl__material_t;
 
+typedef enum
+{
+    NUGL__DRAW,
+    NUGL__DRAW_INSTANCED,
+} nugl__command_type_t;
+
 typedef struct
 {
-    GLuint id;
+    nugl__command_type_t type;
+    GLuint               vao;
+    GLuint               vbo;
+    nu_size_t            vcount;
+    nu_mat4_t            transform; // TODO: remove me
+} nugl__command_t;
+
+typedef struct
+{
+    nugl__command_t *commands;
+    nu_size_t        count;
+} nugl__command_buffer_t;
+
+typedef struct
+{
+    nu_renderpass_type_t   type;
+    GLuint                 id;
+    nugl__command_buffer_t cmds;
 } nugl__renderpass_t;
 
 typedef struct
 {
+    nu_allocator_t *allocator;
     GLuint          blit_program;
     GLuint          flat_program;
     GLuint          nearest_sampler;
@@ -462,20 +493,40 @@ typedef union
 #endif
 } nu__renderer_backend_t;
 
-typedef enum
+typedef struct
 {
-    NU_RENDERPASS_FLAT,
-    NU_RENDERPASS_TRANSPARENT,
-} nu_renderpass_type_t;
+    int todo;
+} nu_renderpass_flat_info_t;
+
+typedef struct
+{
+    int todo;
+} nu_renderpass_transparent_info_t;
 
 typedef struct
 {
     nu_renderpass_type_t type;
+    union
+    {
+        nu_renderpass_flat_info_t        flat;
+        nu_renderpass_transparent_info_t transparent;
+    };
 } nu_renderpass_info_t;
 
 typedef struct
 {
+    int                color_target;
+    int                depth_target;
+    const nu_camera_t *camera;
+} nu_renderpass_submit_flat_t;
+
+typedef struct
+{
     nu_bool_t reset;
+    union
+    {
+        nu_renderpass_submit_flat_t flat;
+    };
 } nu_renderpass_submit_t;
 
 typedef union
