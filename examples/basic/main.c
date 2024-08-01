@@ -28,10 +28,11 @@ main (void)
     // Create context
     nu_context_info_t cinfo;
     nu_context_info_default(&cinfo);
-    cinfo.width    = WIDTH;
-    cinfo.height   = HEIGHT;
-    cinfo.renderer = NU_RENDERER_GL;
-    error          = nu_init(&cinfo, &alloc, &ctx);
+    cinfo.width     = WIDTH;
+    cinfo.height    = HEIGHT;
+    cinfo.renderer  = NU_RENDERER_GL;
+    cinfo.allocator = alloc;
+    error           = nu_init(&cinfo, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
@@ -71,9 +72,6 @@ main (void)
     camera.center = NU_VEC3_ZERO;
     error         = nu_update_camera(&ctx, &camera);
     NU_ERROR_ASSERT(error);
-
-    ctx._renderer.backend.gl.mesh = &cube_mesh.gl;    // TODO: remove me
-    ctx._renderer.backend.gl.cam  = &camera._data.gl; // TODO: remove me
 
     // Create renderpasses
     nu_renderpass_t main_pass;
@@ -121,11 +119,12 @@ main (void)
         // Render loop
         nu_mat4_t model = nu_mat4_identity();
         nu_draw(&ctx, &main_pass, &cube_mesh, &model);
+        model.x1 = 0.5;
+        nu_draw(&ctx, &main_pass, &cube_mesh, &model);
 
         nu_renderpass_submit_t submit;
-        submit.reset             = NU_TRUE;
-        submit.flat.color_target = NU_NULL;
-        submit.flat.depth_target = NU_NULL;
+        submit.reset       = NU_TRUE;
+        submit.flat.camera = &camera;
         nu_submit_renderpass(&ctx, &main_pass, &submit);
 
         // Refresh surface

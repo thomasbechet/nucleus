@@ -362,8 +362,9 @@ typedef enum
 
 #ifdef NU_BUILD_RENDERER_GL
 
-#define NUGL__VERTEX_SIZE       (3 + 2)
-#define NUGL__MAX_COMMAND_COUNT 128
+#define NUGL__VERTEX_SIZE          (3 + 2)
+#define NUGL__MAX_COMMAND_COUNT    128
+#define NUGL__MAX_RENDERPASS_COUNT 32
 
 typedef struct
 {
@@ -408,21 +409,33 @@ typedef struct
 typedef struct
 {
     nu_renderpass_type_t   type;
-    GLuint                 id;
     nugl__command_buffer_t cmds;
+    nu_mat4_t              vp;
+    nu_mat4_t              ivp;
+    nu_bool_t              reset;
+} nugl__renderpass_data_t;
+
+typedef struct
+{
+    nu_u32_t id;
 } nugl__renderpass_t;
 
 typedef struct
 {
-    nu_allocator_t *allocator;
-    GLuint          blit_program;
-    GLuint          flat_program;
-    GLuint          nearest_sampler;
-    GLuint          surface_fbo;
-    GLuint          surface_texture;
-    nu_uvec2_t      surface_size;
-    nugl__mesh_t   *mesh;
-    nugl__camera_t *cam;
+    nu_allocator_t allocator;
+
+    GLuint blit_program;
+    GLuint flat_program;
+    GLuint nearest_sampler;
+
+    GLuint     surface_fbo;
+    GLuint     surface_texture;
+    nu_uvec2_t surface_size;
+
+    nugl__renderpass_data_t passes[NUGL__MAX_RENDERPASS_COUNT];
+    nu_u32_t                pass_count;
+    nu_u32_t                pass_order[NUGL__MAX_RENDERPASS_COUNT];
+    nu_u32_t                pass_order_count;
 } nugl__context_t;
 
 #endif
@@ -515,8 +528,6 @@ typedef struct
 
 typedef struct
 {
-    int                color_target;
-    int                depth_target;
     const nu_camera_t *camera;
 } nu_renderpass_submit_flat_t;
 
@@ -539,7 +550,7 @@ typedef union
 typedef struct
 {
     // Engine API
-    nu_error_t (*init)(void *ctx, nu_uvec2_t size);
+    nu_error_t (*init)(void *ctx, nu_allocator_t allocator, nu_uvec2_t size);
     nu_error_t (*render)(void             *ctx,
                          const nu_uvec4_t *global_viewport,
                          const nu_vec4_t  *viewport);
@@ -558,6 +569,10 @@ typedef struct
     nu_error_t (*delete_renderpass)(void *ctx, nu_renderpass_t *pass);
 
     // Commands API
+    void (*draw)(void            *ctx,
+                 nu_renderpass_t *pass,
+                 const nu_mesh_t *mesh,
+                 const nu_mat4_t *transform);
     void (*submit_renderpass)(void                         *ctx,
                               nu_renderpass_t              *pass,
                               const nu_renderpass_submit_t *info);
@@ -579,10 +594,12 @@ typedef struct
     nu_u32_t              width;
     nu_u32_t              height;
     nu_renderer_backend_t renderer;
+    nu_allocator_t        allocator;
 } nu_context_info_t;
 
 typedef struct
 {
+    nu_allocator_t        _allocator;
     nu_uvec2_t            _surface_size;
     nu_renderer_backend_t _renderer_backend;
     nu_bool_t             _close_requested;

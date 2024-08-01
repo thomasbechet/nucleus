@@ -89,10 +89,12 @@ MessageCallback (GLenum        source,
 }
 
 static nu_error_t
-nugl__init (void *ctx, nu_uvec2_t size)
+nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
 {
     nu_error_t       error;
     nugl__context_t *gl = ctx;
+
+    gl->allocator = allocator;
 
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
@@ -138,6 +140,10 @@ nugl__init (void *ctx, nu_uvec2_t size)
                            0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    // Initialize passes
+    gl->pass_count       = 0;
+    gl->pass_order_count = 0;
+
     return NU_ERROR_NONE;
 }
 
@@ -148,25 +154,77 @@ nugl__render (void             *ctx,
 {
     nugl__context_t *gl = ctx;
 
-    // Prepare matrix
-    nu_mat4_t model = nu_mat4_identity();
+    // TODO: resolve renderpass tree
+    // TODO: resolve renderpass targets
+    // TODO: batch render calls
+    // TODO: bind renderpass states
+    // TODO: execute draw calls
+    // TODO: ?? sort draw calls
 
-    // Bind surface
-    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
-    glViewport(0, 0, gl->surface_size.x, gl->surface_size.y);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    for (nu_u32_t i = 0; i < gl->pass_order_count; ++i)
+    {
+        nu_u32_t                 passid = gl->pass_order[i];
+        nugl__renderpass_data_t *pass   = &gl->passes[passid];
+        switch (pass->type)
+        {
+            case NU_RENDERPASS_FLAT: {
+                // Prepare pass
+                {
+                    // Bind surface
+                    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
+                    glViewport(0, 0, gl->surface_size.x, gl->surface_size.y);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
 
-    // Render
-    glUseProgram(gl->flat_program);
-    GLuint model_id = glGetUniformLocation(gl->flat_program, "model");
-    glUniformMatrix4fv(model_id, 1, GL_FALSE, model.data);
-    GLuint vp_id = glGetUniformLocation(gl->flat_program, "view_projection");
-    glUniformMatrix4fv(vp_id, 1, GL_FALSE, gl->cam->vp.data);
+                    // Bind program
+                    glUseProgram(gl->flat_program);
+                }
 
-    glBindVertexArray(gl->mesh->vao);
-    glDrawArrays(GL_TRIANGLES, 0, gl->mesh->vertex_count);
-    glBindVertexArray(0);
+                // Execute commands
+                {
+                    const nugl__command_buffer_t *cmds = &pass->cmds;
+                    for (nu_size_t i = 0; i < cmds->count; ++i)
+                    {
+                        const nugl__command_t *cmd = &cmds->commands[i];
+                        switch (cmds->commands[i].type)
+                        {
+                            case NUGL__DRAW: {
+                                GLuint model_id = glGetUniformLocation(
+                                    gl->flat_program, "model");
+                                glUniformMatrix4fv(
+                                    model_id, 1, GL_FALSE, cmd->transform.data);
+                                GLuint vp_id = glGetUniformLocation(
+                                    gl->flat_program, "view_projection");
+                                glUniformMatrix4fv(
+                                    vp_id, 1, GL_FALSE, pass->vp.data);
+
+                                glBindVertexArray(cmd->vao);
+                                glDrawArrays(GL_TRIANGLES, 0, cmd->vcount);
+                                glBindVertexArray(0);
+                            }
+                            break;
+                            case NUGL__DRAW_INSTANCED: {
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Terminate pass
+                {
+                }
+            }
+            break;
+            case NU_RENDERPASS_TRANSPARENT:
+                break;
+        }
+
+        // Reset pass commands
+        if (pass->reset)
+        {
+            pass->cmds.count = 0;
+        }
+    }
 
     // Blit surface
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -177,12 +235,8 @@ nugl__render (void             *ctx,
     glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    // TODO: resolve renderpass tree
-    // TODO: resolve renderpass targets
-    // TODO: batch render calls
-    // TODO: bind renderpass states
-    // TODO: execute draw calls
-    // TODO: ?? sort draw calls
+    // Reset for next frame
+    gl->pass_order_count = 0;
 
     return NU_ERROR_NONE;
 }
@@ -279,15 +333,19 @@ nugl__create_renderpass (void                       *ctx,
                          const nu_renderpass_info_t *info,
                          nu_renderpass_t            *pass)
 {
-    switch (info->type)
-    {
-        case NU_RENDERPASS_FLAT:
-            break;
-        case NU_RENDERPASS_TRANSPARENT:
-            break;
-    }
-    pass->gl.type       = info->type;
-    pass->gl.cmds.count = 0;
+    nugl__context_t *gl = ctx;
+
+    nu_u32_t                 passid = gl->pass_count++;
+    nugl__renderpass_data_t *data   = &gl->passes[passid];
+    data->type                      = info->type;
+
+    // Allocate command buffer
+    data->cmds.commands = nu_alloc(
+        gl->allocator, sizeof(nugl__command_t) * NUGL__MAX_COMMAND_COUNT);
+    data->cmds.count = 0;
+
+    pass->gl.id = passid;
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -296,39 +354,42 @@ nugl__delete_renderpass (void *ctx, nu_renderpass_t *pass)
     return NU_ERROR_NONE;
 }
 static void
+nugl__draw (void            *ctx,
+            nu_renderpass_t *pass,
+            const nu_mesh_t *mesh,
+            const nu_mat4_t *transform)
+{
+    nugl__context_t *gl = ctx;
+
+    nugl__renderpass_data_t *data = &gl->passes[pass->gl.id];
+    // TODO: check command validity
+    nugl__command_t *cmd = &data->cmds.commands[data->cmds.count++];
+    cmd->type            = NUGL__DRAW;
+    cmd->transform       = *transform;
+    cmd->vao             = mesh->gl.vao;
+    cmd->vbo             = mesh->gl.vbo;
+    cmd->vcount          = mesh->gl.vertex_count;
+}
+static void
 nugl__submit_renderpass (void                         *ctx,
                          nu_renderpass_t              *pass,
                          const nu_renderpass_submit_t *info)
 {
-    // Prepare pass
-    const nugl__renderpass_t *renderpass = &pass->gl;
-    switch (renderpass->type)
+    nugl__context_t *gl = ctx;
+
+    gl->pass_order[gl->pass_order_count++] = pass->gl.id;
+    gl->passes[pass->gl.id].reset          = info->reset;
+
+    nugl__renderpass_data_t *data = &gl->passes[pass->gl.id];
+    switch (data->type)
     {
         case NU_RENDERPASS_FLAT: {
+            data->vp  = info->flat.camera->_data.gl.vp;
+            data->ivp = info->flat.camera->_data.gl.ivp;
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
             break;
-    }
-
-    // Execute pass
-    const nugl__command_buffer_t *cmds = &pass->gl.cmds;
-    for (nu_size_t i = 0; i < cmds->count; ++i)
-    {
-        switch (cmds->commands[i].type)
-        {
-            case NUGL__DRAW:
-                break;
-            case NUGL__DRAW_INSTANCED:
-                break;
-        }
-    }
-
-    // Terminate pass
-
-    if (info->reset)
-    {
-        pass->gl.cmds.count = 0;
     }
 }
 

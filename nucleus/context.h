@@ -8,9 +8,7 @@
 
 NU_API void nu_context_info_default(nu_context_info_t *info);
 
-NU_API nu_error_t nu_init(const nu_context_info_t *info,
-                          nu_allocator_t          *alloc,
-                          nu_context_t            *ctx);
+NU_API nu_error_t nu_init(const nu_context_info_t *info, nu_context_t *ctx);
 NU_API nu_error_t nu_terminate(nu_context_t *ctx, nu_allocator_t *alloc);
 NU_API nu_error_t nu_poll_events(nu_context_t *ctx);
 NU_API nu_bool_t  nu_exit_requested(const nu_context_t *ctx);
@@ -26,12 +24,9 @@ nu_context_info_default (nu_context_info_t *info)
 }
 
 nu_error_t
-nu_init (const nu_context_info_t *info,
-         nu_allocator_t          *alloc,
-         nu_context_t            *ctx)
+nu_init (const nu_context_info_t *info, nu_context_t *ctx)
 {
     nu_error_t error;
-    NU_UNUSED(alloc);
 
     // Initialize context
     nu_context_info_t cinfo;
@@ -43,6 +38,7 @@ nu_init (const nu_context_info_t *info,
     {
         nu_context_info_default(&cinfo);
     }
+    ctx->_allocator        = info->allocator;
     ctx->_surface_size     = nu_uvec2(info->width, info->height);
     ctx->_renderer_backend = info->renderer;
     ctx->_close_requested  = NU_FALSE;

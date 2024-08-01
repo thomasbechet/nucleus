@@ -34,7 +34,7 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
 #endif
 
 static nu_error_t
-nu__renderer_null_init (void *ctx, nu_uvec2_t size)
+nu__renderer_null_init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
 {
     return NU_ERROR_NONE;
 }
@@ -86,6 +86,14 @@ nu__renderer_null_delete_renderpass (void *ctx, nu_renderpass_t *pass)
 {
     return NU_ERROR_NONE;
 }
+
+static void
+nu__renderer_null_draw (void            *ctx,
+                        nu_renderpass_t *pass,
+                        const nu_mesh_t *mesh,
+                        const nu_mat4_t *transform)
+{
+}
 static void
 nu__renderer_null_submit_renderpass (void                         *ctx,
                                      nu_renderpass_t              *pass,
@@ -112,6 +120,7 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.delete_renderpass
                 = nu__renderer_null_delete_renderpass;
 
+            ctx->_renderer.api.draw = nu__renderer_null_draw;
             ctx->_renderer.api.submit_renderpass
                 = nu__renderer_null_submit_renderpass;
 
@@ -129,6 +138,7 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.create_renderpass = nugl__create_renderpass;
             ctx->_renderer.api.delete_renderpass = nugl__delete_renderpass;
 
+            ctx->_renderer.api.draw              = nugl__draw;
             ctx->_renderer.api.submit_renderpass = nugl__submit_renderpass;
 
             ctx->_renderer.ctx = &ctx->_renderer.backend.gl;
@@ -140,8 +150,8 @@ nu__init_renderer (nu_context_t *ctx)
     }
 
     // Initialize backend
-    nu_error_t error
-        = ctx->_renderer.api.init(ctx->_renderer.ctx, ctx->_surface_size);
+    nu_error_t error = ctx->_renderer.api.init(
+        ctx->_renderer.ctx, ctx->_allocator, ctx->_surface_size);
     NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;
@@ -202,6 +212,7 @@ nu_submit_renderpass (nu_context_t                 *ctx,
                       nu_renderpass_t              *pass,
                       const nu_renderpass_submit_t *info)
 {
+    ctx->_renderer.api.submit_renderpass(ctx->_renderer.ctx, pass, info);
 }
 void
 nu_draw (nu_context_t    *ctx,
@@ -209,6 +220,7 @@ nu_draw (nu_context_t    *ctx,
          const nu_mesh_t *mesh,
          const nu_mat4_t *transform)
 {
+    ctx->_renderer.api.draw(ctx->_renderer.ctx, renderpass, mesh, transform);
 }
 
 #endif
