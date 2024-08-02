@@ -1,23 +1,24 @@
-#ifndef NU_CONTEXT_H
-#define NU_CONTEXT_H
+#ifndef NU_INSTANCE_H
+#define NU_INSTANCE_H
 
 #include <nucleus/memory.h>
 #include <nucleus/surface.h>
 #include <nucleus/input.h>
 #include <nucleus/renderer.h>
 
-NU_API void nu_context_info_default(nu_context_info_t *info);
+NU_API void nu_instance_info_default(nu_instance_info_t *info);
 
-NU_API nu_error_t nu_init_context(const nu_context_info_t *info,
-                                  nu_context_t            *ctx);
-NU_API nu_error_t nu_free_context(nu_context_t *ctx, nu_allocator_t *alloc);
-NU_API nu_error_t nu_poll_events(nu_context_t *ctx);
-NU_API nu_bool_t  nu_exit_requested(const nu_context_t *ctx);
+NU_API nu_error_t nu_init_instance(const nu_instance_info_t *info,
+                                   nu_instance_t            *instance);
+NU_API nu_error_t nu_free_instance(nu_instance_t  *instance,
+                                   nu_allocator_t *alloc);
+NU_API nu_error_t nu_poll_events(nu_instance_t *ctx);
+NU_API nu_bool_t  nu_exit_requested(const nu_instance_t *ctx);
 
 #ifdef NU_IMPLEMENTATION
 
 void
-nu_context_info_default (nu_context_info_t *info)
+nu_instance_info_default (nu_instance_info_t *info)
 {
     info->width    = 640;
     info->height   = 400;
@@ -25,19 +26,19 @@ nu_context_info_default (nu_context_info_t *info)
 }
 
 nu_error_t
-nu_init_context (const nu_context_info_t *info, nu_context_t *ctx)
+nu_init_instance (const nu_instance_info_t *info, nu_instance_t *ctx)
 {
     nu_error_t error;
 
     // Initialize context
-    nu_context_info_t cinfo;
+    nu_instance_info_t cinfo;
     if (info)
     {
         cinfo = *info;
     }
     else
     {
-        nu_context_info_default(&cinfo);
+        nu_instance_info_default(&cinfo);
     }
     ctx->_allocator        = info->allocator;
     ctx->_surface_size     = nu_uvec2(info->width, info->height);
@@ -55,7 +56,7 @@ nu_init_context (const nu_context_info_t *info, nu_context_t *ctx)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_free_context (nu_context_t *ctx, nu_allocator_t *alloc)
+nu_free_instance (nu_instance_t *ctx, nu_allocator_t *alloc)
 {
     nu_error_t error;
     NU_UNUSED(alloc);
@@ -71,7 +72,7 @@ nu_free_context (nu_context_t *ctx, nu_allocator_t *alloc)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_poll_events (nu_context_t *ctx)
+nu_poll_events (nu_instance_t *ctx)
 {
 #ifdef NU_BUILD_GLFW
     nuglfw__poll_events(
@@ -80,7 +81,7 @@ nu_poll_events (nu_context_t *ctx)
     return NU_ERROR_NONE;
 }
 nu_bool_t
-nu_exit_requested (const nu_context_t *ctx)
+nu_exit_requested (const nu_instance_t *ctx)
 {
     return ctx->_close_requested;
 }

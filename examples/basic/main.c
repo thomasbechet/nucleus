@@ -35,7 +35,7 @@ main (void)
     cinfo.height    = HEIGHT;
     cinfo.renderer  = NU_RENDERER_GL;
     cinfo.allocator = alloc;
-    error           = nu_init(&cinfo, &ctx);
+    error           = nu_init_context(&cinfo, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
@@ -168,7 +168,7 @@ main (void)
     error = nu_delete_renderpass(&ctx, &main_pass);
     NU_ERROR_ASSERT(error);
 
-    nu_terminate(&ctx, &alloc);
+    nu_free_context(&ctx, &alloc);
 
     return 0;
 }
