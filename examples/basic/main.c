@@ -17,6 +17,10 @@ static nu_input_t cursor_x;
 static nu_input_t cursor_y;
 static nu_input_t quit;
 
+#define NU_LOOP_TICK    0
+#define NU_LOOP_PHYSICS 1
+#define NU_LOOP_RENDER  2
+
 int
 main (void)
 {
@@ -87,8 +91,43 @@ main (void)
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
 
+    nu_loop_t loops[2];
+    loops[0].id     = NU_LOOP_TICK;
+    loops[0].active = NU_TRUE;
+    loops[0].fixed  = 1.0 / 60.0 * 1000.0f;
+    loops[0]._acc   = 0.0f;
+    loops[1].id     = NU_LOOP_PHYSICS;
+    loops[1].active = NU_TRUE;
+    loops[1].fixed  = 1.0 / 20.0 * 1000.0f;
+    loops[1]._acc   = 0.0f;
+
+    nu_timer_t timer;
+    nu_timer_start(&timer);
+    float delta = 0.0f;
+
     while (!nu_exit_requested(&ctx) && running)
     {
+        nu_fixed_loop_integrate(loops, 2, delta);
+        nu_u32_t id;
+        float    dt;
+        while (nu_fixed_loop_next(loops, 2, &id, &dt))
+        {
+            switch (id)
+            {
+                case NU_LOOP_TICK:
+                    printf("tick\n");
+                    break;
+                case NU_LOOP_PHYSICS:
+                    printf("physics\n");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        delta = nu_timer_elapsed(&timer);
+        nu_timer_start(&timer);
+
         // Poll events
         nu_poll_events(&ctx);
 

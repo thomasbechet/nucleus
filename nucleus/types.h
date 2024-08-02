@@ -170,6 +170,27 @@ typedef struct
 } nu_allocator_t;
 
 //////////////////////////////////////////////////////////////////////////
+//////                          Time Types                          //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+#if defined(NU_PLATFORM_WINDOWS)
+    LARGE_INTEGER t0;
+#elif defined(NU_PLATFORM_UNIX)
+    struct timespec start;
+#endif
+} nu_timer_t;
+
+typedef struct
+{
+    nu_bool_t active;
+    nu_u32_t  id;
+    float     fixed;
+    float     _acc;
+} nu_fixed_loop_t;
+
+//////////////////////////////////////////////////////////////////////////
 //////                        Surface Types                         //////
 //////////////////////////////////////////////////////////////////////////
 

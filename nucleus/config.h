@@ -14,6 +14,13 @@
 #define NU_PLATFORM_APPLE
 #endif
 
+#if defined(NU_PLATFORM_WINDOWS)
+#include <Windows.h>
+#elif defined(NU_PLATFORM_UNIX)
+#include <time.h>
+#elif defined(NU_PLATFORM_APPLE)
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 //////                         Error Macros                         //////
 //////////////////////////////////////////////////////////////////////////
