@@ -3,23 +3,23 @@
 
 #include <nucleus/types.h>
 
-NU_API void  nu_timer_start(nu_timer_t *timer);
+NU_API void  nu_timer_reset(nu_timer_t *timer);
 NU_API float nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API void      nu_fixed_loop_integrate(nu_loop_t *loops,
-                                         nu_size_t  count,
-                                         float      dt);
-NU_API nu_bool_t nu_fixed_loop_next(nu_loop_t *loops,
-                                    nu_size_t  count,
-                                    nu_u32_t  *id,
-                                    float     *dt);
+NU_API nu_fixed_loop_t nu_fixed_loop(nu_u32_t id, float timestep);
+NU_API nu_bool_t       nu_next_fixed_loop(nu_fixed_loop_t *loops,
+                                          nu_size_t        count,
+                                          nu_u32_t        *id);
+NU_API void            nu_update_fixed_loops(nu_fixed_loop_t *loops,
+                                             nu_size_t        count,
+                                             float            dt);
 
 #ifdef NU_IMPLEMENTATION
 
 #if defined(NU_PLATFORM_WINDOWS)
 
 void
-nu_timer_start (nu_timer_t timer)
+nu_timer_reset (nu_timer_t timer)
 {
     nu_timer_data_t *p = (nu_timer_data_t *)timer;
     QueryPerformanceCounter(&p->t0);
@@ -58,7 +58,7 @@ timespec_diff (struct timespec *start,
 }
 
 void
-nu_timer_start (nu_timer_t *timer)
+nu_timer_reset (nu_timer_t *timer)
 {
     clock_gettime(CLOCK_MONOTONIC, &timer->start);
 }
@@ -75,12 +75,22 @@ nu_timer_elapsed (nu_timer_t *timer)
 }
 #endif
 
+nu_fixed_loop_t
+nu_fixed_loop (nu_u32_t id, float timestep)
+{
+    nu_fixed_loop_t loop;
+    loop.id       = id;
+    loop.timestep = timestep;
+    loop.active   = NU_TRUE;
+    loop._acc     = 0.0f;
+    return loop;
+}
 void
-nu_fixed_loop_integrate (nu_loop_t *loops, nu_size_t count, float dt)
+nu_update_fixed_loops (nu_fixed_loop_t *loops, nu_size_t count, float dt)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {
-        nu_loop_t *loop = &loops[i];
+        nu_fixed_loop_t *loop = &loops[i];
         if (!loop->active)
         {
             continue;
@@ -88,21 +98,19 @@ nu_fixed_loop_integrate (nu_loop_t *loops, nu_size_t count, float dt)
         loop->_acc += dt;
     }
 }
-
 nu_bool_t
-nu_fixed_loop_next (nu_loop_t *loops, nu_size_t count, nu_u32_t *id, float *dt)
+nu_next_fixed_loop (nu_fixed_loop_t *loops, nu_size_t count, nu_u32_t *id)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {
-        nu_loop_t *loop = &loops[i];
+        nu_fixed_loop_t *loop = &loops[i];
         if (!loop->active)
         {
             continue;
         }
-        if (loop->_acc >= loop->fixed)
+        if (loop->_acc >= loop->timestep)
         {
-            loop->_acc -= loop->fixed;
-            *dt = loop->fixed;
+            loop->_acc -= loop->timestep;
             *id = loop->id;
             return NU_TRUE;
         }

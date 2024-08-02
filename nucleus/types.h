@@ -186,7 +186,7 @@ typedef struct
 {
     nu_bool_t active;
     nu_u32_t  id;
-    float     fixed;
+    float     timestep;
     float     _acc;
 } nu_fixed_loop_t;
 
