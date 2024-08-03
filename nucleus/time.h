@@ -3,6 +3,11 @@
 
 #include <nucleus/types.h>
 
+NU_API nu_time_t nu_time(void);
+NU_API nu_u32_t  nu_time_hours(const nu_time_t *time);
+NU_API nu_u32_t  nu_time_minutes(const nu_time_t *time);
+NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
+
 NU_API void  nu_timer_reset(nu_timer_t *timer);
 NU_API float nu_timer_elapsed(nu_timer_t *timer);
 
@@ -38,6 +43,32 @@ nu_timer_elapsed (nu_timer_t timer)
 }
 
 #elif defined(NU_PLATFORM_UNIX)
+
+nu_time_t
+nu_time (void)
+{
+    nu_time_t t;
+    t.value = time(NULL);
+    return t;
+}
+nu_u32_t
+nu_time_hours (const nu_time_t *time)
+{
+    struct tm *t = localtime(&time->value);
+    return t->tm_hour;
+}
+nu_u32_t
+nu_time_minutes (const nu_time_t *time)
+{
+    struct tm *t = localtime(&time->value);
+    return t->tm_min;
+}
+nu_u32_t
+nu_time_seconds (const nu_time_t *time)
+{
+    struct tm *t = localtime(&time->value);
+    return t->tm_sec;
+}
 
 static inline void
 timespec_diff (struct timespec *start,

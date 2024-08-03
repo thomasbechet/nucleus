@@ -26,15 +26,17 @@
 //////////////////////////////////////////////////////////////////////////
 #ifdef NU_STDLIB
 #include <assert.h>
+#include <stdarg.h>
+#include <string.h>
 #endif
 
-#if defined(NU_DEBUG) && defined(NU_STDLIB)
+#if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
 #else
 #define NU_ASSERT(x) (void)(x)
 #endif
 
-#if defined(NU_DEBUG) && defined(NU_STDLIB)
+#if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
 #else
 #define NU_ASSERT(x) (void)(x)
@@ -44,7 +46,7 @@
 #define _NU_S_(x)     _NU_S(x)
 #define _NU_S__LINE__ _NU_S_(__LINE__)
 
-#ifdef NU_DEBUG
+#ifndef NU_NDEBUG
 #define _NU_CHECK(check, action, file, line) \
     if (!(check))                            \
     {                                        \

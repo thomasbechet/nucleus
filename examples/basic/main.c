@@ -1,6 +1,5 @@
 #include <stdio.h>
 #define NU_STDLIB
-#define NU_DEBUG
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -11,6 +10,7 @@
 
 static nu_allocator_t alloc;
 static nu_context_t   ctx;
+static nu_logger_t    logger;
 
 static nu_input_t draw;
 static nu_input_t cursor_x;
@@ -36,6 +36,10 @@ main (void)
     cinfo.renderer  = NU_RENDERER_GL;
     cinfo.allocator = alloc;
     error           = nu_init_context(&cinfo, &ctx);
+    NU_ERROR_ASSERT(error);
+
+    // Create logger
+    error = nu_create_logger(&ctx, &logger);
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
@@ -106,11 +110,17 @@ main (void)
         {
             switch (id)
             {
-                case LOOP_TICK:
-                    printf("tick\n");
-                    break;
+                case LOOP_TICK: {
+                    nu_time_t t = nu_time();
+                    NU_DEBUG(&logger, "debug");
+                    NU_INFO(&logger, "info");
+                    NU_WARNING(&logger, "warning");
+                    NU_ERROR(&logger, "error");
+                    NU_FATAL(&logger, "fatal");
+                }
+                break;
                 case LOOP_PHYSICS:
-                    printf("physics\n");
+                    NU_INFO(&logger, "physics");
                     break;
                 default:
                     break;
@@ -131,15 +141,15 @@ main (void)
 
         if (nu_input_pressed(&ctx, &draw))
         {
-            printf("pressed\n");
+            NU_WARNING(&logger, "pressed");
         }
         if (nu_input_just_pressed(&ctx, &draw))
         {
-            printf("just pressed\n");
+            NU_WARNING(&logger, "just pressed");
         }
         if (nu_input_just_released(&ctx, &draw))
         {
-            printf("just released\n");
+            NU_WARNING(&logger, "just released");
         }
 
         if (nu_input_just_pressed(&ctx, &quit))

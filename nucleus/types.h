@@ -156,22 +156,17 @@ typedef union
 } nu_mat4_t;
 
 //////////////////////////////////////////////////////////////////////////
-//////                        Memory Types                          //////
+//////                          Time Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
 typedef struct
 {
-    void *(*callback)(void     *p, // pointer (NULL if malloc)
-                      nu_size_t s, // current size (0 if malloc)
-                      nu_size_t n, // new size (0 if free)
-                      nu_size_t a, // alignment
-                      void     *u);    // userdata
-    void *userdata;
-} nu_allocator_t;
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Time Types                          //////
-//////////////////////////////////////////////////////////////////////////
+#if defined(NU_PLATFORM_WINDOWS)
+    LARGE_INTEGER value;
+#elif defined(NU_PLATFORM_UNIX)
+    time_t value;
+#endif
+} nu_time_t;
 
 typedef struct
 {
@@ -189,6 +184,43 @@ typedef struct
     float     timestep;
     float     _acc;
 } nu_fixed_loop_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                        Memory Types                          //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    void *(*callback)(void     *p, // pointer (NULL if malloc)
+                      nu_size_t s, // current size (0 if malloc)
+                      nu_size_t n, // new size (0 if free)
+                      nu_size_t a, // alignment
+                      void     *u);    // userdata
+    void *userdata;
+} nu_allocator_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                        Logger Types                          //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_u32_t todo;
+} nu__logger_t;
+
+typedef enum
+{
+    NU_LOG_DEBUG   = 5,
+    NU_LOG_INFO    = 4,
+    NU_LOG_WARNING = 3,
+    NU_LOG_ERROR   = 2,
+    NU_LOG_FATAL   = 1
+} nu_log_level_t;
+
+typedef struct
+{
+    nu_log_level_t level;
+} nu_logger_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Surface Types                         //////
@@ -629,6 +661,7 @@ typedef struct
     nuglfw__input_t   _glfw_input;
 #endif
     nu__renderer_t _renderer;
+    nu__logger_t   _logger;
 } nu_context_t;
 
 #endif

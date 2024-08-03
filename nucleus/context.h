@@ -2,6 +2,7 @@
 #define NU_CONTEXT_H
 
 #include <nucleus/memory.h>
+#include <nucleus/logger.h>
 #include <nucleus/surface.h>
 #include <nucleus/input.h>
 #include <nucleus/renderer.h>
