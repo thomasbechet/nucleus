@@ -67,7 +67,15 @@ static const nu_char_t *nugl__shader_flat_vert =
 "void main()\n"
 "{\n"
 "    uv = in_uv;\n"
-"    gl_Position = view_projection * model * vec4(in_position, 1.0);\n"
+"\n"
+"    vec4 position = view_projection * model * vec4(in_position, 1.0);\n"
+"\n"
+"    vec2 grid = vec2(640 / 2, 400 / 2);\n"
+"    position.xyz = position.xyz / position.w;\n"
+"    position.xy = floor(grid * position.xy) / grid;\n"
+"    position.xyz *= position.w;\n"
+"\n"
+"    gl_Position = position;\n"
 "}\n"
 ;
 #endif

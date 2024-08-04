@@ -2,15 +2,35 @@
 #define NU_RENDERER_H
 
 #include <nucleus/types.h>
-#include <nucleus/math.h>
 
-NU_API nu_error_t nu_create_camera(nu_context_t *ctx, nu_camera_t *camera);
+NU_API nu_camera_info_t nu_camera_info_default(void);
+NU_API nu_error_t       nu_create_camera(nu_context_t           *ctx,
+                                         const nu_camera_info_t *info,
+                                         nu_camera_t            *camera);
 NU_API nu_error_t nu_delete_camera(nu_context_t *ctx, nu_camera_t *camera);
-NU_API nu_error_t nu_update_camera(nu_context_t *ctx, nu_camera_t *camera);
+NU_API nu_error_t nu_update_camera(nu_context_t           *ctx,
+                                   nu_camera_t            *camera,
+                                   const nu_camera_info_t *info);
+
 NU_API nu_error_t nu_create_mesh(nu_context_t         *ctx,
                                  const nu_mesh_info_t *info,
                                  nu_mesh_t            *mesh);
 NU_API nu_error_t nu_delete_mesh(nu_context_t *ctx, nu_mesh_t *mesh);
+
+NU_API nu_error_t nu_create_texture(nu_context_t            *ctx,
+                                    const nu_texture_info_t *info,
+                                    nu_texture_t            *texture);
+NU_API nu_error_t nu_delete_texture(nu_context_t *ctx, nu_texture_t *texture);
+
+NU_API nu_error_t nu_create_material(nu_context_t             *ctx,
+                                     const nu_material_info_t *info,
+                                     nu_material_t            *material);
+NU_API nu_error_t nu_delete_material(nu_context_t  *ctx,
+                                     nu_material_t *material);
+NU_API nu_error_t nu_update_material(nu_context_t             *ctx,
+                                     nu_material_t            *material,
+                                     const nu_material_info_t *info);
+
 NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
                                        const nu_renderpass_info_t *info,
                                        nu_renderpass_t            *pass);
@@ -25,15 +45,17 @@ NU_API void nu_draw(nu_context_t    *ctx,
                     const nu_mesh_t *mesh,
                     const nu_mat4_t *transform);
 NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
-                              const float     *transforms,
+                              const nu_mat4_t *transforms,
                               nu_u32_t         count);
 
 NU_API void nu_init_camera_controller(nu_camera_controller_t *controller);
 NU_API void nu_update_camera_controller(nu_camera_controller_t *controller,
                                         float                   dt,
-                                        nu_camera_t            *camera);
+                                        nu_camera_info_t       *info);
 
 #ifdef NU_IMPLEMENTATION
+
+#include <nucleus/math.h>
 
 #ifdef NU_BUILD_RENDERER_GL
 #include <nucleus/backend/gl.h>
@@ -54,7 +76,9 @@ nu__renderer_null_render (void            *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_create_camera (void *ctx, nu_camera_t *camera)
+nu__renderer_null_create_camera (void                   *ctx,
+                                 const nu_camera_info_t *info,
+                                 nu_camera_t            *camera)
 {
     return NU_ERROR_NONE;
 }
@@ -64,7 +88,9 @@ nu__renderer_null_delete_camera (void *ctx, nu_camera_t *camera)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_update_camera (void *ctx, nu_camera_t *camera)
+nu__renderer_null_update_camera (void                   *ctx,
+                                 nu_camera_t            *camera,
+                                 const nu_camera_info_t *info)
 {
     return NU_ERROR_NONE;
 }
@@ -77,6 +103,37 @@ nu__renderer_null_create_mesh (void                 *ctx,
 }
 static nu_error_t
 nu__renderer_null_delete_mesh (void *ctx, nu_mesh_t *mesh)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_create_texture (void                    *ctx,
+                                  const nu_texture_info_t *info,
+                                  nu_texture_t            *texture)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_delete_texture (void *ctx, nu_texture_t *texture)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_create_material (void                     *ctx,
+                                   const nu_material_info_t *info,
+                                   nu_material_t            *material)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_delete_material (void *ctx, nu_material_t *material)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_update_material (void                     *ctx,
+                                   nu_material_t            *material,
+                                   const nu_material_info_t *info)
 {
     return NU_ERROR_NONE;
 }
@@ -121,6 +178,16 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.update_camera = nu__renderer_null_update_camera;
             ctx->_renderer.api.create_mesh   = nu__renderer_null_create_mesh;
             ctx->_renderer.api.delete_mesh   = nu__renderer_null_delete_mesh;
+            ctx->_renderer.api.create_texture
+                = nu__renderer_null_create_texture;
+            ctx->_renderer.api.delete_texture
+                = nu__renderer_null_delete_texture;
+            ctx->_renderer.api.create_material
+                = nu__renderer_null_create_material;
+            ctx->_renderer.api.delete_material
+                = nu__renderer_null_delete_material;
+            ctx->_renderer.api.update_material
+                = nu__renderer_null_update_material;
             ctx->_renderer.api.create_renderpass
                 = nu__renderer_null_create_renderpass;
             ctx->_renderer.api.delete_renderpass
@@ -141,6 +208,11 @@ nu__init_renderer (nu_context_t *ctx)
             ctx->_renderer.api.update_camera     = nugl__update_camera;
             ctx->_renderer.api.create_mesh       = nugl__create_mesh;
             ctx->_renderer.api.delete_mesh       = nugl__delete_mesh;
+            ctx->_renderer.api.create_texture    = nugl__create_texture;
+            ctx->_renderer.api.delete_texture    = nugl__delete_texture;
+            ctx->_renderer.api.create_material   = nugl__create_material;
+            ctx->_renderer.api.delete_material   = nugl__delete_material;
+            ctx->_renderer.api.update_material   = nugl__update_material;
             ctx->_renderer.api.create_renderpass = nugl__create_renderpass;
             ctx->_renderer.api.delete_renderpass = nugl__delete_renderpass;
 
@@ -168,17 +240,25 @@ nu__terminate_renderer (nu_context_t *ctx)
     return NU_ERROR_NONE;
 }
 
-nu_error_t
-nu_create_camera (nu_context_t *ctx, nu_camera_t *camera)
+nu_camera_info_t
+nu_camera_info_default (void)
 {
-    camera->projection = NU_CAMERA_DEFAULT_PROJECTION;
-    camera->fov        = NU_CAMERA_DEFAULT_FOV;
-    camera->near       = NU_CAMERA_DEFAULT_NEAR;
-    camera->far        = NU_CAMERA_DEFAULT_FAR;
-    camera->eye        = NU_CAMERA_DEFAULT_EYE;
-    camera->center     = NU_CAMERA_DEFAULT_CENTER;
-    camera->up         = NU_CAMERA_DEFAULT_UP;
-    return ctx->_renderer.api.create_camera(ctx->_renderer.ctx, camera);
+    nu_camera_info_t info;
+    info.projection = NU_CAMERA_DEFAULT_PROJECTION;
+    info.fov        = NU_CAMERA_DEFAULT_FOV;
+    info.near       = NU_CAMERA_DEFAULT_NEAR;
+    info.far        = NU_CAMERA_DEFAULT_FAR;
+    info.eye        = NU_CAMERA_DEFAULT_EYE;
+    info.center     = NU_CAMERA_DEFAULT_CENTER;
+    info.up         = NU_CAMERA_DEFAULT_UP;
+    return info;
+}
+nu_error_t
+nu_create_camera (nu_context_t           *ctx,
+                  const nu_camera_info_t *info,
+                  nu_camera_t            *camera)
+{
+    return ctx->_renderer.api.create_camera(ctx->_renderer.ctx, info, camera);
 }
 nu_error_t
 nu_delete_camera (nu_context_t *ctx, nu_camera_t *camera)
@@ -186,10 +266,13 @@ nu_delete_camera (nu_context_t *ctx, nu_camera_t *camera)
     return ctx->_renderer.api.delete_camera(ctx->_renderer.ctx, camera);
 }
 nu_error_t
-nu_update_camera (nu_context_t *ctx, nu_camera_t *camera)
+nu_update_camera (nu_context_t           *ctx,
+                  nu_camera_t            *camera,
+                  const nu_camera_info_t *info)
 {
-    return ctx->_renderer.api.update_camera(ctx->_renderer.ctx, camera);
+    return ctx->_renderer.api.update_camera(ctx->_renderer.ctx, camera, info);
 }
+
 nu_error_t
 nu_create_mesh (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
@@ -200,6 +283,42 @@ nu_delete_mesh (nu_context_t *ctx, nu_mesh_t *mesh)
 {
     return ctx->_renderer.api.delete_mesh(ctx->_renderer.ctx, mesh);
 }
+
+nu_error_t
+nu_create_texture (nu_context_t            *ctx,
+                   const nu_texture_info_t *info,
+                   nu_texture_t            *texture)
+{
+    return ctx->_renderer.api.create_texture(ctx->_renderer.ctx, info, texture);
+}
+nu_error_t
+nu_delete_texture (nu_context_t *ctx, nu_texture_t *texture)
+{
+    return ctx->_renderer.api.delete_texture(ctx->_renderer.ctx, texture);
+}
+
+nu_error_t
+nu_create_material (nu_context_t             *ctx,
+                    const nu_material_info_t *info,
+                    nu_material_t            *material)
+{
+    return ctx->_renderer.api.create_material(
+        ctx->_renderer.ctx, info, material);
+}
+nu_error_t
+nu_delete_material (nu_context_t *ctx, nu_material_t *material)
+{
+    return ctx->_renderer.api.delete_material(ctx->_renderer.ctx, material);
+}
+nu_error_t
+nu_update_material (nu_context_t             *ctx,
+                    nu_material_t            *material,
+                    const nu_material_info_t *info)
+{
+    return ctx->_renderer.api.update_material(
+        ctx->_renderer.ctx, material, info);
+}
+
 nu_error_t
 nu_create_renderpass (nu_context_t               *ctx,
                       const nu_renderpass_info_t *info,
@@ -244,39 +363,40 @@ nu_init_camera_controller (nu_camera_controller_t *controller)
     controller->move_up        = 0;
     controller->move_down      = 0;
     controller->speed          = 5.0f;
-    controller->rotation       = nu_quat_identity();
+    controller->_position      = NU_VEC3_ZERO;
+    controller->_rotation      = nu_quat_identity();
 }
 void
 nu_update_camera_controller (nu_camera_controller_t *controller,
                              float                   dt,
-                             nu_camera_t            *camera)
+                             nu_camera_info_t       *info)
 {
     // Translation
     nu_vec3_t direction = NU_VEC3_ZERO;
 
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_FORWARD),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_FORWARD),
                      NU_CLAMP01(controller->move_forward)));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_BACKWARD),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_BACKWARD),
                      NU_CLAMP01(controller->move_backward)));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_LEFT),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_LEFT),
                      NU_CLAMP01(controller->move_left)));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_RIGHT),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_RIGHT),
                      NU_CLAMP01(controller->move_right)));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_UP),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_UP),
                      NU_CLAMP01(controller->move_up)));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_DOWN),
+        nu_vec3_muls(nu_quat_mulv3(controller->_rotation, NU_VEC3_DOWN),
                      NU_CLAMP01(controller->move_down)));
 
     direction = nu_vec3_muls(nu_vec3_normalize(direction),
@@ -285,54 +405,56 @@ nu_update_camera_controller (nu_camera_controller_t *controller,
     // Rotation
     if (controller->view_pitch_neg > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_RIGHT,
                                nu_radian(controller->view_pitch_neg) * dt);
     }
     if (controller->view_pitch_pos > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_RIGHT,
                                -nu_radian(controller->view_pitch_pos) * dt);
     }
     if (controller->view_yaw_neg > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_UP,
                                nu_radian(controller->view_yaw_neg) * dt);
     }
     if (controller->view_yaw_pos > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_UP,
                                -nu_radian(controller->view_yaw_pos) * dt);
     }
     if (controller->view_roll_neg > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_FORWARD,
                                nu_radian(controller->view_roll_neg) * dt);
     }
     if (controller->view_roll_pos > 0)
     {
-        controller->rotation
-            = nu_quat_mul_axis(controller->rotation,
+        controller->_rotation
+            = nu_quat_mul_axis(controller->_rotation,
                                NU_VEC3_FORWARD,
                                -nu_radian(controller->view_roll_pos) * dt);
     }
 
-    nu_vec3_t position = nu_vec3_add(camera->eye, direction);
-    nu_vec3_t forward  = nu_quat_mulv3(controller->rotation, NU_VEC3_FORWARD);
+    controller->_position = nu_vec3_add(controller->_position, direction);
+    nu_vec3_t forward = nu_quat_mulv3(controller->_rotation, NU_VEC3_FORWARD);
     nu_vec3_t up
-        = nu_vec3_normalize(nu_quat_mulv3(controller->rotation, NU_VEC3_UP));
-    camera->eye    = position;
-    camera->up     = up;
-    camera->center = nu_vec3_add(position, forward);
+        = nu_vec3_normalize(nu_quat_mulv3(controller->_rotation, NU_VEC3_UP));
+
+    info->eye    = controller->_position;
+    info->up     = up;
+    info->center = nu_vec3_add(controller->_position, forward);
+    info->fov    = controller->fov;
 }
 
 #endif

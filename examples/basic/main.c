@@ -5,8 +5,12 @@
 
 #define WIDTH  640
 #define HEIGHT 400
+// #define HEIGHT 640
+// #define WIDTH  400
 // #define WIDTH  640 / 2
 // #define HEIGHT 400 / 2
+// #define HEIGHT 640 / 2
+// #define WIDTH  400 / 2
 
 static nu_allocator_t alloc;
 static nu_context_t   ctx;
@@ -39,13 +43,12 @@ main (void)
     nuext_init_stdlib_allocator(&alloc);
 
     // Create context
-    nu_context_info_t cinfo;
-    nu_context_info_default(&cinfo);
-    cinfo.width     = WIDTH;
-    cinfo.height    = HEIGHT;
-    cinfo.renderer  = NU_RENDERER_GL;
-    cinfo.allocator = alloc;
-    error           = nu_init_context(&cinfo, &ctx);
+    nu_context_info_t cinfo = nu_context_info_default();
+    cinfo.width             = WIDTH;
+    cinfo.height            = HEIGHT;
+    cinfo.renderer          = NU_RENDERER_GL;
+    cinfo.allocator         = alloc;
+    error                   = nu_init_context(&cinfo, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Create logger
@@ -77,8 +80,6 @@ main (void)
     error &= nuext_bind_button(&ctx, &move_right, NUEXT_BUTTON_D);
     error &= nuext_bind_button(&ctx, &move_up, NUEXT_BUTTON_X);
     error &= nuext_bind_button(&ctx, &move_down, NUEXT_BUTTON_Z);
-    // error &= nuext_bind_axis(&ctx, &view_x, NUEXT_AXIS_MOUSE_MOTION_X);
-    // error &= nuext_bind_axis(&ctx, &view_y, NUEXT_AXIS_MOUSE_MOTION_Y);
     error &= nuext_bind_axis(
         &ctx, &view_pitch_neg, NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
     error &= nuext_bind_axis(
@@ -111,12 +112,9 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create camera
-    nu_camera_t camera;
-    error = nu_create_camera(&ctx, &camera);
-    NU_ERROR_ASSERT(error);
-    camera.eye    = nu_vec3(1, 0, 1);
-    camera.center = NU_VEC3_ZERO;
-    error         = nu_update_camera(&ctx, &camera);
+    nu_camera_t      camera;
+    nu_camera_info_t cam_info = nu_camera_info_default();
+    error                     = nu_create_camera(&ctx, &cam_info, &camera);
     NU_ERROR_ASSERT(error);
 
     nu_camera_controller_t controller;
@@ -179,8 +177,8 @@ main (void)
         controller.move_right     = nu_input_value(&ctx, &move_right);
         controller.move_up        = nu_input_value(&ctx, &move_up);
         controller.move_down      = nu_input_value(&ctx, &move_down);
-        nu_update_camera_controller(&controller, delta, &camera);
-        nu_update_camera(&ctx, &camera);
+        nu_update_camera_controller(&controller, delta, &cam_info);
+        nu_update_camera(&ctx, &camera, &cam_info);
 
         if (nu_input_just_pressed(&ctx, &quit))
         {

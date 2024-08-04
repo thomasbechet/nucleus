@@ -5,6 +5,8 @@
 
 #if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_RENDERER_GL)
 
+#include <nucleus/math.h>
+#include <nucleus/memory.h>
 #include <nucleus/backend/gl_shader.h>
 
 static nu_error_t
@@ -167,6 +169,7 @@ nugl__render (void            *ctx,
         nugl__renderpass_data_t *pass   = &gl->passes[passid];
         switch (pass->type)
         {
+            case NU_RENDERPASS_UNLIT:
             case NU_RENDERPASS_FLAT: {
                 // Prepare pass
                 {
@@ -242,24 +245,28 @@ nugl__render (void            *ctx,
 }
 
 static nu_error_t
-nugl__update_camera (void *ctx, nu_camera_t *camera)
+nugl__update_camera (void                   *ctx,
+                     nu_camera_t            *camera,
+                     const nu_camera_info_t *info)
 {
     nugl__context_t *gl = ctx;
 
-    nu_mat4_t view   = nu_lookat(camera->eye, camera->center, camera->up);
+    nu_mat4_t view   = nu_lookat(info->eye, info->center, info->up);
     float     aspect = (float)gl->surface_size.x / (float)gl->surface_size.y;
-    nu_mat4_t projection = nu_perspective(
-        nu_radian(camera->fov), aspect, camera->near, camera->far);
+    nu_mat4_t projection
+        = nu_perspective(nu_radian(info->fov), aspect, info->near, info->far);
 
-    camera->_data.gl.vp = nu_mat4_mul(projection, view);
+    camera->gl.vp = nu_mat4_mul(projection, view);
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_camera (void *ctx, nu_camera_t *camera)
+nugl__create_camera (void                   *ctx,
+                     const nu_camera_info_t *info,
+                     nu_camera_t            *camera)
 {
     nu_error_t error;
-    error = nugl__update_camera(ctx, camera);
+    error = nugl__update_camera(ctx, camera, info);
     NU_ERROR_CHECK(error, return error);
     return NU_ERROR_NONE;
 }
@@ -329,6 +336,51 @@ nugl__delete_mesh (void *ctx, nu_mesh_t *mesh)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nugl__create_texture (void                    *ctx,
+                      const nu_texture_info_t *info,
+                      nu_texture_t            *texture)
+{
+    glGenTextures(1, &texture->gl.texture);
+    glBindTexture(GL_TEXTURE_2D, texture->gl.texture);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGB,
+                 info->size.x,
+                 info->size.y,
+                 0,
+                 GL_RGB,
+                 GL_UNSIGNED_BYTE,
+                 NU_NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_texture (void *ctx, nu_texture_t *texture)
+{
+    glDeleteTextures(1, &texture->gl.texture);
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__create_material (void                     *ctx,
+                       const nu_material_info_t *info,
+                       nu_material_t            *material)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_material (void *ctx, nu_material_t *material)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__update_material (void                     *ctx,
+                       nu_material_t            *material,
+                       const nu_material_info_t *info)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nugl__create_renderpass (void                       *ctx,
                          const nu_renderpass_info_t *info,
                          nu_renderpass_t            *pass)
@@ -383,9 +435,14 @@ nugl__submit_renderpass (void                         *ctx,
     nugl__renderpass_data_t *data = &gl->passes[pass->gl.id];
     switch (data->type)
     {
+        case NU_RENDERPASS_UNLIT: {
+            data->vp  = info->color.camera->gl.vp;
+            data->ivp = info->color.camera->gl.ivp;
+        }
+        break;
         case NU_RENDERPASS_FLAT: {
-            data->vp  = info->flat.camera->_data.gl.vp;
-            data->ivp = info->flat.camera->_data.gl.ivp;
+            data->vp  = info->flat.camera->gl.vp;
+            data->ivp = info->flat.camera->gl.ivp;
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:

@@ -3,6 +3,7 @@
 
 #include <nucleus/context.h>
 #include <nucleus/geometry.h>
+#include <nucleus/image.h>
 #include <nucleus/time.h>
 
 #endif

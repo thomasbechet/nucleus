@@ -11,5 +11,13 @@ uniform mat4 view_projection;
 void main()
 {
     uv = in_uv;
-    gl_Position = view_projection * model * vec4(in_position, 1.0);
+
+    vec4 position = view_projection * model * vec4(in_position, 1.0);
+
+    vec2 grid = vec2(640 / 2, 400 / 2);
+    position.xyz = position.xyz / position.w;
+    position.xy = floor(grid * position.xy) / grid;
+    position.xyz *= position.w;
+
+    gl_Position = position;
 }

@@ -459,8 +459,23 @@ typedef struct
 #define NU_CAMERA_DEFAULT_CENTER     NU_VEC3_FORWARD
 #define NU_CAMERA_DEFAULT_UP         NU_VEC3_UP
 
+typedef union
+{
+    struct
+    {
+        nu_u8_t a;
+        nu_u8_t r;
+        nu_u8_t g;
+        nu_u8_t b;
+    };
+    nu_u32_t argb;
+} nu_color_t;
+
+#define NU_COLOR_RED nu_color(255, 255, 0, 0)
+
 typedef enum
 {
+    NU_RENDERPASS_UNLIT,
     NU_RENDERPASS_FLAT,
     NU_RENDERPASS_TRANSPARENT,
 } nu_renderpass_type_t;
@@ -487,8 +502,14 @@ typedef struct
 
 typedef struct
 {
-    GLuint diffuse;
+    GLuint color0;
+    GLuint color1;
 } nugl__material_t;
+
+typedef struct
+{
+    GLuint texture;
+} nugl__texture_t;
 
 typedef enum
 {
@@ -553,37 +574,37 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_backend_t;
 
-typedef struct
-{
-    const nu_vec3_t *positions;
-    const nu_vec2_t *uvs;
-    nu_size_t        count;
-} nu_mesh_info_t;
-
 typedef enum
 {
     NU_PROJECTION_PERSPECTIVE,
     NU_PROJECTION_ORTHOGRAPHIC,
 } nu_projection_t;
 
-typedef union
+typedef struct
+{
+    nu_projection_t projection;
+    float           fov;
+    float           near;
+    float           far;
+    nu_vec3_t       up;
+    nu_vec3_t       center;
+    nu_vec3_t       eye;
+} nu_camera_info_t;
+
+typedef struct
 {
 #ifdef NU_BUILD_RENDERER_GL
     nugl__camera_t gl;
 #endif
-} nu__camera_data_t;
+} nu_camera_t;
 
 typedef struct
 {
-    nu_projection_t   projection;
-    float             fov;
-    float             near;
-    float             far;
-    nu_vec3_t         up;
-    nu_vec3_t         center;
-    nu_vec3_t         eye;
-    nu__camera_data_t _data;
-} nu_camera_t;
+    const nu_vec3_t *positions;
+    const nu_vec2_t *uvs;
+    const nu_vec3_t *normals;
+    nu_size_t        count;
+} nu_mesh_info_t;
 
 typedef union
 {
@@ -592,16 +613,45 @@ typedef union
 #endif
 } nu_mesh_t;
 
-typedef union
+typedef enum
+{
+    NU_TEXTURE_FORMAT_COLOR,
+    NU_TEXTURE_FORMAT_DEPTH
+} nu_texture_format_t;
+
+typedef enum
+{
+    NU_TEXTURE_USAGE_TARGET,
+    NU_TEXTURE_USAGE_SAMPLE
+} nu_texture_usage_t;
+
+typedef struct
+{
+    nu_uvec2_t          size;
+    nu_texture_format_t format;
+    nu_texture_usage_t  usage;
+} nu_texture_info_t;
+
+typedef struct
+{
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__texture_t gl;
+#endif
+} nu_texture_t;
+
+typedef struct
+{
+    const nu_texture_t *texture0;
+    const nu_texture_t *texture1;
+    nu_vec2_t           uv_offset;
+    nu_vec2_t           uv_scale;
+} nu_material_info_t;
+
+typedef struct
 {
 #ifdef NU_BUILD_RENDERER_GL
     nugl__material_t gl;
 #endif
-} nu__material_data_t;
-
-typedef struct
-{
-    nu__material_data_t _data;
 } nu_material_t;
 
 typedef union
@@ -610,6 +660,11 @@ typedef union
     nugl__context_t gl;
 #endif
 } nu__renderer_backend_t;
+
+typedef struct
+{
+    int todo;
+} nu_renderpass_color_info_t;
 
 typedef struct
 {
@@ -626,6 +681,7 @@ typedef struct
     nu_renderpass_type_t type;
     union
     {
+        nu_renderpass_color_info_t       color;
         nu_renderpass_flat_info_t        flat;
         nu_renderpass_transparent_info_t transparent;
     };
@@ -633,7 +689,18 @@ typedef struct
 
 typedef struct
 {
-    const nu_camera_t *camera;
+    const nu_camera_t  *camera;
+    const nu_texture_t *color_target;
+    const nu_texture_t *depth_target;
+    nu_color_t          clear_color;
+} nu_renderpass_submit_color_t;
+
+typedef struct
+{
+    const nu_camera_t  *camera;
+    const nu_texture_t *color_target;
+    const nu_texture_t *depth_target;
+    nu_color_t          clear_color;
 } nu_renderpass_submit_flat_t;
 
 typedef struct
@@ -641,7 +708,8 @@ typedef struct
     nu_bool_t reset;
     union
     {
-        nu_renderpass_submit_flat_t flat;
+        nu_renderpass_submit_color_t color;
+        nu_renderpass_submit_flat_t  flat;
     };
 } nu_renderpass_submit_t;
 
@@ -661,13 +729,32 @@ typedef struct
                          const nu_rect_t *viewport);
 
     // Resources API
-    nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
+    nu_error_t (*create_camera)(void                   *ctx,
+                                const nu_camera_info_t *info,
+                                nu_camera_t            *camera);
     nu_error_t (*delete_camera)(void *ctx, nu_camera_t *camera);
-    nu_error_t (*update_camera)(void *ctx, nu_camera_t *camera);
+    nu_error_t (*update_camera)(void                   *ctx,
+                                nu_camera_t            *camera,
+                                const nu_camera_info_t *info);
+
     nu_error_t (*create_mesh)(void                 *ctx,
                               const nu_mesh_info_t *info,
                               nu_mesh_t            *mesh);
     nu_error_t (*delete_mesh)(void *ctx, nu_mesh_t *mesh);
+
+    nu_error_t (*create_texture)(void                    *ctx,
+                                 const nu_texture_info_t *info,
+                                 nu_texture_t            *texture);
+    nu_error_t (*delete_texture)(void *ctx, nu_texture_t *texture);
+
+    nu_error_t (*create_material)(void                     *ctx,
+                                  const nu_material_info_t *info,
+                                  nu_material_t            *material);
+    nu_error_t (*delete_material)(void *ctx, nu_material_t *material);
+    nu_error_t (*update_material)(void                     *ctx,
+                                  nu_material_t            *material,
+                                  const nu_material_info_t *info);
+
     nu_error_t (*create_renderpass)(void                       *ctx,
                                     const nu_renderpass_info_t *info,
                                     nu_renderpass_t            *pass);
@@ -692,28 +779,27 @@ typedef struct
 
 typedef struct
 {
-    nu_vec3_t position;
-    nu_quat_t rotation;
-    nu_vec3_t velocity;
-    float     yaw;
-    float     pitch;
+    nu_vec3_t _position;
+    nu_quat_t _rotation;
+    nu_vec3_t _velocity;
+    float     _yaw;
+    float     _pitch;
+
     float     fov;
     nu_bool_t free_mode;
     float     speed;
-
-    // Input values
-    float view_pitch_neg;
-    float view_pitch_pos;
-    float view_yaw_neg;
-    float view_yaw_pos;
-    float view_roll_neg;
-    float view_roll_pos;
-    float move_up;
-    float move_down;
-    float move_left;
-    float move_right;
-    float move_forward;
-    float move_backward;
+    float     view_pitch_neg;
+    float     view_pitch_pos;
+    float     view_yaw_neg;
+    float     view_yaw_pos;
+    float     view_roll_neg;
+    float     view_roll_pos;
+    float     move_up;
+    float     move_down;
+    float     move_left;
+    float     move_right;
+    float     move_forward;
+    float     move_backward;
 } nu_camera_controller_t;
 
 //////////////////////////////////////////////////////////////////////////

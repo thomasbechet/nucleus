@@ -7,7 +7,7 @@
 #include <nucleus/input.h>
 #include <nucleus/renderer.h>
 
-NU_API void nu_context_info_default(nu_context_info_t *info);
+NU_API nu_context_info_t nu_context_info_default(void);
 
 NU_API nu_error_t nu_init_context(const nu_context_info_t *info,
                                   nu_context_t            *ctx);
@@ -17,12 +17,14 @@ NU_API nu_bool_t  nu_exit_requested(const nu_context_t *ctx);
 
 #ifdef NU_IMPLEMENTATION
 
-void
-nu_context_info_default (nu_context_info_t *info)
+nu_context_info_t
+nu_context_info_default (void)
 {
-    info->width    = 640;
-    info->height   = 400;
-    info->renderer = NU_RENDERER_NULL;
+    nu_context_info_t info;
+    info.width    = 640;
+    info.height   = 400;
+    info.renderer = NU_RENDERER_NULL;
+    return info;
 }
 
 nu_error_t
@@ -38,11 +40,11 @@ nu_init_context (const nu_context_info_t *info, nu_context_t *ctx)
     }
     else
     {
-        nu_context_info_default(&cinfo);
+        cinfo = nu_context_info_default();
     }
-    ctx->_allocator        = info->allocator;
-    ctx->_surface_size     = nu_uvec2(info->width, info->height);
-    ctx->_renderer_backend = info->renderer;
+    ctx->_allocator        = cinfo.allocator;
+    ctx->_surface_size     = nu_uvec2(cinfo.width, cinfo.height);
+    ctx->_renderer_backend = cinfo.renderer;
     ctx->_close_requested  = NU_FALSE;
 
     // Initialize surface (and inputs)
