@@ -2,6 +2,7 @@
 #define NU_RENDERER_H
 
 #include <nucleus/types.h>
+#include <nucleus/math.h>
 
 NU_API nu_error_t nu_create_camera(nu_context_t *ctx, nu_camera_t *camera);
 NU_API nu_error_t nu_delete_camera(nu_context_t *ctx, nu_camera_t *camera);
@@ -27,6 +28,11 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
                               const float     *transforms,
                               nu_u32_t         count);
 
+NU_API void nu_init_camera_controller(nu_camera_controller_t *controller);
+NU_API void nu_update_camera_controller(nu_camera_controller_t *controller,
+                                        float                   dt,
+                                        nu_camera_t            *camera);
+
 #ifdef NU_IMPLEMENTATION
 
 #ifdef NU_BUILD_RENDERER_GL
@@ -39,9 +45,9 @@ nu__renderer_null_init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__renderer_null_render (void             *ctx,
-                          const nu_uvec4_t *global_viewport,
-                          const nu_vec4_t  *viewport)
+nu__renderer_null_render (void            *ctx,
+                          const nu_rect_t *global_viewport,
+                          const nu_rect_t *viewport)
 {
     NU_UNUSED(ctx);
     NU_UNUSED(viewport);
@@ -221,6 +227,112 @@ nu_draw (nu_context_t    *ctx,
          const nu_mat4_t *transform)
 {
     ctx->_renderer.api.draw(ctx->_renderer.ctx, renderpass, mesh, transform);
+}
+
+void
+nu_init_camera_controller (nu_camera_controller_t *controller)
+{
+    controller->fov            = 90.0f;
+    controller->view_pitch_neg = 0;
+    controller->view_pitch_pos = 0;
+    controller->view_yaw_neg   = 0;
+    controller->view_yaw_pos   = 0;
+    controller->move_forward   = 0;
+    controller->move_backward  = 0;
+    controller->move_left      = 0;
+    controller->move_right     = 0;
+    controller->move_up        = 0;
+    controller->move_down      = 0;
+    controller->speed          = 5.0f;
+    controller->rotation       = nu_quat_identity();
+}
+void
+nu_update_camera_controller (nu_camera_controller_t *controller,
+                             float                   dt,
+                             nu_camera_t            *camera)
+{
+    // Translation
+    nu_vec3_t direction = NU_VEC3_ZERO;
+
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_FORWARD),
+                     NU_CLAMP01(controller->move_forward)));
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_BACKWARD),
+                     NU_CLAMP01(controller->move_backward)));
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_LEFT),
+                     NU_CLAMP01(controller->move_left)));
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_RIGHT),
+                     NU_CLAMP01(controller->move_right)));
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_UP),
+                     NU_CLAMP01(controller->move_up)));
+    direction = nu_vec3_add(
+        direction,
+        nu_vec3_muls(nu_quat_mulv3(controller->rotation, NU_VEC3_DOWN),
+                     NU_CLAMP01(controller->move_down)));
+
+    direction = nu_vec3_muls(nu_vec3_normalize(direction),
+                             dt * 0.001f * controller->speed);
+
+    // Rotation
+    if (controller->view_pitch_neg > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_RIGHT,
+                               nu_radian(controller->view_pitch_neg) * dt);
+    }
+    if (controller->view_pitch_pos > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_RIGHT,
+                               -nu_radian(controller->view_pitch_pos) * dt);
+    }
+    if (controller->view_yaw_neg > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_UP,
+                               nu_radian(controller->view_yaw_neg) * dt);
+    }
+    if (controller->view_yaw_pos > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_UP,
+                               -nu_radian(controller->view_yaw_pos) * dt);
+    }
+    if (controller->view_roll_neg > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_FORWARD,
+                               nu_radian(controller->view_roll_neg) * dt);
+    }
+    if (controller->view_roll_pos > 0)
+    {
+        controller->rotation
+            = nu_quat_mul_axis(controller->rotation,
+                               NU_VEC3_FORWARD,
+                               -nu_radian(controller->view_roll_pos) * dt);
+    }
+
+    nu_vec3_t position = nu_vec3_add(camera->eye, direction);
+    nu_vec3_t forward  = nu_quat_mulv3(controller->rotation, NU_VEC3_FORWARD);
+    nu_vec3_t up
+        = nu_vec3_normalize(nu_quat_mulv3(controller->rotation, NU_VEC3_UP));
+    camera->eye    = position;
+    camera->up     = up;
+    camera->center = nu_vec3_add(position, forward);
 }
 
 #endif

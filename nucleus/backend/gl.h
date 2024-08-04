@@ -103,10 +103,10 @@ nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
     // Compile programs
     error = nugl__compile_shader(
         gl, nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
-    NU_ERROR_ASSERT(error);
+    NU_ERROR_CHECK(error, return error);
     error = nugl__compile_shader(
         gl, nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
-    NU_ERROR_ASSERT(error);
+    NU_ERROR_CHECK(error, return error);
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
@@ -148,9 +148,9 @@ nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
 }
 
 static nu_error_t
-nugl__render (void             *ctx,
-              const nu_uvec4_t *global_viewport,
-              const nu_vec4_t  *viewport)
+nugl__render (void            *ctx,
+              const nu_rect_t *global_viewport,
+              const nu_rect_t *viewport)
 {
     nugl__context_t *gl = ctx;
 
@@ -228,8 +228,8 @@ nugl__render (void             *ctx,
 
     // Blit surface
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(viewport->x, viewport->y, viewport->z, viewport->w);
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glViewport(viewport->x, viewport->y, viewport->w, viewport->h);
+    glClearColor(25.0 / 255.0, 27.0 / 255.0, 43.0 / 255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(gl->blit_program);
     glBindTexture(GL_TEXTURE_2D, gl->surface_texture);

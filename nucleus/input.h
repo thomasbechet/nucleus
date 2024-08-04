@@ -19,6 +19,10 @@ NU_API float nu_input_value(const nu_context_t *ctx, const nu_input_t *input);
 NU_API nu_error_t nuext_bind_button(nu_context_t  *ctx,
                                     nu_input_t    *input,
                                     nuext_button_t button);
+NU_API nu_error_t nuext_bind_button_value(nu_context_t  *ctx,
+                                          nu_input_t    *input,
+                                          nuext_button_t button,
+                                          float          value);
 NU_API nu_error_t nuext_bind_axis(nu_context_t *ctx,
                                   nu_input_t   *input,
                                   nuext_axis_t  axis);
@@ -91,8 +95,22 @@ nuext_bind_button (nu_context_t *ctx, nu_input_t *input, nuext_button_t button)
     return NU_ERROR_NONE;
 }
 nu_error_t
+nuext_bind_button_value (nu_context_t  *ctx,
+                         nu_input_t    *input,
+                         nuext_button_t button,
+                         float          value)
+{
+#ifdef NU_BUILD_GLFW
+    return nuglfw__bind_button_value(&ctx->_glfw_input, input, button, value);
+#endif
+    return NU_ERROR_NONE;
+}
+nu_error_t
 nuext_bind_axis (nu_context_t *ctx, nu_input_t *input, nuext_axis_t axis)
 {
+#ifdef NU_BUILD_GLFW
+    return nuglfw__bind_axis(&ctx->_glfw_input, input, axis);
+#endif
     return NU_ERROR_NONE;
 }
 

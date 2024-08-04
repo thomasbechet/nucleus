@@ -1,6 +1,9 @@
 [x] Fixed loop
-[ ] Logger
-[ ] Camera controller
+[x] Logger
+[x] Camera controller
+[ ] Logger per system
+[ ] Mouse locked glfw
+[ ] Fullscreen window glfw
 [ ] Flat renderpass
 [ ] Volumetric renderpass
 [ ] Mass aggregate physics

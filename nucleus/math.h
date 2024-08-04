@@ -5,6 +5,7 @@
 
 NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
 NU_API nu_size_t nu_log2(nu_size_t n);
+NU_API float     nu_fabs(float f);
 NU_API float     nu_floor(float f);
 NU_API float     nu_radian(float d);
 NU_API float     nu_sqrt(float x);
@@ -22,8 +23,16 @@ NU_API nu_vec2_t nu_vec2_divs(nu_vec2_t a, float s);
 NU_API nu_vec2_t nu_vec2_floor(nu_vec2_t a);
 
 NU_API nu_vec3_t nu_vec3(float x, float y, float z);
+NU_API nu_vec3_t nu_vec3_add(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_sub(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_mul(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_muls(nu_vec3_t a, float s);
+NU_API nu_vec3_t nu_vec3_div(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_divs(nu_vec3_t a, float s);
+NU_API float     nu_vec3_norm(nu_vec3_t a);
 NU_API nu_vec3_t nu_vec3_normalize(nu_vec3_t a);
 NU_API nu_vec3_t nu_vec3_cross(nu_vec3_t a, nu_vec3_t b);
+NU_API float     nu_vec3_dot(nu_vec3_t a, nu_vec3_t b);
 
 NU_API nu_vec4_t nu_vec4(float x, float y, float z, float w);
 NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
@@ -33,10 +42,23 @@ NU_API nu_uvec2_t nu_uvec2(nu_u32_t x, nu_u32_t y);
 
 NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
 
+NU_API nu_quat_t nu_quat(float x, float y, float z, float w);
+NU_API nu_quat_t nu_quat_identity(void);
+NU_API nu_quat_t nu_quat_axis(nu_vec3_t axis, float angle);
+NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
+NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
+NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
+
 NU_API nu_mat4_t nu_mat4_zero(void);
 NU_API nu_mat4_t nu_mat4_identity(void);
+NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
+NU_API nu_mat4_t nu_mat4_scale(float x, float y, float z);
 NU_API nu_mat4_t nu_mat4_rotate_x(float x);
 NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
+
+NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
+NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);
+NU_API nu_vec2_t nu_rect_normalize(nu_rect_t r, nu_vec2_t p);
 
 NU_API nu_mat4_t nu_perspective(float fov,
                                 float aspect_ratio,
@@ -66,6 +88,13 @@ nu_log2 (nu_size_t n)
         n = n >> 1;
     }
     return result;
+}
+float
+nu_fabs (float f)
+{
+#ifdef NU_STDLIB
+    return fabsf(f);
+#endif
 }
 float
 nu_floor (float f)
@@ -183,13 +212,76 @@ nu_vec3 (float x, float y, float z)
     return ret;
 }
 nu_vec3_t
+nu_vec3_add (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t ret;
+    ret.x = a.x + b.x;
+    ret.y = a.y + b.y;
+    ret.z = a.z + b.z;
+    return ret;
+}
+nu_vec3_t
+nu_vec3_sub (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t ret;
+    ret.x = a.x - b.x;
+    ret.y = a.y - b.y;
+    ret.z = a.z - b.z;
+    return ret;
+}
+nu_vec3_t
+nu_vec3_mul (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t ret;
+    ret.x = a.x * b.x;
+    ret.y = a.y * b.y;
+    ret.z = a.z * b.z;
+    return ret;
+}
+nu_vec3_t
+nu_vec3_muls (nu_vec3_t a, float s)
+{
+    nu_vec3_t ret;
+    ret.x = a.x * s;
+    ret.y = a.y * s;
+    ret.z = a.z * s;
+    return ret;
+}
+nu_vec3_t
+nu_vec3_div (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t ret;
+    ret.x = a.x / b.x;
+    ret.y = a.y / b.y;
+    ret.z = a.z / b.z;
+    return ret;
+}
+nu_vec3_t
+nu_vec3_divs (nu_vec3_t a, float s)
+{
+    nu_vec3_t ret;
+    ret.x = a.x / s;
+    ret.y = a.y / s;
+    ret.z = a.z / s;
+    return ret;
+}
+float
+nu_vec3_norm (nu_vec3_t a)
+{
+    return nu_sqrt(nu_vec3_dot(a, a));
+}
+nu_vec3_t
 nu_vec3_normalize (nu_vec3_t v)
 {
-    float     length = nu_sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    float norm = nu_vec3_norm(v);
+    if (norm == 0)
+    {
+        return NU_VEC3_ZERO;
+    }
     nu_vec3_t ret;
-    ret.x = v.x / length;
-    ret.y = v.y / length;
-    ret.z = v.z / length;
+    ret.x = v.x / norm;
+    ret.y = v.y / norm;
+    ret.z = v.z / norm;
     return ret;
 }
 nu_vec3_t
@@ -200,6 +292,11 @@ nu_vec3_cross (nu_vec3_t a, nu_vec3_t b)
     ret.y = a.z * b.x - a.x * b.z;
     ret.z = a.x * b.y - a.y * b.x;
     return ret;
+}
+float
+nu_vec3_dot (nu_vec3_t a, nu_vec3_t b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 nu_vec4_t
@@ -249,13 +346,66 @@ nu_uvec4 (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
     return v;
 }
 
+nu_quat_t
+nu_quat (float x, float y, float z, float w)
+{
+    nu_quat_t q;
+    q.x = x;
+    q.y = y;
+    q.z = z;
+    q.w = w;
+    return q;
+}
+nu_quat_t
+nu_quat_identity (void)
+{
+    return nu_quat(0, 0, 0, 1);
+}
+nu_quat_t
+nu_quat_axis (nu_vec3_t axis, float angle)
+{
+    float a = angle * 0.5;
+    float c = nu_cos(a);
+    float s = nu_sin(a);
+
+    nu_vec3_t k = nu_vec3_normalize(axis);
+
+    return nu_quat(s * k.x, s * k.y, s * k.z, c);
+}
+nu_quat_t
+nu_quat_mul (nu_quat_t a, nu_quat_t b)
+{
+    nu_quat_t q;
+    q.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y;
+    q.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
+    q.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
+    q.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
+    return q;
+}
+nu_vec3_t
+nu_quat_mulv3 (nu_quat_t a, nu_vec3_t v)
+{
+    nu_vec3_t u = nu_vec3(a.x, a.y, a.z);
+
+    nu_vec3_t v1 = nu_vec3_muls(u, 2 * nu_vec3_dot(u, v));
+    nu_vec3_t v2 = nu_vec3_muls(v, a.w * a.w - nu_vec3_dot(u, u));
+    nu_vec3_t v3 = nu_vec3_muls(nu_vec3_cross(u, v), 2 * a.w);
+
+    return nu_vec3_add(v1, nu_vec3_add(v2, v3));
+}
+nu_quat_t
+nu_quat_mul_axis (nu_quat_t q, nu_vec3_t axis, float angle)
+{
+    return nu_quat_mul(q, nu_quat_axis(axis, angle));
+}
+
 nu_mat4_t
 nu_mat4_zero (void)
 {
     nu_mat4_t m;
     for (nu_size_t i = 0; i < NU_MAT4_SIZE; ++i)
     {
-        m.data[i] = 0.0f;
+        m.data[i] = 0;
     }
     return m;
 }
@@ -263,10 +413,28 @@ nu_mat4_t
 nu_mat4_identity (void)
 {
     nu_mat4_t m = nu_mat4_zero();
-    m.data[0]   = 1.0f;
-    m.data[5]   = 1.0f;
-    m.data[10]  = 1.0f;
-    m.data[15]  = 1.0f;
+    m.x1        = 1;
+    m.y2        = 1;
+    m.z3        = 1;
+    m.w4        = 1;
+    return m;
+}
+nu_mat4_t
+nu_mat4_translate (float x, float y, float z)
+{
+    nu_mat4_t m = nu_mat4_identity();
+    m.w1        = x;
+    m.w2        = y;
+    m.w3        = z;
+    return m;
+}
+nu_mat4_t
+nu_mat4_scale (float x, float y, float z)
+{
+    nu_mat4_t m = nu_mat4_identity();
+    m.x1        = x;
+    m.y2        = y;
+    m.z3        = z;
     return m;
 }
 nu_mat4_t
@@ -286,6 +454,42 @@ nu_mat4_mul (nu_mat4_t a, nu_mat4_t b)
     return m;
 }
 
+nu_rect_t
+nu_rect (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
+{
+    nu_rect_t ret;
+    ret.x = x;
+    ret.y = y;
+    ret.w = w;
+    ret.h = h;
+    return ret;
+}
+nu_bool_t
+nu_rect_contains (nu_rect_t r, nu_vec2_t p)
+{
+    nu_i32_t px = p.x;
+    nu_i32_t py = p.y;
+    if (px < r.x || py < r.y)
+    {
+        return NU_FALSE;
+    }
+    nu_i32_t xw = r.x + r.w;
+    nu_i32_t xh = r.y + r.h;
+    if (px > xw || py > xh)
+    {
+        return NU_FALSE;
+    }
+    return NU_TRUE;
+}
+nu_vec2_t
+nu_rect_normalize (nu_rect_t r, nu_vec2_t p)
+{
+    nu_vec2_t ret;
+    ret.x = (p.x - (float)r.x) / (float)r.w;
+    ret.y = (p.y - (float)r.y) / (float)r.h;
+    return ret;
+}
+
 nu_mat4_t
 nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 {
@@ -295,24 +499,24 @@ nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
     float     near_far = z_near - z_far;
 
     m.data[0] = x_scale;
-    m.data[1] = 0.0f;
-    m.data[2] = 0.0f;
-    m.data[3] = 0.0f;
+    m.data[1] = 0;
+    m.data[2] = 0;
+    m.data[3] = 0;
 
-    m.data[4] = 0.0f;
+    m.data[4] = 0;
     m.data[5] = y_scale;
-    m.data[6] = 0.0f;
-    m.data[7] = 0.0f;
+    m.data[6] = 0;
+    m.data[7] = 0;
 
-    m.data[8]  = 0.0f;
-    m.data[9]  = 0.0f;
+    m.data[8]  = 0;
+    m.data[9]  = 0;
     m.data[10] = (z_far + z_near) / near_far;
-    m.data[11] = -1.0f;
+    m.data[11] = -1;
 
-    m.data[12] = 0.0f;
-    m.data[13] = 0.0f;
-    m.data[14] = (2.0f * z_far * z_near) / near_far;
-    m.data[15] = 0.0f;
+    m.data[12] = 0;
+    m.data[13] = 0;
+    m.data[14] = (2 * z_far * z_near) / near_far;
+    m.data[15] = 0;
 
     return m;
 }
@@ -333,22 +537,22 @@ nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
     m.data[0] = s.x;
     m.data[1] = u_prime.x;
     m.data[2] = -f.x;
-    m.data[3] = 0.0f;
+    m.data[3] = 0;
 
     m.data[4] = s.y;
     m.data[5] = u_prime.y;
     m.data[6] = -f.y;
-    m.data[7] = 0.0f;
+    m.data[7] = 0;
 
     m.data[8]  = s.z;
     m.data[9]  = u_prime.z;
     m.data[10] = -f.z;
-    m.data[11] = 0.0f;
+    m.data[11] = 0;
 
     m.data[12] = -s.x * eye.x - s.y * eye.y - s.z * eye.z;
     m.data[13] = -u_prime.x * eye.x - u_prime.y * eye.y - u_prime.z * eye.z;
     m.data[14] = f.x * eye.x + f.y * eye.y + f.z * eye.z;
-    m.data[15] = 1.0f;
+    m.data[15] = 1;
     return m;
 }
 

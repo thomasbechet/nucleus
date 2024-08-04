@@ -55,12 +55,15 @@ typedef int           nu_word_t;
 
 #define NU_PI 3.14159265359
 
-#define NU_MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define NU_MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define NU_MIN(a, b)          (((a) < (b)) ? (a) : (b))
+#define NU_MAX(a, b)          (((a) > (b)) ? (a) : (b))
+#define NU_CLAMP(x, min, max) (NU_MAX(min, NU_MIN(max, x)))
+#define NU_CLAMP01(x)         (NU_CLAMP(x, 0, 1))
 
 #define NU_VEC2_SIZE 2
 #define NU_VEC3_SIZE 3
 #define NU_VEC4_SIZE 4
+#define NU_QUAT_SIZE 4
 #define NU_MAT3_SIZE 9
 #define NU_MAT4_SIZE 16
 
@@ -75,6 +78,10 @@ typedef int           nu_word_t;
 #define NU_VEC3_RIGHT    nu_vec3(1, 0, 0)
 
 #define NU_VEC4_ZERO nu_vec4(0, 0, 0, 0)
+
+#define NU_VEC2_FORMAT "%lf %lf"
+#define NU_VEC3_FORMAT "%lf %lf %lf"
+#define NU_VEC4_FORMAT "%lf %lf %lf %lf"
 
 typedef union
 {
@@ -135,6 +142,18 @@ typedef union
 {
     struct
     {
+        float x;
+        float y;
+        float z;
+        float w;
+    };
+    float xyzw[NU_QUAT_SIZE];
+} nu_quat_t;
+
+typedef union
+{
+    struct
+    {
         float x1;
         float x2;
         float x3;
@@ -154,6 +173,14 @@ typedef union
     };
     float data[NU_MAT4_SIZE];
 } nu_mat4_t;
+
+typedef struct
+{
+    nu_i32_t x;
+    nu_i32_t y;
+    nu_u32_t w;
+    nu_u32_t h;
+} nu_rect_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Time Types                          //////
@@ -248,8 +275,8 @@ typedef struct
     nuext_viewport_mode_t mode;
     float                 scale_factor;
     nu_uvec2_t            screen;
-    nu_uvec4_t            extent;
-    nu_vec4_t             viewport;
+    nu_rect_t             extent;
+    nu_rect_t             viewport;
 } nuglfw__viewport_t;
 
 typedef struct
@@ -362,14 +389,33 @@ typedef enum
 {
     NUEXT_AXIS_MOUSE_X,
     NUEXT_AXIS_MOUSE_Y,
+    NUEXT_AXIS_MOUSE_MOTION_X_POS,
+    NUEXT_AXIS_MOUSE_MOTION_X_NEG,
+    NUEXT_AXIS_MOUSE_MOTION_Y_POS,
+    NUEXT_AXIS_MOUSE_MOTION_Y_NEG,
 } nuext_axis_t;
 
 #ifdef NU_BUILD_GLFW
 
 typedef struct
 {
+    float pressed;
+} nuglfw__binding_button_t;
+
+typedef struct
+{
+    float scale;
+} nuglfw__binding_axis_t;
+
+typedef struct
+{
     nu_u32_t id;
     nu_u32_t next;
+    union
+    {
+        nuglfw__binding_button_t button;
+        nuglfw__binding_axis_t   axis;
+    };
 } nuglfw__binding_t;
 
 typedef union
@@ -387,6 +433,12 @@ typedef struct
     nu_u32_t              input_count;
     nu_u32_t              key_to_first_binding[GLFW_KEY_LAST];
     nu_u32_t              mouse_button_to_first_binding[GLFW_MOUSE_BUTTON_LAST];
+    nu_u32_t              mouse_x_first_binding;
+    nu_u32_t              mouse_y_first_binding;
+    nu_u32_t              mouse_motion_x_pos_first_binding;
+    nu_u32_t              mouse_motion_x_neg_first_binding;
+    nu_u32_t              mouse_motion_y_pos_first_binding;
+    nu_u32_t              mouse_motion_y_neg_first_binding;
     nu_vec2_t             mouse_position;
     nu_vec2_t             mouse_old_position;
     nu_vec2_t             mouse_scroll;
@@ -604,9 +656,9 @@ typedef struct
 {
     // Engine API
     nu_error_t (*init)(void *ctx, nu_allocator_t allocator, nu_uvec2_t size);
-    nu_error_t (*render)(void             *ctx,
-                         const nu_uvec4_t *global_viewport,
-                         const nu_vec4_t  *viewport);
+    nu_error_t (*render)(void            *ctx,
+                         const nu_rect_t *global_viewport,
+                         const nu_rect_t *viewport);
 
     // Resources API
     nu_error_t (*create_camera)(void *ctx, nu_camera_t *camera);
@@ -637,6 +689,32 @@ typedef struct
     void                  *ctx;
     nu__renderer_backend_t backend;
 } nu__renderer_t;
+
+typedef struct
+{
+    nu_vec3_t position;
+    nu_quat_t rotation;
+    nu_vec3_t velocity;
+    float     yaw;
+    float     pitch;
+    float     fov;
+    nu_bool_t free_mode;
+    float     speed;
+
+    // Input values
+    float view_pitch_neg;
+    float view_pitch_pos;
+    float view_yaw_neg;
+    float view_yaw_pos;
+    float view_roll_neg;
+    float view_roll_pos;
+    float move_up;
+    float move_down;
+    float move_left;
+    float move_right;
+    float move_forward;
+    float move_backward;
+} nu_camera_controller_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Context Types                         //////
