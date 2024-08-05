@@ -310,7 +310,7 @@ typedef struct
 
 typedef struct
 {
-
+    nu_logger_t logger;
 #ifdef NU_BUILD_GLFW
     nuglfw__surface_t glfw;
 #endif
@@ -479,6 +479,7 @@ typedef struct
 
 typedef struct
 {
+    nu_logger_t logger;
 #ifdef NU_BUILD_GLFW
     nuglfw__input_t glfw;
 #endif
@@ -489,9 +490,9 @@ typedef struct
 //////////////////////////////////////////////////////////////////////////
 
 #define NU_CAMERA_DEFAULT_PROJECTION NU_PROJECTION_PERSPECTIVE
-#define NU_CAMERA_DEFAULT_FOV        90.0f
-#define NU_CAMERA_DEFAULT_NEAR       0.01f
-#define NU_CAMERA_DEFAULT_FAR        100.0f
+#define NU_CAMERA_DEFAULT_FOV        80.0
+#define NU_CAMERA_DEFAULT_NEAR       0.01
+#define NU_CAMERA_DEFAULT_FAR        100.0
 #define NU_CAMERA_DEFAULT_EYE        NU_VEC3_ZERO
 #define NU_CAMERA_DEFAULT_CENTER     NU_VEC3_FORWARD
 #define NU_CAMERA_DEFAULT_UP         NU_VEC3_UP
@@ -509,6 +510,7 @@ typedef union
 } nu_color_t;
 
 #define NU_COLOR_WHITE nu_color(255, 255, 255, 0)
+#define NU_COLOR_BLACK nu_color(0, 0, 0, 0)
 #define NU_COLOR_RED   nu_color(255, 0, 0, 0)
 
 typedef enum
@@ -834,6 +836,7 @@ typedef struct
 
 typedef struct
 {
+    nu_logger_t            logger;
     nu_renderer_api_t      api;
     void                  *ctx;
     nu__renderer_backend_t backend;

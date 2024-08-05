@@ -270,7 +270,7 @@ main (void)
         submit.flat.camera       = &camera;
         submit.flat.color_target = nu_surface_color_target(&ctx);
         submit.flat.depth_target = &depth_target;
-        submit.flat.clear_color  = NU_COLOR_WHITE;
+        submit.flat.clear_color  = NU_COLOR_BLACK;
         nu_renderpass_submit(&ctx, &main_pass, &submit);
 
         // Refresh surface

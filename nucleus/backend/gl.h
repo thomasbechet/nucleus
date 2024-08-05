@@ -202,6 +202,7 @@ nugl__render (void            *ctx,
 
                 // Terminate pass
                 {
+                    glUseProgram(0);
                 }
             }
             break;

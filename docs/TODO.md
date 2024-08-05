@@ -1,7 +1,7 @@
 [x] Fixed loop
 [x] Logger
 [x] Camera controller
-[ ] Renderpass depth buffer
+[x] Renderpass depth buffer
 [ ] Logger per system
 [ ] Mouse locked glfw
 [ ] Fullscreen window glfw
