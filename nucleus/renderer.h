@@ -51,8 +51,6 @@ NU_API void nu_draw(nu_context_t        *ctx,
                     const nu_material_t *material,
                     const nu_mat4_t     *transform);
 
-NU_API nu_color_t nu_color(nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a);
-
 NU_API void nu_camera_controller_init(nu_camera_controller_t *controller);
 NU_API void nu_camera_controller_update(nu_camera_controller_t *controller,
                                         float                   dt,
@@ -79,6 +77,12 @@ nu__renderer_null_render (void            *ctx,
     NU_UNUSED(ctx);
     NU_UNUSED(viewport);
     return NU_ERROR_NONE;
+}
+static nu_texture_t
+nu__renderer_null_create_surface_color (void *ctx)
+{
+    nu_texture_t tex = { 0 };
+    return tex;
 }
 static nu_error_t
 nu__renderer_null_create_camera (void                   *ctx,
@@ -186,6 +190,8 @@ nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
         case NU_RENDERER_NULL:
             ctx->_renderer.api.init   = nu__renderer_null_init;
             ctx->_renderer.api.render = nu__renderer_null_render;
+            ctx->_renderer.api.create_surface_color
+                = nu__renderer_null_create_surface_color;
 
             ctx->_renderer.api.create_camera = nu__renderer_null_create_camera;
             ctx->_renderer.api.delete_camera = nu__renderer_null_delete_camera;
@@ -217,6 +223,8 @@ nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
         case NU_RENDERER_GL:
             ctx->_renderer.api.init   = nugl__init;
             ctx->_renderer.api.render = nugl__render;
+            ctx->_renderer.api.create_surface_color
+                = nugl__create_surface_color;
 
             ctx->_renderer.api.create_camera     = nugl__create_camera;
             ctx->_renderer.api.delete_camera     = nugl__delete_camera;
@@ -247,6 +255,10 @@ nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
     nu_error_t error = ctx->_renderer.api.init(
         ctx->_renderer.ctx, ctx->_allocator, ctx->_surface.size);
     NU_ERROR_CHECK(error, return error);
+
+    // Create surface texture
+    ctx->_renderer.surface_color
+        = ctx->_renderer.api.create_surface_color(ctx->_renderer.ctx);
 
     return NU_ERROR_NONE;
 }
@@ -382,17 +394,6 @@ nu_draw (nu_context_t        *ctx,
 {
     ctx->_renderer.api.draw(
         ctx->_renderer.ctx, renderpass, mesh, material, transform);
-}
-
-nu_color_t
-nu_color (nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a)
-{
-    nu_color_t c;
-    c.r = r;
-    c.g = g;
-    c.b = b;
-    c.a = a;
-    return c;
 }
 
 void

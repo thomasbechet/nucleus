@@ -40,7 +40,7 @@ nu_render (nu_context_t *ctx)
 const nu_texture_t *
 nu_surface_color_target (const nu_context_t *ctx)
 {
-    return NU_NULL;
+    return &ctx->_renderer.surface_color;
 }
 
 nu_error_t

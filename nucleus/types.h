@@ -70,6 +70,8 @@ typedef int           nu_word_t;
 #define NU_VEC2_ZERO nu_vec2(0, 0)
 #define NU_VEC2_ONE  nu_vec2(1, 1)
 
+#define NU_UVEC2_ZERO nu_uvec2(0, 0)
+
 #define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
 #define NU_VEC3_UP       nu_vec3(0, 1, 0)
 #define NU_VEC3_DOWN     nu_vec3(0, -1, 0)
@@ -518,9 +520,10 @@ typedef enum
 
 #ifdef NU_BUILD_RENDERER_GL
 
-#define NUGL__VERTEX_SIZE          (3 + 2)
-#define NUGL__MAX_COMMAND_COUNT    128
-#define NUGL__MAX_RENDERPASS_COUNT 32
+#define NUGL__VERTEX_SIZE            (3 + 2)
+#define NUGL__MAX_COMMAND_COUNT      128
+#define NUGL__MAX_RENDERPASS_COUNT   32
+#define NUGL__MAX_RENDERTARGET_COUNT 32
 
 typedef struct
 {
@@ -545,7 +548,8 @@ typedef struct
 
 typedef struct
 {
-    GLuint texture;
+    GLuint     texture;
+    nu_uvec2_t size;
 } nugl__texture_t;
 
 typedef enum
@@ -578,6 +582,11 @@ typedef struct
     nugl__command_buffer_t cmds;
     nu_mat4_t              vp;
     nu_mat4_t              ivp;
+    nu_color_t             clear_color;
+    GLuint                 depth_target;
+    GLuint                 color_target;
+    GLuint                 fbo;
+    nu_uvec2_t             fbo_size;
     nu_bool_t              reset;
 } nugl__renderpass_data_t;
 
@@ -588,15 +597,23 @@ typedef struct
 
 typedef struct
 {
+    GLuint color;
+    GLuint depth;
+    GLuint fbo;
+} nugl__rendertarget_t;
+
+typedef struct
+{
     nu_allocator_t allocator;
+    nu_uvec2_t     surface_size;
+    GLuint         surface_color;
 
     GLuint blit_program;
     GLuint flat_program;
     GLuint nearest_sampler;
 
-    GLuint     surface_fbo;
-    GLuint     surface_texture;
-    nu_uvec2_t surface_size;
+    nugl__rendertarget_t targets[NUGL__MAX_RENDERTARGET_COUNT];
+    nu_size_t            target_count;
 
     nugl__renderpass_data_t passes[NUGL__MAX_RENDERPASS_COUNT];
     nu_u32_t                pass_count;
@@ -766,6 +783,7 @@ typedef struct
     nu_error_t (*render)(void            *ctx,
                          const nu_rect_t *global_viewport,
                          const nu_rect_t *viewport);
+    nu_texture_t (*create_surface_color)(void *ctx);
 
     // Resources API
     nu_error_t (*create_camera)(void                   *ctx,
@@ -819,6 +837,7 @@ typedef struct
     nu_renderer_api_t      api;
     void                  *ctx;
     nu__renderer_backend_t backend;
+    nu_texture_t           surface_color;
 } nu__renderer_t;
 
 typedef struct

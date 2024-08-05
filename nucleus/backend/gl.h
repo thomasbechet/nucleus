@@ -7,6 +7,7 @@
 
 #include <nucleus/math.h>
 #include <nucleus/memory.h>
+#include <nucleus/image.h>
 #include <nucleus/backend/gl_shader.h>
 
 static nu_error_t
@@ -96,7 +97,10 @@ nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
     nu_error_t       error;
     nugl__context_t *gl = ctx;
 
-    gl->allocator = allocator;
+    gl->allocator     = allocator;
+    gl->surface_size  = size;
+    gl->surface_color = 0;
+    gl->target_count  = 0;
 
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
@@ -117,51 +121,18 @@ nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    // Create surface texture and framebuffer
-    gl->surface_size = size;
-    glGenTextures(1, &gl->surface_texture);
-    glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGB,
-                 size.x,
-                 size.y,
-                 0,
-                 GL_RGB,
-                 GL_UNSIGNED_BYTE,
-                 NU_NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glGenFramebuffers(1, &gl->surface_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D,
-                           gl->surface_texture,
-                           0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     // Initialize passes
     gl->pass_count       = 0;
     gl->pass_order_count = 0;
 
     return NU_ERROR_NONE;
 }
-
 static nu_error_t
 nugl__render (void            *ctx,
               const nu_rect_t *global_viewport,
               const nu_rect_t *viewport)
 {
     nugl__context_t *gl = ctx;
-
-    // TODO: resolve renderpass tree
-    // TODO: resolve renderpass targets
-    // TODO: batch render calls
-    // TODO: bind renderpass states
-    // TODO: execute draw calls
-    // TODO: ?? sort draw calls
 
     for (nu_u32_t i = 0; i < gl->pass_order_count; ++i)
     {
@@ -174,10 +145,17 @@ nugl__render (void            *ctx,
                 // Prepare pass
                 {
                     // Bind surface
-                    glBindFramebuffer(GL_FRAMEBUFFER, gl->surface_fbo);
-                    glViewport(0, 0, gl->surface_size.x, gl->surface_size.y);
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
+                    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+                    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+                    nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
+
+                    glEnable(GL_DEPTH_TEST);
+
+                    glClearColor(clear_color.x,
+                                 clear_color.y,
+                                 clear_color.z,
+                                 clear_color.w);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     // Bind program
                     glUseProgram(gl->flat_program);
@@ -242,15 +220,41 @@ nugl__render (void            *ctx,
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport->x, viewport->y, viewport->w, viewport->h);
     glClearColor(25.0 / 255.0, 27.0 / 255.0, 43.0 / 255.0, 1.0);
+    glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(gl->blit_program);
-    glBindTexture(GL_TEXTURE_2D, gl->surface_texture);
+    glBindTexture(GL_TEXTURE_2D, gl->surface_color);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Reset for next frame
     gl->pass_order_count = 0;
 
     return NU_ERROR_NONE;
+}
+static nu_texture_t
+nugl__create_surface_color (void *ctx)
+{
+    nugl__context_t *gl = ctx;
+
+    nu_texture_t texture;
+    glGenTextures(1, &texture.gl.texture);
+    glBindTexture(GL_TEXTURE_2D, texture.gl.texture);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGB,
+                 gl->surface_size.x,
+                 gl->surface_size.y,
+                 0,
+                 GL_RGB,
+                 GL_UNSIGNED_BYTE,
+                 NU_NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    texture.gl.size = gl->surface_size;
+
+    gl->surface_color = texture.gl.texture;
+
+    return texture;
 }
 
 static nu_error_t
@@ -349,21 +353,42 @@ nugl__create_texture (void                    *ctx,
                       const nu_texture_info_t *info,
                       nu_texture_t            *texture)
 {
+
     glGenTextures(1, &texture->gl.texture);
     glBindTexture(GL_TEXTURE_2D, texture->gl.texture);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGB,
-                 info->size.x,
-                 info->size.y,
-                 0,
-                 GL_RGB,
-                 GL_UNSIGNED_BYTE,
-                 NU_NULL);
+    texture->gl.size = info->size;
+
+    switch (info->format)
+    {
+        case NU_TEXTURE_FORMAT_COLOR:
+            glTexImage2D(GL_TEXTURE_2D,
+                         0,
+                         GL_RGB,
+                         info->size.x,
+                         info->size.y,
+                         0,
+                         GL_RGB,
+                         GL_UNSIGNED_BYTE,
+                         NU_NULL);
+            break;
+        case NU_TEXTURE_FORMAT_DEPTH:
+            glTexImage2D(GL_TEXTURE_2D,
+                         0,
+                         GL_DEPTH24_STENCIL8,
+                         info->size.x,
+                         info->size.y,
+                         0,
+                         GL_DEPTH_STENCIL,
+                         GL_UNSIGNED_INT_24_8,
+                         NU_NULL);
+            break;
+    }
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -467,6 +492,48 @@ nugl__draw (void                *ctx,
     cmd->texture1        = material->gl.texture1;
     cmd->uv_transform    = material->gl.uv_transform;
 }
+static GLuint
+nugl__find_or_create_framebuffer (nugl__context_t *ctx,
+                                  GLuint           color,
+                                  GLuint           depth)
+{
+    for (nu_size_t i = 0; i < ctx->target_count; ++i)
+    {
+        const nugl__rendertarget_t *target = ctx->targets + i;
+        if (target->color == color && target->depth == depth)
+        {
+            return target->fbo;
+        }
+    }
+
+    nugl__rendertarget_t *target = &ctx->targets[ctx->target_count++];
+    target->color                = color;
+    target->depth                = depth;
+
+    glGenFramebuffers(1, &target->fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, target->fbo);
+    if (target->color)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D,
+                               target->color,
+                               0);
+    }
+    if (target->depth)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               GL_DEPTH_STENCIL_ATTACHMENT,
+                               GL_TEXTURE_2D,
+                               target->depth,
+                               0);
+    }
+    NU_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER)
+              == GL_FRAMEBUFFER_COMPLETE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return target->fbo;
+}
 static void
 nugl__submit_renderpass (void                         *ctx,
                          nu_renderpass_t              *pass,
@@ -486,8 +553,28 @@ nugl__submit_renderpass (void                         *ctx,
         }
         break;
         case NU_RENDERPASS_FLAT: {
-            data->vp  = info->flat.camera->gl.vp;
-            data->ivp = info->flat.camera->gl.ivp;
+            data->vp           = info->flat.camera->gl.vp;
+            data->ivp          = info->flat.camera->gl.ivp;
+            data->color_target = info->flat.color_target
+                                     ? info->flat.color_target->gl.texture
+                                     : 0;
+            data->depth_target = info->flat.depth_target
+                                     ? info->flat.depth_target->gl.texture
+                                     : 0;
+            data->clear_color  = info->flat.clear_color;
+            if (data->color_target || data->depth_target)
+            {
+                data->fbo = nugl__find_or_create_framebuffer(
+                    gl, data->color_target, data->depth_target);
+                data->fbo_size = data->color_target
+                                     ? info->flat.color_target->gl.size
+                                     : info->flat.depth_target->gl.size;
+            }
+            else
+            {
+                data->fbo      = 0;
+                data->fbo_size = NU_UVEC2_ZERO;
+            }
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:

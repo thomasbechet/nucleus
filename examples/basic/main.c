@@ -212,6 +212,7 @@ main (void)
     nu_timer_t timer;
     nu_timer_reset(&timer);
     float delta = 0.0f;
+    float time  = 0;
 
     while (!nu_exit_requested(&ctx) && running)
     {
@@ -232,6 +233,7 @@ main (void)
 
         delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
+        time += delta;
 
         // Poll events
         nu_poll_events(&ctx);
@@ -259,7 +261,7 @@ main (void)
         // Render loop
         for (int i = 0; i < 20; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(i, i, i);
+            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i), i, i);
             nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
         }
 
