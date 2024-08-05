@@ -287,6 +287,15 @@ typedef struct
 
 #endif
 
+typedef struct
+{
+
+#ifdef NU_BUILD_GLFW
+    nuglfw__surface_t glfw;
+#endif
+    nu_uvec2_t size;
+} nu__surface_t;
+
 //////////////////////////////////////////////////////////////////////////
 //////                         Input Types                          //////
 //////////////////////////////////////////////////////////////////////////
@@ -446,6 +455,13 @@ typedef struct
 } nuglfw__input_t;
 
 #endif
+
+typedef struct
+{
+#ifdef NU_BUILD_GLFW
+    nuglfw__input_t glfw;
+#endif
+} nu__input_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Renderer Types                         //////
@@ -816,16 +832,12 @@ typedef struct
 
 typedef struct
 {
-    nu_allocator_t        _allocator;
-    nu_uvec2_t            _surface_size;
-    nu_renderer_backend_t _renderer_backend;
-    nu_bool_t             _close_requested;
-#ifdef NU_BUILD_GLFW
-    nuglfw__surface_t _glfw_surface;
-    nuglfw__input_t   _glfw_input;
-#endif
+    nu_allocator_t _allocator;
+    nu_bool_t      _close_requested;
     nu__renderer_t _renderer;
     nu__logger_t   _logger;
+    nu__surface_t  _surface;
+    nu__input_t    _input;
 } nu_context_t;
 
 #endif

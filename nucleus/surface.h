@@ -29,10 +29,10 @@ nu_error_t
 nu_render (nu_context_t *ctx)
 {
     ctx->_renderer.api.render(ctx->_renderer.ctx,
-                              &ctx->_glfw_surface.viewport.extent,
-                              &ctx->_glfw_surface.viewport.viewport);
+                              &ctx->_surface.glfw.viewport.extent,
+                              &ctx->_surface.glfw.viewport.viewport);
 #ifdef NU_BUILD_GLFW
-    nuglfw__swap_buffers(&ctx->_glfw_surface);
+    nuglfw__swap_buffers(&ctx->_surface.glfw);
 #endif
     return NU_ERROR_NONE;
 }
@@ -41,7 +41,7 @@ nu_error_t
 nuext_set_viewport_mode (nu_context_t *ctx, nuext_viewport_mode_t mode)
 {
 #ifdef NU_BUILD_GLFW
-    nuglfw__swap_buffers(&ctx->_glfw_surface);
+    nuglfw__swap_buffers(&ctx->_surface.glfw);
 #endif
     return NU_ERROR_NONE;
 }

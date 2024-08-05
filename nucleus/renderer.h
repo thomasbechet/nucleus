@@ -4,40 +4,40 @@
 #include <nucleus/types.h>
 
 NU_API nu_camera_info_t nu_camera_info_default(void);
-NU_API nu_error_t       nu_create_camera(nu_context_t           *ctx,
+NU_API nu_error_t       nu_camera_create(nu_context_t           *ctx,
                                          const nu_camera_info_t *info,
                                          nu_camera_t            *camera);
-NU_API nu_error_t nu_delete_camera(nu_context_t *ctx, nu_camera_t *camera);
-NU_API nu_error_t nu_update_camera(nu_context_t           *ctx,
+NU_API nu_error_t nu_camera_delete(nu_context_t *ctx, nu_camera_t *camera);
+NU_API nu_error_t nu_camera_update(nu_context_t           *ctx,
                                    nu_camera_t            *camera,
                                    const nu_camera_info_t *info);
 
-NU_API nu_error_t nu_create_mesh(nu_context_t         *ctx,
+NU_API nu_error_t nu_mesh_create(nu_context_t         *ctx,
                                  const nu_mesh_info_t *info,
                                  nu_mesh_t            *mesh);
-NU_API nu_error_t nu_delete_mesh(nu_context_t *ctx, nu_mesh_t *mesh);
+NU_API nu_error_t nu_mesh_delete(nu_context_t *ctx, nu_mesh_t *mesh);
 
-NU_API nu_error_t nu_create_texture(nu_context_t            *ctx,
+NU_API nu_error_t nu_texture_create(nu_context_t            *ctx,
                                     const nu_texture_info_t *info,
                                     nu_texture_t            *texture);
-NU_API nu_error_t nu_delete_texture(nu_context_t *ctx, nu_texture_t *texture);
+NU_API nu_error_t nu_texture_delete(nu_context_t *ctx, nu_texture_t *texture);
 
-NU_API nu_error_t nu_create_material(nu_context_t             *ctx,
+NU_API nu_error_t nu_material_create(nu_context_t             *ctx,
                                      const nu_material_info_t *info,
                                      nu_material_t            *material);
-NU_API nu_error_t nu_delete_material(nu_context_t  *ctx,
+NU_API nu_error_t nu_material_delete(nu_context_t  *ctx,
                                      nu_material_t *material);
-NU_API nu_error_t nu_update_material(nu_context_t             *ctx,
+NU_API nu_error_t nu_material_update(nu_context_t             *ctx,
                                      nu_material_t            *material,
                                      const nu_material_info_t *info);
 
-NU_API nu_error_t nu_create_renderpass(nu_context_t               *ctx,
+NU_API nu_error_t nu_renderpass_create(nu_context_t               *ctx,
                                        const nu_renderpass_info_t *info,
                                        nu_renderpass_t            *pass);
-NU_API nu_error_t nu_delete_renderpass(nu_context_t    *ctx,
+NU_API nu_error_t nu_renderpass_delete(nu_context_t    *ctx,
                                        nu_renderpass_t *pass);
 
-NU_API void nu_submit_renderpass(nu_context_t                 *ctx,
+NU_API void nu_renderpass_submit(nu_context_t                 *ctx,
                                  nu_renderpass_t              *pass,
                                  const nu_renderpass_submit_t *info);
 NU_API void nu_draw(nu_context_t    *ctx,
@@ -48,8 +48,8 @@ NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
                               const nu_mat4_t *transforms,
                               nu_u32_t         count);
 
-NU_API void nu_init_camera_controller(nu_camera_controller_t *controller);
-NU_API void nu_update_camera_controller(nu_camera_controller_t *controller,
+NU_API void nu_camera_controller_init(nu_camera_controller_t *controller);
+NU_API void nu_camera_controller_update(nu_camera_controller_t *controller,
                                         float                   dt,
                                         nu_camera_info_t       *info);
 
@@ -165,9 +165,9 @@ nu__renderer_null_submit_renderpass (void                         *ctx,
 }
 
 static nu_error_t
-nu__init_renderer (nu_context_t *ctx)
+nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
 {
-    switch (ctx->_renderer_backend)
+    switch (backend)
     {
         case NU_RENDERER_NULL:
             ctx->_renderer.api.init   = nu__renderer_null_init;
@@ -229,7 +229,7 @@ nu__init_renderer (nu_context_t *ctx)
 
     // Initialize backend
     nu_error_t error = ctx->_renderer.api.init(
-        ctx->_renderer.ctx, ctx->_allocator, ctx->_surface_size);
+        ctx->_renderer.ctx, ctx->_allocator, ctx->_surface.size);
     NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;
@@ -254,19 +254,19 @@ nu_camera_info_default (void)
     return info;
 }
 nu_error_t
-nu_create_camera (nu_context_t           *ctx,
+nu_camera_create (nu_context_t           *ctx,
                   const nu_camera_info_t *info,
                   nu_camera_t            *camera)
 {
     return ctx->_renderer.api.create_camera(ctx->_renderer.ctx, info, camera);
 }
 nu_error_t
-nu_delete_camera (nu_context_t *ctx, nu_camera_t *camera)
+nu_camera_delete (nu_context_t *ctx, nu_camera_t *camera)
 {
     return ctx->_renderer.api.delete_camera(ctx->_renderer.ctx, camera);
 }
 nu_error_t
-nu_update_camera (nu_context_t           *ctx,
+nu_camera_update (nu_context_t           *ctx,
                   nu_camera_t            *camera,
                   const nu_camera_info_t *info)
 {
@@ -274,31 +274,31 @@ nu_update_camera (nu_context_t           *ctx,
 }
 
 nu_error_t
-nu_create_mesh (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
+nu_mesh_create (nu_context_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
     return ctx->_renderer.api.create_mesh(ctx->_renderer.ctx, info, mesh);
 }
 nu_error_t
-nu_delete_mesh (nu_context_t *ctx, nu_mesh_t *mesh)
+nu_mesh_delete (nu_context_t *ctx, nu_mesh_t *mesh)
 {
     return ctx->_renderer.api.delete_mesh(ctx->_renderer.ctx, mesh);
 }
 
 nu_error_t
-nu_create_texture (nu_context_t            *ctx,
+nu_texture_create (nu_context_t            *ctx,
                    const nu_texture_info_t *info,
                    nu_texture_t            *texture)
 {
     return ctx->_renderer.api.create_texture(ctx->_renderer.ctx, info, texture);
 }
 nu_error_t
-nu_delete_texture (nu_context_t *ctx, nu_texture_t *texture)
+nu_texture_delete (nu_context_t *ctx, nu_texture_t *texture)
 {
     return ctx->_renderer.api.delete_texture(ctx->_renderer.ctx, texture);
 }
 
 nu_error_t
-nu_create_material (nu_context_t             *ctx,
+nu_material_create (nu_context_t             *ctx,
                     const nu_material_info_t *info,
                     nu_material_t            *material)
 {
@@ -306,12 +306,12 @@ nu_create_material (nu_context_t             *ctx,
         ctx->_renderer.ctx, info, material);
 }
 nu_error_t
-nu_delete_material (nu_context_t *ctx, nu_material_t *material)
+nu_material_delete (nu_context_t *ctx, nu_material_t *material)
 {
     return ctx->_renderer.api.delete_material(ctx->_renderer.ctx, material);
 }
 nu_error_t
-nu_update_material (nu_context_t             *ctx,
+nu_material_update (nu_context_t             *ctx,
                     nu_material_t            *material,
                     const nu_material_info_t *info)
 {
@@ -320,20 +320,20 @@ nu_update_material (nu_context_t             *ctx,
 }
 
 nu_error_t
-nu_create_renderpass (nu_context_t               *ctx,
+nu_renderpass_create (nu_context_t               *ctx,
                       const nu_renderpass_info_t *info,
                       nu_renderpass_t            *pass)
 {
     return ctx->_renderer.api.create_renderpass(ctx->_renderer.ctx, info, pass);
 }
 nu_error_t
-nu_delete_renderpass (nu_context_t *ctx, nu_renderpass_t *pass)
+nu_renderpass_delete (nu_context_t *ctx, nu_renderpass_t *pass)
 {
     return ctx->_renderer.api.delete_renderpass(ctx->_renderer.ctx, pass);
 }
 
 void
-nu_submit_renderpass (nu_context_t                 *ctx,
+nu_renderpass_submit (nu_context_t                 *ctx,
                       nu_renderpass_t              *pass,
                       const nu_renderpass_submit_t *info)
 {
@@ -349,7 +349,7 @@ nu_draw (nu_context_t    *ctx,
 }
 
 void
-nu_init_camera_controller (nu_camera_controller_t *controller)
+nu_camera_controller_init (nu_camera_controller_t *controller)
 {
     controller->fov            = 90.0f;
     controller->view_pitch_neg = 0;
@@ -367,7 +367,7 @@ nu_init_camera_controller (nu_camera_controller_t *controller)
     controller->_rotation      = nu_quat_identity();
 }
 void
-nu_update_camera_controller (nu_camera_controller_t *controller,
+nu_camera_controller_update (nu_camera_controller_t *controller,
                              float                   dt,
                              nu_camera_info_t       *info)
 {

@@ -40,7 +40,7 @@ main (void)
     nu_error_t error;
 
     // Create allocator
-    nuext_init_stdlib_allocator(&alloc);
+    nuext_stdlib_allocator_init(&alloc);
 
     // Create context
     nu_context_info_t cinfo = nu_context_info_default();
@@ -48,7 +48,7 @@ main (void)
     cinfo.height            = HEIGHT;
     cinfo.renderer          = NU_RENDERER_GL;
     cinfo.allocator         = alloc;
-    error                   = nu_init_context(&cinfo, &ctx);
+    error                   = nu_context_init(&cinfo, &ctx);
     NU_ERROR_ASSERT(error);
 
     // Create logger
@@ -56,48 +56,50 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Configure inputs
-    error &= nu_create_input(&ctx, &draw);
-    error &= nu_create_input(&ctx, &quit);
-    error &= nu_create_input(&ctx, &move_forward);
-    error &= nu_create_input(&ctx, &move_backward);
-    error &= nu_create_input(&ctx, &move_left);
-    error &= nu_create_input(&ctx, &move_right);
-    error &= nu_create_input(&ctx, &move_up);
-    error &= nu_create_input(&ctx, &move_down);
-    error &= nu_create_input(&ctx, &view_pitch_neg);
-    error &= nu_create_input(&ctx, &view_pitch_pos);
-    error &= nu_create_input(&ctx, &view_yaw_neg);
-    error &= nu_create_input(&ctx, &view_yaw_pos);
-    error &= nu_create_input(&ctx, &view_roll_neg);
-    error &= nu_create_input(&ctx, &view_roll_pos);
+    error &= nu_input_create(&ctx, &draw);
+    error &= nu_input_create(&ctx, &quit);
+    error &= nu_input_create(&ctx, &move_forward);
+    error &= nu_input_create(&ctx, &move_backward);
+    error &= nu_input_create(&ctx, &move_left);
+    error &= nu_input_create(&ctx, &move_right);
+    error &= nu_input_create(&ctx, &move_up);
+    error &= nu_input_create(&ctx, &move_down);
+    error &= nu_input_create(&ctx, &view_pitch_neg);
+    error &= nu_input_create(&ctx, &view_pitch_pos);
+    error &= nu_input_create(&ctx, &view_yaw_neg);
+    error &= nu_input_create(&ctx, &view_yaw_pos);
+    error &= nu_input_create(&ctx, &view_roll_neg);
+    error &= nu_input_create(&ctx, &view_roll_pos);
     NU_ERROR_ASSERT(error);
 
     // Bind inputs
-    error &= nuext_bind_button(&ctx, &quit, NUEXT_BUTTON_ESCAPE);
-    error &= nuext_bind_button(&ctx, &move_forward, NUEXT_BUTTON_W);
-    error &= nuext_bind_button(&ctx, &move_backward, NUEXT_BUTTON_S);
-    error &= nuext_bind_button(&ctx, &move_left, NUEXT_BUTTON_A);
-    error &= nuext_bind_button(&ctx, &move_right, NUEXT_BUTTON_D);
-    error &= nuext_bind_button(&ctx, &move_up, NUEXT_BUTTON_X);
-    error &= nuext_bind_button(&ctx, &move_down, NUEXT_BUTTON_Z);
-    error &= nuext_bind_axis(
+    error &= nuext_input_bind_button(&ctx, &quit, NUEXT_BUTTON_ESCAPE);
+    error &= nuext_input_bind_button(&ctx, &move_forward, NUEXT_BUTTON_W);
+    error &= nuext_input_bind_button(&ctx, &move_backward, NUEXT_BUTTON_S);
+    error &= nuext_input_bind_button(&ctx, &move_left, NUEXT_BUTTON_A);
+    error &= nuext_input_bind_button(&ctx, &move_right, NUEXT_BUTTON_D);
+    error &= nuext_input_bind_button(&ctx, &move_up, NUEXT_BUTTON_X);
+    error &= nuext_input_bind_button(&ctx, &move_down, NUEXT_BUTTON_Z);
+    error &= nuext_input_bind_axis(
         &ctx, &view_pitch_neg, NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
-    error &= nuext_bind_axis(
+    error &= nuext_input_bind_axis(
         &ctx, &view_pitch_pos, NUEXT_AXIS_MOUSE_MOTION_Y_POS);
-    error
-        &= nuext_bind_axis(&ctx, &view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
-    error
-        &= nuext_bind_axis(&ctx, &view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
-    error
-        &= nuext_bind_button_value(&ctx, &view_pitch_neg, NUEXT_BUTTON_K, 0.08);
-    error
-        &= nuext_bind_button_value(&ctx, &view_pitch_pos, NUEXT_BUTTON_J, 0.08);
-    error &= nuext_bind_button_value(&ctx, &view_yaw_neg, NUEXT_BUTTON_H, 0.08);
-    error &= nuext_bind_button_value(&ctx, &view_yaw_pos, NUEXT_BUTTON_L, 0.08);
-    error
-        &= nuext_bind_button_value(&ctx, &view_roll_neg, NUEXT_BUTTON_E, 0.08);
-    error
-        &= nuext_bind_button_value(&ctx, &view_roll_pos, NUEXT_BUTTON_Q, 0.08);
+    error &= nuext_input_bind_axis(
+        &ctx, &view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
+    error &= nuext_input_bind_axis(
+        &ctx, &view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_pitch_neg, NUEXT_BUTTON_K, 0.08);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_pitch_pos, NUEXT_BUTTON_J, 0.08);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_yaw_neg, NUEXT_BUTTON_H, 0.08);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_yaw_pos, NUEXT_BUTTON_L, 0.08);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_roll_neg, NUEXT_BUTTON_E, 0.08);
+    error &= nuext_input_bind_button_value(
+        &ctx, &view_roll_pos, NUEXT_BUTTON_Q, 0.08);
     NU_ERROR_ASSERT(error);
 
     // Create cube
@@ -108,17 +110,17 @@ main (void)
     nu_mesh_info_t cube_info = { .positions = cube_positions,
                                  .uvs       = cube_uvs,
                                  .count     = NU_CUBE_MESH_VERTEX_COUNT };
-    error                    = nu_create_mesh(&ctx, &cube_info, &cube_mesh);
+    error                    = nu_mesh_create(&ctx, &cube_info, &cube_mesh);
     NU_ERROR_ASSERT(error);
 
     // Create camera
     nu_camera_t      camera;
     nu_camera_info_t cam_info = nu_camera_info_default();
-    error                     = nu_create_camera(&ctx, &cam_info, &camera);
+    error                     = nu_camera_create(&ctx, &cam_info, &camera);
     NU_ERROR_ASSERT(error);
 
     nu_camera_controller_t controller;
-    nu_init_camera_controller(&controller);
+    nu_camera_controller_init(&controller);
 
     // Create renderpasses
     nu_renderpass_t main_pass;
@@ -126,7 +128,7 @@ main (void)
         nu_renderpass_info_t info;
         info.type      = NU_RENDERPASS_FLAT;
         info.flat.todo = 0;
-        error          = nu_create_renderpass(&ctx, &info, &main_pass);
+        error          = nu_renderpass_create(&ctx, &info, &main_pass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -177,8 +179,8 @@ main (void)
         controller.move_right     = nu_input_value(&ctx, &move_right);
         controller.move_up        = nu_input_value(&ctx, &move_up);
         controller.move_down      = nu_input_value(&ctx, &move_down);
-        nu_update_camera_controller(&controller, delta, &cam_info);
-        nu_update_camera(&ctx, &camera, &cam_info);
+        nu_camera_controller_update(&controller, delta, &cam_info);
+        nu_camera_update(&ctx, &camera, &cam_info);
 
         if (nu_input_just_pressed(&ctx, &quit))
         {
@@ -194,19 +196,19 @@ main (void)
         nu_renderpass_submit_t submit;
         submit.reset       = NU_TRUE;
         submit.flat.camera = &camera;
-        nu_submit_renderpass(&ctx, &main_pass, &submit);
+        nu_renderpass_submit(&ctx, &main_pass, &submit);
 
         // Refresh surface
         nu_render(&ctx);
     }
 
     // Free cube
-    error = nu_delete_mesh(&ctx, &cube_mesh);
+    error = nu_mesh_delete(&ctx, &cube_mesh);
     NU_ERROR_ASSERT(error);
-    error = nu_delete_renderpass(&ctx, &main_pass);
+    error = nu_renderpass_delete(&ctx, &main_pass);
     NU_ERROR_ASSERT(error);
 
-    nu_free_context(&ctx, &alloc);
+    nu_context_free(&ctx);
 
     return 0;
 }

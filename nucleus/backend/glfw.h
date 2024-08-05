@@ -193,15 +193,15 @@ nuglfw__key_callback (
         if (action == GLFW_PRESS)
         {
             nuglfw__dispatch_binding_button(
-                &ctx->_glfw_input,
-                ctx->_glfw_input.key_to_first_binding[key],
+                &ctx->_input.glfw,
+                ctx->_input.glfw.key_to_first_binding[key],
                 NU_TRUE);
         }
         else if (action == GLFW_RELEASE)
         {
             nuglfw__dispatch_binding_button(
-                &ctx->_glfw_input,
-                ctx->_glfw_input.key_to_first_binding[key],
+                &ctx->_input.glfw,
+                ctx->_input.glfw.key_to_first_binding[key],
                 NU_FALSE);
         }
     }
@@ -216,15 +216,15 @@ nuglfw__mouse_button_callback (GLFWwindow *window,
     if (action == GLFW_PRESS)
     {
         nuglfw__dispatch_binding_button(
-            &ctx->_glfw_input,
-            ctx->_glfw_input.mouse_button_to_first_binding[button],
+            &ctx->_input.glfw,
+            ctx->_input.glfw.mouse_button_to_first_binding[button],
             NU_TRUE);
     }
     else if (action == GLFW_RELEASE)
     {
         nuglfw__dispatch_binding_button(
-            &ctx->_glfw_input,
-            ctx->_glfw_input.mouse_button_to_first_binding[button],
+            &ctx->_input.glfw,
+            ctx->_input.glfw.mouse_button_to_first_binding[button],
             NU_FALSE);
     }
 }
@@ -232,7 +232,7 @@ static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
     nu_context_t *ctx               = glfwGetWindowUserPointer(window);
-    ctx->_glfw_input.mouse_position = nu_vec2((float)xpos, (float)ypos);
+    ctx->_input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
 }
 static void
 nuglfw__character_callback (GLFWwindow *window, int codepoint)
@@ -245,23 +245,23 @@ nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      yoffset)
 {
     nu_context_t *ctx             = glfwGetWindowUserPointer(window);
-    ctx->_glfw_input.mouse_scroll = nu_vec2((float)xoffset, (float)yoffset);
+    ctx->_input.glfw.mouse_scroll = nu_vec2((float)xoffset, (float)yoffset);
 }
 static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
     nu_context_t *ctx                    = glfwGetWindowUserPointer(window);
-    ctx->_glfw_surface.viewport.extent.w = width;
-    ctx->_glfw_surface.viewport.extent.h = height;
-    nuglfw__update_viewport(&ctx->_glfw_surface.viewport);
+    ctx->_surface.glfw.viewport.extent.w = width;
+    ctx->_surface.glfw.viewport.extent.h = height;
+    nuglfw__update_viewport(&ctx->_surface.glfw.viewport);
 }
 
 static nu_error_t
 nuglfw__init (nu_context_t *ctx)
 {
-    nuglfw__surface_t *surface = &ctx->_glfw_surface;
-    nuglfw__input_t   *input   = &ctx->_glfw_input;
-    nu_uvec2_t         size    = ctx->_surface_size;
+    nuglfw__surface_t *surface = &ctx->_surface.glfw;
+    nuglfw__input_t   *input   = &ctx->_input.glfw;
+    nu_uvec2_t         size    = ctx->_surface.size;
 
     const nu_int_t width  = NUGLFW_WINDOW_WIDTH;
     const nu_int_t height = NUGLFW_WINDOW_HEIGHT;

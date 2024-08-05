@@ -17,7 +17,7 @@ NU_API void  nu_memcpy(void *dst, const void *src, nu_size_t n);
 NU_API void *nu_memalign(void *ptr, nu_size_t align);
 
 #ifdef NU_STDLIB
-NU_API void nuext_init_stdlib_allocator(nu_allocator_t *alloc);
+NU_API void nuext_stdlib_allocator_init(nu_allocator_t *alloc);
 #endif
 
 #ifdef NU_IMPLEMENTATION
@@ -68,7 +68,7 @@ nu__stdlib_alloctor_callback (
 }
 
 void
-nuext_init_stdlib_allocator (nu_allocator_t *alloc)
+nuext_stdlib_allocator_init (nu_allocator_t *alloc)
 {
     alloc->callback = nu__stdlib_alloctor_callback;
     alloc->userdata = NU_NULL;
