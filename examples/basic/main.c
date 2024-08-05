@@ -2,6 +2,8 @@
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <nucleus/external/stb/stb_image.h>
 
 #define WIDTH  640
 #define HEIGHT 400
@@ -113,6 +115,59 @@ main (void)
     error                    = nu_mesh_create(&ctx, &cube_info, &cube_mesh);
     NU_ERROR_ASSERT(error);
 
+    // Create material
+    nu_texture_t  texture;
+    nu_material_t material;
+    {
+        int            width, height, channels;
+        unsigned char *img
+            = stbi_load("../../../assets/brick_building_front_lowres.png",
+                        &width,
+                        &height,
+                        &channels,
+                        3);
+        if (img == NULL)
+        {
+            NU_ERROR(&logger, "error in loading the image");
+            exit(1);
+        }
+
+        nu_color_t *colors
+            = nu_alloc(alloc, sizeof(nu_color_t) * width * height);
+        for (int i = 0; i < (width * height); ++i)
+        {
+            colors[i] = NU_COLOR_RED;
+
+            colors[i].r = img[i * 3 + 0];
+            colors[i].g = img[i * 3 + 1];
+            colors[i].b = img[i * 3 + 2];
+            colors[i].a = 0;
+        }
+
+        NU_INFO(&logger, "%d %d %d", channels, width, height);
+
+        nu_texture_info_t tinfo;
+        tinfo.size.x = width;
+        tinfo.size.y = height;
+        tinfo.usage  = NU_TEXTURE_USAGE_SAMPLE;
+        tinfo.format = NU_TEXTURE_FORMAT_COLOR;
+        error        = nu_texture_create(&ctx, &tinfo, &texture);
+        NU_ERROR_ASSERT(error);
+        error = nu_texture_write(
+            &ctx, &texture, nu_rect(0, 0, width, height), colors);
+        NU_ERROR_ASSERT(error);
+
+        stbi_image_free(img);
+        nu_free(alloc, colors, sizeof(nu_color_t) * width * height);
+    }
+    {
+        nu_material_info_t info = nu_material_info_default();
+        info.texture0           = &texture;
+        info.uv_transform       = nu_mat3_scale(0.5, 0.5);
+        error                   = nu_material_create(&ctx, &info, &material);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Create camera
     nu_camera_t      camera;
     nu_camera_info_t cam_info = nu_camera_info_default();
@@ -189,9 +244,9 @@ main (void)
 
         // Render loop
         nu_mat4_t model = nu_mat4_identity();
-        nu_draw(&ctx, &main_pass, &cube_mesh, &model);
+        nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
         model = nu_mat4_translate(4, 0, 0);
-        nu_draw(&ctx, &main_pass, &cube_mesh, &model);
+        nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
 
         nu_renderpass_submit_t submit;
         submit.reset       = NU_TRUE;

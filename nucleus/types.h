@@ -68,6 +68,7 @@ typedef int           nu_word_t;
 #define NU_MAT4_SIZE 16
 
 #define NU_VEC2_ZERO nu_vec2(0, 0)
+#define NU_VEC2_ONE  nu_vec2(1, 1)
 
 #define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
 #define NU_VEC3_UP       nu_vec3(0, 1, 0)
@@ -149,6 +150,24 @@ typedef union
     };
     float xyzw[NU_QUAT_SIZE];
 } nu_quat_t;
+
+typedef union
+{
+
+    struct
+    {
+        float x1;
+        float x2;
+        float x3;
+        float y1;
+        float y2;
+        float y3;
+        float z1;
+        float z2;
+        float z3;
+    };
+    float data[NU_MAT3_SIZE];
+} nu_mat3_t;
 
 typedef union
 {
@@ -479,15 +498,15 @@ typedef union
 {
     struct
     {
-        nu_u8_t a;
         nu_u8_t r;
         nu_u8_t g;
         nu_u8_t b;
+        nu_u8_t a;
     };
-    nu_u32_t argb;
+    nu_u32_t rgba;
 } nu_color_t;
 
-#define NU_COLOR_RED nu_color(255, 255, 0, 0)
+#define NU_COLOR_RED nu_color(255, 0, 0, 0)
 
 typedef enum
 {
@@ -518,8 +537,9 @@ typedef struct
 
 typedef struct
 {
-    GLuint color0;
-    GLuint color1;
+    GLuint    texture0;
+    GLuint    texture1;
+    nu_mat3_t uv_transform;
 } nugl__material_t;
 
 typedef struct
@@ -540,6 +560,9 @@ typedef struct
     GLuint               vbo;
     nu_size_t            vcount;
     nu_mat4_t            transform; // TODO: remove me
+    GLuint               texture0;
+    GLuint               texture1;
+    nu_mat3_t            uv_transform;
 } nugl__command_t;
 
 typedef struct
@@ -659,8 +682,7 @@ typedef struct
 {
     const nu_texture_t *texture0;
     const nu_texture_t *texture1;
-    nu_vec2_t           uv_offset;
-    nu_vec2_t           uv_scale;
+    nu_mat3_t           uv_transform;
 } nu_material_info_t;
 
 typedef struct
@@ -762,6 +784,10 @@ typedef struct
                                  const nu_texture_info_t *info,
                                  nu_texture_t            *texture);
     nu_error_t (*delete_texture)(void *ctx, nu_texture_t *texture);
+    nu_error_t (*write_texture)(void             *ctx,
+                                nu_texture_t     *texture,
+                                nu_rect_t         rect,
+                                const nu_color_t *colors);
 
     nu_error_t (*create_material)(void                     *ctx,
                                   const nu_material_info_t *info,
@@ -777,10 +803,11 @@ typedef struct
     nu_error_t (*delete_renderpass)(void *ctx, nu_renderpass_t *pass);
 
     // Commands API
-    void (*draw)(void            *ctx,
-                 nu_renderpass_t *pass,
-                 const nu_mesh_t *mesh,
-                 const nu_mat4_t *transform);
+    void (*draw)(void                *ctx,
+                 nu_renderpass_t     *pass,
+                 const nu_mesh_t     *mesh,
+                 const nu_material_t *material,
+                 const nu_mat4_t     *transform);
     void (*submit_renderpass)(void                         *ctx,
                               nu_renderpass_t              *pass,
                               const nu_renderpass_submit_t *info);

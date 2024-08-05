@@ -112,8 +112,8 @@ nugl__init (void *ctx, nu_allocator_t allocator, nu_uvec2_t size)
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
-    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -200,6 +200,15 @@ nugl__render (void            *ctx,
                                     gl->flat_program, "view_projection");
                                 glUniformMatrix4fv(
                                     vp_id, 1, GL_FALSE, pass->vp.data);
+                                GLuint uv_transform_id = glGetUniformLocation(
+                                    gl->flat_program, "uv_transform");
+                                glUniformMatrix3fv(uv_transform_id,
+                                                   1,
+                                                   GL_FALSE,
+                                                   cmd->uv_transform.data);
+
+                                glActiveTexture(GL_TEXTURE0);
+                                glBindTexture(GL_TEXTURE_2D, cmd->texture0);
 
                                 glBindVertexArray(cmd->vao);
                                 glDrawArrays(GL_TRIANGLES, 0, cmd->vcount);
@@ -353,6 +362,8 @@ nugl__create_texture (void                    *ctx,
                  NU_NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -362,21 +373,51 @@ nugl__delete_texture (void *ctx, nu_texture_t *texture)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_material (void                     *ctx,
-                       const nu_material_info_t *info,
-                       nu_material_t            *material)
+nugl__write_texture (void             *ctx,
+                     nu_texture_t     *texture,
+                     nu_rect_t         rect,
+                     const nu_color_t *data)
 {
-    return NU_ERROR_NONE;
-}
-static nu_error_t
-nugl__delete_material (void *ctx, nu_material_t *material)
-{
+    // TODO: handle sub texture rect
+    NU_ASSERT(rect.x >= 0 && rect.y >= 0);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGBA,
+                 rect.w,
+                 rect.h,
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 data);
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__update_material (void                     *ctx,
                        nu_material_t            *material,
                        const nu_material_info_t *info)
+{
+    if (info->texture0)
+    {
+        material->gl.texture0 = info->texture0->gl.texture;
+    }
+    if (info->texture1)
+    {
+        material->gl.texture1 = info->texture1->gl.texture;
+    }
+    material->gl.uv_transform = info->uv_transform;
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__create_material (void                     *ctx,
+                       const nu_material_info_t *info,
+                       nu_material_t            *material)
+{
+    nugl__update_material(ctx, material, info);
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_material (void *ctx, nu_material_t *material)
 {
     return NU_ERROR_NONE;
 }
@@ -406,10 +447,11 @@ nugl__delete_renderpass (void *ctx, nu_renderpass_t *pass)
     return NU_ERROR_NONE;
 }
 static void
-nugl__draw (void            *ctx,
-            nu_renderpass_t *pass,
-            const nu_mesh_t *mesh,
-            const nu_mat4_t *transform)
+nugl__draw (void                *ctx,
+            nu_renderpass_t     *pass,
+            const nu_mesh_t     *mesh,
+            const nu_material_t *material,
+            const nu_mat4_t     *transform)
 {
     nugl__context_t *gl = ctx;
 
@@ -421,6 +463,9 @@ nugl__draw (void            *ctx,
     cmd->vao             = mesh->gl.vao;
     cmd->vbo             = mesh->gl.vbo;
     cmd->vcount          = mesh->gl.vertex_count;
+    cmd->texture0        = material->gl.texture0;
+    cmd->texture1        = material->gl.texture1;
+    cmd->uv_transform    = material->gl.uv_transform;
 }
 static void
 nugl__submit_renderpass (void                         *ctx,

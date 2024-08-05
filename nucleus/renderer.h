@@ -21,15 +21,20 @@ NU_API nu_error_t nu_texture_create(nu_context_t            *ctx,
                                     const nu_texture_info_t *info,
                                     nu_texture_t            *texture);
 NU_API nu_error_t nu_texture_delete(nu_context_t *ctx, nu_texture_t *texture);
+NU_API nu_error_t nu_texture_write(nu_context_t     *ctx,
+                                   nu_texture_t     *texture,
+                                   nu_rect_t         rect,
+                                   const nu_color_t *data);
 
-NU_API nu_error_t nu_material_create(nu_context_t             *ctx,
-                                     const nu_material_info_t *info,
-                                     nu_material_t            *material);
-NU_API nu_error_t nu_material_delete(nu_context_t  *ctx,
-                                     nu_material_t *material);
-NU_API nu_error_t nu_material_update(nu_context_t             *ctx,
-                                     nu_material_t            *material,
-                                     const nu_material_info_t *info);
+NU_API nu_material_info_t nu_material_info_default(void);
+NU_API nu_error_t         nu_material_create(nu_context_t             *ctx,
+                                             const nu_material_info_t *info,
+                                             nu_material_t            *material);
+NU_API nu_error_t         nu_material_delete(nu_context_t  *ctx,
+                                             nu_material_t *material);
+NU_API nu_error_t         nu_material_update(nu_context_t             *ctx,
+                                             nu_material_t            *material,
+                                             const nu_material_info_t *info);
 
 NU_API nu_error_t nu_renderpass_create(nu_context_t               *ctx,
                                        const nu_renderpass_info_t *info,
@@ -40,13 +45,13 @@ NU_API nu_error_t nu_renderpass_delete(nu_context_t    *ctx,
 NU_API void nu_renderpass_submit(nu_context_t                 *ctx,
                                  nu_renderpass_t              *pass,
                                  const nu_renderpass_submit_t *info);
-NU_API void nu_draw(nu_context_t    *ctx,
-                    nu_renderpass_t *renderpass,
-                    const nu_mesh_t *mesh,
-                    const nu_mat4_t *transform);
-NU_API void nu_draw_instanced(nu_renderpass_t *renderpass,
-                              const nu_mat4_t *transforms,
-                              nu_u32_t         count);
+NU_API void nu_draw(nu_context_t        *ctx,
+                    nu_renderpass_t     *renderpass,
+                    const nu_mesh_t     *mesh,
+                    const nu_material_t *material,
+                    const nu_mat4_t     *transform);
+
+NU_API nu_color_t nu_color(nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a);
 
 NU_API void nu_camera_controller_init(nu_camera_controller_t *controller);
 NU_API void nu_camera_controller_update(nu_camera_controller_t *controller,
@@ -119,6 +124,14 @@ nu__renderer_null_delete_texture (void *ctx, nu_texture_t *texture)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nu__renderer_null_write_texture (void             *ctx,
+                                 nu_texture_t     *texture,
+                                 nu_rect_t         rect,
+                                 const nu_color_t *data)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nu__renderer_null_create_material (void                     *ctx,
                                    const nu_material_info_t *info,
                                    nu_material_t            *material)
@@ -151,10 +164,11 @@ nu__renderer_null_delete_renderpass (void *ctx, nu_renderpass_t *pass)
 }
 
 static void
-nu__renderer_null_draw (void            *ctx,
-                        nu_renderpass_t *pass,
-                        const nu_mesh_t *mesh,
-                        const nu_mat4_t *transform)
+nu__renderer_null_draw (void                *ctx,
+                        nu_renderpass_t     *pass,
+                        const nu_mesh_t     *mesh,
+                        const nu_material_t *material,
+                        const nu_mat4_t     *transform)
 {
 }
 static void
@@ -182,6 +196,7 @@ nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
                 = nu__renderer_null_create_texture;
             ctx->_renderer.api.delete_texture
                 = nu__renderer_null_delete_texture;
+            ctx->_renderer.api.write_texture = nu__renderer_null_write_texture;
             ctx->_renderer.api.create_material
                 = nu__renderer_null_create_material;
             ctx->_renderer.api.delete_material
@@ -210,6 +225,7 @@ nu__init_renderer (nu_context_t *ctx, nu_renderer_backend_t backend)
             ctx->_renderer.api.delete_mesh       = nugl__delete_mesh;
             ctx->_renderer.api.create_texture    = nugl__create_texture;
             ctx->_renderer.api.delete_texture    = nugl__delete_texture;
+            ctx->_renderer.api.write_texture     = nugl__write_texture;
             ctx->_renderer.api.create_material   = nugl__create_material;
             ctx->_renderer.api.delete_material   = nugl__delete_material;
             ctx->_renderer.api.update_material   = nugl__update_material;
@@ -296,7 +312,25 @@ nu_texture_delete (nu_context_t *ctx, nu_texture_t *texture)
 {
     return ctx->_renderer.api.delete_texture(ctx->_renderer.ctx, texture);
 }
+nu_error_t
+nu_texture_write (nu_context_t     *ctx,
+                  nu_texture_t     *texture,
+                  nu_rect_t         rect,
+                  const nu_color_t *data)
+{
+    return ctx->_renderer.api.write_texture(
+        ctx->_renderer.ctx, texture, rect, data);
+}
 
+nu_material_info_t
+nu_material_info_default (void)
+{
+    nu_material_info_t info;
+    info.texture0     = NU_NULL;
+    info.texture1     = NU_NULL;
+    info.uv_transform = nu_mat3_identity();
+    return info;
+}
 nu_error_t
 nu_material_create (nu_context_t             *ctx,
                     const nu_material_info_t *info,
@@ -340,12 +374,25 @@ nu_renderpass_submit (nu_context_t                 *ctx,
     ctx->_renderer.api.submit_renderpass(ctx->_renderer.ctx, pass, info);
 }
 void
-nu_draw (nu_context_t    *ctx,
-         nu_renderpass_t *renderpass,
-         const nu_mesh_t *mesh,
-         const nu_mat4_t *transform)
+nu_draw (nu_context_t        *ctx,
+         nu_renderpass_t     *renderpass,
+         const nu_mesh_t     *mesh,
+         const nu_material_t *material,
+         const nu_mat4_t     *transform)
 {
-    ctx->_renderer.api.draw(ctx->_renderer.ctx, renderpass, mesh, transform);
+    ctx->_renderer.api.draw(
+        ctx->_renderer.ctx, renderpass, mesh, material, transform);
+}
+
+nu_color_t
+nu_color (nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a)
+{
+    nu_color_t c;
+    c.r = r;
+    c.g = g;
+    c.b = b;
+    c.a = a;
+    return c;
 }
 
 void

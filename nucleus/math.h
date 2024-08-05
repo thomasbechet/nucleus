@@ -49,6 +49,12 @@ NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
 NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
 NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
 
+NU_API nu_mat3_t nu_mat3_zero(void);
+NU_API nu_mat3_t nu_mat3_identity(void);
+NU_API nu_mat3_t nu_mat3_translate(float x, float y);
+NU_API nu_mat3_t nu_mat3_scale(float x, float y);
+NU_API nu_mat3_t nu_mat3_mul(nu_mat3_t a, nu_mat3_t b);
+
 NU_API nu_mat4_t nu_mat4_zero(void);
 NU_API nu_mat4_t nu_mat4_identity(void);
 NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
@@ -397,6 +403,58 @@ nu_quat_t
 nu_quat_mul_axis (nu_quat_t q, nu_vec3_t axis, float angle)
 {
     return nu_quat_mul(q, nu_quat_axis(axis, angle));
+}
+
+nu_mat3_t
+nu_mat3_zero (void)
+{
+    nu_mat3_t m;
+    for (nu_size_t i = 0; i < NU_MAT3_SIZE; ++i)
+    {
+        m.data[i] = 0;
+    }
+    return m;
+}
+nu_mat3_t
+nu_mat3_identity (void)
+{
+    nu_mat3_t m = nu_mat3_zero();
+    m.x1        = 1;
+    m.y2        = 1;
+    m.z3        = 1;
+    return m;
+}
+nu_mat3_t
+nu_mat3_translate (float x, float y)
+{
+    nu_mat3_t m = nu_mat3_identity();
+    m.z1        = x;
+    m.z2        = y;
+    return m;
+}
+nu_mat3_t
+nu_mat3_scale (float x, float y)
+{
+    nu_mat3_t m = nu_mat3_identity();
+    m.x1        = x;
+    m.y2        = y;
+    return m;
+}
+nu_mat3_t
+nu_mat3_mul (nu_mat3_t a, nu_mat3_t b)
+{
+    nu_mat3_t m = nu_mat3_zero();
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            for (int k = 0; k < 3; ++k)
+            {
+                m.data[j * 3 + i] += a.data[k * 3 + i] * b.data[j * 3 + k];
+            }
+        }
+    }
+    return m;
 }
 
 nu_mat4_t
