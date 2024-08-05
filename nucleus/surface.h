@@ -7,7 +7,8 @@
 #include <nucleus/backend/glfw.h>
 #endif
 
-NU_API nu_error_t nu_render(nu_context_t *ctx);
+NU_API nu_error_t          nu_render(nu_context_t *ctx);
+NU_API const nu_texture_t *nu_surface_color_target(const nu_context_t *ctx);
 
 NU_API nu_error_t nuext_set_viewport_mode(nu_context_t         *ctx,
                                           nuext_viewport_mode_t mode);
@@ -35,6 +36,11 @@ nu_render (nu_context_t *ctx)
     nuglfw__swap_buffers(&ctx->_surface.glfw);
 #endif
     return NU_ERROR_NONE;
+}
+const nu_texture_t *
+nu_surface_color_target (const nu_context_t *ctx)
+{
+    return NU_NULL;
 }
 
 nu_error_t

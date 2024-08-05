@@ -506,7 +506,8 @@ typedef union
     nu_u32_t rgba;
 } nu_color_t;
 
-#define NU_COLOR_RED nu_color(255, 0, 0, 0)
+#define NU_COLOR_WHITE nu_color(255, 255, 255, 0)
+#define NU_COLOR_RED   nu_color(255, 0, 0, 0)
 
 typedef enum
 {
@@ -702,7 +703,7 @@ typedef union
 typedef struct
 {
     int todo;
-} nu_renderpass_color_info_t;
+} nu_renderpass_unlit_info_t;
 
 typedef struct
 {
@@ -719,7 +720,7 @@ typedef struct
     nu_renderpass_type_t type;
     union
     {
-        nu_renderpass_color_info_t       color;
+        nu_renderpass_unlit_info_t       unlit;
         nu_renderpass_flat_info_t        flat;
         nu_renderpass_transparent_info_t transparent;
     };
@@ -731,7 +732,7 @@ typedef struct
     const nu_texture_t *color_target;
     const nu_texture_t *depth_target;
     nu_color_t          clear_color;
-} nu_renderpass_submit_color_t;
+} nu_renderpass_submit_unlit_t;
 
 typedef struct
 {
@@ -746,7 +747,7 @@ typedef struct
     nu_bool_t reset;
     union
     {
-        nu_renderpass_submit_color_t color;
+        nu_renderpass_submit_unlit_t unlit;
         nu_renderpass_submit_flat_t  flat;
     };
 } nu_renderpass_submit_t;

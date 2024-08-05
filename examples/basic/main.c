@@ -14,6 +14,9 @@
 // #define HEIGHT 640 / 2
 // #define WIDTH  400 / 2
 
+// #define WIDTH  512
+// #define HEIGHT 288
+
 static nu_allocator_t alloc;
 static nu_context_t   ctx;
 static nu_logger_t    logger;
@@ -103,6 +106,17 @@ main (void)
     error &= nuext_input_bind_button_value(
         &ctx, &view_roll_pos, NUEXT_BUTTON_Q, 0.08);
     NU_ERROR_ASSERT(error);
+
+    // Create depth texture
+    nu_texture_t depth_target;
+    {
+        nu_texture_info_t info;
+        info.usage  = NU_TEXTURE_USAGE_TARGET;
+        info.format = NU_TEXTURE_FORMAT_DEPTH;
+        info.size   = nu_uvec2(WIDTH, HEIGHT);
+        error       = nu_texture_create(&ctx, &info, &depth_target);
+        NU_ERROR_ASSERT(error);
+    }
 
     // Create cube
     nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
@@ -243,14 +257,18 @@ main (void)
         }
 
         // Render loop
-        nu_mat4_t model = nu_mat4_identity();
-        nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
-        model = nu_mat4_translate(4, 0, 0);
-        nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
+        for (int i = 0; i < 20; ++i)
+        {
+            nu_mat4_t model = nu_mat4_translate(i, i, i);
+            nu_draw(&ctx, &main_pass, &cube_mesh, &material, &model);
+        }
 
         nu_renderpass_submit_t submit;
-        submit.reset       = NU_TRUE;
-        submit.flat.camera = &camera;
+        submit.reset             = NU_TRUE;
+        submit.flat.camera       = &camera;
+        submit.flat.color_target = nu_surface_color_target(&ctx);
+        submit.flat.depth_target = &depth_target;
+        submit.flat.clear_color  = NU_COLOR_WHITE;
         nu_renderpass_submit(&ctx, &main_pass, &submit);
 
         // Refresh surface

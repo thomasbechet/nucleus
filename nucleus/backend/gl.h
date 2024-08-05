@@ -481,8 +481,8 @@ nugl__submit_renderpass (void                         *ctx,
     switch (data->type)
     {
         case NU_RENDERPASS_UNLIT: {
-            data->vp  = info->color.camera->gl.vp;
-            data->ivp = info->color.camera->gl.ivp;
+            data->vp  = info->unlit.camera->gl.vp;
+            data->ivp = info->unlit.camera->gl.ivp;
         }
         break;
         case NU_RENDERPASS_FLAT: {
