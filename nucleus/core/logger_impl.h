@@ -1,49 +1,17 @@
-#ifndef NU_LOGGER_H
-#define NU_LOGGER_H
+#ifndef NU_LOGGER_IMPL_H
+#define NU_LOGGER_IMPL_H
 
-#include <nucleus/types.h>
-#include <nucleus/time.h>
-
-NU_API nu_error_t nu_create_logger(nu_context_t *ctx, nu_logger_t *logger);
-NU_API nu_error_t nu_delete_logger(nu_context_t *ctx, nu_logger_t *logger);
-
-NU_API void nu_log(nu_logger_t     *logger,
-                   nu_log_level_t   level,
-                   const nu_char_t *filename,
-                   nu_size_t        fileline,
-                   const nu_char_t *format,
-                   ...);
-NU_API void nu_vlog(nu_logger_t     *logger,
-                    nu_log_level_t   level,
-                    const nu_char_t *filename,
-                    nu_size_t        fileline,
-                    const nu_char_t *format,
-                    va_list          args);
-
-#define __FILENAME__ \
-    (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-
-#define NU_DEBUG(logger, ...) \
-    nu_log(logger, NU_LOG_DEBUG, __FILENAME__, __LINE__, __VA_ARGS__)
-#define NU_INFO(logger, ...) \
-    nu_log(logger, NU_LOG_INFO, __FILENAME__, __LINE__, __VA_ARGS__)
-#define NU_WARNING(logger, ...) \
-    nu_log(logger, NU_LOG_WARNING, __FILENAME__, __LINE__, __VA_ARGS__)
-#define NU_ERROR(logger, ...) \
-    nu_log(logger, NU_LOG_ERROR, __FILENAME__, __LINE__, __VA_ARGS__)
-#define NU_FATAL(logger, ...) \
-    nu_log(logger, NU_LOG_FATAL, __FILENAME__, __LINE__, __VA_ARGS__)
-
-#ifdef NU_IMPLEMENTATION
+#include <nucleus/core/logger.h>
+#include <nucleus/core/time.h>
 
 nu_error_t
-nu_create_logger (nu_context_t *ctx, nu_logger_t *logger)
+nu_logger_create (nu_logger_t *logger)
 {
     logger->level = NU_LOG_DEBUG;
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_delete_logger (nu_context_t *ctx, nu_logger_t *logger)
+nu_logger_delete (nu_logger_t *logger)
 {
     return NU_ERROR_NONE;
 }
@@ -132,7 +100,5 @@ nu_vlog (nu_logger_t     *logger,
     fprintf(stdout, "\n");
 #endif
 }
-
-#endif
 
 #endif

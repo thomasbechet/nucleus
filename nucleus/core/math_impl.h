@@ -1,78 +1,7 @@
-#ifndef NU_MATH_H
-#define NU_MATH_H
+#ifndef NU_MATH_IMPL_H
+#define NU_MATH_IMPL_H
 
-#include <nucleus/types.h>
-
-NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
-NU_API nu_size_t nu_log2(nu_size_t n);
-NU_API float     nu_fabs(float f);
-NU_API float     nu_floor(float f);
-NU_API float     nu_radian(float d);
-NU_API float     nu_sqrt(float x);
-NU_API float     nu_cos(float x);
-NU_API float     nu_sin(float x);
-NU_API float     nu_tan(float x);
-
-NU_API nu_vec2_t nu_vec2(float x, float y);
-NU_API nu_vec2_t nu_vec2_add(nu_vec2_t a, nu_vec2_t b);
-NU_API nu_vec2_t nu_vec2_sub(nu_vec2_t a, nu_vec2_t b);
-NU_API nu_vec2_t nu_vec2_mul(nu_vec2_t a, nu_vec2_t b);
-NU_API nu_vec2_t nu_vec2_muls(nu_vec2_t a, float s);
-NU_API nu_vec2_t nu_vec2_div(nu_vec2_t a, nu_vec2_t b);
-NU_API nu_vec2_t nu_vec2_divs(nu_vec2_t a, float s);
-NU_API nu_vec2_t nu_vec2_floor(nu_vec2_t a);
-
-NU_API nu_vec3_t nu_vec3(float x, float y, float z);
-NU_API nu_vec3_t nu_vec3_add(nu_vec3_t a, nu_vec3_t b);
-NU_API nu_vec3_t nu_vec3_sub(nu_vec3_t a, nu_vec3_t b);
-NU_API nu_vec3_t nu_vec3_mul(nu_vec3_t a, nu_vec3_t b);
-NU_API nu_vec3_t nu_vec3_muls(nu_vec3_t a, float s);
-NU_API nu_vec3_t nu_vec3_div(nu_vec3_t a, nu_vec3_t b);
-NU_API nu_vec3_t nu_vec3_divs(nu_vec3_t a, float s);
-NU_API float     nu_vec3_norm(nu_vec3_t a);
-NU_API nu_vec3_t nu_vec3_normalize(nu_vec3_t a);
-NU_API nu_vec3_t nu_vec3_cross(nu_vec3_t a, nu_vec3_t b);
-NU_API float     nu_vec3_dot(nu_vec3_t a, nu_vec3_t b);
-
-NU_API nu_vec4_t nu_vec4(float x, float y, float z, float w);
-NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
-NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
-
-NU_API nu_uvec2_t nu_uvec2(nu_u32_t x, nu_u32_t y);
-
-NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
-
-NU_API nu_quat_t nu_quat(float x, float y, float z, float w);
-NU_API nu_quat_t nu_quat_identity(void);
-NU_API nu_quat_t nu_quat_axis(nu_vec3_t axis, float angle);
-NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
-NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
-NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
-
-NU_API nu_mat3_t nu_mat3_zero(void);
-NU_API nu_mat3_t nu_mat3_identity(void);
-NU_API nu_mat3_t nu_mat3_translate(float x, float y);
-NU_API nu_mat3_t nu_mat3_scale(float x, float y);
-NU_API nu_mat3_t nu_mat3_mul(nu_mat3_t a, nu_mat3_t b);
-
-NU_API nu_mat4_t nu_mat4_zero(void);
-NU_API nu_mat4_t nu_mat4_identity(void);
-NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
-NU_API nu_mat4_t nu_mat4_scale(float x, float y, float z);
-NU_API nu_mat4_t nu_mat4_rotate_x(float x);
-NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
-
-NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
-NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);
-NU_API nu_vec2_t nu_rect_normalize(nu_rect_t r, nu_vec2_t p);
-
-NU_API nu_mat4_t nu_perspective(float fov,
-                                float aspect_ratio,
-                                float z_near,
-                                float z_far);
-NU_API nu_mat4_t nu_lookat(nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up);
-
-#ifdef NU_IMPLEMENTATION
+#include <nucleus/core/math.h>
 
 #ifdef NU_STDLIB
 #include <math.h>
@@ -613,7 +542,5 @@ nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
     m.data[15] = 1;
     return m;
 }
-
-#endif
 
 #endif

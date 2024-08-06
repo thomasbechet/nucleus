@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-project(basic LANGUAGES C VERSION 0.0.1)
+project(core LANGUAGES C VERSION 0.0.1)
 
 set(CMAKE_BUILD_TYPE Debug)
 # set(CMAKE_BUILD_TYPE Release)
@@ -10,13 +10,10 @@ add_executable(
     main.c
 )
 
-# Compile GLFW (TODO: find header only library)
-# add_subdirectory(${CMAKE_SOURCE_DIR}/nucleus/external/glfw-3.4 glfw)
-target_link_libraries(${PROJECT_NAME} glfw GL)
-
 include_directories(${CMAKE_SOURCE_DIR})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
+target_link_libraries(${PROJECT_NAME} m)
 
 include(CheckCCompilerFlag)
 function(enable_c_compiler_flag_if_supported flag)

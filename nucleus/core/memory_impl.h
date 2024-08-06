@@ -1,26 +1,7 @@
-#ifndef NU_MEMORY_H
-#define NU_MEMORY_H
+#ifndef NU_MEMORY_IMPL_H
+#define NU_MEMORY_IMPL_H
 
-#include <nucleus/types.h>
-
-#define NU_DEFAULT_ALIGN 16
-
-NU_API void *nu_alloc(nu_allocator_t alloc, nu_size_t s);
-NU_API void *nu_realloc(nu_allocator_t alloc,
-                        void          *ptr,
-                        nu_size_t      s,
-                        nu_size_t      n);
-NU_API void  nu_free(nu_allocator_t alloc, void *ptr, nu_size_t s);
-
-NU_API void *nu_memset(void *dst, nu_word_t c, nu_size_t n);
-NU_API void  nu_memcpy(void *dst, const void *src, nu_size_t n);
-NU_API void *nu_memalign(void *ptr, nu_size_t align);
-
-#ifdef NU_STDLIB
-NU_API void nuext_stdlib_allocator_init(nu_allocator_t *alloc);
-#endif
-
-#ifdef NU_IMPLEMENTATION
+#include <nucleus/core/memory.h>
 
 void *
 nu_alloc (nu_allocator_t alloc, nu_size_t s)
@@ -109,7 +90,5 @@ nu_memalign (void *ptr, nu_size_t align)
     NU_ASSERT(align > 0);
     return (void *)(((nu_size_t)ptr + align - 1) & ~(align - 1));
 }
-
-#endif
 
 #endif
