@@ -1,5 +1,5 @@
-#ifndef NU_GLFW_IMPL_H
-#define NU_GLFW_IMPL_H
+#ifndef NUGLFW_IMPL_H
+#define NUGLFW_IMPL_H
 
 #define GLFW_INCLUDE_NONE
 #define GLAD_GL_IMPLEMENTATION
@@ -232,7 +232,7 @@ nuglfw__mouse_button_callback (GLFWwindow *window,
 static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
-    nu_platform_t *platform               = glfwGetWindowUserPointer(window);
+    nu_platform_t *platform              = glfwGetWindowUserPointer(window);
     platform->_input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
 }
 static void
@@ -245,13 +245,14 @@ nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      xoffset,
                                double      yoffset)
 {
-    nu_platform_t *platform             = glfwGetWindowUserPointer(window);
-    platform->_input.glfw.mouse_scroll = nu_vec2((float)xoffset, (float)yoffset);
+    nu_platform_t *platform = glfwGetWindowUserPointer(window);
+    platform->_input.glfw.mouse_scroll
+        = nu_vec2((float)xoffset, (float)yoffset);
 }
 static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
-    nu_platform_t *platform                    = glfwGetWindowUserPointer(window);
+    nu_platform_t *platform = glfwGetWindowUserPointer(window);
     platform->_surface.glfw.viewport.extent.w = width;
     platform->_surface.glfw.viewport.extent.h = height;
     nuglfw__update_viewport(&platform->_surface.glfw.viewport);

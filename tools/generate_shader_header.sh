@@ -11,10 +11,10 @@ then
   exit
 fi
 
-printf "#ifndef NUGL_SHADER_H\n"
-printf "#define NUGL_SHADER_H\n"
+printf "#ifndef NUGL_SHADERS_H\n"
+printf "#define NUGL_SHADERS_H\n"
 
-printf "#include <nucleus/types.h>\n"
+printf "#include <nucleus/core/config.h>\n"
 
 for file in $1/*; do
     name="nugl__shader_$(basename $file | tr '.' '_')" 

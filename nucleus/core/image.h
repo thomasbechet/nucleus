@@ -3,6 +3,10 @@
 
 #include <nucleus/core/math.h>
 
+#define NU_COLOR_WHITE nu_color(255, 255, 255, 0)
+#define NU_COLOR_BLACK nu_color(0, 0, 0, 0)
+#define NU_COLOR_RED   nu_color(255, 0, 0, 0)
+
 typedef union
 {
     struct

@@ -1,6 +1,6 @@
-#ifndef NUGL_SHADER_H
-#define NUGL_SHADER_H
-#include <nucleus/types.h>
+#ifndef NUGL_SHADERS_H
+#define NUGL_SHADERS_H
+#include <nucleus/core/config.h>
 static const nu_char_t *nugl__shader_blit_frag = 
 "#version 330 core\n"
 "\n"
