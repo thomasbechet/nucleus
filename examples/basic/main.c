@@ -128,14 +128,14 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
-    // Create depth texture
-    nu_texture_t depth_target;
+    // Create depth buffer
+    nu_texture_t depth_buffer;
     {
         nu_texture_info_t info;
         info.usage  = NU_TEXTURE_USAGE_TARGET;
         info.format = NU_TEXTURE_FORMAT_DEPTH;
         info.size   = nu_uvec2(WIDTH, HEIGHT);
-        error       = nu_texture_create(&renderer, &info, &depth_target);
+        error       = nu_texture_create(&renderer, &info, &depth_buffer);
         NU_ERROR_ASSERT(error);
     }
 
@@ -154,9 +154,8 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
-    // Create material
-    nu_texture_t  texture;
-    nu_material_t material;
+    // Load resources
+    nu_texture_t texture;
     {
         int            width, height, channels;
         unsigned char *img
@@ -185,28 +184,35 @@ main (void)
 
         NU_INFO(&logger, "%d %d %d", channels, width, height);
 
-        {
-            nu_texture_info_t tinfo;
-            tinfo.size.x = width;
-            tinfo.size.y = height;
-            tinfo.usage  = NU_TEXTURE_USAGE_SAMPLE;
-            tinfo.format = NU_TEXTURE_FORMAT_COLOR;
-            error        = nu_texture_create(&renderer, &tinfo, &texture);
-            NU_ERROR_ASSERT(error);
-            error = nu_texture_write(
-                &renderer, &texture, nu_rect(0, 0, width, height), colors);
-            NU_ERROR_ASSERT(error);
+        nu_texture_info_t info;
+        info.size.x = width;
+        info.size.y = height;
+        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
+        info.format = NU_TEXTURE_FORMAT_COLOR;
+        error       = nu_texture_create(&renderer, &info, &texture);
+        NU_ERROR_ASSERT(error);
+        error = nu_texture_write(
+            &renderer, &texture, nu_rect(0, 0, width, height), colors);
+        NU_ERROR_ASSERT(error);
 
-            stbi_image_free(img);
-            nu_free(alloc, colors, sizeof(nu_color_t) * width * height);
-        }
-        {
-            nu_material_info_t info = nu_material_info_default();
-            info.texture0           = &texture;
-            info.uv_transform       = nu_mat3_scale(1, 1);
-            error = nu_material_create(&renderer, &info, &material);
-            NU_ERROR_ASSERT(error);
-        }
+        stbi_image_free(img);
+        nu_free(alloc, colors, sizeof(nu_color_t) * width * height);
+    }
+
+    // Load models
+    {
+        error = nuext_load_gltf("../../../assets/ariane6.glb", &logger);
+        NU_ERROR_ASSERT(error);
+    }
+
+    // Create material
+    nu_material_t material;
+    {
+        nu_material_info_t info = nu_material_info_default();
+        info.texture0           = &texture;
+        info.uv_transform       = nu_mat3_scale(1, 1);
+        error = nu_material_create(&renderer, &info, &material);
+        NU_ERROR_ASSERT(error);
     }
 
     // Create camera
@@ -270,6 +276,13 @@ main (void)
         // Poll events
         nu_poll_events(&platform);
 
+        // Check exit
+        if (nu_input_just_pressed(&platform, &quit))
+        {
+            running = NU_FALSE;
+        }
+
+        // Update camera controller
         controller.view_pitch_neg = nu_input_value(&platform, &view_pitch_neg);
         controller.view_pitch_pos = nu_input_value(&platform, &view_pitch_pos);
         controller.view_yaw_neg   = nu_input_value(&platform, &view_yaw_neg);
@@ -285,11 +298,6 @@ main (void)
         nu_camera_controller_update(&controller, delta, &camera_info);
         nu_camera_update(&renderer, &camera, &camera_info);
 
-        if (nu_input_just_pressed(&platform, &quit))
-        {
-            running = NU_FALSE;
-        }
-
         // Update material
         // nu_material_info_t minfo;
         // minfo.texture0     = &texture;
@@ -298,18 +306,19 @@ main (void)
         // nu_material_update(&renderer, &material, &minfo);
 
         // Render loop
-        for (int i = 0; i < 20; ++i)
+        for (int i = 0; i < 40; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i), 0, i);
+            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i) * 5, 0, i);
             nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
         }
 
+        // Submit renderpass
         nu_renderpass_submit_t submit;
         submit.reset       = NU_TRUE;
         submit.flat.camera = &camera;
         submit.flat.color_target
             = nu_surface_color_target(&platform, &renderer);
-        submit.flat.depth_target = &depth_target;
+        submit.flat.depth_target = &depth_buffer;
         submit.flat.clear_color  = NU_COLOR_BLACK;
         nu_renderpass_submit(&renderer, &main_pass, &submit);
 

@@ -134,7 +134,8 @@ typedef enum
     NU_ERROR_BACKEND            = 2,
     NU_ERROR_DUPLICATED         = 3,
     NU_ERROR_OUT_OF_RESOURCE    = 4,
-    NU_ERROR_SHADER_COMPILATION = 5,
+    NU_ERROR_RESOURCE_LOADING   = 5,
+    NU_ERROR_SHADER_COMPILATION = 6,
 } nu_error_t;
 
 //////////////////////////////////////////////////////////////////////////

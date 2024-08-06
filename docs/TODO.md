@@ -4,8 +4,8 @@
 [x] Renderpass depth buffer
 [x] Logger per system
 [x] Reorganize in modules
-[ ] Mouse locked glfw
-[ ] Fullscreen window glfw
-[ ] Flat renderpass
+[x] Fullscreen window glfw
+[ ] Mouse locked glfw (double click lock)
+[ ] Flat renderpass with lights
 [ ] Volumetric renderpass
 [ ] Mass aggregate physics

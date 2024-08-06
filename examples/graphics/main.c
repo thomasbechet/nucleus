@@ -58,7 +58,7 @@ main (void)
         nu_vec3_t positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t uvs[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec3_t normals[NU_CUBE_MESH_VERTEX_COUNT];
-        nu_generate_cube_mesh(0.5, positions, uvs, normals);
+        nu_generate_cube_mesh(1, positions, uvs, normals);
         nu_mesh_info_t info;
         info.positions = positions;
         info.uvs       = uvs;

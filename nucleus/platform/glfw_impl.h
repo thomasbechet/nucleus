@@ -195,6 +195,11 @@ nuglfw__key_callback (
                 &platform->_input.glfw,
                 platform->_input.glfw.key_to_first_binding[key],
                 NU_TRUE);
+
+            if (key == NUGLFW_FULLSCREEN_KEY)
+            {
+                platform->_surface.glfw.switch_fullscreen = NU_TRUE;
+            }
         }
         else if (action == GLFW_RELEASE)
         {
@@ -202,6 +207,11 @@ nuglfw__key_callback (
                 &platform->_input.glfw,
                 platform->_input.glfw.key_to_first_binding[key],
                 NU_FALSE);
+
+            if (key == NUGLFW_FULLSCREEN_KEY)
+            {
+                platform->_surface.glfw.switch_fullscreen = NU_FALSE;
+            }
         }
     }
 }
@@ -271,6 +281,10 @@ nuglfw__init (nu_platform_t *platform)
     {
         return NU_ERROR_BACKEND;
     }
+
+    // Initialize values
+    surface->fullscreen        = NU_FALSE;
+    surface->switch_fullscreen = NU_FALSE;
 
     // Create window
     surface->win = glfwCreateWindow(width, height, "nucleus", NU_NULL, NU_NULL);
@@ -369,6 +383,48 @@ nuglfw__poll_events (nuglfw__input_t   *ctx,
 
         // Check close requested
         *close_requested = glfwWindowShouldClose(surface->win);
+
+        // Check fullscreen button
+        if (surface->switch_fullscreen)
+        {
+            if (surface->fullscreen)
+            {
+                glfwSetWindowMonitor(surface->win,
+                                     NULL,
+                                     surface->previous_position.x,
+                                     surface->previous_position.y,
+                                     surface->previous_size.x,
+                                     surface->previous_size.y,
+                                     0);
+                glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+            else
+            {
+                int x, y;
+                glfwGetWindowSize(surface->win, &x, &y);
+                surface->previous_size = nu_uvec2(x, y);
+                glfwGetWindowPos(surface->win, &x, &y);
+                surface->previous_position = nu_uvec2(x, y);
+
+                const GLFWvidmode *mode
+                    = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+                glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+                glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+                glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+                glfwSetWindowMonitor(surface->win,
+                                     glfwGetPrimaryMonitor(),
+                                     0,
+                                     0,
+                                     mode->width,
+                                     mode->height,
+                                     mode->refreshRate);
+                glfwSetInputMode(
+                    surface->win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+            surface->switch_fullscreen = NU_FALSE;
+            surface->fullscreen        = !surface->fullscreen;
+        }
 
         // Update mouse motion
         nu_vec2_t mouse_motion
@@ -552,7 +608,7 @@ nuglfw__bind_axis (nuglfw__input_t *ctx, nu_input_t *input, nuext_axis_t axis)
 
     // Add binding
     nuglfw__binding_t *binding = nuglfw__add_binding(ctx, first_binding, input);
-    binding->axis.scale        = 1;
+    binding->axis.scale        = 4;
 
     return NU_ERROR_NONE;
 }

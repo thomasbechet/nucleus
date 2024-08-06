@@ -18,6 +18,8 @@
 #define NUGLFW_WINDOW_WIDTH  1280
 #define NUGLFW_WINDOW_HEIGHT 720
 
+#define NUGLFW_FULLSCREEN_KEY GLFW_KEY_F11
+
 typedef enum
 {
     NUEXT_VIEWPORT_FIXED,
@@ -41,6 +43,10 @@ typedef struct
 {
     NUGLFWwindow       win;
     nuglfw__viewport_t viewport;
+    nu_bool_t          fullscreen;
+    nu_bool_t          switch_fullscreen;
+    nu_uvec2_t         previous_size;
+    nu_uvec2_t         previous_position;
 } nuglfw__surface_t;
 
 #endif
