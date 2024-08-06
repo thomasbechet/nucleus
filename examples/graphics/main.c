@@ -1,6 +1,7 @@
 #include <stdio.h>
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
+#include <nucleus/utils.h>
 #include <nucleus/graphics.h>
 
 #define WIDTH  500
