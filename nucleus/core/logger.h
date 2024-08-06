@@ -19,7 +19,7 @@ typedef enum
 
 typedef struct
 {
-    int todo;
+    nu_log_level_t level;
 } nu_logger_info_t;
 
 typedef struct

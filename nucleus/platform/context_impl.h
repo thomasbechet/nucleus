@@ -31,17 +31,13 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     platform->_close_requested = NU_FALSE;
 
     NU_INFO(&platform->_logger,
-            "initializing platform context (%dx%d)",
+            "initialize platform context (%dx%d)",
             info->width,
             info->height);
 
     // Initialize surface (and inputs)
     error = nu__init_surface(platform);
     NU_ERROR_CHECK(error, return error);
-
-    // // Initialize renderer
-    // error = nu__init_renderer(platform, cinfo.renderer);
-    // NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;
 }
@@ -50,11 +46,7 @@ nu_platform_terminate (nu_platform_t *platform)
 {
     nu_error_t error;
 
-    NU_INFO(&platform->_logger, "terminating platform context");
-
-    // // Terminate renderer
-    // error = nu__terminate_renderer(platform);
-    // NU_ERROR_CHECK(error, return error);
+    NU_INFO(&platform->_logger, "terminate platform context");
 
     // Terminate surface (and inputs)
 #ifdef NU_BUILD_GLFW

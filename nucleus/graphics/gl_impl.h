@@ -4,6 +4,9 @@
 #include <nucleus/graphics/renderer.h>
 #include <nucleus/graphics/gl_shaders.h>
 
+#define GLAD_GL_IMPLEMENTATION
+#include <nucleus/external/glad/gl.h>
+
 static nu_error_t
 nugl__compile_shader (nu_renderer_t   *ctx,
                       const nu_char_t *vert,
@@ -102,9 +105,16 @@ nugl__init (nu_renderer_t *ctx, nu_allocator_t allocator, nu_uvec2_t size)
     gl->surface_color = 0;
     gl->target_count  = 0;
 
+    // Initialize GL functions
+    if (!gladLoadGL(glfwGetProcAddress))
+    {
+        NU_ERROR(&ctx->_logger, "failed to load GL functions");
+        return NU_ERROR_BACKEND;
+    }
+
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    glDebugMessageCallback(MessageCallback, ctx);
 
     // Compile programs
     error = nugl__compile_shader(
@@ -556,8 +566,16 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
         }
         break;
         case NU_RENDERPASS_FLAT: {
-            data->vp           = info->flat.camera->gl.vp;
-            data->ivp          = info->flat.camera->gl.ivp;
+            if (info->flat.camera)
+            {
+                data->vp  = info->flat.camera->gl.vp;
+                data->ivp = info->flat.camera->gl.ivp;
+            }
+            else
+            {
+                data->vp  = nu_mat4_identity();
+                data->ivp = nu_mat4_identity();
+            }
             data->color_target = info->flat.color_target
                                      ? info->flat.color_target->gl.texture
                                      : 0;

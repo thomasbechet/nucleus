@@ -4,7 +4,7 @@
 #include <nucleus/graphics/renderer.h>
 
 #ifdef NU_BUILD_RENDERER_GL
-#include <nucleus/graphics/gl.h>
+#include <nucleus/graphics/gl_impl.h>
 #endif
 
 static nu_error_t
@@ -125,59 +125,71 @@ nu__renderer_null_submit_renderpass (nu_renderer_t                *ctx,
 {
 }
 
+nu_renderer_info_t
+nu_renderer_info_default (void)
+{
+    nu_renderer_info_t info;
+    info.logger = nu_logger_info_default();
+    info.api    = NU_RENDERER_NULL;
+    return info;
+}
+
 nu_error_t
 nu_renderer_init (nu_platform_t            *platform,
                   const nu_renderer_info_t *info,
                   nu_renderer_t            *renderer)
 {
+    renderer->_allocator = info->allocator;
+
     switch (info->api)
     {
         case NU_RENDERER_NULL:
-            ctx->_api.init   = nu__renderer_null_init;
-            ctx->_api.render = nu__renderer_null_render;
-            ctx->_api.create_surface_color
+            renderer->_api.init   = nu__renderer_null_init;
+            renderer->_api.render = nu__renderer_null_render;
+            renderer->_api.create_surface_color
                 = nu__renderer_null_create_surface_color;
 
-            ctx->_api.create_camera     = nu__renderer_null_create_camera;
-            ctx->_api.delete_camera     = nu__renderer_null_delete_camera;
-            ctx->_api.update_camera     = nu__renderer_null_update_camera;
-            ctx->_api.create_mesh       = nu__renderer_null_create_mesh;
-            ctx->_api.delete_mesh       = nu__renderer_null_delete_mesh;
-            ctx->_api.create_texture    = nu__renderer_null_create_texture;
-            ctx->_api.delete_texture    = nu__renderer_null_delete_texture;
-            ctx->_api.write_texture     = nu__renderer_null_write_texture;
-            ctx->_api.create_material   = nu__renderer_null_create_material;
-            ctx->_api.delete_material   = nu__renderer_null_delete_material;
-            ctx->_api.update_material   = nu__renderer_null_update_material;
-            ctx->_api.create_renderpass = nu__renderer_null_create_renderpass;
-            ctx->_api.delete_renderpass = nu__renderer_null_delete_renderpass;
+            renderer->_api.create_camera   = nu__renderer_null_create_camera;
+            renderer->_api.delete_camera   = nu__renderer_null_delete_camera;
+            renderer->_api.update_camera   = nu__renderer_null_update_camera;
+            renderer->_api.create_mesh     = nu__renderer_null_create_mesh;
+            renderer->_api.delete_mesh     = nu__renderer_null_delete_mesh;
+            renderer->_api.create_texture  = nu__renderer_null_create_texture;
+            renderer->_api.delete_texture  = nu__renderer_null_delete_texture;
+            renderer->_api.write_texture   = nu__renderer_null_write_texture;
+            renderer->_api.create_material = nu__renderer_null_create_material;
+            renderer->_api.delete_material = nu__renderer_null_delete_material;
+            renderer->_api.update_material = nu__renderer_null_update_material;
+            renderer->_api.create_renderpass
+                = nu__renderer_null_create_renderpass;
+            renderer->_api.delete_renderpass
+                = nu__renderer_null_delete_renderpass;
 
-            ctx->_api.draw              = nu__renderer_null_draw;
-            ctx->_api.submit_renderpass = nu__renderer_null_submit_renderpass;
+            renderer->_api.draw = nu__renderer_null_draw;
+            renderer->_api.submit_renderpass
+                = nu__renderer_null_submit_renderpass;
             break;
         case NU_RENDERER_GL:
-            ctx->_api.init                 = nugl__init;
-            ctx->_api.render               = nugl__render;
-            ctx->_api.create_surface_color = nugl__create_surface_color;
+            renderer->_api.init                 = nugl__init;
+            renderer->_api.render               = nugl__render;
+            renderer->_api.create_surface_color = nugl__create_surface_color;
 
-            ctx->_api.create_camera     = nugl__create_camera;
-            ctx->_api.delete_camera     = nugl__delete_camera;
-            ctx->_api.update_camera     = nugl__update_camera;
-            ctx->_api.create_mesh       = nugl__create_mesh;
-            ctx->_api.delete_mesh       = nugl__delete_mesh;
-            ctx->_api.create_texture    = nugl__create_texture;
-            ctx->_api.delete_texture    = nugl__delete_texture;
-            ctx->_api.write_texture     = nugl__write_texture;
-            ctx->_api.create_material   = nugl__create_material;
-            ctx->_api.delete_material   = nugl__delete_material;
-            ctx->_api.update_material   = nugl__update_material;
-            ctx->_api.create_renderpass = nugl__create_renderpass;
-            ctx->_api.delete_renderpass = nugl__delete_renderpass;
+            renderer->_api.create_camera     = nugl__create_camera;
+            renderer->_api.delete_camera     = nugl__delete_camera;
+            renderer->_api.update_camera     = nugl__update_camera;
+            renderer->_api.create_mesh       = nugl__create_mesh;
+            renderer->_api.delete_mesh       = nugl__delete_mesh;
+            renderer->_api.create_texture    = nugl__create_texture;
+            renderer->_api.delete_texture    = nugl__delete_texture;
+            renderer->_api.write_texture     = nugl__write_texture;
+            renderer->_api.create_material   = nugl__create_material;
+            renderer->_api.delete_material   = nugl__delete_material;
+            renderer->_api.update_material   = nugl__update_material;
+            renderer->_api.create_renderpass = nugl__create_renderpass;
+            renderer->_api.delete_renderpass = nugl__delete_renderpass;
 
-            ctx->_api.draw              = nugl__draw;
-            ctx->_api.submit_renderpass = nugl__submit_renderpass;
-
-            ctx->_ctx = &ctx->_renderer.backend.gl;
+            renderer->_api.draw              = nugl__draw;
+            renderer->_api.submit_renderpass = nugl__submit_renderpass;
             break;
         case NU_RENDERER_DX11:
             break;
@@ -185,20 +197,41 @@ nu_renderer_init (nu_platform_t            *platform,
             break;
     }
 
+    // Initialize logger
+    nu_logger_init(&info->logger, &renderer->_logger);
+
+    NU_INFO(&renderer->_logger, "initialize renderer context");
+
     // Initialize backend
-    nu_error_t error
-        = ctx->_api.init(ctx->_ctx, ctx->_allocator, ctx->_surface.size);
+    nu_error_t error = renderer->_api.init(
+        renderer, renderer->_allocator, platform->_surface.size);
     NU_ERROR_CHECK(error, return error);
 
     // Create surface texture
-    ctx->_surface_color = ctx->_api.create_surface_color(ctx->_ctx);
+    renderer->_surface_color = renderer->_api.create_surface_color(renderer);
 
     return NU_ERROR_NONE;
 }
 nu_error_t
 nu_renderer_terminate (nu_renderer_t *renderer)
 {
+    NU_INFO(&renderer->_logger, "terminate renderer context");
+
     return NU_ERROR_NONE;
+}
+nu_error_t
+nu_render (nu_platform_t *platform, nu_renderer_t *renderer)
+{
+    renderer->_api.render(renderer,
+                          &platform->_surface.glfw.viewport.extent,
+                          &platform->_surface.glfw.viewport.viewport);
+    return NU_ERROR_NONE;
+}
+const nu_texture_t *
+nu_surface_color_target (const nu_platform_t *platform,
+                         const nu_renderer_t *renderer)
+{
+    return &renderer->_surface_color;
 }
 
 nu_camera_info_t
@@ -219,30 +252,30 @@ nu_camera_create (nu_renderer_t          *ctx,
                   const nu_camera_info_t *info,
                   nu_camera_t            *camera)
 {
-    return ctx->_api.create_camera(ctx->_ctx, info, camera);
+    return ctx->_api.create_camera(ctx, info, camera);
 }
 nu_error_t
 nu_camera_delete (nu_renderer_t *ctx, nu_camera_t *camera)
 {
-    return ctx->_api.delete_camera(ctx->_ctx, camera);
+    return ctx->_api.delete_camera(ctx, camera);
 }
 nu_error_t
 nu_camera_update (nu_renderer_t          *ctx,
                   nu_camera_t            *camera,
                   const nu_camera_info_t *info)
 {
-    return ctx->_api.update_camera(ctx->_ctx, camera, info);
+    return ctx->_api.update_camera(ctx, camera, info);
 }
 
 nu_error_t
 nu_mesh_create (nu_renderer_t *ctx, const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
-    return ctx->_api.create_mesh(ctx->_ctx, info, mesh);
+    return ctx->_api.create_mesh(ctx, info, mesh);
 }
 nu_error_t
 nu_mesh_delete (nu_renderer_t *ctx, nu_mesh_t *mesh)
 {
-    return ctx->_api.delete_mesh(ctx->_ctx, mesh);
+    return ctx->_api.delete_mesh(ctx, mesh);
 }
 
 nu_error_t
@@ -250,12 +283,12 @@ nu_texture_create (nu_renderer_t           *ctx,
                    const nu_texture_info_t *info,
                    nu_texture_t            *texture)
 {
-    return ctx->_api.create_texture(ctx->_ctx, info, texture);
+    return ctx->_api.create_texture(ctx, info, texture);
 }
 nu_error_t
 nu_texture_delete (nu_renderer_t *ctx, nu_texture_t *texture)
 {
-    return ctx->_api.delete_texture(ctx->_ctx, texture);
+    return ctx->_api.delete_texture(ctx, texture);
 }
 nu_error_t
 nu_texture_write (nu_renderer_t    *ctx,
@@ -263,7 +296,7 @@ nu_texture_write (nu_renderer_t    *ctx,
                   nu_rect_t         rect,
                   const nu_color_t *data)
 {
-    return ctx->_api.write_texture(ctx->_ctx, texture, rect, data);
+    return ctx->_api.write_texture(ctx, texture, rect, data);
 }
 
 nu_material_info_t
@@ -280,19 +313,19 @@ nu_material_create (nu_renderer_t            *ctx,
                     const nu_material_info_t *info,
                     nu_material_t            *material)
 {
-    return ctx->_api.create_material(ctx->_ctx, info, material);
+    return ctx->_api.create_material(ctx, info, material);
 }
 nu_error_t
 nu_material_delete (nu_renderer_t *ctx, nu_material_t *material)
 {
-    return ctx->_api.delete_material(ctx->_ctx, material);
+    return ctx->_api.delete_material(ctx, material);
 }
 nu_error_t
 nu_material_update (nu_renderer_t            *ctx,
                     nu_material_t            *material,
                     const nu_material_info_t *info)
 {
-    return ctx->_api.update_material(ctx->_ctx, material, info);
+    return ctx->_api.update_material(ctx, material, info);
 }
 
 nu_error_t
@@ -300,12 +333,12 @@ nu_renderpass_create (nu_renderer_t              *ctx,
                       const nu_renderpass_info_t *info,
                       nu_renderpass_t            *pass)
 {
-    return ctx->_api.create_renderpass(ctx->_ctx, info, pass);
+    return ctx->_api.create_renderpass(ctx, info, pass);
 }
 nu_error_t
 nu_renderpass_delete (nu_renderer_t *ctx, nu_renderpass_t *pass)
 {
-    return ctx->_api.delete_renderpass(ctx->_ctx, pass);
+    return ctx->_api.delete_renderpass(ctx, pass);
 }
 
 void
@@ -313,7 +346,7 @@ nu_renderpass_submit (nu_renderer_t                *ctx,
                       nu_renderpass_t              *pass,
                       const nu_renderpass_submit_t *info)
 {
-    ctx->_api.submit_renderpass(ctx->_ctx, pass, info);
+    ctx->_api.submit_renderpass(ctx, pass, info);
 }
 void
 nu_draw (nu_renderer_t       *ctx,
@@ -322,7 +355,7 @@ nu_draw (nu_renderer_t       *ctx,
          const nu_material_t *material,
          const nu_mat4_t     *transform)
 {
-    ctx->_api.draw(ctx->_ctx, renderpass, mesh, material, transform);
+    ctx->_api.draw(ctx, renderpass, mesh, material, transform);
 }
 
 void

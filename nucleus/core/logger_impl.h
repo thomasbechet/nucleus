@@ -8,15 +8,14 @@ nu_logger_info_t
 nu_logger_info_default (void)
 {
     nu_logger_info_t info;
-    info.todo = 0;
+    info.level = NU_LOG_DEBUG;
     return info;
 }
 
 nu_error_t
 nu_logger_init (const nu_logger_info_t *info, nu_logger_t *logger)
 {
-    NU_UNUSED(info);
-    logger->level = NU_LOG_DEBUG;
+    logger->level = info->level;
     return NU_ERROR_NONE;
 }
 nu_error_t

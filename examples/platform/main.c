@@ -35,7 +35,7 @@ main (void)
             break;
         }
         nu_poll_events(&platform);
-        nu_render(&platform);
+        nu_swap_buffers(&platform);
     }
 
     nu_platform_terminate(&platform);

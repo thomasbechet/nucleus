@@ -2,8 +2,6 @@
 #define NUGLFW_IMPL_H
 
 #define GLFW_INCLUDE_NONE
-#define GLAD_GL_IMPLEMENTATION
-#include <nucleus/external/glad/gl.h>
 #include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
 
 static int nuglfw__button_to_key[] = { GLFW_KEY_A,
@@ -304,12 +302,6 @@ nuglfw__init (nu_platform_t *platform)
     glfwSetCursorPosCallback(surface->win, nuglfw__cursor_position_callback);
     glfwSetScrollCallback(surface->win, nuglfw__mouse_scroll_callback);
     glfwSetWindowSizeCallback(surface->win, nuglfw__window_size_callback);
-
-    // Glad initialization
-    if (!gladLoadGL(glfwGetProcAddress))
-    {
-        return NU_ERROR_BACKEND;
-    }
 
     // Get initial mouse position
     double xpos, ypos;

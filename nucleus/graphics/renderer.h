@@ -235,11 +235,14 @@ typedef struct
 typedef struct
 {
     nu_renderer_backend_t api;
+    nu_logger_info_t      logger;
+    nu_allocator_t        allocator;
 } nu_renderer_info_t;
 
 typedef struct nu_renderer
 {
     nu_logger_t            _logger;
+    nu_allocator_t         _allocator;
     nu_renderer_api_t      _api;
     nu__renderer_backend_t _backend;
     nu_texture_t           _surface_color;
@@ -270,10 +273,15 @@ typedef struct
     float     move_backward;
 } nu_camera_controller_t;
 
+NU_API nu_renderer_info_t nu_renderer_info_default(void);
+
 NU_API nu_error_t nu_renderer_init(nu_platform_t            *platform,
                                    const nu_renderer_info_t *info,
                                    nu_renderer_t            *renderer);
 NU_API nu_error_t nu_renderer_terminate(nu_renderer_t *renderer);
+NU_API nu_error_t nu_render(nu_platform_t *platform, nu_renderer_t *renderer);
+NU_API const nu_texture_t *nu_surface_color_target(
+    const nu_platform_t *platform, const nu_renderer_t *renderer);
 
 NU_API nu_camera_info_t nu_camera_info_default(void);
 NU_API nu_error_t       nu_camera_create(nu_renderer_t          *ctx,
