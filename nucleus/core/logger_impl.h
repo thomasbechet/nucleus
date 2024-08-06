@@ -4,14 +4,23 @@
 #include <nucleus/core/logger.h>
 #include <nucleus/core/time.h>
 
-nu_error_t
-nu_logger_create (nu_logger_t *logger)
+nu_logger_info_t
+nu_logger_info_default (void)
 {
+    nu_logger_info_t info;
+    info.todo = 0;
+    return info;
+}
+
+nu_error_t
+nu_logger_init (const nu_logger_info_t *info, nu_logger_t *logger)
+{
+    NU_UNUSED(info);
     logger->level = NU_LOG_DEBUG;
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_logger_delete (nu_logger_t *logger)
+nu_logger_terminate (nu_logger_t *logger)
 {
     return NU_ERROR_NONE;
 }

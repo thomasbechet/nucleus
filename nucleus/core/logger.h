@@ -19,11 +19,19 @@ typedef enum
 
 typedef struct
 {
+    int todo;
+} nu_logger_info_t;
+
+typedef struct
+{
     nu_log_level_t level;
 } nu_logger_t;
 
-NU_API nu_error_t nu_logger_create(nu_logger_t *logger);
-NU_API nu_error_t nu_logger_delete(nu_logger_t *logger);
+NU_API nu_logger_info_t nu_logger_info_default(void);
+
+NU_API nu_error_t nu_logger_init(const nu_logger_info_t *info,
+                                 nu_logger_t            *logger);
+NU_API nu_error_t nu_logger_terminate(nu_logger_t *logger);
 
 NU_API void nu_log(nu_logger_t     *logger,
                    nu_log_level_t   level,

@@ -231,16 +231,17 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t       width;
-    nu_u32_t       height;
-    nu_allocator_t allocator;
+    nu_u32_t         width;
+    nu_u32_t         height;
+    nu_allocator_t   allocator;
+    nu_logger_info_t logger;
 } nu_platform_info_t;
 
 typedef struct
 {
     nu_allocator_t _allocator;
     nu_bool_t      _close_requested;
-    nu__logger_t   _logger;
+    nu_logger_t    _logger;
     nu__surface_t  _surface;
     nu__input_t    _input;
 } nu_platform_t;

@@ -15,6 +15,7 @@ nu_platform_info_default (void)
     nu_platform_info_t info;
     info.width  = 640;
     info.height = 400;
+    info.logger = nu_logger_info_default();
     return info;
 }
 
@@ -24,18 +25,15 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     nu_error_t error;
 
     // Initialize context
-    nu_platform_info_t cinfo;
-    if (info)
-    {
-        cinfo = *info;
-    }
-    else
-    {
-        cinfo = nu_platform_info_default();
-    }
-    platform->_allocator       = cinfo.allocator;
-    platform->_surface.size    = nu_uvec2(cinfo.width, cinfo.height);
+    platform->_allocator = info->allocator;
+    nu_logger_init(&info->logger, &platform->_logger);
+    platform->_surface.size    = nu_uvec2(info->width, info->height);
     platform->_close_requested = NU_FALSE;
+
+    NU_INFO(&platform->_logger,
+            "initializing platform context (%dx%d)",
+            info->width,
+            info->height);
 
     // Initialize surface (and inputs)
     error = nu__init_surface(platform);
@@ -51,6 +49,8 @@ nu_error_t
 nu_platform_terminate (nu_platform_t *platform)
 {
     nu_error_t error;
+
+    NU_INFO(&platform->_logger, "terminating platform context");
 
     // // Terminate renderer
     // error = nu__terminate_renderer(platform);
