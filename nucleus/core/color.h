@@ -1,5 +1,5 @@
-#ifndef NU_IMAGE_H
-#define NU_IMAGE_H
+#ifndef NU_COLOR_H
+#define NU_COLOR_H
 
 #include <nucleus/core/math.h>
 
