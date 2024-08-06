@@ -5,7 +5,7 @@
 #include <nucleus/graphics/shared_types.h>
 #include <nucleus/external/glad/gl.h>
 
-#define NUGL__VERTEX_SIZE            (3 + 2)
+#define NUGL__VERTEX_SIZE            (3 + 2 + 3)
 #define NUGL__MAX_COMMAND_COUNT      128
 #define NUGL__MAX_RENDERPASS_COUNT   32
 #define NUGL__MAX_RENDERTARGET_COUNT 32

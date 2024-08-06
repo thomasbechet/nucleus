@@ -144,9 +144,11 @@ main (void)
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
-        nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs);
+        nu_vec3_t cube_normals[NU_CUBE_MESH_VERTEX_COUNT];
+        nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs, cube_normals);
         nu_mesh_info_t info = { .positions = cube_positions,
                                 .uvs       = cube_uvs,
+                                .normals   = cube_normals,
                                 .count     = NU_CUBE_MESH_VERTEX_COUNT };
         error               = nu_mesh_create(&renderer, &info, &cube_mesh);
         NU_ERROR_ASSERT(error);
@@ -201,7 +203,7 @@ main (void)
         {
             nu_material_info_t info = nu_material_info_default();
             info.texture0           = &texture;
-            info.uv_transform       = nu_mat3_scale(0.5, 0.5);
+            info.uv_transform       = nu_mat3_scale(1, 1);
             error = nu_material_create(&renderer, &info, &material);
             NU_ERROR_ASSERT(error);
         }
@@ -289,16 +291,16 @@ main (void)
         }
 
         // Update material
-        nu_material_info_t minfo;
-        minfo.texture0     = &texture;
-        minfo.texture1     = NU_NULL;
-        minfo.uv_transform = nu_mat3_scale(nu_sin(time / 1000), 1);
-        nu_material_update(&renderer, &material, &minfo);
+        // nu_material_info_t minfo;
+        // minfo.texture0     = &texture;
+        // minfo.texture1     = NU_NULL;
+        // minfo.uv_transform = nu_mat3_scale(nu_sin(time / 1000), 1);
+        // nu_material_update(&renderer, &material, &minfo);
 
         // Render loop
         for (int i = 0; i < 20; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i), i, i);
+            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i), 0, i);
             nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
         }
 

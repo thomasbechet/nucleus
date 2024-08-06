@@ -81,12 +81,33 @@ MessageCallback (GLenum        source,
                  const void   *userParam)
 {
     nu_renderer_t *ctx = (nu_renderer_t *)userParam;
-    NU_INFO(&ctx->_logger,
-            "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-            type,
-            severity,
-            message);
+    switch (severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH:
+            NU_ERROR(&ctx->_logger,
+                     "GL: %s, message = %s",
+                     (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                     message);
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            NU_ERROR(&ctx->_logger,
+                     "GL: %s, message = %s",
+                     (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                     message);
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            NU_WARNING(&ctx->_logger,
+                       "GL: %s, message = %s",
+                       (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                       message);
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            NU_INFO(&ctx->_logger,
+                    "GL: %s, message = %s",
+                    (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                    message);
+            break;
+    }
 }
 
 static nugl__context_t *
@@ -160,6 +181,9 @@ nugl__render (nu_renderer_t   *ctx,
                     nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
 
                     glEnable(GL_DEPTH_TEST);
+                    glEnable(GL_CULL_FACE);
+                    glFrontFace(GL_CCW);
+                    glCullFace(GL_BACK);
 
                     glClearColor(clear_color.x,
                                  clear_color.y,
@@ -180,20 +204,24 @@ nugl__render (nu_renderer_t   *ctx,
                         switch (cmds->commands[i].type)
                         {
                             case NUGL__DRAW: {
-                                GLuint model_id = glGetUniformLocation(
-                                    gl->flat_program, "model");
+                                GLuint id = glGetUniformLocation(
+                                    gl->flat_program, "viewport_size");
+                                glUniform2uiv(id, 1, pass->fbo_size.xy);
+
+                                id = glGetUniformLocation(gl->flat_program,
+                                                          "model");
                                 glUniformMatrix4fv(
-                                    model_id, 1, GL_FALSE, cmd->transform.data);
-                                GLuint vp_id = glGetUniformLocation(
-                                    gl->flat_program, "view_projection");
+                                    id, 1, GL_FALSE, cmd->transform.data);
+
+                                id = glGetUniformLocation(gl->flat_program,
+                                                          "view_projection");
                                 glUniformMatrix4fv(
-                                    vp_id, 1, GL_FALSE, pass->vp.data);
-                                GLuint uv_transform_id = glGetUniformLocation(
-                                    gl->flat_program, "uv_transform");
-                                glUniformMatrix3fv(uv_transform_id,
-                                                   1,
-                                                   GL_FALSE,
-                                                   cmd->uv_transform.data);
+                                    id, 1, GL_FALSE, pass->vp.data);
+
+                                id = glGetUniformLocation(gl->flat_program,
+                                                          "uv_transform");
+                                glUniformMatrix3fv(
+                                    id, 1, GL_FALSE, cmd->uv_transform.data);
 
                                 glActiveTexture(GL_TEXTURE0);
                                 glBindTexture(GL_TEXTURE_2D, cmd->texture0);
@@ -333,20 +361,37 @@ nugl__create_mesh (nu_renderer_t        *ctx,
             ptr[i * NUGL__VERTEX_SIZE + 3] = info->uvs[i].x;
             ptr[i * NUGL__VERTEX_SIZE + 4] = info->uvs[i].y;
         }
+        if (info->normals)
+        {
+            ptr[i * NUGL__VERTEX_SIZE + 5] = info->normals[i].x;
+            ptr[i * NUGL__VERTEX_SIZE + 6] = info->normals[i].y;
+            ptr[i * NUGL__VERTEX_SIZE + 7] = info->normals[i].z;
+        }
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
     // Configure VAO
+    // Position
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NUGL__VERTEX_SIZE, (void *)0);
-    glEnableVertexAttribArray(0);
+    // UV
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1,
                           2,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(float) * NUGL__VERTEX_SIZE,
                           (void *)(sizeof(float) * NU_VEC3_SIZE));
-    glEnableVertexAttribArray(1);
+    // Normal
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(float) * NUGL__VERTEX_SIZE,
+        (void *)(sizeof(float) * (NU_VEC3_SIZE + NU_VEC2_SIZE)));
 
     // Unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -506,20 +551,26 @@ nugl__draw (nu_renderer_t       *ctx,
     cmd->uv_transform    = material->gl.uv_transform;
 }
 static GLuint
-nugl__find_or_create_framebuffer (nugl__context_t *ctx,
-                                  GLuint           color,
-                                  GLuint           depth)
+nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
+                                  GLuint         color,
+                                  GLuint         depth)
 {
-    for (nu_size_t i = 0; i < ctx->target_count; ++i)
+    nugl__context_t *gl = nugl__ctx(ctx);
+    for (nu_size_t i = 0; i < gl->target_count; ++i)
     {
-        const nugl__rendertarget_t *target = ctx->targets + i;
+        const nugl__rendertarget_t *target = gl->targets + i;
         if (target->color == color && target->depth == depth)
         {
             return target->fbo;
         }
     }
 
-    nugl__rendertarget_t *target = &ctx->targets[ctx->target_count++];
+    NU_INFO(&ctx->_logger,
+            "new framebuffer created for color: %d depth: %d",
+            color,
+            depth);
+
+    nugl__rendertarget_t *target = &gl->targets[gl->target_count++];
     target->color                = color;
     target->depth                = depth;
 
@@ -586,7 +637,7 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
             if (data->color_target || data->depth_target)
             {
                 data->fbo = nugl__find_or_create_framebuffer(
-                    gl, data->color_target, data->depth_target);
+                    ctx, data->color_target, data->depth_target);
                 data->fbo_size = data->color_target
                                      ? info->flat.color_target->gl.size
                                      : info->flat.depth_target->gl.size;

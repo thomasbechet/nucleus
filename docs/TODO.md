@@ -2,7 +2,8 @@
 [x] Logger
 [x] Camera controller
 [x] Renderpass depth buffer
-[ ] Logger per system
+[x] Logger per system
+[x] Reorganize in modules
 [ ] Mouse locked glfw
 [ ] Fullscreen window glfw
 [ ] Flat renderpass

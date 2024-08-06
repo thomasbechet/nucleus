@@ -425,6 +425,16 @@ nu_mat4_scale (float x, float y, float z)
     return m;
 }
 nu_mat4_t
+nu_mat4_rotate_y (float angle)
+{
+    nu_mat4_t m = nu_mat4_identity();
+    m.x1        = nu_cos(angle);
+    m.z1        = nu_sin(angle);
+    m.x3        = -nu_sin(angle);
+    m.z3        = nu_cos(angle);
+    return m;
+}
+nu_mat4_t
 nu_mat4_mul (nu_mat4_t a, nu_mat4_t b)
 {
     nu_mat4_t m = nu_mat4_zero();

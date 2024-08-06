@@ -21,6 +21,7 @@
 #define NU_VEC2_ONE  nu_vec2(1, 1)
 
 #define NU_UVEC2_ZERO nu_uvec2(0, 0)
+#define NU_UVEC2_ONE  nu_uvec2(1, 1)
 
 #define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
 #define NU_VEC3_ONE      nu_vec3(1, 1, 1)
@@ -210,7 +211,7 @@ NU_API nu_mat4_t nu_mat4_zero(void);
 NU_API nu_mat4_t nu_mat4_identity(void);
 NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
 NU_API nu_mat4_t nu_mat4_scale(float x, float y, float z);
-NU_API nu_mat4_t nu_mat4_rotate_x(float x);
+NU_API nu_mat4_t nu_mat4_rotate_y(float angle);
 NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
 
 NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
