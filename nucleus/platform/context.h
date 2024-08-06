@@ -39,7 +39,7 @@ typedef struct GLFWwindow *NUGLFWwindow;
 
 typedef struct
 {
-    NUGLFWwindow        win;
+    NUGLFWwindow       win;
     nuglfw__viewport_t viewport;
 } nuglfw__surface_t;
 
@@ -248,9 +248,9 @@ typedef struct
 NU_API nu_platform_info_t nu_platform_info_default(void);
 
 NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
-                                   nu_platform_t            *ctx);
-NU_API nu_error_t nu_context_free(nu_platform_t *ctx);
-NU_API nu_error_t nu_poll_events(nu_platform_t *ctx);
-NU_API nu_bool_t  nu_exit_requested(const nu_platform_t *ctx);
+                                   nu_platform_t            *platform);
+NU_API nu_error_t nu_platform_terminate(nu_platform_t *platform);
+NU_API nu_error_t nu_poll_events(nu_platform_t *platform);
+NU_API nu_bool_t  nu_exit_requested(const nu_platform_t *platform);
 
 #endif

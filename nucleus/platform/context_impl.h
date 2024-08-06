@@ -13,8 +13,8 @@ nu_platform_info_t
 nu_platform_info_default (void)
 {
     nu_platform_info_t info;
-    info.width    = 640;
-    info.height   = 400;
+    info.width  = 640;
+    info.height = 400;
     return info;
 }
 
@@ -48,7 +48,7 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_platform_free (nu_platform_t *platform)
+nu_platform_terminate (nu_platform_t *platform)
 {
     nu_error_t error;
 
@@ -66,8 +66,9 @@ nu_error_t
 nu_poll_events (nu_platform_t *platform)
 {
 #ifdef NU_BUILD_GLFW
-    nuglfw__poll_events(
-        &platform->_input.glfw, &platform->_surface.glfw, &platform->_close_requested);
+    nuglfw__poll_events(&platform->_input.glfw,
+                        &platform->_surface.glfw,
+                        &platform->_close_requested);
 #endif
     return NU_ERROR_NONE;
 }
