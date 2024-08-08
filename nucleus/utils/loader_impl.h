@@ -6,10 +6,39 @@
 #define CGLTF_IMPLEMENTATION
 #include <nucleus/external/cgltf/cgltf.h>
 
+static void
+nuext_emplace_vertex (const nu_vec3_t *positions,
+                      const nu_vec2_t *uvs,
+                      const nu_vec3_t *normals,
+                      nu_vec3_t       *buf_positions,
+                      nu_vec2_t       *buf_uvs,
+                      nu_vec3_t       *buf_normals,
+                      nu_u32_t         vertex_index,
+                      nu_u32_t         index)
+{
+
+    buf_positions[vertex_index] = positions[index];
+    if (uvs)
+    {
+        buf_uvs[vertex_index] = uvs[index];
+    }
+    else
+    {
+        buf_uvs[vertex_index] = NU_VEC2_ZERO;
+    }
+    if (normals)
+    {
+        buf_normals[vertex_index] = normals[index];
+    }
+    else
+    {
+        buf_normals[vertex_index] = NU_VEC3_ZERO;
+    }
+}
 nu_error_t
 nuext_load_gltf (const nu_char_t           *filename,
                  nu_logger_t               *logger,
-                 nu_allocator_t             allocator,
+                 nu_allocator_t            *allocator,
                  nuext_mesh_load_callback_t callback,
                  void                      *user)
 {
@@ -111,23 +140,14 @@ nuext_load_gltf (const nu_char_t           *filename,
                                                   + accessor->offset);
                                 for (nu_u8_t i = 0; i < indice_count; ++i)
                                 {
-                                    buf_positions[i] = positions[indices[i]];
-                                    if (uvs)
-                                    {
-                                        buf_uvs[i] = uvs[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_uvs[i] = NU_VEC2_ZERO;
-                                    }
-                                    if (normals)
-                                    {
-                                        buf_normals[i] = normals[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_normals[i] = NU_VEC3_ZERO;
-                                    }
+                                    nuext_emplace_vertex(positions,
+                                                         uvs,
+                                                         normals,
+                                                         buf_positions,
+                                                         buf_uvs,
+                                                         buf_normals,
+                                                         i,
+                                                         indices[i]);
                                 }
                             }
                             break;
@@ -138,23 +158,14 @@ nuext_load_gltf (const nu_char_t           *filename,
                                                    + accessor->offset);
                                 for (nu_u16_t i = 0; i < indice_count; ++i)
                                 {
-                                    buf_positions[i] = positions[indices[i]];
-                                    if (uvs)
-                                    {
-                                        buf_uvs[i] = uvs[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_uvs[i] = NU_VEC2_ZERO;
-                                    }
-                                    if (normals)
-                                    {
-                                        buf_normals[i] = normals[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_normals[i] = NU_VEC3_ZERO;
-                                    }
+                                    nuext_emplace_vertex(positions,
+                                                         uvs,
+                                                         normals,
+                                                         buf_positions,
+                                                         buf_uvs,
+                                                         buf_normals,
+                                                         i,
+                                                         indices[i]);
                                 }
                             }
                             break;
@@ -165,23 +176,14 @@ nuext_load_gltf (const nu_char_t           *filename,
                                                    + accessor->offset);
                                 for (nu_u32_t i = 0; i < indice_count; ++i)
                                 {
-                                    buf_positions[i] = positions[indices[i]];
-                                    if (uvs)
-                                    {
-                                        buf_uvs[i] = uvs[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_uvs[i] = NU_VEC2_ZERO;
-                                    }
-                                    if (normals)
-                                    {
-                                        buf_normals[i] = normals[indices[i]];
-                                    }
-                                    else
-                                    {
-                                        buf_normals[i] = NU_VEC3_ZERO;
-                                    }
+                                    nuext_emplace_vertex(positions,
+                                                         uvs,
+                                                         normals,
+                                                         buf_positions,
+                                                         buf_uvs,
+                                                         buf_normals,
+                                                         i,
+                                                         indices[i]);
                                 }
                             }
                             break;

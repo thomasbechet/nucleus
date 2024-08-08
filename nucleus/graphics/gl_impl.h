@@ -116,12 +116,12 @@ nugl__ctx (nu_renderer_t *ctx)
     return &ctx->_backend.gl;
 }
 static nu_error_t
-nugl__init (nu_renderer_t *ctx, nu_allocator_t allocator, nu_uvec2_t size)
+nugl__init (nu_renderer_t *ctx, nu_allocator_t *allocator, nu_uvec2_t size)
 {
     nu_error_t       error;
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    gl->allocator     = allocator;
+    gl->allocator     = *allocator; // TODO: who is handles the allocator ?
     gl->surface_size  = size;
     gl->surface_color = 0;
     gl->target_count  = 0;
@@ -519,7 +519,7 @@ nugl__create_renderpass (nu_renderer_t              *ctx,
 
     // Allocate command buffer
     data->cmds.commands = nu_alloc(
-        gl->allocator, sizeof(nugl__command_t) * NUGL__MAX_COMMAND_COUNT);
+        &gl->allocator, sizeof(nugl__command_t) * NUGL__MAX_COMMAND_COUNT);
     data->cmds.count = 0;
 
     pass->gl.id = passid;

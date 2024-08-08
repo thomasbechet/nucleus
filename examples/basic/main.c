@@ -210,7 +210,7 @@ main (void)
         }
 
         nu_color_t *colors
-            = nu_alloc(alloc, sizeof(nu_color_t) * width * height);
+            = nu_alloc(&alloc, sizeof(nu_color_t) * width * height);
         for (int i = 0; i < (width * height); ++i)
         {
             // colors[i] = NU_COLOR_RED;
@@ -235,7 +235,7 @@ main (void)
         NU_ERROR_ASSERT(error);
 
         stbi_image_free(img);
-        nu_free(alloc, colors, sizeof(nu_color_t) * width * height);
+        nu_free(&alloc, colors, sizeof(nu_color_t) * width * height);
 
         info.size   = nu_uvec2(1, 1);
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
@@ -249,7 +249,7 @@ main (void)
     // Load models
     {
         error = nuext_load_gltf(
-            "../../../assets/ariane6.glb", &logger, alloc, load_mesh, NU_NULL);
+            "../../../assets/ariane6.glb", &logger, &alloc, load_mesh, NU_NULL);
         NU_ERROR_ASSERT(error);
     }
 

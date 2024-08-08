@@ -175,7 +175,7 @@ typedef struct
 {
     // Engine API
     nu_error_t (*init)(struct nu_renderer *ctx,
-                       nu_allocator_t      allocator,
+                       nu_allocator_t     *allocator,
                        nu_uvec2_t          size);
     nu_error_t (*render)(struct nu_renderer *ctx,
                          const nu_rect_t    *global_viewport,

@@ -17,7 +17,7 @@ typedef nu_error_t (*nuext_mesh_load_callback_t)(
 
 NU_API nu_error_t nuext_load_gltf(const nu_char_t           *filename,
                                   nu_logger_t               *logger,
-                                  nu_allocator_t             allocator,
+                                  nu_allocator_t            *allocator,
                                   nuext_mesh_load_callback_t callback,
                                   void                      *user);
 

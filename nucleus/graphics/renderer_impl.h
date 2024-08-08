@@ -8,9 +8,9 @@
 #endif
 
 static nu_error_t
-nu__renderer_null_init (nu_renderer_t *ctx,
-                        nu_allocator_t allocator,
-                        nu_uvec2_t     size)
+nu__renderer_null_init (nu_renderer_t  *ctx,
+                        nu_allocator_t *allocator,
+                        nu_uvec2_t      size)
 {
     return NU_ERROR_NONE;
 }
@@ -204,7 +204,7 @@ nu_renderer_init (nu_platform_t            *platform,
 
     // Initialize backend
     nu_error_t error = renderer->_api.init(
-        renderer, renderer->_allocator, platform->_surface.size);
+        renderer, &renderer->_allocator, platform->_surface.size);
     NU_ERROR_CHECK(error, return error);
 
     // Create surface texture
