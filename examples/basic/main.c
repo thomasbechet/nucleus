@@ -37,8 +37,46 @@ static nu_input_t view_roll_neg;
 static nu_input_t view_roll_pos;
 static nu_input_t quit;
 
+static nu_mesh_t booster_mesh;
+static nu_mesh_t llpm_mesh;
+static nu_mesh_t vulcain_mesh;
+
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
+
+static nu_error_t
+load_mesh (const nuext_loader_mesh_t *mesh, void *user)
+{
+    nu_mesh_info_t info;
+    info.positions = mesh->positions;
+    info.uvs       = mesh->uvs;
+    info.normals   = mesh->normals;
+    info.count     = mesh->count;
+
+    if (NU_MATCH(mesh->name, "Cylinder.003"))
+    {
+        NU_INFO(
+            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
+        nu_error_t error = nu_mesh_create(&renderer, &info, &vulcain_mesh);
+        NU_ERROR_ASSERT(error);
+    }
+    else if (NU_MATCH(mesh->name, "Cylinder.002"))
+    {
+        NU_INFO(
+            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
+        nu_error_t error = nu_mesh_create(&renderer, &info, &booster_mesh);
+        NU_ERROR_ASSERT(error);
+    }
+    else if (NU_MATCH(mesh->name, "Cylinder"))
+    {
+        NU_INFO(
+            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
+        nu_error_t error = nu_mesh_create(&renderer, &info, &llpm_mesh);
+        NU_ERROR_ASSERT(error);
+    }
+
+    return NU_ERROR_NONE;
+}
 
 int
 main (void)
@@ -156,6 +194,7 @@ main (void)
 
     // Load resources
     nu_texture_t texture;
+    nu_texture_t texture_white;
     {
         int            width, height, channels;
         unsigned char *img
@@ -174,7 +213,7 @@ main (void)
             = nu_alloc(alloc, sizeof(nu_color_t) * width * height);
         for (int i = 0; i < (width * height); ++i)
         {
-            colors[i] = NU_COLOR_RED;
+            // colors[i] = NU_COLOR_RED;
 
             colors[i].r = img[i * 3 + 0];
             colors[i].g = img[i * 3 + 1];
@@ -197,21 +236,35 @@ main (void)
 
         stbi_image_free(img);
         nu_free(alloc, colors, sizeof(nu_color_t) * width * height);
+
+        info.size   = nu_uvec2(1, 1);
+        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
+        info.format = NU_TEXTURE_FORMAT_COLOR;
+        nu_texture_create(&renderer, &info, &texture_white);
+        nu_color_t white = NU_COLOR_WHITE;
+        nu_texture_write(
+            &renderer, &texture_white, nu_rect(0, 0, 1, 1), &white);
     }
 
     // Load models
     {
-        error = nuext_load_gltf("../../../assets/ariane6.glb", &logger);
+        error = nuext_load_gltf(
+            "../../../assets/ariane6.glb", &logger, alloc, load_mesh, NU_NULL);
         NU_ERROR_ASSERT(error);
     }
 
     // Create material
     nu_material_t material;
+    nu_material_t material_white;
     {
         nu_material_info_t info = nu_material_info_default();
         info.texture0           = &texture;
-        info.uv_transform       = nu_mat3_scale(1, 1);
         error = nu_material_create(&renderer, &info, &material);
+        NU_ERROR_ASSERT(error);
+
+        info          = nu_material_info_default();
+        info.texture0 = &texture_white;
+        error         = nu_material_create(&renderer, &info, &material_white);
         NU_ERROR_ASSERT(error);
     }
 
@@ -308,8 +361,25 @@ main (void)
         // Render loop
         for (int i = 0; i < 40; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i) * 5, 0, i);
+            nu_mat4_t model
+                = nu_mat4_translate(nu_sin(time / 1000 + i) * 5, 0, i);
             nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
+        }
+
+        // Render custom mesh
+        {
+            nu_mat4_t model = nu_mat4_identity();
+            model           = nu_mat4_translate(0, 0, 0);
+            model           = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white, &model);
+            model = nu_mat4_translate(10, 0, 0);
+            model = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            nu_draw(
+                &renderer, &main_pass, &booster_mesh, &material_white, &model);
+            model = nu_mat4_translate(-10, 0, 0);
+            model = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            nu_draw(
+                &renderer, &main_pass, &vulcain_mesh, &material_white, &model);
         }
 
         // Submit renderpass

@@ -182,6 +182,8 @@ nugl__render (nu_renderer_t   *ctx,
 
                     glEnable(GL_DEPTH_TEST);
                     glEnable(GL_CULL_FACE);
+                    // glDisable(GL_DEPTH_TEST);
+                    // glDisable(GL_CULL_FACE);
                     glFrontFace(GL_CCW);
                     glCullFace(GL_BACK);
 
