@@ -5,8 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <nucleus/external/stb/stb_image.h>
 
-#define WIDTH  640
-#define HEIGHT 400
+// #define WIDTH  640
+// #define HEIGHT 400
 // #define HEIGHT 640
 // #define WIDTH  400
 // #define WIDTH  640 / 2
@@ -14,8 +14,8 @@
 // #define HEIGHT 640 / 2
 // #define WIDTH  400 / 2
 
-// #define WIDTH  512
-// #define HEIGHT 288
+#define WIDTH  512
+#define HEIGHT 288
 
 static nu_allocator_t alloc;
 static nu_platform_t  platform;
@@ -38,14 +38,35 @@ static nu_input_t view_roll_pos;
 static nu_input_t quit;
 
 static nu_mesh_t booster_mesh;
+static nu_mat4_t booster_transform;
 static nu_mesh_t llpm_mesh;
+static nu_mat4_t llpm_transform;
 static nu_mesh_t vulcain_mesh;
+static nu_mat4_t vulcain_transform;
 
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
 
 static nu_error_t
-load_mesh (const nuext_loader_mesh_t *mesh, void *user)
+load_node (const nuext_loader_node_t *node, void *userdata)
+{
+    if (NU_MATCH(node->name, "LLPM"))
+    {
+        llpm_transform = node->transform;
+    }
+    else if (NU_MATCH(node->name, "Booster"))
+    {
+        booster_transform = node->transform;
+    }
+    else if (NU_MATCH(node->name, "Vulcain"))
+    {
+        vulcain_transform = node->transform;
+    }
+    return NU_ERROR_NONE;
+}
+
+static nu_error_t
+load_mesh (const nuext_loader_mesh_t *mesh, void *userdata)
 {
     nu_mesh_info_t info;
     info.positions = mesh->positions;
@@ -248,8 +269,12 @@ main (void)
 
     // Load models
     {
-        error = nuext_load_gltf(
-            "../../../assets/ariane6.glb", &logger, &alloc, load_mesh, NU_NULL);
+        error = nuext_load_gltf("../../../assets/ariane6.glb",
+                                &logger,
+                                &alloc,
+                                load_node,
+                                load_mesh,
+                                NU_NULL);
         NU_ERROR_ASSERT(error);
     }
 
@@ -368,16 +393,13 @@ main (void)
 
         // Render custom mesh
         {
-            nu_mat4_t model = nu_mat4_identity();
-            model           = nu_mat4_translate(0, 0, 0);
-            model           = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            nu_mat4_t base  = nu_mat4_scale(0.2, 0.2, 0.2);
+            nu_mat4_t model = nu_mat4_mul(base, llpm_transform);
             nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white, &model);
-            model = nu_mat4_translate(10, 0, 0);
-            model = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            model = nu_mat4_mul(base, booster_transform);
             nu_draw(
                 &renderer, &main_pass, &booster_mesh, &material_white, &model);
-            model = nu_mat4_translate(-10, 0, 0);
-            model = nu_mat4_mul(nu_mat4_scale(0.5, 0.5, 0.5), model);
+            model = nu_mat4_mul(base, vulcain_transform);
             nu_draw(
                 &renderer, &main_pass, &vulcain_mesh, &material_white, &model);
         }

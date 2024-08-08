@@ -12,13 +12,24 @@ typedef struct
     nu_size_t        count;
 } nuext_loader_mesh_t;
 
-typedef nu_error_t (*nuext_mesh_load_callback_t)(
-    const nuext_loader_mesh_t *mesh, void *user);
+typedef struct
+{
+    const nu_char_t *name;
+    const nu_char_t *mesh;
+    const nu_char_t *material;
+    nu_mat4_t        transform;
+} nuext_loader_node_t;
 
-NU_API nu_error_t nuext_load_gltf(const nu_char_t           *filename,
-                                  nu_logger_t               *logger,
-                                  nu_allocator_t            *allocator,
-                                  nuext_mesh_load_callback_t callback,
-                                  void                      *user);
+typedef nu_error_t (*nuext_loader_mesh_callback_t)(
+    const nuext_loader_mesh_t *mesh, void *userdata);
+typedef nu_error_t (*nuext_loader_node_callback_t)(
+    const nuext_loader_node_t *node, void *userdata);
+
+NU_API nu_error_t nuext_load_gltf(const nu_char_t             *filename,
+                                  nu_logger_t                 *logger,
+                                  nu_allocator_t              *allocator,
+                                  nuext_loader_node_callback_t node_callback,
+                                  nuext_loader_mesh_callback_t mesh_callback,
+                                  void                        *userdata);
 
 #endif
