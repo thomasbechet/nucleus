@@ -161,6 +161,7 @@ NU_API float     nu_fabs(float f);
 NU_API float     nu_floor(float f);
 NU_API float     nu_radian(float d);
 NU_API float     nu_sqrt(float x);
+NU_API float     nu_pow(float b, float e);
 NU_API float     nu_cos(float x);
 NU_API float     nu_sin(float x);
 NU_API float     nu_tan(float x);

@@ -51,6 +51,13 @@ nu_sqrt (float x)
 #endif
 }
 float
+nu_pow (float b, float e)
+{
+#ifdef NU_STDLIB
+    return powf(b, e);
+#endif
+}
+float
 nu_cos (float x)
 {
 #ifdef NU_STDLIB
