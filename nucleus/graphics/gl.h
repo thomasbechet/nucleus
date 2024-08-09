@@ -33,8 +33,7 @@ typedef struct
 
 typedef struct
 {
-    GLuint     texture;
-    nu_uvec2_t size;
+    GLuint texture;
 } nugl__texture_t;
 
 typedef enum

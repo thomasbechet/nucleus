@@ -5,8 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <nucleus/external/stb/stb_image.h>
 
-// #define WIDTH  640
-// #define HEIGHT 400
+#define WIDTH  640
+#define HEIGHT 400
 // #define HEIGHT 640
 // #define WIDTH  400
 // #define WIDTH  640 / 2
@@ -14,8 +14,8 @@
 // #define HEIGHT 640 / 2
 // #define WIDTH  400 / 2
 
-#define WIDTH  512
-#define HEIGHT 288
+// #define WIDTH  512
+// #define HEIGHT 288
 
 static nu_allocator_t alloc;
 static nu_platform_t  platform;
@@ -48,7 +48,7 @@ static nu_mat4_t vulcain_transform;
 #define LOOP_PHYSICS 1
 
 static nu_error_t
-load_node (const nuext_loader_node_t *node, void *userdata)
+load_node (const nuext_loader_node_t *node)
 {
     if (NU_MATCH(node->name, "LLPM"))
     {
@@ -66,7 +66,7 @@ load_node (const nuext_loader_node_t *node, void *userdata)
 }
 
 static nu_error_t
-load_mesh (const nuext_loader_mesh_t *mesh, void *userdata)
+load_mesh (const nuext_loader_mesh_t *mesh)
 {
     nu_mesh_info_t info;
     info.positions = mesh->positions;
@@ -96,6 +96,21 @@ load_mesh (const nuext_loader_mesh_t *mesh, void *userdata)
         NU_ERROR_ASSERT(error);
     }
 
+    return NU_ERROR_NONE;
+}
+
+static nu_error_t
+load_asset (const nuext_loader_asset_t *asset, void *userdata)
+{
+    switch (asset->type)
+    {
+        case NUEXT_LOADER_ASSET_MESH:
+            return load_mesh(&asset->mesh);
+        case NUEXT_LOADER_ASSET_TEXTURE:
+            break;
+        case NUEXT_LOADER_ASSET_NODE:
+            return load_node(&asset->node);
+    }
     return NU_ERROR_NONE;
 }
 
@@ -251,8 +266,7 @@ main (void)
         info.format = NU_TEXTURE_FORMAT_COLOR;
         error       = nu_texture_create(&renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
-        error = nu_texture_write(
-            &renderer, &texture, nu_rect(0, 0, width, height), colors);
+        error = nu_texture_write(&renderer, &texture, colors);
         NU_ERROR_ASSERT(error);
 
         stbi_image_free(img);
@@ -263,8 +277,7 @@ main (void)
         info.format = NU_TEXTURE_FORMAT_COLOR;
         nu_texture_create(&renderer, &info, &texture_white);
         nu_color_t white = NU_COLOR_WHITE;
-        nu_texture_write(
-            &renderer, &texture_white, nu_rect(0, 0, 1, 1), &white);
+        nu_texture_write(&renderer, &texture_white, &white);
     }
 
     // Load models
@@ -272,8 +285,7 @@ main (void)
         error = nuext_load_gltf("../../../assets/ariane6.glb",
                                 &logger,
                                 &alloc,
-                                load_node,
-                                load_mesh,
+                                load_asset,
                                 NU_NULL);
         NU_ERROR_ASSERT(error);
     }

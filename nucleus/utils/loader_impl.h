@@ -36,11 +36,11 @@ nuext__emplace_vertex (const nu_vec3_t *positions,
     }
 }
 nu_error_t
-nuext__load_mesh (cgltf_mesh                  *mesh,
-                  nu_allocator_t              *allocator,
-                  nu_logger_t                 *logger,
-                  nuext_loader_mesh_callback_t mesh_callback,
-                  void                        *userdata)
+nuext__load_mesh (cgltf_mesh                   *mesh,
+                  nu_allocator_t               *allocator,
+                  nu_logger_t                  *logger,
+                  nuext_loader_asset_callback_t callback,
+                  void                         *userdata)
 {
     NU_DEBUG(logger, "mesh name: %s", mesh->name);
     for (nu_size_t p = 0; p < mesh->primitives_count; ++p)
@@ -148,13 +148,14 @@ nuext__load_mesh (cgltf_mesh                  *mesh,
                     break;
             }
 
-            nuext_loader_mesh_t info = { 0 };
-            info.name                = mesh->name;
-            info.positions           = buf_positions;
-            info.uvs                 = buf_uvs;
-            info.normals             = buf_normals;
-            info.count               = indice_count;
-            nu_error_t error         = mesh_callback(&info, userdata);
+            nuext_loader_asset_t info = { 0 };
+            info.type                 = NUEXT_LOADER_ASSET_MESH;
+            info.mesh.name            = mesh->name;
+            info.mesh.positions       = buf_positions;
+            info.mesh.uvs             = buf_uvs;
+            info.mesh.normals         = buf_normals;
+            info.mesh.count           = indice_count;
+            nu_error_t error          = callback(&info, userdata);
             nu_free(allocator,
                     buf_positions,
                     sizeof(*buf_positions) * indice_count);
@@ -168,12 +169,11 @@ nuext__load_mesh (cgltf_mesh                  *mesh,
     return NU_ERROR_NONE;
 }
 nu_error_t
-nuext_load_gltf (const nu_char_t             *filename,
-                 nu_logger_t                 *logger,
-                 nu_allocator_t              *allocator,
-                 nuext_loader_node_callback_t node_callback,
-                 nuext_loader_mesh_callback_t mesh_callback,
-                 void                        *userdata)
+nuext_load_gltf (const nu_char_t              *filename,
+                 nu_logger_t                  *logger,
+                 nu_allocator_t               *allocator,
+                 nuext_loader_asset_callback_t callback,
+                 void                         *userdata)
 {
     cgltf_options options = { 0 };
     cgltf_data   *data    = NU_NULL;
@@ -204,10 +204,10 @@ nuext_load_gltf (const nu_char_t             *filename,
             NU_DEBUG(logger, "has_rotation %d", node->has_rotation);
             NU_DEBUG(logger, "has_scale %d", node->has_scale);
 
-            if (node->mesh && mesh_callback)
+            if (node->mesh)
             {
                 error = nuext__load_mesh(
-                    node->mesh, allocator, logger, mesh_callback, userdata);
+                    node->mesh, allocator, logger, callback, userdata);
                 NU_ERROR_CHECK(error, return error);
             }
 
@@ -230,12 +230,13 @@ nuext_load_gltf (const nu_char_t             *filename,
             {
             }
 
-            nuext_loader_node_t info;
-            info.name      = node->name;
-            info.transform = transform;
-            info.mesh      = NU_NULL;
-            info.material  = NU_NULL;
-            error          = node_callback(&info, userdata);
+            nuext_loader_asset_t info;
+            info.type           = NUEXT_LOADER_ASSET_NODE;
+            info.node.name      = node->name;
+            info.node.transform = transform;
+            info.node.mesh      = NU_NULL;
+            info.node.material  = NU_NULL;
+            error               = callback(&info, userdata);
             NU_ERROR_CHECK(error, return error);
         }
     }

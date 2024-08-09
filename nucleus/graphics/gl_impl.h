@@ -278,8 +278,8 @@ nugl__create_surface_color (nu_renderer_t *ctx)
     nugl__context_t *gl = nugl__ctx(ctx);
 
     nu_texture_t texture;
-    glGenTextures(1, &texture.gl.texture);
-    glBindTexture(GL_TEXTURE_2D, texture.gl.texture);
+    glGenTextures(1, &texture._gl.texture);
+    glBindTexture(GL_TEXTURE_2D, texture._gl.texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_RGB,
@@ -291,9 +291,9 @@ nugl__create_surface_color (nu_renderer_t *ctx)
                  NU_NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    texture.gl.size = gl->surface_size;
+    texture._size = gl->surface_size;
 
-    gl->surface_color = texture.gl.texture;
+    gl->surface_color = texture._gl.texture;
 
     return texture;
 }
@@ -414,9 +414,8 @@ nugl__create_texture (nu_renderer_t           *ctx,
                       nu_texture_t            *texture)
 {
 
-    glGenTextures(1, &texture->gl.texture);
-    glBindTexture(GL_TEXTURE_2D, texture->gl.texture);
-    texture->gl.size = info->size;
+    glGenTextures(1, &texture->_gl.texture);
+    glBindTexture(GL_TEXTURE_2D, texture->_gl.texture);
 
     switch (info->format)
     {
@@ -454,7 +453,7 @@ nugl__create_texture (nu_renderer_t           *ctx,
 static nu_error_t
 nugl__delete_texture (nu_renderer_t *ctx, nu_texture_t *texture)
 {
-    glDeleteTextures(1, &texture->gl.texture);
+    glDeleteTextures(1, &texture->_gl.texture);
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -484,11 +483,11 @@ nugl__update_material (nu_renderer_t            *ctx,
 {
     if (info->texture0)
     {
-        material->gl.texture0 = info->texture0->gl.texture;
+        material->gl.texture0 = info->texture0->_gl.texture;
     }
     if (info->texture1)
     {
-        material->gl.texture1 = info->texture1->gl.texture;
+        material->gl.texture1 = info->texture1->_gl.texture;
     }
     material->gl.uv_transform = info->uv_transform;
     return NU_ERROR_NONE;
@@ -630,10 +629,10 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
                 data->ivp = nu_mat4_identity();
             }
             data->color_target = info->flat.color_target
-                                     ? info->flat.color_target->gl.texture
+                                     ? info->flat.color_target->_gl.texture
                                      : 0;
             data->depth_target = info->flat.depth_target
-                                     ? info->flat.depth_target->gl.texture
+                                     ? info->flat.depth_target->_gl.texture
                                      : 0;
             data->clear_color  = info->flat.clear_color;
             if (data->color_target || data->depth_target)
@@ -641,8 +640,8 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
                 data->fbo = nugl__find_or_create_framebuffer(
                     ctx, data->color_target, data->depth_target);
                 data->fbo_size = data->color_target
-                                     ? info->flat.color_target->gl.size
-                                     : info->flat.depth_target->gl.size;
+                                     ? info->flat.color_target->_size
+                                     : info->flat.depth_target->_size;
             }
             else
             {

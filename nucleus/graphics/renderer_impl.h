@@ -283,6 +283,7 @@ nu_texture_create (nu_renderer_t           *ctx,
                    const nu_texture_info_t *info,
                    nu_texture_t            *texture)
 {
+    texture->_size = info->size;
     return ctx->_api.create_texture(ctx, info, texture);
 }
 nu_error_t
@@ -293,10 +294,18 @@ nu_texture_delete (nu_renderer_t *ctx, nu_texture_t *texture)
 nu_error_t
 nu_texture_write (nu_renderer_t    *ctx,
                   nu_texture_t     *texture,
-                  nu_rect_t         rect,
                   const nu_color_t *data)
 {
-    return ctx->_api.write_texture(ctx, texture, rect, data);
+    nu_rect_t area = nu_rect(0, 0, texture->_size.x, texture->_size.y);
+    return nu_texture_write_area(ctx, texture, area, data);
+}
+nu_error_t
+nu_texture_write_area (nu_renderer_t    *ctx,
+                       nu_texture_t     *texture,
+                       nu_rect_t         area,
+                       const nu_color_t *data)
+{
+    return ctx->_api.write_texture(ctx, texture, area, data);
 }
 
 nu_material_info_t

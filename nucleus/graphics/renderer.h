@@ -84,8 +84,9 @@ typedef struct
 
 typedef struct
 {
+    nu_uvec2_t _size;
 #ifdef NU_BUILD_RENDERER_GL
-    nugl__texture_t gl;
+    nugl__texture_t _gl;
 #endif
 } nu_texture_t;
 
@@ -303,8 +304,11 @@ NU_API nu_error_t nu_texture_create(nu_renderer_t           *ctx,
 NU_API nu_error_t nu_texture_delete(nu_renderer_t *ctx, nu_texture_t *texture);
 NU_API nu_error_t nu_texture_write(nu_renderer_t    *ctx,
                                    nu_texture_t     *texture,
-                                   nu_rect_t         rect,
                                    const nu_color_t *data);
+NU_API nu_error_t nu_texture_write_area(nu_renderer_t    *ctx,
+                                        nu_texture_t     *texture,
+                                        nu_rect_t         area,
+                                        const nu_color_t *data);
 
 NU_API nu_material_info_t nu_material_info_default(void);
 NU_API nu_error_t         nu_material_create(nu_renderer_t            *ctx,
