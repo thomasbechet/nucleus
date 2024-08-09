@@ -54,4 +54,25 @@ nu_strcmp (const nu_char_t *s1, const nu_char_t *s2)
     return *(nu_char_t *)s1 - *(nu_char_t *)s2;
 }
 
+nu_u32_t
+nu_hash (const nu_char_t *s)
+{
+    return nu_hashn(s, nu_strlen(s));
+}
+nu_u32_t
+nu_hashn (const nu_char_t *s, nu_size_t n)
+{
+    static const nu_u32_t FNV1A_HASH_32  = 0x811c9dc5;
+    static const nu_u32_t FNV1A_PRIME_32 = 0x01000193;
+    nu_u32_t              hash           = FNV1A_HASH_32;
+    nu_size_t             i              = 0;
+    while (i < n)
+    {
+        hash ^= s[i];
+        hash *= FNV1A_PRIME_32;
+        ++i;
+    }
+    return hash;
+}
+
 #endif

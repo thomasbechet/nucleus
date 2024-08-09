@@ -37,12 +37,13 @@ static nu_input_t view_roll_neg;
 static nu_input_t view_roll_pos;
 static nu_input_t quit;
 
-static nu_mesh_t booster_mesh;
-static nu_mat4_t booster_transform;
-static nu_mesh_t llpm_mesh;
-static nu_mat4_t llpm_transform;
-static nu_mesh_t vulcain_mesh;
-static nu_mat4_t vulcain_transform;
+static nu_mesh_t  booster_mesh;
+static nu_mat4_t  booster_transform;
+static nu_mesh_t  llpm_mesh;
+static nu_mat4_t  llpm_transform;
+static nu_mesh_t  vulcain_mesh;
+static nu_mat4_t  vulcain_transform;
+static nu_model_t temple_model;
 
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
@@ -305,6 +306,16 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
+    // Load temple
+    {
+        error = nuext_model_from_gltf("../../../assets/temple_of_time.glb",
+                                      &renderer,
+                                      &logger,
+                                      &alloc,
+                                      &temple_model);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Create camera
     nu_camera_t      camera;
     nu_camera_info_t camera_info = nu_camera_info_default();
@@ -414,6 +425,9 @@ main (void)
             model = nu_mat4_mul(base, vulcain_transform);
             nu_draw(
                 &renderer, &main_pass, &vulcain_mesh, &material_white, &model);
+
+            model = nu_mat4_identity();
+            nu_model_draw(&renderer, &main_pass, &temple_model, &model);
         }
 
         // Submit renderpass

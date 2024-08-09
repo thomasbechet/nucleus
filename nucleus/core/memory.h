@@ -18,8 +18,8 @@ typedef struct
 NU_API void *nu_alloc(nu_allocator_t *alloc, nu_size_t s);
 NU_API void *nu_realloc(nu_allocator_t *alloc,
                         void           *ptr,
-                        nu_size_t       s,
-                        nu_size_t       n);
+                        nu_size_t       size,
+                        nu_size_t       new_size);
 NU_API void  nu_free(nu_allocator_t *alloc, void *ptr, nu_size_t s);
 
 NU_API void *nu_memset(void *dst, nu_word_t c, nu_size_t n);

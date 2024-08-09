@@ -4,38 +4,50 @@
 #include <nucleus/core/ds.h>
 
 nu_error_t
-nu_array_init (nu_array_t     *ar,
-               nu_allocator_t *alloc,
-               nu_size_t       size,
-               nu_size_t       osize)
+nu_vector_init (nu_vector_t    *vec,
+                nu_allocator_t *alloc,
+                nu_size_t       capacity,
+                nu_size_t       osize)
 {
-    ar->_size = size;
-    ar->_data = nu_alloc(alloc, size * osize);
-    if (!ar->_data)
+    vec->_capacity = capacity;
+    vec->_size     = 0;
+    vec->_data     = nu_alloc(alloc, capacity * osize);
+    if (!vec->_data)
     {
         return NU_ERROR_ALLOCATION;
     }
     return NU_ERROR_NONE;
 }
 void
-nu_array_free (nu_array_t *ar, nu_allocator_t *alloc, nu_size_t osize)
+nu_vector_free (nu_vector_t *vec, nu_allocator_t *alloc, nu_size_t osize)
 {
-    nu_free(alloc, ar->_data, ar->_size * osize);
+    nu_free(alloc, vec->_data, vec->_size * osize);
 }
 void *
-nu_array_data (nu_array_t *ar)
+nu_vector_data (nu_vector_t *vec)
 {
-    return ar->_data;
+    return vec->_data;
 }
 const void *
-nu_array_data_const (const nu_array_t *ar)
+nu_vector_data_const (const nu_vector_t *vec)
 {
-    return ar->_data;
+    return vec->_data;
 }
 nu_size_t
-nu_array_size (const nu_array_t *ar)
+nu_vector_size (const nu_vector_t *vec)
 {
-    return ar->_size;
+    return vec->_size;
+}
+void
+nu_vector_push (nu_vector_t *vec, nu_allocator_t *alloc, nu_size_t osize)
+{
+    if (vec->_size >= vec->_capacity)
+    {
+        vec->_capacity *= 2;
+        vec->_data = nu_realloc(
+            alloc, vec->_data, osize * vec->_capacity, osize * vec->_capacity);
+    }
+    ++vec->_size;
 }
 
 #endif

@@ -230,14 +230,18 @@ nuext_load_gltf (const nu_char_t      *filename,
             {
             }
 
-            nuext_gltf_asset_t info;
-            info.type           = NUEXT_GLTF_ASSET_NODE;
-            info.node.name      = node->name;
-            info.node.transform = transform;
-            info.node.mesh      = NU_NULL;
-            info.node.material  = NU_NULL;
-            error               = callback(&info, userdata);
-            NU_ERROR_CHECK(error, return error);
+            if (node->mesh)
+            {
+                nuext_gltf_asset_t info;
+                info.type           = NUEXT_GLTF_ASSET_NODE;
+                info.node.name      = node->name;
+                info.node.transform = transform;
+                NU_ASSERT(node->mesh);
+                info.node.mesh     = node->mesh->name;
+                info.node.material = NU_NULL;
+                error              = callback(&info, userdata);
+                NU_ERROR_CHECK(error, return error);
+            }
         }
     }
 

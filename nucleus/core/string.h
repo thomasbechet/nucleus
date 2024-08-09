@@ -12,4 +12,7 @@ NU_API nu_size_t nu_strncmp(const nu_char_t *s1,
                             nu_size_t        n);
 NU_API nu_size_t nu_strcmp(const nu_char_t *s1, const nu_char_t *s2);
 
+NU_API nu_u32_t nu_hash(const nu_char_t *s);
+NU_API nu_u32_t nu_hashn(const nu_char_t *s, nu_size_t n);
+
 #endif
