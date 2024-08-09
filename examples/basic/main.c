@@ -48,7 +48,7 @@ static nu_mat4_t vulcain_transform;
 #define LOOP_PHYSICS 1
 
 static nu_error_t
-load_node (const nuext_loader_node_t *node)
+load_node (const nuext_gltf_node_t *node)
 {
     if (NU_MATCH(node->name, "LLPM"))
     {
@@ -66,7 +66,7 @@ load_node (const nuext_loader_node_t *node)
 }
 
 static nu_error_t
-load_mesh (const nuext_loader_mesh_t *mesh)
+load_mesh (const nuext_gltf_mesh_t *mesh)
 {
     nu_mesh_info_t info;
     info.positions = mesh->positions;
@@ -100,15 +100,15 @@ load_mesh (const nuext_loader_mesh_t *mesh)
 }
 
 static nu_error_t
-load_asset (const nuext_loader_asset_t *asset, void *userdata)
+load_asset (const nuext_gltf_asset_t *asset, void *userdata)
 {
     switch (asset->type)
     {
-        case NUEXT_LOADER_ASSET_MESH:
+        case NUEXT_GLTF_ASSET_MESH:
             return load_mesh(&asset->mesh);
-        case NUEXT_LOADER_ASSET_TEXTURE:
+        case NUEXT_GLTF_ASSET_TEXTURE:
             break;
-        case NUEXT_LOADER_ASSET_NODE:
+        case NUEXT_GLTF_ASSET_NODE:
             return load_node(&asset->node);
     }
     return NU_ERROR_NONE;
@@ -398,8 +398,8 @@ main (void)
         // Render loop
         for (int i = 0; i < 40; ++i)
         {
-            nu_mat4_t model
-                = nu_mat4_translate(nu_sin(time / 1000 + i) * 1, 0, i);
+            nu_mat4_t model = nu_mat4_translate(
+                nu_sin(time / 1000 + i), nu_cos(time / 1000 + i), i * 1.05);
             nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
         }
 

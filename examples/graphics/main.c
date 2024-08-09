@@ -77,7 +77,7 @@ main (void)
         error       = nu_texture_create(&renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
         nu_color_t color = NU_COLOR_WHITE;
-        nu_texture_write(&renderer, &texture, nu_rect(0, 0, 1, 1), &color);
+        nu_texture_write(&renderer, &texture, &color);
         NU_ERROR_ASSERT(error);
     }
 
