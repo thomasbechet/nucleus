@@ -399,7 +399,7 @@ main (void)
         for (int i = 0; i < 40; ++i)
         {
             nu_mat4_t model
-                = nu_mat4_translate(nu_sin(time / 1000 + i) * 5, 0, i);
+                = nu_mat4_translate(nu_sin(time / 1000 + i) * 1, 0, i);
             nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
         }
 

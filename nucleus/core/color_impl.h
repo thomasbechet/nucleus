@@ -22,10 +22,10 @@ nu_color_to_vec4 (nu_color_t c)
 nu_color_t
 nu_color_from_vec4 (nu_vec4_t v)
 {
-    return nu_color((nu_u8_t)v.x * 255.0,
-                    (nu_u8_t)v.y * 255.0,
-                    (nu_u8_t)v.z * 255.0,
-                    (nu_u8_t)v.w * 255.0);
+    return nu_color((nu_u8_t)(v.x * 255.0),
+                    (nu_u8_t)(v.y * 255.0),
+                    (nu_u8_t)(v.z * 255.0),
+                    (nu_u8_t)(v.w * 255.0));
 }
 static float
 nu__color_to_srgb (float x)

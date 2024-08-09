@@ -258,9 +258,13 @@ nugl__render (nu_renderer_t   *ctx,
     }
 
     // Blit surface
+    glEnable(GL_FRAMEBUFFER_SRGB);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport->x, viewport->y, viewport->w, viewport->h);
-    glClearColor(25.0 / 255.0, 27.0 / 255.0, 43.0 / 255.0, 1.0);
+    nu_color_t clear_color = nu_color(25, 27, 43, 255);
+    clear_color            = nu_color_to_linear(clear_color);
+    nu_vec4_t clear_vec    = nu_color_to_vec4(clear_color);
+    glClearColor(clear_vec.x, clear_vec.y, clear_vec.z, clear_vec.w);
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(gl->blit_program);
@@ -282,7 +286,7 @@ nugl__create_surface_color (nu_renderer_t *ctx)
     glBindTexture(GL_TEXTURE_2D, texture._gl.texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RGB,
+                 GL_SRGB,
                  gl->surface_size.x,
                  gl->surface_size.y,
                  0,
