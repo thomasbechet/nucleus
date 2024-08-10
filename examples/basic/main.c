@@ -2,8 +2,6 @@
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <nucleus/external/stb/stb_image.h>
 
 #define WIDTH  640
 #define HEIGHT 400
@@ -49,24 +47,6 @@ static nu_model_t temple_model;
 #define LOOP_PHYSICS 1
 
 static nu_error_t
-load_node (const nuext_gltf_node_t *node)
-{
-    if (NU_MATCH(node->name, "LLPM"))
-    {
-        llpm_transform = node->transform;
-    }
-    else if (NU_MATCH(node->name, "Booster"))
-    {
-        booster_transform = node->transform;
-    }
-    else if (NU_MATCH(node->name, "Vulcain"))
-    {
-        vulcain_transform = node->transform;
-    }
-    return NU_ERROR_NONE;
-}
-
-static nu_error_t
 load_mesh (const nuext_gltf_mesh_t *mesh)
 {
     nu_mesh_info_t info;
@@ -99,6 +79,23 @@ load_mesh (const nuext_gltf_mesh_t *mesh)
 
     return NU_ERROR_NONE;
 }
+static nu_error_t
+load_node (const nuext_gltf_node_t *node)
+{
+    if (NU_MATCH(node->name, "LLPM"))
+    {
+        llpm_transform = node->transform;
+    }
+    else if (NU_MATCH(node->name, "Booster"))
+    {
+        booster_transform = node->transform;
+    }
+    else if (NU_MATCH(node->name, "Vulcain"))
+    {
+        vulcain_transform = node->transform;
+    }
+    return NU_ERROR_NONE;
+}
 
 static nu_error_t
 load_asset (const nuext_gltf_asset_t *asset, void *userdata)
@@ -108,6 +105,8 @@ load_asset (const nuext_gltf_asset_t *asset, void *userdata)
         case NUEXT_GLTF_ASSET_MESH:
             return load_mesh(&asset->mesh);
         case NUEXT_GLTF_ASSET_TEXTURE:
+            break;
+        case NUEXT_GLTF_ASSET_MATERIAL:
             break;
         case NUEXT_GLTF_ASSET_NODE:
             return load_node(&asset->node);
@@ -233,45 +232,23 @@ main (void)
     nu_texture_t texture;
     nu_texture_t texture_white;
     {
-        int            width, height, channels;
-        unsigned char *img
-            = stbi_load("../../../assets/brick_building_front_lowres.png",
-                        &width,
-                        &height,
-                        &channels,
-                        3);
-        if (img == NULL)
-        {
-            NU_ERROR(&logger, "error in loading the image");
-            exit(1);
-        }
-
-        nu_color_t *colors
-            = nu_alloc(&alloc, sizeof(nu_color_t) * width * height);
-        for (int i = 0; i < (width * height); ++i)
-        {
-            // colors[i] = NU_COLOR_RED;
-
-            colors[i].r = img[i * 3 + 0];
-            colors[i].g = img[i * 3 + 1];
-            colors[i].b = img[i * 3 + 2];
-            colors[i].a = 0;
-        }
-
-        NU_INFO(&logger, "%d %d %d", channels, width, height);
+        nu_color_t *colors;
+        nu_uvec2_t  size;
+        error = nuext_load_image(
+            "../../../assets/brick_building_front_lowres.png",
+            &alloc,
+            &size,
+            &colors);
 
         nu_texture_info_t info;
-        info.size.x = width;
-        info.size.y = height;
+        info.size   = size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
         info.format = NU_TEXTURE_FORMAT_COLOR;
         error       = nu_texture_create(&renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
         error = nu_texture_write(&renderer, &texture, colors);
         NU_ERROR_ASSERT(error);
-
-        stbi_image_free(img);
-        nu_free(&alloc, colors, sizeof(nu_color_t) * width * height);
+        nu_free(&alloc, colors, sizeof(nu_color_t) * size.x * size.y);
 
         nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
     }

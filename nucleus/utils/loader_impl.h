@@ -5,6 +5,8 @@
 
 #define CGLTF_IMPLEMENTATION
 #include <nucleus/external/cgltf/cgltf.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <nucleus/external/stb/stb_image.h>
 
 static void
 nuext__emplace_vertex (const nu_vec3_t *positions,
@@ -251,6 +253,53 @@ nuext_load_gltf (const nu_char_t      *filename,
     }
 
     cgltf_free(data);
+    return NU_ERROR_NONE;
+}
+
+static nu_color_t *
+nuext__parse_colors (const nu_byte_t *img,
+                     nu_uvec2_t       size,
+                     nu_allocator_t  *allocator)
+{
+    nu_color_t *colors
+        = nu_alloc(allocator, sizeof(nu_color_t) * size.x * size.y);
+    NU_CHECK(colors, return NU_NULL);
+    for (nu_size_t i = 0; i < (size.x * size.y); ++i)
+    {
+        colors[i].r = img[i * 3 + 0];
+        colors[i].g = img[i * 3 + 1];
+        colors[i].b = img[i * 3 + 2];
+        colors[i].a = 0;
+    }
+    return colors;
+}
+nu_error_t
+nuext_load_image (const nu_char_t *filename,
+                  nu_allocator_t  *allocator,
+                  nu_uvec2_t      *size,
+                  nu_color_t     **colors)
+{
+    int            w, h, n;
+    unsigned char *img = stbi_load(filename, &w, &h, &n, 3);
+    NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
+    *size   = nu_uvec2(w, h);
+    *colors = nuext__parse_colors(img, *size, allocator);
+    stbi_image_free(img);
+    return NU_ERROR_NONE;
+}
+nu_error_t
+nuext_load_image_memory (const nu_byte_t *data,
+                         nu_size_t        data_size,
+                         nu_allocator_t  *allocator,
+                         nu_uvec2_t      *size,
+                         nu_color_t     **colors)
+{
+    int            w, h, n;
+    unsigned char *img = stbi_load_from_memory(data, data_size, &w, &h, &n, 3);
+    NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
+    *size   = nu_uvec2(w, h);
+    *colors = nuext__parse_colors(img, *size, allocator);
+    stbi_image_free(img);
     return NU_ERROR_NONE;
 }
 

@@ -39,6 +39,9 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
         case NUEXT_GLTF_ASSET_TEXTURE: {
         }
         break;
+        case NUEXT_GLTF_ASSET_MATERIAL: {
+        }
+        break;
         case NUEXT_GLTF_ASSET_NODE: {
             nu__model_command_t *cmd
                 = nu__model_commands_push(&data->model->commands, data->alloc);
