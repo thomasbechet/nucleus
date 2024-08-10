@@ -246,31 +246,6 @@ typedef struct nu_renderer
     nu_texture_t           _surface_color;
 } nu_renderer_t;
 
-typedef struct
-{
-    nu_vec3_t _position;
-    nu_quat_t _rotation;
-    nu_vec3_t _velocity;
-    float     _yaw;
-    float     _pitch;
-
-    float     fov;
-    nu_bool_t free_mode;
-    float     speed;
-    float     view_pitch_neg;
-    float     view_pitch_pos;
-    float     view_yaw_neg;
-    float     view_yaw_pos;
-    float     view_roll_neg;
-    float     view_roll_pos;
-    float     move_up;
-    float     move_down;
-    float     move_left;
-    float     move_right;
-    float     move_forward;
-    float     move_backward;
-} nu_camera_controller_t;
-
 NU_API nu_renderer_info_t nu_renderer_info_default(void);
 
 NU_API nu_error_t nu_renderer_init(nu_platform_t            *platform,
@@ -327,10 +302,5 @@ NU_API void nu_draw(nu_renderer_t       *ctx,
                     const nu_mesh_t     *mesh,
                     const nu_material_t *material,
                     const nu_mat4_t     *transform);
-
-NU_API void nu_camera_controller_init(nu_camera_controller_t *controller);
-NU_API void nu_camera_controller_update(nu_camera_controller_t *controller,
-                                        float                   dt,
-                                        nu_camera_info_t       *info);
 
 #endif
