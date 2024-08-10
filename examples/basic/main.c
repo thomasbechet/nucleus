@@ -244,9 +244,8 @@ main (void)
         info.size   = size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
         info.format = NU_TEXTURE_FORMAT_COLOR;
+        info.colors = colors;
         error       = nu_texture_create(&renderer, &info, &texture);
-        NU_ERROR_ASSERT(error);
-        error = nu_texture_write(&renderer, &texture, colors);
         NU_ERROR_ASSERT(error);
         nu_free(&alloc, colors, sizeof(nu_color_t) * size.x * size.y);
 

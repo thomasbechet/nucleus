@@ -426,13 +426,13 @@ nugl__create_texture (nu_renderer_t           *ctx,
         case NU_TEXTURE_FORMAT_COLOR:
             glTexImage2D(GL_TEXTURE_2D,
                          0,
-                         GL_RGB,
+                         GL_RGBA,
                          info->size.x,
                          info->size.y,
                          0,
-                         GL_RGB,
+                         GL_RGBA,
                          GL_UNSIGNED_BYTE,
-                         NU_NULL);
+                         info->colors);
             break;
         case NU_TEXTURE_FORMAT_DEPTH:
             glTexImage2D(GL_TEXTURE_2D,
@@ -458,26 +458,6 @@ static nu_error_t
 nugl__delete_texture (nu_renderer_t *ctx, nu_texture_t *texture)
 {
     glDeleteTextures(1, &texture->_gl.texture);
-    return NU_ERROR_NONE;
-}
-static nu_error_t
-nugl__write_texture (nu_renderer_t    *ctx,
-                     nu_texture_t     *texture,
-                     nu_rect_t         rect,
-                     const nu_color_t *data)
-{
-    // TODO: handle sub texture rect
-    NU_ASSERT(rect.x >= 0 && rect.y >= 0);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGBA,
-                 rect.w,
-                 rect.h,
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 data);
-
     return NU_ERROR_NONE;
 }
 static nu_error_t

@@ -80,6 +80,7 @@ typedef struct
     nu_uvec2_t          size;
     nu_texture_format_t format;
     nu_texture_usage_t  usage;
+    const nu_color_t   *colors;
 } nu_texture_info_t;
 
 typedef struct
@@ -202,10 +203,6 @@ typedef struct
                                  nu_texture_t            *texture);
     nu_error_t (*delete_texture)(struct nu_renderer *ctx,
                                  nu_texture_t       *texture);
-    nu_error_t (*write_texture)(struct nu_renderer *ctx,
-                                nu_texture_t       *texture,
-                                nu_rect_t           rect,
-                                const nu_color_t   *colors);
 
     nu_error_t (*create_material)(struct nu_renderer       *ctx,
                                   const nu_material_info_t *info,
@@ -305,13 +302,6 @@ NU_API nu_error_t nu_texture_create_color(nu_renderer_t *ctx,
                                           nu_color_t     color,
                                           nu_texture_t  *texture);
 NU_API nu_error_t nu_texture_delete(nu_renderer_t *ctx, nu_texture_t *texture);
-NU_API nu_error_t nu_texture_write(nu_renderer_t    *ctx,
-                                   nu_texture_t     *texture,
-                                   const nu_color_t *data);
-NU_API nu_error_t nu_texture_write_area(nu_renderer_t    *ctx,
-                                        nu_texture_t     *texture,
-                                        nu_rect_t         area,
-                                        const nu_color_t *data);
 
 NU_API nu_material_info_t nu_material_info_default(void);
 NU_API nu_error_t         nu_material_create(nu_renderer_t            *ctx,

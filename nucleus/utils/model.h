@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    nu_u32_t hash;
+    nu_u32_t id;
     union
     {
         nu_texture_t  texture;

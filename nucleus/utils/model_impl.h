@@ -25,6 +25,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
     switch (asset->type)
     {
         case NUEXT_GLTF_ASSET_MESH: {
+            NU_DEBUG(data->logger, "load mesh %lu", asset->id);
             nu_mesh_info_t info;
             info.positions = asset->mesh.positions;
             info.uvs       = asset->mesh.uvs;
@@ -33,41 +34,89 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             nu_error_t error
                 = nu_mesh_create(data->renderer, &info, &item->mesh);
             NU_ERROR_CHECK(error, return error);
-            item->hash = nu_hash(asset->mesh.name);
+            item->id = asset->id;
         }
         break;
         case NUEXT_GLTF_ASSET_TEXTURE: {
+            NU_DEBUG(data->logger, "load texture %lu", asset->id);
             nu_texture_info_t info;
             info.size   = asset->texture.size;
             info.usage  = NU_TEXTURE_USAGE_SAMPLE;
             info.format = NU_TEXTURE_FORMAT_COLOR;
+            info.colors = asset->texture.data;
             nu_error_t error
                 = nu_texture_create(data->renderer, &info, &item->texture);
             NU_ERROR_CHECK(error, return error);
-            item->hash = nu_hash(asset->texture.name);
+            item->id = asset->id;
         }
         break;
         case NUEXT_GLTF_ASSET_MATERIAL: {
+            NU_DEBUG(data->logger, "load material %lu", asset->id);
+            const nu__model_item_t *items
+                = nu__model_items_data_const(&data->model->items);
+            const nu_texture_t *diffuse_tex = NU_NULL;
+            for (nu_size_t i = 0; i < nu__model_items_size(&data->model->items);
+                 ++i)
+            {
+                if (items[i].id == asset->material.diffuse_id)
+                {
+                    diffuse_tex = &items[i].texture;
+                    break;
+                }
+            }
+            if (!diffuse_tex)
+            {
+                NU_ERROR(data->logger, "diffuse texture not found");
+                return NU_ERROR_RESOURCE_LOADING;
+            }
+            nu_material_info_t info = nu_material_info_default();
+            info.texture0           = diffuse_tex;
+            nu_error_t error
+                = nu_material_create(data->renderer, &info, &item->material);
+            NU_ERROR_CHECK(error, return error);
+            item->id = asset->id;
         }
         break;
         case NUEXT_GLTF_ASSET_NODE: {
+            NU_DEBUG(data->logger, "load node %lu", asset->id);
             nu__model_command_t *cmd
                 = nu__model_commands_push(&data->model->commands, data->alloc);
             NU_CHECK(cmd, return NU_ERROR_ALLOCATION);
             cmd->transform = asset->node.transform;
-            cmd->material  = 0;
+            cmd->material  = -1;
+            cmd->mesh      = -1;
             const nu__model_item_t *items
                 = nu__model_items_data_const(&data->model->items);
-            nu_u32_t mesh_hash = nu_hash(asset->node.mesh);
             for (nu_size_t i = 0; i < nu__model_items_size(&data->model->items);
                  ++i)
             {
-                if (items[i].hash == mesh_hash)
+                NU_DEBUG(data->logger, "ID %lu", items[i].id);
+                if (items[i].id == asset->node.mesh_id)
                 {
                     cmd->mesh = i;
-                    break;
+                    NU_DEBUG(data->logger, "ID mesh found %lu", items[i].id);
+                }
+                if (items[i].id == asset->node.material_id)
+                {
+                    cmd->material = i;
+                    NU_DEBUG(data->logger, "ID mat found %lu", items[i].id);
                 }
             }
+            if (cmd->mesh == (nu_u16_t)-1)
+            {
+                NU_ERROR(data->logger,
+                         "node mesh not found %lu",
+                         asset->node.mesh_id);
+                break;
+            }
+            if (cmd->material == (nu_u16_t)-1)
+            {
+                NU_ERROR(data->logger,
+                         "node material not found %lu",
+                         asset->node.material_id);
+                break;
+            }
+            item->id = asset->id;
         }
         break;
     }
@@ -81,8 +130,8 @@ nuext_model_from_gltf (const nu_char_t *filename,
                        nu_allocator_t  *alloc,
                        nu_model_t      *model)
 {
-    nu__model_items_init(&model->items, alloc, 8);
-    nu__model_commands_init(&model->commands, alloc, 8);
+    nu__model_items_init(&model->items, alloc, 32);
+    nu__model_commands_init(&model->commands, alloc, 32);
     nuext__gltf_to_model_userdata_t userdata;
     userdata.alloc    = alloc;
     userdata.model    = model;
@@ -92,12 +141,12 @@ nuext_model_from_gltf (const nu_char_t *filename,
         nu__model_item_t *mat_item = nu__model_items_push(&model->items, alloc);
         nu__model_item_t *tex_item = nu__model_items_push(&model->items, alloc);
         nu_texture_info_t tinfo;
-        tinfo.size   = nu_uvec2(1, 1);
-        tinfo.usage  = NU_TEXTURE_USAGE_SAMPLE;
-        tinfo.format = NU_TEXTURE_FORMAT_COLOR;
+        nu_color_t        white = NU_COLOR_WHITE;
+        tinfo.size              = nu_uvec2(1, 1);
+        tinfo.usage             = NU_TEXTURE_USAGE_SAMPLE;
+        tinfo.format            = NU_TEXTURE_FORMAT_COLOR;
+        tinfo.colors            = &white;
         nu_texture_create(renderer, &tinfo, &tex_item->texture);
-        nu_color_t white = NU_COLOR_WHITE;
-        nu_texture_write(renderer, &tex_item->texture, &white);
         nu_material_info_t minfo = nu_material_info_default();
         minfo.texture0           = &tex_item->texture;
         nu_material_create(renderer, &minfo, &mat_item->material);
@@ -123,6 +172,10 @@ nu_model_draw (nu_renderer_t    *renderer,
         = nu__model_commands_data_const(&model->commands);
     for (nu_size_t i = 0; i < nu__model_commands_size(&model->commands); ++i)
     {
+        if (cmds[i].material == (nu_u16_t)-1 || cmds[i].mesh == (nu_u16_t)-1)
+        {
+            continue;
+        }
         const nu_material_t *material
             = &nu__model_items_at_const(&model->items, cmds[i].material)
                    ->material;

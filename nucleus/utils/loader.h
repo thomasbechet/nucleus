@@ -6,7 +6,6 @@
 
 typedef struct
 {
-    nu_u32_t         id;
     const nu_char_t *name;
     const nu_vec3_t *positions;
     const nu_vec2_t *uvs;
@@ -16,7 +15,6 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t          id;
     const nu_char_t  *name;
     nu_uvec2_t        size;
     const nu_color_t *data;
@@ -24,16 +22,15 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t         id;
     const nu_char_t *name;
-    nu_u32_t         diffuse;
+    nu_u32_t         diffuse_id;
 } nuext_gltf_material_t;
 
 typedef struct
 {
     const nu_char_t *name;
-    nu_u32_t         mesh;
-    nu_u32_t         material;
+    nu_u32_t         mesh_id;
+    nu_u32_t         material_id;
     nu_mat4_t        transform;
 } nuext_gltf_node_t;
 
@@ -48,6 +45,7 @@ typedef enum
 typedef struct
 {
     nuext_gltf_asset_type_t type;
+    nu_u32_t                id;
     union
     {
         nuext_gltf_mesh_t     mesh;

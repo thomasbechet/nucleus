@@ -152,7 +152,7 @@ nuext__load_mesh (cgltf_mesh           *mesh,
 
             nuext_gltf_asset_t info = { 0 };
             info.type               = NUEXT_GLTF_ASSET_MESH;
-            info.mesh.id            = nu_hash(mesh->name);
+            info.id                 = (nu_size_t)mesh;
             info.mesh.name          = mesh->name;
             info.mesh.positions     = buf_positions;
             info.mesh.uvs           = buf_uvs;
@@ -192,12 +192,29 @@ nuext__load_texture (cgltf_texture        *texture,
 
     nuext_gltf_asset_t info = { 0 };
     info.type               = NUEXT_GLTF_ASSET_TEXTURE;
+    info.id                 = (nu_size_t)texture;
     info.texture.name       = texture->name;
     info.texture.size       = size;
     info.texture.data       = colors;
     error                   = callback(&info, userdata);
     nu_free(allocator, colors, sizeof(nu_color_t) * size.x * size.y);
     return error;
+}
+nu_error_t
+nuext__load_material (const cgltf_material *material,
+                      nu_allocator_t       *allocator,
+                      nu_logger_t          *logger,
+                      nuext_gltf_callback_t callback,
+                      void                 *userdata)
+{
+    nuext_gltf_asset_t info = { 0 };
+    info.type               = NUEXT_GLTF_ASSET_MATERIAL;
+    info.id                 = (nu_size_t)material;
+    info.material.name      = material->name;
+    info.material.diffuse_id
+        = (nu_size_t)
+              material->pbr_metallic_roughness.base_color_texture.texture;
+    return callback(&info, userdata);
 }
 nu_error_t
 nuext_load_gltf (const nu_char_t      *filename,
@@ -233,13 +250,10 @@ nuext_load_gltf (const nu_char_t      *filename,
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
-        if (data->textures[i].name)
-        {
-            NU_DEBUG(logger, "loading texture: %s", data->textures[i].name);
-            error = nuext__load_texture(
-                data->textures + i, allocator, logger, callback, userdata);
-            NU_ERROR_CHECK(error, return error);
-        }
+        NU_DEBUG(logger, "loading texture: %s", data->textures[i].name);
+        error = nuext__load_texture(
+            data->textures + i, allocator, logger, callback, userdata);
+        NU_ERROR_CHECK(error, return error);
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -248,12 +262,8 @@ nuext_load_gltf (const nu_char_t      *filename,
         if (mat->has_pbr_metallic_roughness
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
-            error = nuext__load_texture(
-                mat->pbr_metallic_roughness.base_color_texture.texture,
-                allocator,
-                logger,
-                callback,
-                userdata);
+            error = nuext__load_material(
+                mat, allocator, logger, callback, userdata);
             NU_ERROR_CHECK(error, return error);
         }
     }
@@ -296,11 +306,14 @@ nuext_load_gltf (const nu_char_t      *filename,
             {
                 nuext_gltf_asset_t info;
                 info.type           = NUEXT_GLTF_ASSET_NODE;
+                info.id             = (nu_size_t)node;
                 info.node.name      = node->name;
                 info.node.transform = transform;
-                info.node.mesh      = node->mesh->name;
-                info.node.material  = NU_NULL;
-                error               = callback(&info, userdata);
+                info.node.mesh_id   = (nu_size_t)node->mesh;
+                NU_DEBUG(logger, "requested mesh : %lu", info.node.mesh_id);
+                info.node.material_id
+                    = (nu_size_t)node->mesh->primitives->material;
+                error = callback(&info, userdata);
                 NU_ERROR_CHECK(error, return error);
             }
         }
@@ -323,7 +336,7 @@ nuext__parse_colors (const nu_byte_t *img,
         colors[i].r = img[i * 3 + 0];
         colors[i].g = img[i * 3 + 1];
         colors[i].b = img[i * 3 + 2];
-        colors[i].a = 0;
+        colors[i].a = 255;
     }
     return colors;
 }
@@ -339,6 +352,7 @@ nuext_load_image (const nu_char_t *filename,
     *size   = nu_uvec2(w, h);
     *colors = nuext__parse_colors(img, *size, allocator);
     stbi_image_free(img);
+    NU_CHECK(*colors, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;
 }
 nu_error_t
@@ -354,6 +368,7 @@ nuext_load_image_memory (const nu_byte_t *data,
     *size   = nu_uvec2(w, h);
     *colors = nuext__parse_colors(img, *size, allocator);
     stbi_image_free(img);
+    NU_CHECK(*colors, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;
 }
 
