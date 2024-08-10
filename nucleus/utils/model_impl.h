@@ -37,6 +37,14 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
         }
         break;
         case NUEXT_GLTF_ASSET_TEXTURE: {
+            nu_texture_info_t info;
+            info.size   = asset->texture.size;
+            info.usage  = NU_TEXTURE_USAGE_SAMPLE;
+            info.format = NU_TEXTURE_FORMAT_COLOR;
+            nu_error_t error
+                = nu_texture_create(data->renderer, &info, &item->texture);
+            NU_ERROR_CHECK(error, return error);
+            item->hash = nu_hash(asset->texture.name);
         }
         break;
         case NUEXT_GLTF_ASSET_MATERIAL: {

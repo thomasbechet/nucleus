@@ -152,6 +152,7 @@ nuext__load_mesh (cgltf_mesh           *mesh,
 
             nuext_gltf_asset_t info = { 0 };
             info.type               = NUEXT_GLTF_ASSET_MESH;
+            info.mesh.id            = nu_hash(mesh->name);
             info.mesh.name          = mesh->name;
             info.mesh.positions     = buf_positions;
             info.mesh.uvs           = buf_uvs;
@@ -171,6 +172,34 @@ nuext__load_mesh (cgltf_mesh           *mesh,
     return NU_ERROR_NONE;
 }
 nu_error_t
+nuext__load_texture (cgltf_texture        *texture,
+                     nu_allocator_t       *allocator,
+                     nu_logger_t          *logger,
+                     nuext_gltf_callback_t callback,
+                     void                 *userdata)
+{
+    cgltf_buffer_view *tview = texture->image->buffer_view;
+
+    nu_uvec2_t  size;
+    nu_color_t *colors;
+    nu_error_t  error = nuext_load_image_memory(
+        (const nu_byte_t *)tview->buffer->data + tview->offset,
+        tview->size,
+        allocator,
+        &size,
+        &colors);
+    NU_ERROR_CHECK(error, return error);
+
+    nuext_gltf_asset_t info = { 0 };
+    info.type               = NUEXT_GLTF_ASSET_TEXTURE;
+    info.texture.name       = texture->name;
+    info.texture.size       = size;
+    info.texture.data       = colors;
+    error                   = callback(&info, userdata);
+    nu_free(allocator, colors, sizeof(nu_color_t) * size.x * size.y);
+    return error;
+}
+nu_error_t
 nuext_load_gltf (const nu_char_t      *filename,
                  nu_logger_t          *logger,
                  nu_allocator_t       *allocator,
@@ -178,9 +207,10 @@ nuext_load_gltf (const nu_char_t      *filename,
                  void                 *userdata)
 {
     cgltf_options options = { 0 };
-    cgltf_data   *data    = NU_NULL;
-    cgltf_result  result;
-    nu_error_t    error;
+    // TODO: custom allocator
+    cgltf_data  *data = NU_NULL;
+    cgltf_result result;
+    nu_error_t   error;
 
     result = cgltf_parse_file(&options, filename, &data);
     if (result != cgltf_result_success)
@@ -193,6 +223,42 @@ nuext_load_gltf (const nu_char_t      *filename,
         return NU_ERROR_RESOURCE_LOADING;
     }
 
+    // Load resources
+    for (nu_size_t i = 0; i < data->meshes_count; ++i)
+    {
+        NU_DEBUG(logger, "loading mesh: %s", data->meshes[i].name);
+        error = nuext__load_mesh(
+            data->meshes + i, allocator, logger, callback, userdata);
+        NU_ERROR_CHECK(error, return error);
+    }
+    for (nu_size_t i = 0; i < data->textures_count; ++i)
+    {
+        if (data->textures[i].name)
+        {
+            NU_DEBUG(logger, "loading texture: %s", data->textures[i].name);
+            error = nuext__load_texture(
+                data->textures + i, allocator, logger, callback, userdata);
+            NU_ERROR_CHECK(error, return error);
+        }
+    }
+    for (nu_size_t i = 0; i < data->materials_count; ++i)
+    {
+        const cgltf_material *mat = data->materials + i;
+        NU_DEBUG(logger, "loading material: %s", mat->name);
+        if (mat->has_pbr_metallic_roughness
+            && mat->pbr_metallic_roughness.base_color_texture.texture)
+        {
+            error = nuext__load_texture(
+                mat->pbr_metallic_roughness.base_color_texture.texture,
+                allocator,
+                logger,
+                callback,
+                userdata);
+            NU_ERROR_CHECK(error, return error);
+        }
+    }
+
+    // Load scenes and nodes
     for (nu_size_t s = 0; s < data->scenes_count; ++s)
     {
         cgltf_scene *scene = data->scenes + s;
@@ -200,18 +266,7 @@ nuext_load_gltf (const nu_char_t      *filename,
         for (nu_size_t n = 0; n < scene->nodes_count; ++n)
         {
             cgltf_node *node = scene->nodes[n];
-            NU_DEBUG(logger, "node %d name: %s", n, node->name);
-            NU_DEBUG(logger, "has_matrix %d", node->has_matrix);
-            NU_DEBUG(logger, "has_translation %d", node->has_translation);
-            NU_DEBUG(logger, "has_rotation %d", node->has_rotation);
-            NU_DEBUG(logger, "has_scale %d", node->has_scale);
-
-            if (node->mesh)
-            {
-                error = nuext__load_mesh(
-                    node->mesh, allocator, logger, callback, userdata);
-                NU_ERROR_CHECK(error, return error);
-            }
+            NU_DEBUG(logger, "loading node: %s", node->name);
 
             nu_mat4_t transform = nu_mat4_identity();
             if (node->has_scale)
@@ -243,10 +298,9 @@ nuext_load_gltf (const nu_char_t      *filename,
                 info.type           = NUEXT_GLTF_ASSET_NODE;
                 info.node.name      = node->name;
                 info.node.transform = transform;
-                NU_ASSERT(node->mesh);
-                info.node.mesh     = node->mesh->name;
-                info.node.material = NU_NULL;
-                error              = callback(&info, userdata);
+                info.node.mesh      = node->mesh->name;
+                info.node.material  = NU_NULL;
+                error               = callback(&info, userdata);
                 NU_ERROR_CHECK(error, return error);
             }
         }

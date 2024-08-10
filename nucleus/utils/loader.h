@@ -6,6 +6,7 @@
 
 typedef struct
 {
+    nu_u32_t         id;
     const nu_char_t *name;
     const nu_vec3_t *positions;
     const nu_vec2_t *uvs;
@@ -15,6 +16,7 @@ typedef struct
 
 typedef struct
 {
+    nu_u32_t          id;
     const nu_char_t  *name;
     nu_uvec2_t        size;
     const nu_color_t *data;
@@ -22,9 +24,16 @@ typedef struct
 
 typedef struct
 {
+    nu_u32_t         id;
     const nu_char_t *name;
-    const nu_char_t *mesh;
-    const nu_char_t *material;
+    nu_u32_t         diffuse;
+} nuext_gltf_material_t;
+
+typedef struct
+{
+    const nu_char_t *name;
+    nu_u32_t         mesh;
+    nu_u32_t         material;
     nu_mat4_t        transform;
 } nuext_gltf_node_t;
 
@@ -41,8 +50,10 @@ typedef struct
     nuext_gltf_asset_type_t type;
     union
     {
-        nuext_gltf_node_t node;
-        nuext_gltf_mesh_t mesh;
+        nuext_gltf_mesh_t     mesh;
+        nuext_gltf_texture_t  texture;
+        nuext_gltf_material_t material;
+        nuext_gltf_node_t     node;
     };
 } nuext_gltf_asset_t;
 
@@ -55,14 +66,14 @@ NU_API nu_error_t nuext_load_gltf(const nu_char_t      *filename,
                                   nuext_gltf_callback_t callback,
                                   void                 *userdata);
 
+NU_API nu_error_t nuext_load_image(const nu_char_t *filename,
+                                   nu_allocator_t  *allocator,
+                                   nu_uvec2_t      *size,
+                                   nu_color_t     **colors);
 NU_API nu_error_t nuext_load_image_memory(const nu_byte_t *data,
                                           nu_size_t        data_size,
                                           nu_allocator_t  *allocator,
                                           nu_uvec2_t      *size,
                                           nu_color_t     **colors);
-NU_API nu_error_t nuext_load_image(const nu_char_t *filename,
-                                   nu_allocator_t  *allocator,
-                                   nu_uvec2_t      *size,
-                                   nu_color_t     **colors);
 
 #endif
