@@ -219,15 +219,20 @@ nuext_load_gltf (const nu_char_t      *filename,
                                                       node->scale[2]),
                                         transform);
             }
+            if (node->has_rotation)
+            {
+                nu_quat_t q = nu_quat(node->rotation[0],
+                                      node->rotation[1],
+                                      node->rotation[2],
+                                      node->rotation[3]);
+                transform   = nu_quat_mulm4(q, transform);
+            }
             if (node->has_translation)
             {
                 transform = nu_mat4_mul(nu_mat4_translate(node->translation[0],
                                                           node->translation[1],
                                                           node->translation[2]),
                                         transform);
-            }
-            if (node->has_rotation)
-            {
             }
 
             if (node->mesh)

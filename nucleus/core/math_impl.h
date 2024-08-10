@@ -251,6 +251,16 @@ nu_vec4 (float x, float y, float z, float w)
     v.w = w;
     return v;
 }
+float
+nu_vec4_dot (nu_vec4_t a, nu_vec4_t b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+float
+nu_vec4_norm (nu_vec4_t v)
+{
+    return nu_sqrt(nu_vec4_dot(v, v));
+}
 nu_vec2_t
 nu_vec4_xy (nu_vec4_t v)
 {
@@ -303,6 +313,16 @@ nu_quat_identity (void)
 {
     return nu_quat(0, 0, 0, 1);
 }
+nu_vec4_t
+nu_quat_vec4 (nu_quat_t a)
+{
+    return nu_vec4(a.x, a.y, a.z, a.w);
+}
+float
+nu_quat_norm (nu_quat_t a)
+{
+    return nu_vec4_norm(nu_quat_vec4(a));
+}
 nu_quat_t
 nu_quat_axis (nu_vec3_t axis, float angle)
 {
@@ -339,6 +359,57 @@ nu_quat_t
 nu_quat_mul_axis (nu_quat_t q, nu_vec3_t axis, float angle)
 {
     return nu_quat_mul(q, nu_quat_axis(axis, angle));
+}
+nu_mat4_t
+nu_quat_mat4 (nu_quat_t q)
+{
+    float norm = nu_quat_norm(q);
+    float s    = norm > 0.0 ? 2.0 / norm : 0.0;
+
+    float x = q.x;
+    float y = q.y;
+    float z = q.z;
+    float w = q.w;
+
+    float xx = s * x * x;
+    float xy = s * x * y;
+    float wx = s * w * x;
+    float yy = s * y * y;
+    float yz = s * y * z;
+    float wy = s * w * y;
+    float zz = s * z * z;
+    float xz = s * x * z;
+    float wz = s * w * z;
+
+    nu_mat4_t m;
+
+    m.x1 = 1.0 - yy - zz;
+    m.y2 = 1.0 - xx - zz;
+    m.z3 = 1.0 - xx - yy;
+
+    m.x2 = xy + wz;
+    m.y3 = yz + wx;
+    m.z1 = xz + wy;
+
+    m.y1 = xy - wz;
+    m.z2 = yz - wx;
+    m.x3 = xz - wy;
+
+    m.x4 = 0;
+    m.y4 = 0;
+    m.z4 = 0;
+    m.w1 = 0;
+    m.w2 = 0;
+    m.w3 = 0;
+    m.w4 = 1;
+
+    return m;
+}
+nu_mat4_t
+nu_quat_mulm4 (nu_quat_t a, nu_mat4_t m)
+{
+    // TODO: allow mat4 multiplication on rotation only
+    return nu_mat4_mul(nu_quat_mat4(a), m);
 }
 
 nu_mat3_t

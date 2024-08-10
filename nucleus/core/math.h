@@ -188,6 +188,8 @@ NU_API nu_vec3_t nu_vec3_cross(nu_vec3_t a, nu_vec3_t b);
 NU_API float     nu_vec3_dot(nu_vec3_t a, nu_vec3_t b);
 
 NU_API nu_vec4_t nu_vec4(float x, float y, float z, float w);
+NU_API float     nu_vec4_dot(nu_vec4_t a, nu_vec4_t b);
+NU_API float     nu_vec4_norm(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
 
@@ -197,10 +199,14 @@ NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
 
 NU_API nu_quat_t nu_quat(float x, float y, float z, float w);
 NU_API nu_quat_t nu_quat_identity(void);
+NU_API nu_vec4_t nu_quat_vec4(nu_quat_t a);
+NU_API float     nu_quat_norm(nu_quat_t a);
 NU_API nu_quat_t nu_quat_axis(nu_vec3_t axis, float angle);
 NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
 NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
 NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
+NU_API nu_mat4_t nu_quat_mat4(nu_quat_t q);
+NU_API nu_mat4_t nu_quat_mulm4(nu_quat_t a, nu_mat4_t m);
 
 NU_API nu_mat3_t nu_mat3_zero(void);
 NU_API nu_mat3_t nu_mat3_identity(void);

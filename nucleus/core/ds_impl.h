@@ -43,9 +43,10 @@ nu_vector_push (nu_vector_t *vec, nu_allocator_t *alloc, nu_size_t osize)
 {
     if (vec->_size >= vec->_capacity)
     {
+        nu_size_t old_capacity = vec->_capacity;
         vec->_capacity *= 2;
         vec->_data = nu_realloc(
-            alloc, vec->_data, osize * vec->_capacity, osize * vec->_capacity);
+            alloc, vec->_data, osize * old_capacity, osize * vec->_capacity);
     }
     ++vec->_size;
 }
