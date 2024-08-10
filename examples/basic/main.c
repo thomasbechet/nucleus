@@ -273,12 +273,7 @@ main (void)
         stbi_image_free(img);
         nu_free(&alloc, colors, sizeof(nu_color_t) * width * height);
 
-        info.size   = nu_uvec2(1, 1);
-        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-        info.format = NU_TEXTURE_FORMAT_COLOR;
-        nu_texture_create(&renderer, &info, &texture_white);
-        nu_color_t white = NU_COLOR_WHITE;
-        nu_texture_write(&renderer, &texture_white, &white);
+        nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
     }
 
     // Load models

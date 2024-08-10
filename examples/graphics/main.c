@@ -70,14 +70,7 @@ main (void)
 
     // Texture
     {
-        nu_texture_info_t info;
-        info.size   = NU_UVEC2_ONE;
-        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-        info.format = NU_TEXTURE_FORMAT_COLOR;
-        error       = nu_texture_create(&renderer, &info, &texture);
-        NU_ERROR_ASSERT(error);
-        nu_color_t color = NU_COLOR_WHITE;
-        nu_texture_write(&renderer, &texture, &color);
+        error = nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture);
         NU_ERROR_ASSERT(error);
     }
 

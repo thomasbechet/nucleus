@@ -301,6 +301,9 @@ NU_API nu_error_t nu_mesh_delete(nu_renderer_t *ctx, nu_mesh_t *mesh);
 NU_API nu_error_t nu_texture_create(nu_renderer_t           *ctx,
                                     const nu_texture_info_t *info,
                                     nu_texture_t            *texture);
+NU_API nu_error_t nu_texture_create_color(nu_renderer_t *ctx,
+                                          nu_color_t     color,
+                                          nu_texture_t  *texture);
 NU_API nu_error_t nu_texture_delete(nu_renderer_t *ctx, nu_texture_t *texture);
 NU_API nu_error_t nu_texture_write(nu_renderer_t    *ctx,
                                    nu_texture_t     *texture,

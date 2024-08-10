@@ -287,6 +287,20 @@ nu_texture_create (nu_renderer_t           *ctx,
     return ctx->_api.create_texture(ctx, info, texture);
 }
 nu_error_t
+nu_texture_create_color (nu_renderer_t *ctx,
+                         nu_color_t     color,
+                         nu_texture_t  *texture)
+{
+    nu_error_t        error;
+    nu_texture_info_t info;
+    info.size   = nu_uvec2(1, 1);
+    info.usage  = NU_TEXTURE_USAGE_SAMPLE;
+    info.format = NU_TEXTURE_FORMAT_COLOR;
+    error       = nu_texture_create(ctx, &info, texture);
+    NU_ERROR_CHECK(error, return error);
+    return nu_texture_write(ctx, texture, &color);
+}
+nu_error_t
 nu_texture_delete (nu_renderer_t *ctx, nu_texture_t *texture)
 {
     return ctx->_api.delete_texture(ctx, texture);
