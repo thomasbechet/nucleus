@@ -397,7 +397,7 @@ main (void)
             nu_draw(
                 &renderer, &main_pass, &vulcain_mesh, &material_white, &model);
 
-            model = nu_mat4_identity();
+            model = nu_mat4_translate(20, 0, 0);
             nu_model_draw(&renderer, &main_pass, &temple_model, &model);
         }
 
