@@ -90,29 +90,25 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             for (nu_size_t i = 0; i < nu__model_items_size(&data->model->items);
                  ++i)
             {
-                NU_DEBUG(data->logger, "ID %lu", items[i].id);
                 if (items[i].id == asset->node.mesh_id)
                 {
                     cmd->mesh = i;
-                    NU_DEBUG(data->logger, "ID mesh found %lu", items[i].id);
                 }
                 if (items[i].id == asset->node.material_id)
                 {
                     cmd->material = i;
-                    NU_DEBUG(data->logger, "ID mat found %lu", items[i].id);
                 }
             }
             if (cmd->mesh == (nu_u16_t)-1)
             {
-                NU_ERROR(data->logger,
-                         "node mesh not found %lu",
-                         asset->node.mesh_id);
+                NU_ERROR(
+                    data->logger, "mesh not found %lu", asset->node.mesh_id);
                 break;
             }
             if (cmd->material == (nu_u16_t)-1)
             {
                 NU_ERROR(data->logger,
-                         "node material not found %lu",
+                         "material not found %lu",
                          asset->node.material_id);
                 break;
             }

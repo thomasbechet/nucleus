@@ -42,6 +42,7 @@ static nu_mat4_t  llpm_transform;
 static nu_mesh_t  vulcain_mesh;
 static nu_mat4_t  vulcain_transform;
 static nu_model_t temple_model;
+static nu_model_t ariane_model;
 
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
@@ -287,6 +288,16 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
+    // Load ariane
+    {
+        error = nuext_model_from_gltf("../../../assets/ariane6.glb",
+                                      &renderer,
+                                      &logger,
+                                      &alloc,
+                                      &ariane_model);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Create camera
     nu_camera_t      camera;
     nu_camera_info_t camera_info = nu_camera_info_default();
@@ -387,17 +398,20 @@ main (void)
 
         // Render custom mesh
         {
-            nu_mat4_t base  = nu_mat4_scale(0.2, 0.2, 0.2);
-            nu_mat4_t model = nu_mat4_mul(base, llpm_transform);
-            nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white, &model);
-            model = nu_mat4_mul(base, booster_transform);
-            nu_draw(
-                &renderer, &main_pass, &booster_mesh, &material_white, &model);
-            model = nu_mat4_mul(base, vulcain_transform);
-            nu_draw(
-                &renderer, &main_pass, &vulcain_mesh, &material_white, &model);
+            nu_mat4_t model = nu_mat4_scale(0.2, 0.2, 0.2);
+            nu_model_draw(&renderer, &main_pass, &ariane_model, &model);
 
-            model = nu_mat4_translate(20, 0, 0);
+            // nu_mat4_t model = nu_mat4_mul(base, llpm_transform);
+            // nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white,
+            // &model); model = nu_mat4_mul(base, booster_transform); nu_draw(
+            //     &renderer, &main_pass, &booster_mesh, &material_white,
+            //     &model);
+            // model = nu_mat4_mul(base, vulcain_transform);
+            // nu_draw(
+            //     &renderer, &main_pass, &vulcain_mesh, &material_white,
+            //     &model);
+
+            model = nu_mat4_translate(10, 0, 0);
             nu_model_draw(&renderer, &main_pass, &temple_model, &model);
         }
 
@@ -408,7 +422,7 @@ main (void)
         submit.flat.color_target
             = nu_surface_color_target(&platform, &renderer);
         submit.flat.depth_target = &depth_buffer;
-        submit.flat.clear_color  = NU_COLOR_BLACK;
+        submit.flat.clear_color  = NU_COLOR_BLUE_SKY;
         nu_renderpass_submit(&renderer, &main_pass, &submit);
 
         // Render

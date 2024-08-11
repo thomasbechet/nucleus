@@ -93,6 +93,20 @@ typedef struct
 
 typedef struct
 {
+    nu_u32_t           size;
+    nu_texture_usage_t usage;
+} nu_cubemap_info_t;
+
+typedef struct
+{
+    nu_u32_t _size;
+#ifdef NU_BUILD_RENDERER_GL
+    nugl__cubemap_t _gl;
+#endif
+} nu_cubemap_t;
+
+typedef struct
+{
     const nu_texture_t *texture0;
     const nu_texture_t *texture1;
     nu_mat3_t           uv_transform;
@@ -129,6 +143,11 @@ typedef struct
 
 typedef struct
 {
+    int todo;
+} nu_renderpass_skybox_info_t;
+
+typedef struct
+{
     nu_renderpass_type_t type;
     union
     {
@@ -153,6 +172,13 @@ typedef struct
     const nu_texture_t *depth_target;
     nu_color_t          clear_color;
 } nu_renderpass_submit_flat_t;
+
+typedef struct
+{
+    const nu_camera_t  *camera;
+    const nu_texture_t *color_target;
+    const nu_texture_t *depth_target;
+} nu_renderpass_submit_skybox_t;
 
 typedef struct
 {
@@ -203,6 +229,12 @@ typedef struct
                                  nu_texture_t            *texture);
     nu_error_t (*delete_texture)(struct nu_renderer *ctx,
                                  nu_texture_t       *texture);
+
+    nu_error_t (*create_cubemap)(struct nu_renderer      *ctx,
+                                 const nu_cubemap_info_t *info,
+                                 nu_cubemap_t            *cubemap);
+    nu_error_t (*delete_cubemap)(struct nu_renderer *ctx,
+                                 nu_cubemap_t       *cubemap);
 
     nu_error_t (*create_material)(struct nu_renderer       *ctx,
                                   const nu_material_info_t *info,

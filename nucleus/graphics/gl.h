@@ -36,6 +36,11 @@ typedef struct
     GLuint texture;
 } nugl__texture_t;
 
+typedef struct
+{
+    GLuint cubemap;
+} nugl__cubemap_t;
+
 typedef enum
 {
     NUGL__DRAW,

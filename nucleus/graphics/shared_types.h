@@ -6,6 +6,7 @@ typedef enum
     NU_RENDERPASS_UNLIT,
     NU_RENDERPASS_FLAT,
     NU_RENDERPASS_TRANSPARENT,
+    NU_RENDERPASS_SKYBOX,
 } nu_renderpass_type_t;
 
 #endif

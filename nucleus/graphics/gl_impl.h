@@ -248,6 +248,8 @@ nugl__render (nu_renderer_t   *ctx,
             break;
             case NU_RENDERPASS_TRANSPARENT:
                 break;
+            case NU_RENDERPASS_SKYBOX:
+                break;
         }
 
         // Reset pass commands
@@ -461,6 +463,18 @@ nugl__delete_texture (nu_renderer_t *ctx, nu_texture_t *texture)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nugl__create_cubemap (nu_renderer_t           *ctx,
+                      const nu_cubemap_info_t *info,
+                      nu_cubemap_t            *cubemap)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__delete_cubemap (nu_renderer_t *ctx, nu_cubemap_t *cubemap)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nugl__update_material (nu_renderer_t            *ctx,
                        nu_material_t            *material,
                        const nu_material_info_t *info)
@@ -635,6 +649,8 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
+            break;
+        case NU_RENDERPASS_SKYBOX:
             break;
     }
 }

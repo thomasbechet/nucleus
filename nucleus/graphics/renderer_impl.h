@@ -71,6 +71,18 @@ nu__renderer_null_delete_texture (nu_renderer_t *ctx, nu_texture_t *texture)
     return NU_ERROR_NONE;
 }
 static nu_error_t
+nu__renderer_null_create_cubemap (nu_renderer_t           *ctx,
+                                  const nu_cubemap_info_t *info,
+                                  nu_cubemap_t            *cubemap)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nu__renderer_null_delete_cubemap (nu_renderer_t *ctx, nu_cubemap_t *cubemap)
+{
+    return NU_ERROR_NONE;
+}
+static nu_error_t
 nu__renderer_null_create_material (nu_renderer_t            *ctx,
                                    const nu_material_info_t *info,
                                    nu_material_t            *material)
@@ -148,6 +160,8 @@ nu_renderer_init (nu_platform_t            *platform,
             renderer->_api.delete_mesh     = nu__renderer_null_delete_mesh;
             renderer->_api.create_texture  = nu__renderer_null_create_texture;
             renderer->_api.delete_texture  = nu__renderer_null_delete_texture;
+            renderer->_api.create_cubemap  = nu__renderer_null_create_cubemap;
+            renderer->_api.delete_cubemap  = nu__renderer_null_delete_cubemap;
             renderer->_api.create_material = nu__renderer_null_create_material;
             renderer->_api.delete_material = nu__renderer_null_delete_material;
             renderer->_api.update_material = nu__renderer_null_update_material;
@@ -172,6 +186,8 @@ nu_renderer_init (nu_platform_t            *platform,
             renderer->_api.delete_mesh       = nugl__delete_mesh;
             renderer->_api.create_texture    = nugl__create_texture;
             renderer->_api.delete_texture    = nugl__delete_texture;
+            renderer->_api.create_cubemap    = nugl__create_cubemap;
+            renderer->_api.delete_cubemap    = nugl__delete_cubemap;
             renderer->_api.create_material   = nugl__create_material;
             renderer->_api.delete_material   = nugl__delete_material;
             renderer->_api.update_material   = nugl__update_material;
