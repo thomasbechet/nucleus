@@ -21,18 +21,6 @@ static nu_renderer_t  renderer;
 static nu_logger_t    logger;
 
 static nu_input_handle_t draw;
-static nu_input_handle_t move_forward;
-static nu_input_handle_t move_backward;
-static nu_input_handle_t move_left;
-static nu_input_handle_t move_right;
-static nu_input_handle_t move_up;
-static nu_input_handle_t move_down;
-static nu_input_handle_t view_pitch_neg;
-static nu_input_handle_t view_pitch_pos;
-static nu_input_handle_t view_yaw_neg;
-static nu_input_handle_t view_yaw_pos;
-static nu_input_handle_t view_roll_neg;
-static nu_input_handle_t view_roll_pos;
 static nu_input_handle_t quit;
 
 static nu_mesh_handle_t booster_mesh;
@@ -149,56 +137,71 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
+    // Create camera controller
+    nu_camera_controller_t controller;
+    {
+        nu_camera_controller_init(&controller);
+    }
+
     // Configure inputs
     {
         error &= nu_input_create(&platform, &draw);
         error &= nu_input_create(&platform, &quit);
-        error &= nu_input_create(&platform, &move_forward);
-        error &= nu_input_create(&platform, &move_backward);
-        error &= nu_input_create(&platform, &move_left);
-        error &= nu_input_create(&platform, &move_right);
-        error &= nu_input_create(&platform, &move_up);
-        error &= nu_input_create(&platform, &move_down);
-        error &= nu_input_create(&platform, &view_pitch_neg);
-        error &= nu_input_create(&platform, &view_pitch_pos);
-        error &= nu_input_create(&platform, &view_yaw_neg);
-        error &= nu_input_create(&platform, &view_yaw_pos);
-        error &= nu_input_create(&platform, &view_roll_neg);
-        error &= nu_input_create(&platform, &view_roll_pos);
+        error &= nu_input_create(&platform, &controller.move_forward);
+        error &= nu_input_create(&platform, &controller.move_backward);
+        error &= nu_input_create(&platform, &controller.move_left);
+        error &= nu_input_create(&platform, &controller.move_right);
+        error &= nu_input_create(&platform, &controller.move_up);
+        error &= nu_input_create(&platform, &controller.move_down);
+        error &= nu_input_create(&platform, &controller.view_pitch_neg);
+        error &= nu_input_create(&platform, &controller.view_pitch_pos);
+        error &= nu_input_create(&platform, &controller.view_yaw_neg);
+        error &= nu_input_create(&platform, &controller.view_yaw_pos);
+        error &= nu_input_create(&platform, &controller.view_roll_neg);
+        error &= nu_input_create(&platform, &controller.view_roll_pos);
+        error &= nu_input_create(&platform, &controller.switch_mode);
         NU_ERROR_ASSERT(error);
     }
 
     // Bind inputs
     {
         error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_ESCAPE);
-        error
-            &= nuext_input_bind_button(&platform, move_forward, NUEXT_BUTTON_W);
         error &= nuext_input_bind_button(
-            &platform, move_backward, NUEXT_BUTTON_S);
-        error &= nuext_input_bind_button(&platform, move_left, NUEXT_BUTTON_A);
-        error &= nuext_input_bind_button(&platform, move_right, NUEXT_BUTTON_D);
-        error &= nuext_input_bind_button(&platform, move_up, NUEXT_BUTTON_X);
-        error &= nuext_input_bind_button(&platform, move_down, NUEXT_BUTTON_Z);
+            &platform, controller.move_forward, NUEXT_BUTTON_W);
+        error &= nuext_input_bind_button(
+            &platform, controller.move_backward, NUEXT_BUTTON_S);
+        error &= nuext_input_bind_button(
+            &platform, controller.move_left, NUEXT_BUTTON_A);
+        error &= nuext_input_bind_button(
+            &platform, controller.move_right, NUEXT_BUTTON_D);
+        error &= nuext_input_bind_button(
+            &platform, controller.move_up, NUEXT_BUTTON_X);
+        error &= nuext_input_bind_button(
+            &platform, controller.move_down, NUEXT_BUTTON_Z);
+        error &= nuext_input_bind_axis(&platform,
+                                       controller.view_pitch_neg,
+                                       NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
+        error &= nuext_input_bind_axis(&platform,
+                                       controller.view_pitch_pos,
+                                       NUEXT_AXIS_MOUSE_MOTION_Y_POS);
         error &= nuext_input_bind_axis(
-            &platform, view_pitch_neg, NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
+            &platform, controller.view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
         error &= nuext_input_bind_axis(
-            &platform, view_pitch_pos, NUEXT_AXIS_MOUSE_MOTION_Y_POS);
-        error &= nuext_input_bind_axis(
-            &platform, view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
-        error &= nuext_input_bind_axis(
-            &platform, view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
+            &platform, controller.view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
         error &= nuext_input_bind_button_value(
-            &platform, view_pitch_neg, NUEXT_BUTTON_K, 0.08);
+            &platform, controller.view_pitch_neg, NUEXT_BUTTON_K, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, view_pitch_pos, NUEXT_BUTTON_J, 0.08);
+            &platform, controller.view_pitch_pos, NUEXT_BUTTON_J, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, view_yaw_neg, NUEXT_BUTTON_H, 0.08);
+            &platform, controller.view_yaw_neg, NUEXT_BUTTON_H, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, view_yaw_pos, NUEXT_BUTTON_L, 0.08);
+            &platform, controller.view_yaw_pos, NUEXT_BUTTON_L, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, view_roll_neg, NUEXT_BUTTON_E, 0.08);
+            &platform, controller.view_roll_neg, NUEXT_BUTTON_E, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, view_roll_pos, NUEXT_BUTTON_Q, 0.08);
+            &platform, controller.view_roll_pos, NUEXT_BUTTON_Q, 0.08);
+        error &= nuext_input_bind_button(
+            &platform, controller.switch_mode, NUEXT_BUTTON_C);
         NU_ERROR_ASSERT(error);
     }
 
@@ -335,12 +338,6 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
-    // Create camera controller
-    nu_camera_controller_t controller;
-    {
-        nu_camera_controller_init(&controller);
-    }
-
     // Create renderpasses
     nu_renderpass_handle_t main_pass;
     nu_renderpass_handle_t skybox_pass;
@@ -400,27 +397,9 @@ main (void)
         }
 
         // Update camera controller
-        controller.view_pitch_neg = nu_input_value(&platform, view_pitch_neg);
-        controller.view_pitch_pos = nu_input_value(&platform, view_pitch_pos);
-        controller.view_yaw_neg   = nu_input_value(&platform, view_yaw_neg);
-        controller.view_yaw_pos   = nu_input_value(&platform, view_yaw_pos);
-        controller.view_roll_neg  = nu_input_value(&platform, view_roll_neg);
-        controller.view_roll_pos  = nu_input_value(&platform, view_roll_pos);
-        controller.move_forward   = nu_input_value(&platform, move_forward);
-        controller.move_backward  = nu_input_value(&platform, move_backward);
-        controller.move_left      = nu_input_value(&platform, move_left);
-        controller.move_right     = nu_input_value(&platform, move_right);
-        controller.move_up        = nu_input_value(&platform, move_up);
-        controller.move_down      = nu_input_value(&platform, move_down);
-        nu_camera_controller_update(&controller, delta, &camera_info);
+        nu_camera_controller_update(
+            &controller, &platform, delta, &camera_info);
         nu_camera_update(&renderer, camera, &camera_info);
-
-        // Update material
-        // nu_material_info_t minfo;
-        // minfo.texture0     = &texture;
-        // minfo.texture1     = NU_NULL;
-        // minfo.uv_transform = nu_mat3_scale(nu_sin(time / 1000), 1);
-        // nu_material_update(&renderer, &material, &minfo);
 
         // Render loop
         for (int i = 0; i < 40; ++i)

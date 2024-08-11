@@ -20,6 +20,15 @@ NU_API nu_bool_t  nu_input_just_released(const nu_platform_t *platform,
 NU_API float      nu_input_value(const nu_platform_t *platform,
                                  nu_input_handle_t    input);
 
+NU_API nu_vec3_t nu_input_axis3d(const nu_platform_t *platform,
+                                 nu_input_handle_t    pos_x,
+                                 nu_input_handle_t    neg_x,
+                                 nu_input_handle_t    pos_y,
+                                 nu_input_handle_t    neg_y,
+                                 nu_input_handle_t    pos_z,
+                                 nu_input_handle_t    neg_z,
+                                 nu_bool_t            normalize);
+
 NU_API nu_error_t nuext_input_bind_button(nu_platform_t    *platform,
                                           nu_input_handle_t input,
                                           nuext_button_t    button);
