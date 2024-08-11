@@ -35,14 +35,14 @@ static nu_input_t view_roll_neg;
 static nu_input_t view_roll_pos;
 static nu_input_t quit;
 
-static nu_mesh_t  booster_mesh;
-static nu_mat4_t  booster_transform;
-static nu_mesh_t  llpm_mesh;
-static nu_mat4_t  llpm_transform;
-static nu_mesh_t  vulcain_mesh;
-static nu_mat4_t  vulcain_transform;
-static nu_model_t temple_model;
-static nu_model_t ariane_model;
+static nu_mesh_handle_t booster_mesh;
+static nu_mat4_t        booster_transform;
+static nu_mesh_handle_t llpm_mesh;
+static nu_mat4_t        llpm_transform;
+static nu_mesh_handle_t vulcain_mesh;
+static nu_mat4_t        vulcain_transform;
+static nu_model_t       temple_model;
+static nu_model_t       ariane_model;
 
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
@@ -204,7 +204,7 @@ main (void)
     }
 
     // Create depth buffer
-    nu_texture_t depth_buffer;
+    nu_texture_handle_t depth_buffer;
     {
         nu_texture_info_t info;
         info.usage  = NU_TEXTURE_USAGE_TARGET;
@@ -215,7 +215,7 @@ main (void)
     }
 
     // Create cube
-    nu_mesh_t cube_mesh;
+    nu_mesh_handle_t cube_mesh;
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
@@ -230,8 +230,8 @@ main (void)
     }
 
     // Load resources
-    nu_texture_t texture;
-    nu_texture_t texture_white;
+    nu_texture_handle_t texture;
+    nu_texture_handle_t texture_white;
     {
         nu_color_t *colors;
         nu_uvec2_t  size;
@@ -264,8 +264,8 @@ main (void)
     }
 
     // Create material
-    nu_material_t material;
-    nu_material_t material_white;
+    nu_material_handle_t material;
+    nu_material_handle_t material_white;
     {
         nu_material_info_t info = nu_material_info_default();
         info.texture0           = &texture;
@@ -299,8 +299,8 @@ main (void)
     }
 
     // Create camera
-    nu_camera_t      camera;
-    nu_camera_info_t camera_info = nu_camera_info_default();
+    nu_camera_handle_t camera;
+    nu_camera_info_t   camera_info = nu_camera_info_default();
     {
         error = nu_camera_create(&renderer, &camera_info, &camera);
         NU_ERROR_ASSERT(error);
@@ -313,7 +313,7 @@ main (void)
     }
 
     // Create renderpasses
-    nu_renderpass_t main_pass;
+    nu_renderpass_handle_t main_pass;
     {
         nu_renderpass_info_t info;
         info.type      = NU_RENDERPASS_FLAT;
@@ -379,7 +379,7 @@ main (void)
         controller.move_up        = nu_input_value(&platform, &move_up);
         controller.move_down      = nu_input_value(&platform, &move_down);
         nu_camera_controller_update(&controller, delta, &camera_info);
-        nu_camera_update(&renderer, &camera, &camera_info);
+        nu_camera_update(&renderer, camera, &camera_info);
 
         // Update material
         // nu_material_info_t minfo;
@@ -393,13 +393,13 @@ main (void)
         {
             nu_mat4_t model = nu_mat4_translate(
                 nu_sin(time / 1000 + i), nu_cos(time / 1000 + i), i * 1.05);
-            nu_draw(&renderer, &main_pass, &cube_mesh, &material, &model);
+            nu_draw(&renderer, main_pass, cube_mesh, material, model);
         }
 
         // Render custom mesh
         {
             nu_mat4_t model = nu_mat4_scale(0.2, 0.2, 0.2);
-            nu_model_draw(&renderer, &main_pass, &ariane_model, &model);
+            nu_model_draw(&renderer, main_pass, &ariane_model, model);
 
             // nu_mat4_t model = nu_mat4_mul(base, llpm_transform);
             // nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white,
@@ -412,18 +412,19 @@ main (void)
             //     &model);
 
             model = nu_mat4_translate(10, 0, 0);
-            nu_model_draw(&renderer, &main_pass, &temple_model, &model);
+            nu_model_draw(&renderer, main_pass, &temple_model, model);
         }
 
         // Submit renderpass
         nu_renderpass_submit_t submit;
         submit.reset       = NU_TRUE;
-        submit.flat.camera = &camera;
-        submit.flat.color_target
+        submit.flat.camera = camera;
+        nu_texture_handle_t surface_tex
             = nu_surface_color_target(&platform, &renderer);
+        submit.flat.color_target = &surface_tex;
         submit.flat.depth_target = &depth_buffer;
         submit.flat.clear_color  = NU_COLOR_BLUE_SKY;
-        nu_renderpass_submit(&renderer, &main_pass, &submit);
+        nu_renderpass_submit(&renderer, main_pass, &submit);
 
         // Render
         nu_render(&platform, &renderer);
@@ -433,9 +434,9 @@ main (void)
     }
 
     // Free cube
-    error = nu_mesh_delete(&renderer, &cube_mesh);
+    error = nu_mesh_delete(&renderer, cube_mesh);
     NU_ERROR_ASSERT(error);
-    error = nu_renderpass_delete(&renderer, &main_pass);
+    error = nu_renderpass_delete(&renderer, main_pass);
     NU_ERROR_ASSERT(error);
 
     nu_renderer_terminate(&renderer);

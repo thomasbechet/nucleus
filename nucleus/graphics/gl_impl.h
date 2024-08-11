@@ -121,10 +121,17 @@ nugl__init (nu_renderer_t *ctx, nu_allocator_t *allocator, nu_uvec2_t size)
     nu_error_t       error;
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    gl->allocator     = *allocator; // TODO: who is handles the allocator ?
-    gl->surface_size  = size;
-    gl->surface_color = 0;
-    gl->target_count  = 0;
+    gl->allocator = *allocator; // TODO: who is handles the allocator ?
+
+    // Initialize containers
+    nu_vec_init(&gl->cameras, allocator, 16);
+    nu_vec_init(&gl->meshes, allocator, 16);
+    nu_vec_init(&gl->textures, allocator, 16);
+    nu_vec_init(&gl->cubemaps, allocator, 16);
+    nu_vec_init(&gl->materials, allocator, 16);
+    nu_vec_init(&gl->targets, allocator, 16);
+    nu_vec_init(&gl->passes, allocator, 16);
+    nu_vec_init(&gl->passes_order, allocator, 16);
 
     // Initialize GL functions
     if (!gladLoadGL(glfwGetProcAddress))
@@ -152,10 +159,6 @@ nugl__init (nu_renderer_t *ctx, nu_allocator_t *allocator, nu_uvec2_t size)
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    // Initialize passes
-    gl->pass_count       = 0;
-    gl->pass_order_count = 0;
-
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -165,10 +168,10 @@ nugl__render (nu_renderer_t   *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    for (nu_u32_t i = 0; i < gl->pass_order_count; ++i)
+    for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
-        nu_u32_t                 passid = gl->pass_order[i];
-        nugl__renderpass_data_t *pass   = &gl->passes[passid];
+        nu_u32_t            passid = gl->passes_order.data[i];
+        nugl__renderpass_t *pass   = &gl->passes.data[passid];
         switch (pass->type)
         {
             case NU_RENDERPASS_UNLIT:
@@ -199,11 +202,11 @@ nugl__render (nu_renderer_t   *ctx,
 
                 // Execute commands
                 {
-                    const nugl__command_buffer_t *cmds = &pass->cmds;
-                    for (nu_size_t i = 0; i < cmds->count; ++i)
+                    const nugl__command_vec_t *cmds = &pass->cmds;
+                    for (nu_size_t i = 0; i < cmds->size; ++i)
                     {
-                        const nugl__command_t *cmd = &cmds->commands[i];
-                        switch (cmds->commands[i].type)
+                        const nugl__command_t *cmd = &cmds->data[i];
+                        switch (cmds->data[i].type)
                         {
                             case NUGL__DRAW: {
                                 GLuint id = glGetUniformLocation(
@@ -255,7 +258,7 @@ nugl__render (nu_renderer_t   *ctx,
         // Reset pass commands
         if (pass->reset)
         {
-            pass->cmds.count = 0;
+            nu_vec_clear(&pass->cmds);
         }
     }
 
@@ -270,87 +273,105 @@ nugl__render (nu_renderer_t   *ctx,
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(gl->blit_program);
-    glBindTexture(GL_TEXTURE_2D, gl->surface_color);
+    glBindTexture(GL_TEXTURE_2D,
+                  gl->textures.data[gl->surface_color_index].texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Reset for next frame
-    gl->pass_order_count = 0;
+    nu_vec_clear(&gl->passes_order);
 
     return NU_ERROR_NONE;
 }
-static nu_texture_t
-nugl__create_surface_color (nu_renderer_t *ctx)
+static nu_texture_handle_t
+nugl__create_surface_color (nu_renderer_t *ctx, nu_uvec2_t size)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_texture_t texture;
-    glGenTextures(1, &texture._gl.texture);
-    glBindTexture(GL_TEXTURE_2D, texture._gl.texture);
+    nu_vec_push(&gl->textures, &gl->allocator);
+    gl->surface_color_index = gl->textures.size - 1;
+    nugl__texture_t *ptex   = nu_vec_last(&gl->textures);
+    ptex->size              = size;
+
+    glGenTextures(1, &ptex->texture);
+    glBindTexture(GL_TEXTURE_2D, ptex->texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_SRGB,
-                 gl->surface_size.x,
-                 gl->surface_size.y,
+                 size.x,
+                 size.y,
                  0,
                  GL_RGB,
                  GL_UNSIGNED_BYTE,
                  NU_NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    texture._size = gl->surface_size;
 
-    gl->surface_color = texture._gl.texture;
-
-    return texture;
+    nu_texture_handle_t handle;
+    handle._gl.index = gl->surface_color_index;
+    return handle;
 }
 
 static nu_error_t
 nugl__update_camera (nu_renderer_t          *ctx,
-                     nu_camera_t            *camera,
+                     nu_camera_handle_t      camera,
                      const nu_camera_info_t *info)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_mat4_t view   = nu_lookat(info->eye, info->center, info->up);
-    float     aspect = (float)gl->surface_size.x / (float)gl->surface_size.y;
+    nugl__texture_t *surface_color
+        = gl->textures.data + gl->surface_color_index;
+
+    nugl__camera_t *pcam = gl->cameras.data + camera._gl.index;
+    nu_mat4_t       view = nu_lookat(info->eye, info->center, info->up);
+    float aspect = (float)surface_color->size.x / (float)surface_color->size.y;
     nu_mat4_t projection
         = nu_perspective(nu_radian(info->fov), aspect, info->near, info->far);
 
-    camera->gl.vp = nu_mat4_mul(projection, view);
+    pcam->vp = nu_mat4_mul(projection, view);
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_camera (nu_renderer_t          *ctx,
                      const nu_camera_info_t *info,
-                     nu_camera_t            *camera)
+                     nu_camera_handle_t     *camera)
 {
-    nu_error_t error;
-    error = nugl__update_camera(ctx, camera, info);
+    nugl__context_t *gl = nugl__ctx(ctx);
+
+    nu_vec_push(&gl->cameras, &gl->allocator);
+    camera->_gl.index = gl->cameras.size - 1;
+
+    nu_error_t error = nugl__update_camera(ctx, *camera, info);
     NU_ERROR_CHECK(error, return error);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_camera (nu_renderer_t *ctx, nu_camera_t *camera)
+nugl__delete_camera (nu_renderer_t *ctx, nu_camera_handle_t camera)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_mesh (nu_renderer_t        *ctx,
                    const nu_mesh_info_t *info,
-                   nu_mesh_t            *mesh)
+                   nu_mesh_handle_t     *mesh)
 {
     NU_ASSERT(info->positions);
 
-    mesh->gl.vertex_count = info->count;
+    nugl__context_t *gl = nugl__ctx(ctx);
+
+    nu_vec_push(&gl->meshes, &gl->allocator);
+    mesh->_gl.index     = gl->meshes.size - 1;
+    nugl__mesh_t *pmesh = nu_vec_last(&gl->meshes);
+
+    pmesh->vertex_count = info->count;
 
     // Create VAO
-    glGenVertexArrays(1, &mesh->gl.vao);
-    glBindVertexArray(mesh->gl.vao);
+    glGenVertexArrays(1, &pmesh->vao);
+    glBindVertexArray(pmesh->vao);
 
     // Create VBO
-    glGenBuffers(1, &mesh->gl.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.vbo);
+    glGenBuffers(1, &pmesh->vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, pmesh->vbo);
 
     // Format vertices
     glBufferData(GL_ARRAY_BUFFER,
@@ -408,20 +429,28 @@ nugl__create_mesh (nu_renderer_t        *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_mesh (nu_renderer_t *ctx, nu_mesh_t *mesh)
+nugl__delete_mesh (nu_renderer_t *ctx, nu_mesh_handle_t mesh)
 {
-    glDeleteVertexArrays(1, &mesh->gl.vao);
-    glDeleteBuffers(1, &mesh->gl.vbo);
+    nugl__mesh_t *pmesh = nugl__ctx(ctx)->meshes.data + mesh._gl.index;
+    glDeleteVertexArrays(1, &pmesh->vao);
+    glDeleteBuffers(1, &pmesh->vbo);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_texture (nu_renderer_t           *ctx,
                       const nu_texture_info_t *info,
-                      nu_texture_t            *texture)
+                      nu_texture_handle_t     *texture)
 {
+    nugl__context_t *gl = nugl__ctx(ctx);
 
-    glGenTextures(1, &texture->_gl.texture);
-    glBindTexture(GL_TEXTURE_2D, texture->_gl.texture);
+    nu_vec_push(&gl->textures, &gl->allocator);
+    texture->_gl.index    = gl->textures.size - 1;
+    nugl__texture_t *ptex = nu_vec_last(&gl->textures);
+
+    ptex->size = info->size;
+
+    glGenTextures(1, &ptex->texture);
+    glBindTexture(GL_TEXTURE_2D, ptex->texture);
 
     switch (info->format)
     {
@@ -457,97 +486,107 @@ nugl__create_texture (nu_renderer_t           *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_texture (nu_renderer_t *ctx, nu_texture_t *texture)
+nugl__delete_texture (nu_renderer_t *ctx, nu_texture_handle_t texture)
 {
-    glDeleteTextures(1, &texture->_gl.texture);
+    nugl__texture_t *ptex = nugl__ctx(ctx)->textures.data + texture._gl.index;
+    glDeleteTextures(1, &ptex->texture);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_cubemap (nu_renderer_t           *ctx,
                       const nu_cubemap_info_t *info,
-                      nu_cubemap_t            *cubemap)
+                      nu_cubemap_handle_t     *cubemap)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_cubemap (nu_renderer_t *ctx, nu_cubemap_t *cubemap)
+nugl__delete_cubemap (nu_renderer_t *ctx, nu_cubemap_handle_t cubemap)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__update_material (nu_renderer_t            *ctx,
-                       nu_material_t            *material,
+                       nu_material_handle_t      material,
                        const nu_material_info_t *info)
 {
+    nugl__context_t  *gl  = nugl__ctx(ctx);
+    nugl__material_t *mat = gl->materials.data + material._gl.index;
     if (info->texture0)
     {
-        material->gl.texture0 = info->texture0->_gl.texture;
+        mat->texture0 = gl->textures.data[info->texture0->_gl.index].texture;
     }
     if (info->texture1)
     {
-        material->gl.texture1 = info->texture1->_gl.texture;
+        mat->texture1 = gl->textures.data[info->texture1->_gl.index].texture;
     }
-    material->gl.uv_transform = info->uv_transform;
+    mat->uv_transform = info->uv_transform;
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_material (nu_renderer_t            *ctx,
                        const nu_material_info_t *info,
-                       nu_material_t            *material)
+                       nu_material_handle_t     *material)
 {
-    nugl__update_material(ctx, material, info);
+    nugl__context_t *gl = nugl__ctx(ctx);
+
+    nu_vec_push(&gl->materials, &gl->allocator);
+    material->_gl.index = gl->materials.size - 1;
+
+    nugl__update_material(ctx, *material, info);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_material (nu_renderer_t *ctx, nu_material_t *material)
+nugl__delete_material (nu_renderer_t *ctx, nu_material_handle_t material)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_renderpass (nu_renderer_t              *ctx,
                          const nu_renderpass_info_t *info,
-                         nu_renderpass_t            *pass)
+                         nu_renderpass_handle_t     *pass)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_u32_t                 passid = gl->pass_count++;
-    nugl__renderpass_data_t *data   = &gl->passes[passid];
-    data->type                      = info->type;
+    nu_vec_push(&gl->passes, &gl->allocator);
+    nu_u32_t            index = gl->passes.size - 1;
+    nugl__renderpass_t *data  = gl->passes.data + index;
+    data->type                = info->type;
 
     // Allocate command buffer
-    data->cmds.commands = nu_alloc(
-        &gl->allocator, sizeof(nugl__command_t) * NUGL__MAX_COMMAND_COUNT);
-    data->cmds.count = 0;
+    nu_vec_init(&data->cmds, &gl->allocator, 128);
 
-    pass->gl.id = passid;
+    pass->_gl.index = index;
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_renderpass (nu_renderer_t *ctx, nu_renderpass_t *pass)
+nugl__delete_renderpass (nu_renderer_t *ctx, nu_renderpass_handle_t pass)
 {
     return NU_ERROR_NONE;
 }
 static void
-nugl__draw (nu_renderer_t       *ctx,
-            nu_renderpass_t     *pass,
-            const nu_mesh_t     *mesh,
-            const nu_material_t *material,
-            const nu_mat4_t     *transform)
+nugl__draw (nu_renderer_t         *ctx,
+            nu_renderpass_handle_t pass,
+            nu_mesh_handle_t       mesh,
+            nu_material_handle_t   material,
+            nu_mat4_t              transform)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nugl__renderpass_data_t *data = &gl->passes[pass->gl.id];
+    nugl__renderpass_t *ppass = gl->passes.data + pass._gl.index;
+    nugl__mesh_t       *pmesh = gl->meshes.data + mesh._gl.index;
+    nugl__material_t   *pmat  = gl->materials.data + material._gl.index;
     // TODO: check command validity
-    nugl__command_t *cmd = &data->cmds.commands[data->cmds.count++];
+    nu_vec_push(&ppass->cmds, &gl->allocator);
+    nugl__command_t *cmd = nu_vec_last(&ppass->cmds);
     cmd->type            = NUGL__DRAW;
-    cmd->transform       = *transform;
-    cmd->vao             = mesh->gl.vao;
-    cmd->vbo             = mesh->gl.vbo;
-    cmd->vcount          = mesh->gl.vertex_count;
-    cmd->texture0        = material->gl.texture0;
-    cmd->texture1        = material->gl.texture1;
-    cmd->uv_transform    = material->gl.uv_transform;
+    cmd->transform       = transform;
+    cmd->vao             = pmesh->vao;
+    cmd->vbo             = pmesh->vbo;
+    cmd->vcount          = pmesh->vertex_count;
+    cmd->texture0        = pmat->texture0;
+    cmd->texture1        = pmat->texture1;
+    cmd->uv_transform    = pmat->uv_transform;
 }
 static GLuint
 nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
@@ -555,9 +594,9 @@ nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
                                   GLuint         depth)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
-    for (nu_size_t i = 0; i < gl->target_count; ++i)
+    for (nu_size_t i = 0; i < gl->targets.size; ++i)
     {
-        const nugl__rendertarget_t *target = gl->targets + i;
+        const nugl__rendertarget_t *target = gl->targets.data + i;
         if (target->color == color && target->depth == depth)
         {
             return target->fbo;
@@ -569,7 +608,8 @@ nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
             color,
             depth);
 
-    nugl__rendertarget_t *target = &gl->targets[gl->target_count++];
+    nu_vec_push(&gl->targets, &gl->allocator);
+    nugl__rendertarget_t *target = nu_vec_last(&gl->targets);
     target->color                = color;
     target->depth                = depth;
 
@@ -599,52 +639,55 @@ nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
 }
 static void
 nugl__submit_renderpass (nu_renderer_t                *ctx,
-                         nu_renderpass_t              *pass,
+                         nu_renderpass_handle_t        pass,
                          const nu_renderpass_submit_t *info)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    gl->pass_order[gl->pass_order_count++] = pass->gl.id;
-    gl->passes[pass->gl.id].reset          = info->reset;
+    nu_vec_push(&gl->passes_order, &gl->allocator);
+    *(nu_vec_last(&gl->passes_order)) = pass._gl.index;
 
-    nugl__renderpass_data_t *data = &gl->passes[pass->gl.id];
-    switch (data->type)
+    nugl__renderpass_t *ppass = gl->passes.data + pass._gl.index;
+    ppass->reset              = info->reset;
+    switch (ppass->type)
     {
         case NU_RENDERPASS_UNLIT: {
-            data->vp  = info->unlit.camera->gl.vp;
-            data->ivp = info->unlit.camera->gl.ivp;
+            nugl__camera_t *cam
+                = gl->cameras.data + info->unlit.camera._gl.index;
+            ppass->vp  = cam->vp;
+            ppass->ivp = cam->ivp;
         }
         break;
         case NU_RENDERPASS_FLAT: {
-            if (info->flat.camera)
+            nugl__camera_t *cam
+                = gl->cameras.data + info->flat.camera._gl.index;
+            ppass->vp  = cam->vp;
+            ppass->ivp = cam->ivp;
+
+            const nugl__texture_t *color_target
+                = info->flat.color_target
+                      ? gl->textures.data + info->flat.color_target->_gl.index
+                      : NU_NULL;
+            const nugl__texture_t *depth_target
+                = info->flat.depth_target
+                      ? gl->textures.data + info->flat.depth_target->_gl.index
+                      : NU_NULL;
+
+            ppass->color_target = color_target ? color_target->texture : 0;
+            ppass->depth_target = depth_target ? depth_target->texture : 0;
+            ppass->clear_color  = info->flat.clear_color;
+
+            if (color_target || depth_target)
             {
-                data->vp  = info->flat.camera->gl.vp;
-                data->ivp = info->flat.camera->gl.ivp;
+                ppass->fbo = nugl__find_or_create_framebuffer(
+                    ctx, ppass->color_target, ppass->depth_target);
+                ppass->fbo_size = ppass->color_target ? color_target->size
+                                                      : depth_target->size;
             }
             else
             {
-                data->vp  = nu_mat4_identity();
-                data->ivp = nu_mat4_identity();
-            }
-            data->color_target = info->flat.color_target
-                                     ? info->flat.color_target->_gl.texture
-                                     : 0;
-            data->depth_target = info->flat.depth_target
-                                     ? info->flat.depth_target->_gl.texture
-                                     : 0;
-            data->clear_color  = info->flat.clear_color;
-            if (data->color_target || data->depth_target)
-            {
-                data->fbo = nugl__find_or_create_framebuffer(
-                    ctx, data->color_target, data->depth_target);
-                data->fbo_size = data->color_target
-                                     ? info->flat.color_target->_size
-                                     : info->flat.depth_target->_size;
-            }
-            else
-            {
-                data->fbo      = 0;
-                data->fbo_size = NU_UVEC2_ZERO;
+                ppass->fbo      = 0;
+                ppass->fbo_size = NU_UVEC2_ZERO;
             }
         }
         break;

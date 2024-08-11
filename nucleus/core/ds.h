@@ -3,76 +3,40 @@
 
 #include <nucleus/core/memory.h>
 
-typedef struct
-{
-    nu_size_t _size;
-    nu_size_t _capacity;
-    void     *_data;
-} nu_vector_t;
-
-NU_API nu_error_t  nu_vector_init(nu_vector_t    *vec,
-                                  nu_allocator_t *alloc,
-                                  nu_size_t       capacity,
-                                  nu_size_t       osize);
-NU_API void        nu_vector_free(nu_vector_t    *vec,
-                                  nu_allocator_t *alloc,
-                                  nu_size_t       osize);
-NU_API void       *nu_vector_data(nu_vector_t *vec);
-NU_API const void *nu_vector_data_const(const nu_vector_t *vec);
-NU_API nu_size_t   nu_vector_size(const nu_vector_t *vec);
-NU_API void        nu_vector_push(nu_vector_t    *vec,
-                                  nu_allocator_t *alloc,
-                                  nu_size_t       osize);
-
-#define NU_DEFINE_VECTOR(name, type)                               \
-    typedef struct                                                 \
-    {                                                              \
-        nu_vector_t vec;                                           \
-    } name##_t;                                                    \
-    nu_error_t name##_init(                                        \
-        name##_t *vec, nu_allocator_t *alloc, nu_size_t size);     \
-    void        name##_free(name##_t *vec, nu_allocator_t *alloc); \
-    type       *name##_data(name##_t *vec);                        \
-    const type *name##_data_const(const name##_t *vec);            \
-    type       *name##_at(name##_t *vec, nu_size_t i);             \
-    const type *name##_at_const(const name##_t *vec, nu_size_t i); \
-    nu_size_t   name##_size(const name##_t *vec);                  \
-    type       *name##_push(name##_t *vec, nu_allocator_t *alloc);
-
-#define NU_DECLARE_VECTOR(name, type)                                \
-    nu_error_t name##_init(                                          \
-        name##_t *vec, nu_allocator_t *alloc, nu_size_t size)        \
-    {                                                                \
-        return nu_vector_init(&vec->vec, alloc, size, sizeof(type)); \
-    }                                                                \
-    void name##_free(name##_t *vec, nu_allocator_t *alloc)           \
-    {                                                                \
-        nu_vector_free(&vec->vec, alloc, sizeof(type));              \
-    }                                                                \
-    type *name##_data(name##_t *vec)                                 \
-    {                                                                \
-        return nu_vector_data(&vec->vec);                            \
-    }                                                                \
-    const type *name##_data_const(const name##_t *vec)               \
-    {                                                                \
-        return nu_vector_data_const(&vec->vec);                      \
-    }                                                                \
-    type *name##_at(name##_t *vec, nu_size_t i)                      \
-    {                                                                \
-        return name##_data(vec) + i;                                 \
-    }                                                                \
-    const type *name##_at_const(const name##_t *vec, nu_size_t i)    \
-    {                                                                \
-        return name##_data_const(vec) + i;                           \
-    }                                                                \
-    nu_size_t name##_size(const name##_t *vec)                       \
-    {                                                                \
-        return nu_vector_size(&vec->vec);                            \
-    }                                                                \
-    type *name##_push(name##_t *vec, nu_allocator_t *alloc)          \
-    {                                                                \
-        nu_vector_push(&vec->vec, alloc, sizeof(type));              \
-        return name##_at(vec, vec->vec._size - 1);                   \
+#define nu_vec(type)        \
+    struct                  \
+    {                       \
+        type     *data;     \
+        nu_size_t size;     \
+        nu_size_t capacity; \
     }
+
+#define nu_vec_init(v, alloc, cap)                                   \
+    do                                                               \
+    {                                                                \
+        (v)->data     = nu_alloc(alloc, sizeof(*(v)->data) * (cap)); \
+        (v)->capacity = (cap);                                       \
+        (v)->size     = 0;                                           \
+    } while (0)
+#define nu_vec_free(v, alloc) \
+    nu_free(alloc, (v)->data, sizeof(*(v)->data) * (v)->capacity)
+#define nu_vec_clear(v) (v)->size = 0
+#define nu_vec_push(v, alloc)                                                       \
+    do                                                                              \
+    {                                                                               \
+        if ((v)->size >= (v)->capacity)                                             \
+        {                                                                           \
+            nu_size_t new_capacity = (v)->capacity * 2;                             \
+            (v)->data              = nu_realloc(alloc,                              \
+                                   (v)->data,                          \
+                                   sizeof(*(v)->data) * (v)->capacity, \
+                                   sizeof(*(v)->data) * new_capacity); \
+            (v)->capacity          = new_capacity;                                  \
+        }                                                                           \
+        ++(v)->size;                                                                \
+    } while (0)
+#define nu_vec_last(v) (v)->size ? (v)->data + ((v)->size - 1) : NU_NULL
+
+typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 
 #endif

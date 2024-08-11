@@ -12,7 +12,6 @@
 
 #ifdef NU_IMPLEMENTATION
 
-#include <nucleus/core/ds_impl.h>
 #include <nucleus/core/color_impl.h>
 #include <nucleus/core/logger_impl.h>
 #include <nucleus/core/math_impl.h>

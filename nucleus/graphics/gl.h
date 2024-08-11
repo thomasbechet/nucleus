@@ -5,10 +5,7 @@
 #include <nucleus/graphics/shared_types.h>
 #include <nucleus/external/glad/gl.h>
 
-#define NUGL__VERTEX_SIZE            (3 + 2 + 3)
-#define NUGL__MAX_COMMAND_COUNT      128
-#define NUGL__MAX_RENDERPASS_COUNT   32
-#define NUGL__MAX_RENDERTARGET_COUNT 32
+#define NUGL__VERTEX_SIZE (3 + 2 + 3)
 
 typedef struct
 {
@@ -26,20 +23,21 @@ typedef struct
 
 typedef struct
 {
-    GLuint    texture0;
-    GLuint    texture1;
-    nu_mat3_t uv_transform;
-} nugl__material_t;
-
-typedef struct
-{
-    GLuint texture;
+    nu_uvec2_t size;
+    GLuint     texture;
 } nugl__texture_t;
 
 typedef struct
 {
     GLuint cubemap;
 } nugl__cubemap_t;
+
+typedef struct
+{
+    GLuint    texture0;
+    GLuint    texture1;
+    nu_mat3_t uv_transform;
+} nugl__material_t;
 
 typedef enum
 {
@@ -59,29 +57,20 @@ typedef struct
     nu_mat3_t            uv_transform;
 } nugl__command_t;
 
-typedef struct
-{
-    nugl__command_t *commands;
-    nu_size_t        count;
-} nugl__command_buffer_t;
+typedef nu_vec(nugl__command_t) nugl__command_vec_t;
 
 typedef struct
 {
-    nu_renderpass_type_t   type;
-    nugl__command_buffer_t cmds;
-    nu_mat4_t              vp;
-    nu_mat4_t              ivp;
-    nu_color_t             clear_color;
-    GLuint                 depth_target;
-    GLuint                 color_target;
-    GLuint                 fbo;
-    nu_uvec2_t             fbo_size;
-    nu_bool_t              reset;
-} nugl__renderpass_data_t;
-
-typedef struct
-{
-    nu_u32_t id;
+    nu_renderpass_type_t type;
+    nugl__command_vec_t  cmds;
+    nu_mat4_t            vp;
+    nu_mat4_t            ivp;
+    nu_color_t           clear_color;
+    GLuint               depth_target;
+    GLuint               color_target;
+    GLuint               fbo;
+    nu_uvec2_t           fbo_size;
+    nu_bool_t            reset;
 } nugl__renderpass_t;
 
 typedef struct
@@ -91,23 +80,36 @@ typedef struct
     GLuint fbo;
 } nugl__rendertarget_t;
 
+typedef union
+{
+    nu_u32_t index;
+} nugl__handle_t;
+
+typedef nu_vec(nugl__camera_t) nugl__camera_vec_t;
+typedef nu_vec(nugl__mesh_t) nugl__mesh_vec_t;
+typedef nu_vec(nugl__texture_t) nugl__texture_vec_t;
+typedef nu_vec(nugl__cubemap_t) nugl__cubemap_vec_t;
+typedef nu_vec(nugl__material_t) nugl__material_vec_t;
+typedef nu_vec(nugl__rendertarget_t) nugl__rendertarget_vec_t;
+typedef nu_vec(nugl__renderpass_t) nugl__renderpass_vec_t;
+
 typedef struct
 {
     nu_allocator_t allocator;
-    nu_uvec2_t     surface_size;
-    GLuint         surface_color;
+    nu_u32_t       surface_color_index;
 
     GLuint blit_program;
     GLuint flat_program;
     GLuint nearest_sampler;
 
-    nugl__rendertarget_t targets[NUGL__MAX_RENDERTARGET_COUNT];
-    nu_size_t            target_count;
-
-    nugl__renderpass_data_t passes[NUGL__MAX_RENDERPASS_COUNT];
-    nu_u32_t                pass_count;
-    nu_u32_t                pass_order[NUGL__MAX_RENDERPASS_COUNT];
-    nu_u32_t                pass_order_count;
+    nugl__camera_vec_t       cameras;
+    nugl__mesh_vec_t         meshes;
+    nugl__texture_vec_t      textures;
+    nugl__cubemap_vec_t      cubemaps;
+    nugl__material_vec_t     materials;
+    nugl__rendertarget_vec_t targets;
+    nugl__renderpass_vec_t   passes;
+    nu_u32_vec_t             passes_order;
 } nugl__context_t;
 
 #endif

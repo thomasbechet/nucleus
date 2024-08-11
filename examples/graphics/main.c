@@ -7,17 +7,17 @@
 #define WIDTH  500
 #define HEIGHT 500
 
-static nu_allocator_t  alloc;
-static nu_logger_t     logger;
-static nu_platform_t   platform;
-static nu_renderer_t   renderer;
-static nu_renderpass_t renderpass;
-static nu_texture_t    depth_buffer;
-static nu_mesh_t       mesh;
-static nu_texture_t    texture;
-static nu_material_t   material;
-static nu_camera_t     camera;
-static nu_input_t      exit_input;
+static nu_allocator_t         alloc;
+static nu_logger_t            logger;
+static nu_platform_t          platform;
+static nu_renderer_t          renderer;
+static nu_renderpass_handle_t renderpass;
+static nu_texture_handle_t    depth_buffer;
+static nu_mesh_handle_t       mesh;
+static nu_texture_handle_t    texture;
+static nu_material_handle_t   material;
+static nu_camera_handle_t     camera;
+static nu_input_t             exit_input;
 
 int
 main (void)
@@ -98,7 +98,7 @@ main (void)
         info.size   = nu_uvec2(WIDTH, HEIGHT);
         info.usage  = NU_TEXTURE_USAGE_TARGET;
         info.format = NU_TEXTURE_FORMAT_DEPTH;
-        error       = nu_texture_create(&renderer, &info, &texture);
+        error       = nu_texture_create(&renderer, &info, &depth_buffer);
         NU_ERROR_ASSERT(error);
     }
 
@@ -125,16 +125,17 @@ main (void)
 
         nu_mat4_t model = nu_mat4_identity();
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
-        nu_draw(&renderer, &renderpass, &mesh, &material, &model);
+        nu_draw(&renderer, renderpass, mesh, material, model);
 
         nu_renderpass_submit_t submit;
         submit.reset            = NU_TRUE;
-        submit.flat.camera      = &camera;
+        submit.flat.camera      = camera;
         submit.flat.clear_color = NU_COLOR_BLACK;
-        submit.flat.color_target
+        nu_texture_handle_t surface_color
             = nu_surface_color_target(&platform, &renderer);
+        submit.flat.color_target = &surface_color;
         submit.flat.depth_target = &depth_buffer;
-        nu_renderpass_submit(&renderer, &renderpass, &submit);
+        nu_renderpass_submit(&renderer, renderpass, &submit);
 
         nu_render(&platform, &renderer);
         nu_swap_buffers(&platform);

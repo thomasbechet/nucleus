@@ -4,9 +4,6 @@
 #include <nucleus/utils/model.h>
 #include <nucleus/utils/loader.h>
 
-NU_DECLARE_VECTOR(nu__model_items, nu__model_item_t)
-NU_DECLARE_VECTOR(nu__model_commands, nu__model_command_t)
-
 typedef struct
 {
     nu_model_t     *model;
@@ -19,8 +16,8 @@ static nu_error_t
 nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
 {
     nuext__gltf_to_model_userdata_t *data = userdata;
-    nu__model_item_t                *item
-        = nu__model_items_push(&data->model->items, data->alloc);
+    nu_vec_push(&data->model->items, data->alloc);
+    nu__model_item_t *item = nu_vec_last(&data->model->items);
     NU_CHECK(item, return NU_ERROR_ALLOCATION);
     switch (asset->type)
     {
@@ -52,11 +49,9 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
         break;
         case NUEXT_GLTF_ASSET_MATERIAL: {
             NU_DEBUG(data->logger, "load material %lu", asset->id);
-            const nu__model_item_t *items
-                = nu__model_items_data_const(&data->model->items);
-            const nu_texture_t *diffuse_tex = NU_NULL;
-            for (nu_size_t i = 0; i < nu__model_items_size(&data->model->items);
-                 ++i)
+            const nu_texture_handle_t *diffuse_tex = NU_NULL;
+            const nu__model_item_t    *items       = data->model->items.data;
+            for (nu_size_t i = 0; i < data->model->items.size; ++i)
             {
                 if (items[i].id == asset->material.diffuse_id)
                 {
@@ -79,16 +74,14 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
         break;
         case NUEXT_GLTF_ASSET_NODE: {
             NU_DEBUG(data->logger, "load node %lu", asset->id);
-            nu__model_command_t *cmd
-                = nu__model_commands_push(&data->model->commands, data->alloc);
+            nu_vec_push(&data->model->commands, data->alloc);
+            nu__model_command_t *cmd = nu_vec_last(&data->model->commands);
             NU_CHECK(cmd, return NU_ERROR_ALLOCATION);
-            cmd->transform = asset->node.transform;
-            cmd->material  = -1;
-            cmd->mesh      = -1;
-            const nu__model_item_t *items
-                = nu__model_items_data_const(&data->model->items);
-            for (nu_size_t i = 0; i < nu__model_items_size(&data->model->items);
-                 ++i)
+            cmd->transform                = asset->node.transform;
+            cmd->material                 = -1;
+            cmd->mesh                     = -1;
+            const nu__model_item_t *items = data->model->items.data;
+            for (nu_size_t i = 0; i < data->model->items.size; ++i)
             {
                 if (items[i].id == asset->node.mesh_id)
                 {
@@ -126,16 +119,18 @@ nuext_model_from_gltf (const nu_char_t *filename,
                        nu_allocator_t  *alloc,
                        nu_model_t      *model)
 {
-    nu__model_items_init(&model->items, alloc, 32);
-    nu__model_commands_init(&model->commands, alloc, 32);
+    nu_vec_init(&model->items, alloc, 32);
+    nu_vec_init(&model->commands, alloc, 32);
     nuext__gltf_to_model_userdata_t userdata;
     userdata.alloc    = alloc;
     userdata.model    = model;
     userdata.logger   = logger;
     userdata.renderer = renderer;
     {
-        nu__model_item_t *mat_item = nu__model_items_push(&model->items, alloc);
-        nu__model_item_t *tex_item = nu__model_items_push(&model->items, alloc);
+        nu_vec_push(&model->items, alloc);
+        nu_vec_push(&model->items, alloc);
+        nu__model_item_t *mat_item = model->items.data + 0;
+        nu__model_item_t *tex_item = model->items.data + 1;
         nu_texture_info_t tinfo;
         nu_color_t        white = NU_COLOR_WHITE;
         tinfo.size              = nu_uvec2(1, 1);
@@ -155,30 +150,27 @@ nuext_model_from_gltf (const nu_char_t *filename,
 void
 nu_model_free (nu_model_t *model, nu_allocator_t *alloc)
 {
-    nu__model_items_free(&model->items, alloc);
-    nu__model_commands_free(&model->commands, alloc);
+    nu_vec_free(&model->items, alloc);
+    nu_vec_free(&model->commands, alloc);
 }
 void
-nu_model_draw (nu_renderer_t    *renderer,
-               nu_renderpass_t  *pass,
-               const nu_model_t *model,
-               const nu_mat4_t  *transform)
+nu_model_draw (nu_renderer_t         *renderer,
+               nu_renderpass_handle_t pass,
+               const nu_model_t      *model,
+               nu_mat4_t              transform)
 {
-    const nu__model_command_t *cmds
-        = nu__model_commands_data_const(&model->commands);
-    for (nu_size_t i = 0; i < nu__model_commands_size(&model->commands); ++i)
+    const nu__model_command_t *cmds = model->commands.data;
+    for (nu_size_t i = 0; i < model->commands.size; ++i)
     {
         if (cmds[i].material == (nu_u16_t)-1 || cmds[i].mesh == (nu_u16_t)-1)
         {
             continue;
         }
-        const nu_material_t *material
-            = &nu__model_items_at_const(&model->items, cmds[i].material)
-                   ->material;
-        const nu_mesh_t *mesh
-            = &nu__model_items_at_const(&model->items, cmds[i].mesh)->mesh;
-        nu_mat4_t global_transform = nu_mat4_mul(*transform, cmds[i].transform);
-        nu_draw(renderer, pass, mesh, material, &global_transform);
+        const nu_material_handle_t *material
+            = &model->items.data[cmds[i].material].material;
+        const nu_mesh_handle_t *mesh = &model->items.data[cmds[i].mesh].mesh;
+        nu_mat4_t global_transform = nu_mat4_mul(transform, cmds[i].transform);
+        nu_draw(renderer, pass, *mesh, *material, global_transform);
     }
 }
 
