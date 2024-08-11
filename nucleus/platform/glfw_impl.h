@@ -533,7 +533,7 @@ nuglfw__first_binding_from_axis (nuglfw__input_t *ctx, nuext_axis_t axis)
     return NU_NULL;
 }
 static nu_error_t
-nuglfw__create_input (nuglfw__input_t *ctx, nu_input_t *input)
+nuglfw__create_input (nuglfw__input_t *ctx, nu_input_handle_t *input)
 {
     input->_glfwid = ctx->free_input;
     if (input->_glfwid == NUGLFW_ID_NONE)
@@ -547,35 +547,35 @@ nuglfw__create_input (nuglfw__input_t *ctx, nu_input_t *input)
     return NU_ERROR_NONE;
 }
 static const nu__input_state_t *
-nuglfw__input_state (const nuglfw__input_t *ctx, const nu_input_t *input)
+nuglfw__input_state (const nuglfw__input_t *ctx, nu_input_handle_t input)
 {
-    return &ctx->inputs[input->_glfwid].state;
+    return &ctx->inputs[input._glfwid].state;
 }
 static nuglfw__binding_t *
-nuglfw__add_binding (nuglfw__input_t *ctx,
-                     nu_u32_t        *first_binding,
-                     nu_input_t      *input)
+nuglfw__add_binding (nuglfw__input_t  *ctx,
+                     nu_u32_t         *first_binding,
+                     nu_input_handle_t input)
 {
     nu_u32_t           binding_id = ctx->free_binding;
     nuglfw__binding_t *binding    = &ctx->bindings[binding_id];
-    binding->id                   = input->_glfwid;
+    binding->id                   = input._glfwid;
     ctx->free_binding             = binding->next;
     binding->next                 = *first_binding;
     *first_binding                = binding_id;
     return binding;
 }
 static nu_error_t
-nuglfw__bind_button_value (nuglfw__input_t *ctx,
-                           nu_input_t      *input,
-                           nuext_button_t   button,
-                           float            pressed_value)
+nuglfw__bind_button_value (nuglfw__input_t  *ctx,
+                           nu_input_handle_t input,
+                           nuext_button_t    button,
+                           float             pressed_value)
 {
-    NU_ASSERT(input->_glfwid != NUGLFW_ID_NONE);
+    NU_ASSERT(input._glfwid != NUGLFW_ID_NONE);
 
     // Check duplicated binding
     nu_u32_t *first_binding = nuglfw__first_binding_from_button(ctx, button);
     NU_ASSERT(first_binding);
-    if (nuglfw__find_binding(ctx, *first_binding, input->_glfwid))
+    if (nuglfw__find_binding(ctx, *first_binding, input._glfwid))
     {
         return NU_ERROR_DUPLICATED;
     }
@@ -587,21 +587,23 @@ nuglfw__bind_button_value (nuglfw__input_t *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nuglfw__bind_button (nuglfw__input_t *ctx,
-                     nu_input_t      *input,
-                     nuext_button_t   button)
+nuglfw__bind_button (nuglfw__input_t  *ctx,
+                     nu_input_handle_t input,
+                     nuext_button_t    button)
 {
     return nuglfw__bind_button_value(ctx, input, button, NU_INPUT_PRESSED);
 }
 static nu_error_t
-nuglfw__bind_axis (nuglfw__input_t *ctx, nu_input_t *input, nuext_axis_t axis)
+nuglfw__bind_axis (nuglfw__input_t  *ctx,
+                   nu_input_handle_t input,
+                   nuext_axis_t      axis)
 {
-    NU_ASSERT(input->_glfwid != NUGLFW_ID_NONE);
+    NU_ASSERT(input._glfwid != NUGLFW_ID_NONE);
 
     // Check duplicated
     nu_u32_t *first_binding = nuglfw__first_binding_from_axis(ctx, axis);
     NU_ASSERT(first_binding);
-    if (nuglfw__find_binding(ctx, *first_binding, input->_glfwid))
+    if (nuglfw__find_binding(ctx, *first_binding, input._glfwid))
     {
         return NU_ERROR_DUPLICATED;
     }

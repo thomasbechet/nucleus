@@ -79,7 +79,7 @@ typedef struct
 #ifdef NU_BUILD_GLFW
     nu_u32_t _glfwid;
 #endif
-} nu_input_t;
+} nu_input_handle_t;
 
 typedef enum
 {
