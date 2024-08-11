@@ -123,16 +123,18 @@ main (void)
         }
         nu_poll_events(&platform);
 
-        nu_mat4_t model = nu_mat4_identity();
+        nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 1000) * 0.2, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
         nu_draw(&renderer, renderpass, mesh, material, model);
 
-        nu_renderpass_submit_t submit;
-        submit.reset            = NU_TRUE;
-        submit.flat.camera      = camera;
-        submit.flat.clear_color = NU_COLOR_BLACK;
+        nu_color_t          clear_color = NU_COLOR_BLACK;
         nu_texture_handle_t surface_color
             = nu_surface_color_target(&platform, &renderer);
+
+        nu_renderpass_submit_t submit;
+        submit.reset             = NU_TRUE;
+        submit.flat.camera       = camera;
+        submit.flat.clear_color  = &clear_color;
         submit.flat.color_target = &surface_color;
         submit.flat.depth_target = &depth_buffer;
         nu_renderpass_submit(&renderer, renderpass, &submit);
