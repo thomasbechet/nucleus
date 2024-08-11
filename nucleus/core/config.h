@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdio.h>
 #endif
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)

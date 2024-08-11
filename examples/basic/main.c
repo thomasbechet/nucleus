@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
