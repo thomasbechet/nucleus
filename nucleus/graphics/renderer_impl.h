@@ -316,6 +316,25 @@ nu_texture_delete (nu_renderer_t *ctx, nu_texture_handle_t texture)
     return ctx->_api.delete_texture(ctx, texture);
 }
 
+nu_cubemap_info_t
+nu_cubemap_info_default (void)
+{
+    nu_cubemap_info_t info = { 0 };
+    return info;
+}
+nu_error_t
+nu_cubemap_create (nu_renderer_t           *ctx,
+                   const nu_cubemap_info_t *info,
+                   nu_cubemap_handle_t     *cubemap)
+{
+    return ctx->_api.create_cubemap(ctx, info, cubemap);
+}
+nu_error_t
+nu_cubemap_delete (nu_renderer_t *ctx, nu_cubemap_handle_t cubemap)
+{
+    return ctx->_api.delete_cubemap(ctx, cubemap);
+}
+
 nu_material_info_t
 nu_material_info_default (void)
 {

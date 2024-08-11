@@ -10,6 +10,8 @@
 typedef struct
 {
     GLuint    ubo;
+    nu_mat4_t view;
+    nu_mat4_t projection;
     nu_mat4_t vp;
     nu_mat4_t ivp;
 } nugl__camera_t;
@@ -29,7 +31,7 @@ typedef struct
 
 typedef struct
 {
-    GLuint cubemap;
+    GLuint texture;
 } nugl__cubemap_t;
 
 typedef struct
@@ -61,16 +63,30 @@ typedef nu_vec(nugl__command_t) nugl__command_vec_t;
 
 typedef struct
 {
+    nu_color_t clear_color;
+    nu_bool_t  has_clear_color;
+} nugl__renderpass_flat_t;
+
+typedef struct
+{
+    GLuint cubemap;
+} nugl__renderpass_skybox_t;
+
+typedef struct
+{
     nu_renderpass_type_t type;
     nugl__command_vec_t  cmds;
-    nu_mat4_t            vp;
-    nu_mat4_t            ivp;
-    nu_color_t           clear_color;
+    nu_u32_t             camera;
     GLuint               depth_target;
     GLuint               color_target;
     GLuint               fbo;
     nu_uvec2_t           fbo_size;
     nu_bool_t            reset;
+    union
+    {
+        nugl__renderpass_flat_t   flat;
+        nugl__renderpass_skybox_t skybox;
+    };
 } nugl__renderpass_t;
 
 typedef struct
@@ -100,6 +116,7 @@ typedef struct
 
     GLuint blit_program;
     GLuint flat_program;
+    GLuint skybox_program;
     GLuint nearest_sampler;
 
     nugl__camera_vec_t       cameras;

@@ -86,6 +86,12 @@ typedef struct
 {
     nu_u32_t           size;
     nu_texture_usage_t usage;
+    const nu_color_t  *colors_posx;
+    const nu_color_t  *colors_negx;
+    const nu_color_t  *colors_posy;
+    const nu_color_t  *colors_negy;
+    const nu_color_t  *colors_posz;
+    const nu_color_t  *colors_negz;
 } nu_cubemap_info_t;
 
 typedef struct
@@ -152,7 +158,8 @@ typedef struct
     nu_camera_handle_t         camera;
     const nu_texture_handle_t *color_target;
     const nu_texture_handle_t *depth_target;
-    nu_color_t                 clear_color;
+    nu_color_t                *clear_color;
+    nu_cubemap_handle_t       *clear_skybox;
 } nu_renderpass_submit_unlit_t;
 
 typedef struct
@@ -160,14 +167,16 @@ typedef struct
     nu_camera_handle_t         camera;
     const nu_texture_handle_t *color_target;
     const nu_texture_handle_t *depth_target;
-    nu_color_t                 clear_color;
+    nu_color_t                *clear_color;
 } nu_renderpass_submit_flat_t;
 
 typedef struct
 {
     nu_camera_handle_t         camera;
-    nu_texture_handle_t        color_target;
+    const nu_texture_handle_t *color_target;
     const nu_texture_handle_t *depth_target;
+    nu_cubemap_handle_t        cubemap;
+    nu_quat_t                  rotation;
 } nu_renderpass_submit_skybox_t;
 
 typedef struct
@@ -175,8 +184,9 @@ typedef struct
     nu_bool_t reset;
     union
     {
-        nu_renderpass_submit_unlit_t unlit;
-        nu_renderpass_submit_flat_t  flat;
+        nu_renderpass_submit_unlit_t  unlit;
+        nu_renderpass_submit_flat_t   flat;
+        nu_renderpass_submit_skybox_t skybox;
     };
 } nu_renderpass_submit_t;
 
@@ -303,6 +313,13 @@ NU_API nu_error_t nu_texture_create_color(nu_renderer_t       *ctx,
                                           nu_texture_handle_t *texture);
 NU_API nu_error_t nu_texture_delete(nu_renderer_t      *ctx,
                                     nu_texture_handle_t texture);
+
+NU_API nu_cubemap_info_t nu_cubemap_info_default(void);
+NU_API nu_error_t        nu_cubemap_create(nu_renderer_t           *ctx,
+                                           const nu_cubemap_info_t *info,
+                                           nu_cubemap_handle_t     *cubemap);
+NU_API nu_error_t        nu_cubemap_delete(nu_renderer_t      *ctx,
+                                           nu_cubemap_handle_t cubemap);
 
 NU_API nu_material_info_t nu_material_info_default(void);
 NU_API nu_error_t         nu_material_create(nu_renderer_t            *ctx,

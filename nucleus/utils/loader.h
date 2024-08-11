@@ -1,8 +1,8 @@
 #ifndef NU_LOADER_H
 #define NU_LOADER_H
 
-#include <nucleus/core.h>
 #include <nucleus/graphics.h>
+#include <nucleus/utils/image.h>
 
 typedef struct
 {
@@ -66,12 +66,10 @@ NU_API nu_error_t nuext_load_gltf(const nu_char_t      *filename,
 
 NU_API nu_error_t nuext_load_image(const nu_char_t *filename,
                                    nu_allocator_t  *allocator,
-                                   nu_uvec2_t      *size,
-                                   nu_color_t     **colors);
+                                   nu_image_t      *image);
 NU_API nu_error_t nuext_load_image_memory(const nu_byte_t *data,
                                           nu_size_t        data_size,
                                           nu_allocator_t  *allocator,
-                                          nu_uvec2_t      *size,
-                                          nu_color_t     **colors);
+                                          nu_image_t      *image);
 
 #endif

@@ -5,8 +5,8 @@
 
 typedef struct
 {
-    nu_uvec2_t  _size;
-    nu_color_t *_data;
+    nu_uvec2_t  size;
+    nu_color_t *data;
 } nu_image_t;
 
 NU_API nu_error_t nu_image_init(nu_allocator_t *alloc,

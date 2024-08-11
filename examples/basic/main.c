@@ -232,22 +232,18 @@ main (void)
     nu_texture_handle_t texture;
     nu_texture_handle_t texture_white;
     {
-        nu_color_t *colors;
-        nu_uvec2_t  size;
+        nu_image_t image;
         error = nuext_load_image(
-            "../../../assets/brick_building_front_lowres.png",
-            &alloc,
-            &size,
-            &colors);
+            "../../../assets/brick_building_front_lowres.png", &alloc, &image);
 
         nu_texture_info_t info;
-        info.size   = size;
+        info.size   = image.size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
         info.format = NU_TEXTURE_FORMAT_COLOR;
-        info.colors = colors;
+        info.colors = image.data;
         error       = nu_texture_create(&renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
-        nu_free(&alloc, colors, sizeof(nu_color_t) * size.x * size.y);
+        nu_image_free(&image, &alloc);
 
         nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
     }
@@ -297,6 +293,40 @@ main (void)
         NU_ERROR_ASSERT(error);
     }
 
+    // Load cubemap
+    nu_cubemap_handle_t skybox;
+    {
+        const nu_char_t *filenames[] = {
+            "../../../assets/skyboxes/vz_clear_ocean_up.png",
+            "../../../assets/skyboxes/vz_clear_ocean_down.png",
+            "../../../assets/skyboxes/vz_clear_ocean_left.png",
+            "../../../assets/skyboxes/vz_clear_ocean_right.png",
+            "../../../assets/skyboxes/vz_clear_ocean_front.png",
+            "../../../assets/skyboxes/vz_clear_ocean_back.png",
+        };
+        nu_image_t images[6];
+        for (nu_size_t i = 0; i < 6; ++i)
+        {
+            error = nuext_load_image(filenames[i], &alloc, &images[i]);
+            NU_ERROR_ASSERT(error);
+        }
+        nu_cubemap_info_t info;
+        info.size        = images->size.x;
+        info.usage       = NU_TEXTURE_USAGE_SAMPLE;
+        info.colors_posx = images[3].data;
+        info.colors_negx = images[2].data;
+        info.colors_posy = images[0].data;
+        info.colors_negy = images[1].data;
+        info.colors_posz = images[4].data;
+        info.colors_negz = images[5].data;
+        error            = nu_cubemap_create(&renderer, &info, &skybox);
+        NU_ERROR_ASSERT(error);
+        for (nu_size_t i = 0; i < 6; ++i)
+        {
+            nu_image_free(&images[i], &alloc);
+        }
+    }
+
     // Create camera
     nu_camera_handle_t camera;
     nu_camera_info_t   camera_info = nu_camera_info_default();
@@ -313,11 +343,16 @@ main (void)
 
     // Create renderpasses
     nu_renderpass_handle_t main_pass;
+    nu_renderpass_handle_t skybox_pass;
     {
         nu_renderpass_info_t info;
-        info.type      = NU_RENDERPASS_FLAT;
-        info.flat.todo = 0;
-        error          = nu_renderpass_create(&renderer, &info, &main_pass);
+
+        info.type = NU_RENDERPASS_FLAT;
+        error     = nu_renderpass_create(&renderer, &info, &main_pass);
+        NU_ERROR_ASSERT(error);
+
+        info.type = NU_RENDERPASS_SKYBOX;
+        error     = nu_renderpass_create(&renderer, &info, &skybox_pass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -400,30 +435,31 @@ main (void)
             nu_mat4_t model = nu_mat4_scale(0.2, 0.2, 0.2);
             nu_model_draw(&renderer, main_pass, &ariane_model, model);
 
-            // nu_mat4_t model = nu_mat4_mul(base, llpm_transform);
-            // nu_draw(&renderer, &main_pass, &llpm_mesh, &material_white,
-            // &model); model = nu_mat4_mul(base, booster_transform); nu_draw(
-            //     &renderer, &main_pass, &booster_mesh, &material_white,
-            //     &model);
-            // model = nu_mat4_mul(base, vulcain_transform);
-            // nu_draw(
-            //     &renderer, &main_pass, &vulcain_mesh, &material_white,
-            //     &model);
-
             model = nu_mat4_translate(10, 0, 0);
             nu_model_draw(&renderer, main_pass, &temple_model, model);
         }
 
         // Submit renderpass
         nu_renderpass_submit_t submit;
-        submit.reset       = NU_TRUE;
-        submit.flat.camera = camera;
+
         nu_texture_handle_t surface_tex
             = nu_surface_color_target(&platform, &renderer);
+        nu_color_t clear_color = NU_COLOR_BLUE_SKY;
+
+        submit.reset = NU_TRUE;
+
+        submit.flat.camera       = camera;
         submit.flat.color_target = &surface_tex;
         submit.flat.depth_target = &depth_buffer;
-        submit.flat.clear_color  = NU_COLOR_BLUE_SKY;
+        submit.flat.clear_color  = &clear_color;
         nu_renderpass_submit(&renderer, main_pass, &submit);
+
+        submit.skybox.camera       = camera;
+        submit.skybox.color_target = &surface_tex;
+        submit.skybox.depth_target = &depth_buffer;
+        submit.skybox.cubemap      = skybox;
+        submit.skybox.rotation     = nu_quat_identity();
+        nu_renderpass_submit(&renderer, skybox_pass, &submit);
 
         // Render
         nu_render(&platform, &renderer);

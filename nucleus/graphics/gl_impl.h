@@ -151,6 +151,11 @@ nugl__init (nu_renderer_t *ctx, nu_allocator_t *allocator, nu_uvec2_t size)
     error = nugl__compile_shader(
         ctx, nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
     NU_ERROR_CHECK(error, return error);
+    error = nugl__compile_shader(ctx,
+                                 nugl__shader_skybox_vert,
+                                 nugl__shader_skybox_frag,
+                                 &gl->skybox_program);
+    NU_ERROR_CHECK(error, return error);
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
@@ -170,34 +175,39 @@ nugl__render (nu_renderer_t   *ctx,
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
-        nu_u32_t            passid = gl->passes_order.data[i];
-        nugl__renderpass_t *pass   = &gl->passes.data[passid];
+        nu_u32_t            pass_index = gl->passes_order.data[i];
+        nugl__renderpass_t *pass       = &gl->passes.data[pass_index];
+        nugl__camera_t     *cam        = gl->cameras.data + pass->camera;
         switch (pass->type)
         {
-            case NU_RENDERPASS_UNLIT:
             case NU_RENDERPASS_FLAT: {
                 // Prepare pass
                 {
                     // Bind surface
                     glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
                     glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
-                    nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
 
                     glEnable(GL_DEPTH_TEST);
                     glEnable(GL_CULL_FACE);
-                    // glDisable(GL_DEPTH_TEST);
-                    // glDisable(GL_CULL_FACE);
+                    glDepthMask(GL_TRUE);
+                    glDepthFunc(GL_LESS);
                     glFrontFace(GL_CCW);
                     glCullFace(GL_BACK);
 
+                    // Bind program
+                    glUseProgram(gl->flat_program);
+                }
+
+                // Clear color
+                if (pass->flat.has_clear_color)
+                {
+                    nu_vec4_t clear_color
+                        = nu_color_to_vec4(pass->flat.clear_color);
                     glClearColor(clear_color.x,
                                  clear_color.y,
                                  clear_color.z,
                                  clear_color.w);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                    // Bind program
-                    glUseProgram(gl->flat_program);
                 }
 
                 // Execute commands
@@ -221,7 +231,7 @@ nugl__render (nu_renderer_t   *ctx,
                                 id = glGetUniformLocation(gl->flat_program,
                                                           "view_projection");
                                 glUniformMatrix4fv(
-                                    id, 1, GL_FALSE, pass->vp.data);
+                                    id, 1, GL_FALSE, cam->vp.data);
 
                                 id = glGetUniformLocation(gl->flat_program,
                                                           "uv_transform");
@@ -249,9 +259,37 @@ nugl__render (nu_renderer_t   *ctx,
                 }
             }
             break;
-            case NU_RENDERPASS_TRANSPARENT:
-                break;
-            case NU_RENDERPASS_SKYBOX:
+            case NU_RENDERPASS_SKYBOX: {
+                // Prepare pass
+                {
+                    // Bind surface
+                    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+                    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+
+                    glEnable(GL_DEPTH_TEST);
+                    glDisable(GL_CULL_FACE);
+                    glDepthMask(GL_FALSE);
+                    glDepthFunc(GL_LEQUAL);
+
+                    // Bind program
+                    glUseProgram(gl->skybox_program);
+
+                    GLuint id = glGetUniformLocation(gl->skybox_program,
+                                                     "projection");
+                    glUniformMatrix4fv(id, 1, GL_FALSE, cam->projection.data);
+                    id = glGetUniformLocation(gl->skybox_program, "view");
+                    glUniformMatrix4fv(id, 1, GL_FALSE, cam->view.data);
+
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_CUBE_MAP, pass->skybox.cubemap);
+
+                    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+                    glUseProgram(0);
+                }
+            }
+            break;
+            default:
                 break;
         }
 
@@ -327,7 +365,9 @@ nugl__update_camera (nu_renderer_t          *ctx,
     nu_mat4_t projection
         = nu_perspective(nu_radian(info->fov), aspect, info->near, info->far);
 
-    pcam->vp = nu_mat4_mul(projection, view);
+    pcam->view       = view;
+    pcam->projection = projection;
+    pcam->vp         = nu_mat4_mul(projection, view);
 
     return NU_ERROR_NONE;
 }
@@ -497,6 +537,36 @@ nugl__create_cubemap (nu_renderer_t           *ctx,
                       const nu_cubemap_info_t *info,
                       nu_cubemap_handle_t     *cubemap)
 {
+    nugl__context_t *gl = nugl__ctx(ctx);
+
+    nu_vec_push(&gl->cubemaps, &gl->allocator);
+    cubemap->_gl.index     = gl->cubemaps.size - 1;
+    nugl__cubemap_t *pcube = nu_vec_last(&gl->cubemaps);
+
+    glGenTextures(1, &pcube->texture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, pcube->texture);
+    const nu_color_t *colors[] = {
+        info->colors_posx, info->colors_negx, info->colors_posy,
+        info->colors_negy, info->colors_posz, info->colors_negz,
+    };
+    for (nu_size_t i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                     0,
+                     GL_RGBA,
+                     info->size,
+                     info->size,
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     colors[i]);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -638,6 +708,27 @@ nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
     return target->fbo;
 }
 static void
+nugl__prepare_color_depth (nu_renderer_t         *ctx,
+                           nugl__renderpass_t    *pass,
+                           const nugl__texture_t *color_target,
+                           const nugl__texture_t *depth_target)
+{
+    pass->color_target = color_target ? color_target->texture : 0;
+    pass->depth_target = depth_target ? depth_target->texture : 0;
+    if (color_target || depth_target)
+    {
+        pass->fbo = nugl__find_or_create_framebuffer(
+            ctx, pass->color_target, pass->depth_target);
+        pass->fbo_size
+            = pass->color_target ? color_target->size : depth_target->size;
+    }
+    else
+    {
+        pass->fbo      = 0;
+        pass->fbo_size = NU_UVEC2_ZERO;
+    }
+}
+static void
 nugl__submit_renderpass (nu_renderer_t                *ctx,
                          nu_renderpass_handle_t        pass,
                          const nu_renderpass_submit_t *info)
@@ -651,19 +742,7 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
     ppass->reset              = info->reset;
     switch (ppass->type)
     {
-        case NU_RENDERPASS_UNLIT: {
-            nugl__camera_t *cam
-                = gl->cameras.data + info->unlit.camera._gl.index;
-            ppass->vp  = cam->vp;
-            ppass->ivp = cam->ivp;
-        }
-        break;
         case NU_RENDERPASS_FLAT: {
-            nugl__camera_t *cam
-                = gl->cameras.data + info->flat.camera._gl.index;
-            ppass->vp  = cam->vp;
-            ppass->ivp = cam->ivp;
-
             const nugl__texture_t *color_target
                 = info->flat.color_target
                       ? gl->textures.data + info->flat.color_target->_gl.index
@@ -673,27 +752,38 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
                       ? gl->textures.data + info->flat.depth_target->_gl.index
                       : NU_NULL;
 
-            ppass->color_target = color_target ? color_target->texture : 0;
-            ppass->depth_target = depth_target ? depth_target->texture : 0;
-            ppass->clear_color  = info->flat.clear_color;
-
-            if (color_target || depth_target)
+            if (info->flat.clear_color)
             {
-                ppass->fbo = nugl__find_or_create_framebuffer(
-                    ctx, ppass->color_target, ppass->depth_target);
-                ppass->fbo_size = ppass->color_target ? color_target->size
-                                                      : depth_target->size;
+                ppass->flat.clear_color     = *info->flat.clear_color;
+                ppass->flat.has_clear_color = NU_TRUE;
             }
             else
             {
-                ppass->fbo      = 0;
-                ppass->fbo_size = NU_UVEC2_ZERO;
+                ppass->flat.has_clear_color = NU_FALSE;
             }
+
+            ppass->camera = info->flat.camera._gl.index;
+            nugl__prepare_color_depth(ctx, ppass, color_target, depth_target);
         }
         break;
-        case NU_RENDERPASS_TRANSPARENT:
-            break;
-        case NU_RENDERPASS_SKYBOX:
+        case NU_RENDERPASS_SKYBOX: {
+            const nugl__texture_t *color_target
+                = info->skybox.color_target
+                      ? gl->textures.data + info->skybox.color_target->_gl.index
+                      : NU_NULL;
+            const nugl__texture_t *depth_target
+                = info->skybox.depth_target
+                      ? gl->textures.data + info->skybox.depth_target->_gl.index
+                      : NU_NULL;
+
+            ppass->camera = info->skybox.camera._gl.index;
+            nugl__prepare_color_depth(ctx, ppass, color_target, depth_target);
+
+            ppass->skybox.cubemap
+                = gl->cubemaps.data[info->skybox.cubemap._gl.index].texture;
+        }
+        break;
+        default:
             break;
     }
 }
