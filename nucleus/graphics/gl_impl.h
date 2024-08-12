@@ -71,6 +71,29 @@ nugl__compile_shader (nu_renderer_t   *ctx,
     return NU_ERROR_NONE;
 }
 
+static const nu_char_t *
+nugl__message_type_string (GLenum type)
+{
+    static const nu_char_t *types[] = {
+        // GL_DEBUG_TYPE_ERROR
+        "ERROR",
+        // GL_DEBUG_TYPE_MARKER
+        "MARKER",
+        // GL_DEBUG_TYPE_OTHER
+        "OTHER",
+        // GL_DEBUG_TYPE_PERFORMANCE
+        "PERFORMANCE",
+        // GL_DEBUG_TYPE_POP_GROUP
+        "POP_GROUP",
+        // GL_DEBUG_TYPE_PORTABILITY
+        "PORTABILITY",
+        // GL_DEBUG_TYPE_PUSH_GROUP
+        "PUSH_GROUP",
+        // GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR
+        "UNDEFINED_BEHAVIOR",
+    };
+    return types[type - GL_DEBUG_TYPE_ERROR];
+}
 void GLAPIENTRY
 MessageCallback (GLenum        source,
                  GLenum        type,
@@ -86,26 +109,26 @@ MessageCallback (GLenum        source,
         case GL_DEBUG_SEVERITY_HIGH:
             NU_ERROR(&ctx->_logger,
                      "GL: %s, message = %s",
-                     (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                     nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
             NU_ERROR(&ctx->_logger,
                      "GL: %s, message = %s",
-                     (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                     nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_LOW:
             NU_WARNING(&ctx->_logger,
                        "GL: %s, message = %s",
-                       (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+                       nugl__message_type_string(type),
                        message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            // NU_INFO(&ctx->_logger,
-            //         "GL: %s, message = %s",
-            //         (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
-            //         message);
+            NU_INFO(&ctx->_logger,
+                    "GL: %s, message = %s",
+                    nugl__message_type_string(type),
+                    message);
             break;
     }
 }
