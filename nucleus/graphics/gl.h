@@ -69,7 +69,8 @@ typedef struct
 
 typedef struct
 {
-    GLuint cubemap;
+    GLuint    cubemap;
+    nu_mat3_t rotation;
 } nugl__renderpass_skybox_t;
 
 typedef struct

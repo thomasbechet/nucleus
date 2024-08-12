@@ -215,6 +215,7 @@ NU_API nu_quat_t nu_quat_axis(nu_vec3_t axis, float angle);
 NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
 NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
 NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
+NU_API nu_mat3_t nu_quat_mat3(nu_quat_t q);
 NU_API nu_mat4_t nu_quat_mat4(nu_quat_t q);
 NU_API nu_mat4_t nu_quat_mulm4(nu_quat_t a, nu_mat4_t m);
 

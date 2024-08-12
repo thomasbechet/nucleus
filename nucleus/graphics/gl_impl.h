@@ -309,11 +309,21 @@ nugl__render (nu_renderer_t   *ctx,
                 glDepthMask(GL_FALSE);
                 glDepthFunc(GL_LEQUAL);
 
-                GLuint id
-                    = glGetUniformLocation(gl->skybox_program, "projection");
-                glUniformMatrix4fv(id, 1, GL_FALSE, cam->projection.data);
-                id = glGetUniformLocation(gl->skybox_program, "view");
-                glUniformMatrix4fv(id, 1, GL_FALSE, cam->view.data);
+                glUniformMatrix4fv(
+                    glGetUniformLocation(gl->skybox_program, "projection"),
+                    1,
+                    GL_FALSE,
+                    cam->projection.data);
+                glUniformMatrix4fv(
+                    glGetUniformLocation(gl->skybox_program, "view"),
+                    1,
+                    GL_FALSE,
+                    cam->view.data);
+                glUniformMatrix3fv(
+                    glGetUniformLocation(gl->skybox_program, "rotation"),
+                    1,
+                    GL_FALSE,
+                    pass->skybox.rotation.data);
 
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, pass->skybox.cubemap);
@@ -817,6 +827,7 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
 
             ppass->skybox.cubemap
                 = gl->cubemaps.data[info->skybox.cubemap._gl.index].texture;
+            ppass->skybox.rotation = nu_quat_mat3(info->skybox.rotation);
         }
         break;
         default:

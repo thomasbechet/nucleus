@@ -360,6 +360,43 @@ nu_quat_mul_axis (nu_quat_t q, nu_vec3_t axis, float angle)
 {
     return nu_quat_mul(q, nu_quat_axis(axis, angle));
 }
+nu_mat3_t
+nu_quat_mat3 (nu_quat_t q)
+{
+    float norm = nu_quat_norm(q);
+    float s    = norm > 0.0 ? 2.0 / norm : 0.0;
+
+    float x = q.x;
+    float y = q.y;
+    float z = q.z;
+    float w = q.w;
+
+    float xx = s * x * x;
+    float xy = s * x * y;
+    float wx = s * w * x;
+    float yy = s * y * y;
+    float yz = s * y * z;
+    float wy = s * w * y;
+    float zz = s * z * z;
+    float xz = s * x * z;
+    float wz = s * w * z;
+
+    nu_mat3_t m;
+
+    m.x1 = 1.0 - yy - zz;
+    m.y2 = 1.0 - xx - zz;
+    m.z3 = 1.0 - xx - yy;
+
+    m.x2 = xy + wz;
+    m.y3 = yz + wx;
+    m.z1 = xz + wy;
+
+    m.y1 = xy - wz;
+    m.z2 = yz - wx;
+    m.x3 = xz - wy;
+
+    return m;
+}
 nu_mat4_t
 nu_quat_mat4 (nu_quat_t q)
 {
