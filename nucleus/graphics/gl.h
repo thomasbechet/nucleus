@@ -81,7 +81,7 @@ typedef struct
     GLuint               color_target;
     GLuint               fbo;
     nu_uvec2_t           fbo_size;
-    nu_bool_t            reset;
+    nu_bool_t            reset_after_submit;
     union
     {
         nugl__renderpass_flat_t   flat;

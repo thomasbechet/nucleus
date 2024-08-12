@@ -66,3 +66,6 @@ build/**/*
 
 # Clang
 .cache
+
+# Python
+**/venv

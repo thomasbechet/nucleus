@@ -145,6 +145,7 @@ typedef struct
 typedef struct
 {
     nu_renderpass_type_t type;
+    nu_bool_t            reset_after_submit;
     union
     {
         nu_renderpass_unlit_info_t       unlit;
@@ -179,15 +180,11 @@ typedef struct
     nu_quat_t                  rotation;
 } nu_renderpass_submit_skybox_t;
 
-typedef struct
+typedef union
 {
-    nu_bool_t reset;
-    union
-    {
-        nu_renderpass_submit_unlit_t  unlit;
-        nu_renderpass_submit_flat_t   flat;
-        nu_renderpass_submit_skybox_t skybox;
-    };
+    nu_renderpass_submit_unlit_t  unlit;
+    nu_renderpass_submit_flat_t   flat;
+    nu_renderpass_submit_skybox_t skybox;
 } nu_renderpass_submit_t;
 
 typedef union
@@ -254,14 +251,14 @@ typedef struct
                                     nu_renderpass_handle_t pass);
 
     // Commands API
+    void (*submit_renderpass)(struct nu_renderer           *ctx,
+                              nu_renderpass_handle_t        pass,
+                              const nu_renderpass_submit_t *info);
     void (*draw)(struct nu_renderer    *ctx,
                  nu_renderpass_handle_t pass,
                  nu_mesh_handle_t       mesh,
                  nu_material_handle_t   material,
                  nu_mat4_t              transform);
-    void (*submit_renderpass)(struct nu_renderer           *ctx,
-                              nu_renderpass_handle_t        pass,
-                              const nu_renderpass_submit_t *info);
 } nu_renderer_api_t;
 
 typedef struct
@@ -340,10 +337,16 @@ NU_API nu_error_t nu_renderpass_delete(nu_renderer_t         *ctx,
 NU_API void nu_renderpass_submit(nu_renderer_t                *ctx,
                                  nu_renderpass_handle_t        pass,
                                  const nu_renderpass_submit_t *info);
+NU_API void nu_renderpass_reset(nu_renderer_t         *ctx,
+                                nu_renderpass_handle_t pass);
 NU_API void nu_draw(nu_renderer_t         *ctx,
-                    nu_renderpass_handle_t renderpass,
+                    nu_renderpass_handle_t pass,
                     nu_mesh_handle_t       mesh,
                     nu_material_handle_t   material,
                     nu_mat4_t              transform);
+NU_API void nu_draw_text(nu_renderer_t         *ctx,
+                         nu_renderpass_handle_t pass,
+                         const nu_char_t       *text,
+                         nu_ivec2_t             pos);
 
 #endif

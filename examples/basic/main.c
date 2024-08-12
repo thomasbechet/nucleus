@@ -343,12 +343,14 @@ main (void)
     {
         nu_renderpass_info_t info;
 
-        info.type = NU_RENDERPASS_FLAT;
-        error     = nu_renderpass_create(&renderer, &info, &main_pass);
+        info.type               = NU_RENDERPASS_FLAT;
+        info.reset_after_submit = NU_TRUE;
+        error = nu_renderpass_create(&renderer, &info, &main_pass);
         NU_ERROR_ASSERT(error);
 
-        info.type = NU_RENDERPASS_SKYBOX;
-        error     = nu_renderpass_create(&renderer, &info, &skybox_pass);
+        info.type               = NU_RENDERPASS_SKYBOX;
+        info.reset_after_submit = NU_TRUE;
+        error = nu_renderpass_create(&renderer, &info, &skybox_pass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -423,8 +425,6 @@ main (void)
         nu_texture_handle_t surface_tex
             = nu_surface_color_target(&platform, &renderer);
         nu_color_t clear_color = NU_COLOR_BLUE_SKY;
-
-        submit.reset = NU_TRUE;
 
         submit.flat.camera       = camera;
         submit.flat.color_target = &surface_tex;

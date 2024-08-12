@@ -48,8 +48,9 @@ main (void)
     // Renderpass
     {
         nu_renderpass_info_t info;
-        info.type = NU_RENDERPASS_FLAT;
-        error     = nu_renderpass_create(&renderer, &info, &renderpass);
+        info.type               = NU_RENDERPASS_FLAT;
+        info.reset_after_submit = NU_TRUE;
+        error = nu_renderpass_create(&renderer, &info, &renderpass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -132,7 +133,6 @@ main (void)
             = nu_surface_color_target(&platform, &renderer);
 
         nu_renderpass_submit_t submit;
-        submit.reset             = NU_TRUE;
         submit.flat.camera       = camera;
         submit.flat.clear_color  = &clear_color;
         submit.flat.color_target = &surface_color;

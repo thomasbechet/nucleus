@@ -102,10 +102,10 @@ MessageCallback (GLenum        source,
                        message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            NU_INFO(&ctx->_logger,
-                    "GL: %s, message = %s",
-                    (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
-                    message);
+            // NU_INFO(&ctx->_logger,
+            //         "GL: %s, message = %s",
+            //         (type == GL_DEBUG_TYPE_ERROR ? "ERROR " : ""),
+            //         message);
             break;
     }
 }
@@ -148,9 +148,14 @@ nugl__init (nu_renderer_t *ctx, nu_allocator_t *allocator, nu_uvec2_t size)
     error = nugl__compile_shader(
         ctx, nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
     NU_ERROR_CHECK(error, return error);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
         ctx, nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
     NU_ERROR_CHECK(error, return error);
+
     error = nugl__compile_shader(ctx,
                                  nugl__shader_skybox_vert,
                                  nugl__shader_skybox_frag,
@@ -183,6 +188,9 @@ nugl__render (nu_renderer_t   *ctx,
             case NU_RENDERPASS_FLAT: {
                 // Prepare pass
                 {
+                    // Bind program
+                    glUseProgram(gl->flat_program);
+
                     // Bind surface
                     glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
                     glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
@@ -193,9 +201,6 @@ nugl__render (nu_renderer_t   *ctx,
                     glDepthFunc(GL_LESS);
                     glFrontFace(GL_CCW);
                     glCullFace(GL_BACK);
-
-                    // Bind program
-                    glUseProgram(gl->flat_program);
                 }
 
                 // Clear color
@@ -219,26 +224,34 @@ nugl__render (nu_renderer_t   *ctx,
                         switch (cmds->data[i].type)
                         {
                             case NUGL__DRAW: {
-                                GLuint id = glGetUniformLocation(
-                                    gl->flat_program, "viewport_size");
-                                glUniform2uiv(id, 1, pass->fbo_size.xy);
+                                glUniform2uiv(
+                                    glGetUniformLocation(gl->flat_program,
+                                                         "viewport_size"),
+                                    1,
+                                    pass->fbo_size.xy);
 
-                                id = glGetUniformLocation(gl->flat_program,
-                                                          "model");
                                 glUniformMatrix4fv(
-                                    id, 1, GL_FALSE, cmd->transform.data);
+                                    glGetUniformLocation(gl->flat_program,
+                                                         "model"),
+                                    1,
+                                    GL_FALSE,
+                                    cmd->transform.data);
 
-                                id = glGetUniformLocation(gl->flat_program,
-                                                          "view_projection");
                                 glUniformMatrix4fv(
-                                    id, 1, GL_FALSE, cam->vp.data);
+                                    glGetUniformLocation(gl->flat_program,
+                                                         "view_projection"),
+                                    1,
+                                    GL_FALSE,
+                                    cam->vp.data);
 
-                                id = glGetUniformLocation(gl->flat_program,
-                                                          "uv_transform");
                                 glUniformMatrix3fv(
-                                    id, 1, GL_FALSE, cmd->uv_transform.data);
+                                    glGetUniformLocation(gl->flat_program,
+                                                         "uv_transform"),
+                                    1,
+                                    GL_FALSE,
+                                    cmd->uv_transform.data);
 
-                                glActiveTexture(GL_TEXTURE0);
+                                // glActiveTexture(GL_TEXTURE0);
                                 glBindTexture(GL_TEXTURE_2D, cmd->texture0);
 
                                 glBindVertexArray(cmd->vao);
@@ -260,33 +273,30 @@ nugl__render (nu_renderer_t   *ctx,
             }
             break;
             case NU_RENDERPASS_SKYBOX: {
-                // Prepare pass
-                {
-                    // Bind surface
-                    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
-                    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+                // Bind program
+                glUseProgram(gl->skybox_program);
 
-                    glEnable(GL_DEPTH_TEST);
-                    glDisable(GL_CULL_FACE);
-                    glDepthMask(GL_FALSE);
-                    glDepthFunc(GL_LEQUAL);
+                // Bind surface
+                glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+                glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
 
-                    // Bind program
-                    glUseProgram(gl->skybox_program);
+                glEnable(GL_DEPTH_TEST);
+                glDisable(GL_CULL_FACE);
+                glDepthMask(GL_FALSE);
+                glDepthFunc(GL_LEQUAL);
 
-                    GLuint id = glGetUniformLocation(gl->skybox_program,
-                                                     "projection");
-                    glUniformMatrix4fv(id, 1, GL_FALSE, cam->projection.data);
-                    id = glGetUniformLocation(gl->skybox_program, "view");
-                    glUniformMatrix4fv(id, 1, GL_FALSE, cam->view.data);
+                GLuint id
+                    = glGetUniformLocation(gl->skybox_program, "projection");
+                glUniformMatrix4fv(id, 1, GL_FALSE, cam->projection.data);
+                id = glGetUniformLocation(gl->skybox_program, "view");
+                glUniformMatrix4fv(id, 1, GL_FALSE, cam->view.data);
 
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_CUBE_MAP, pass->skybox.cubemap);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, pass->skybox.cubemap);
 
-                    glDrawArrays(GL_TRIANGLES, 0, 3);
+                glDrawArrays(GL_TRIANGLES, 0, 3);
 
-                    glUseProgram(0);
-                }
+                glUseProgram(0);
             }
             break;
             default:
@@ -294,26 +304,26 @@ nugl__render (nu_renderer_t   *ctx,
         }
 
         // Reset pass commands
-        if (pass->reset)
+        if (pass->reset_after_submit)
         {
             nu_vec_clear(&pass->cmds);
         }
     }
 
     // Blit surface
+    nu_vec4_t clear
+        = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
+    glUseProgram(gl->blit_program);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport->x, viewport->y, viewport->w, viewport->h);
-    nu_color_t clear_color = nu_color(25, 27, 43, 255);
-    clear_color            = nu_color_to_linear(clear_color);
-    nu_vec4_t clear_vec    = nu_color_to_vec4(clear_color);
-    glClearColor(clear_vec.x, clear_vec.y, clear_vec.z, clear_vec.w);
-    glDisable(GL_DEPTH_TEST);
+    glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(gl->blit_program);
+    glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_2D,
                   gl->textures.data[gl->surface_color_index].texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glUseProgram(0);
 
     // Reset for next frame
     nu_vec_clear(&gl->passes_order);
@@ -441,19 +451,18 @@ nugl__create_mesh (nu_renderer_t        *ctx,
 
     // Configure VAO
     // Position
-    glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NUGL__VERTEX_SIZE, (void *)0);
+    glEnableVertexAttribArray(0);
     // UV
-    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1,
                           2,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(float) * NUGL__VERTEX_SIZE,
                           (void *)(sizeof(float) * NU_VEC3_SIZE));
+    glEnableVertexAttribArray(1);
     // Normal
-    glEnableVertexAttribArray(2);
     glVertexAttribPointer(
         2,
         3,
@@ -461,6 +470,7 @@ nugl__create_mesh (nu_renderer_t        *ctx,
         GL_FALSE,
         sizeof(float) * NUGL__VERTEX_SIZE,
         (void *)(sizeof(float) * (NU_VEC3_SIZE + NU_VEC2_SIZE)));
+    glEnableVertexAttribArray(2);
 
     // Unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -567,6 +577,8 @@ nugl__create_cubemap (nu_renderer_t           *ctx,
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -621,6 +633,7 @@ nugl__create_renderpass (nu_renderer_t              *ctx,
     nu_u32_t            index = gl->passes.size - 1;
     nugl__renderpass_t *data  = gl->passes.data + index;
     data->type                = info->type;
+    data->reset_after_submit  = info->reset_after_submit;
 
     // Allocate command buffer
     nu_vec_init(&data->cmds, &gl->allocator, 128);
@@ -739,7 +752,6 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
     *(nu_vec_last(&gl->passes_order)) = pass._gl.index;
 
     nugl__renderpass_t *ppass = gl->passes.data + pass._gl.index;
-    ppass->reset              = info->reset;
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT: {

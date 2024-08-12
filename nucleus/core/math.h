@@ -85,6 +85,16 @@ typedef union
 {
     struct
     {
+        nu_i32_t x;
+        nu_i32_t y;
+    };
+    nu_i32_t xy[NU_VEC2_SIZE];
+} nu_ivec2_t;
+
+typedef union
+{
+    struct
+    {
         nu_u32_t x;
         nu_u32_t y;
         nu_u32_t z;
