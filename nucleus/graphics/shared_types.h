@@ -11,4 +11,11 @@ typedef enum
     NU_RENDERPASS_CANVAS,
 } nu_renderpass_type_t;
 
+typedef enum
+{
+    NU_TEXTURE_WRAP_CLAMP,
+    NU_TEXTURE_WRAP_REPEAT,
+    NU_TEXTURE_WRAP_MIRROR
+} nu_texture_wrap_mode_t;
+
 #endif

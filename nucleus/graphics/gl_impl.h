@@ -627,15 +627,14 @@ nugl__update_material (nu_renderer_t            *ctx,
 {
     nugl__context_t  *gl  = nugl__ctx(ctx);
     nugl__material_t *mat = gl->materials.data + material._gl.index;
-    if (info->texture0)
+    if (info->color0)
     {
-        mat->texture0 = gl->textures.data[info->texture0->_gl.index].texture;
+        mat->texture0 = gl->textures.data[info->color0->_gl.index].texture;
     }
-    if (info->texture1)
+    if (info->color1)
     {
-        mat->texture1 = gl->textures.data[info->texture1->_gl.index].texture;
+        mat->texture1 = gl->textures.data[info->color1->_gl.index].texture;
     }
-    mat->uv_transform = info->uv_transform;
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -682,11 +681,11 @@ nugl__delete_renderpass (nu_renderer_t *ctx, nu_renderpass_handle_t pass)
     return NU_ERROR_NONE;
 }
 static void
-nugl__draw (nu_renderer_t         *ctx,
-            nu_renderpass_handle_t pass,
-            nu_mesh_handle_t       mesh,
-            nu_material_handle_t   material,
-            nu_mat4_t              transform)
+nugl__draw_mesh (nu_renderer_t         *ctx,
+                 nu_renderpass_handle_t pass,
+                 nu_mesh_handle_t       mesh,
+                 nu_material_handle_t   material,
+                 nu_mat4_t              transform)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 

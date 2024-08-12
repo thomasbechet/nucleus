@@ -51,7 +51,7 @@ nu_renderer_init (nu_platform_t            *platform,
             renderer->_api.delete_renderpass = nugl__delete_renderpass;
 
             renderer->_api.submit_renderpass = nugl__submit_renderpass;
-            renderer->_api.draw              = nugl__draw;
+            renderer->_api.draw_mesh         = nugl__draw_mesh;
             break;
         case NU_RENDERER_DX11:
             break;
@@ -194,9 +194,9 @@ nu_material_info_t
 nu_material_info_default (void)
 {
     nu_material_info_t info;
-    info.texture0     = NU_NULL;
-    info.texture1     = NU_NULL;
-    info.uv_transform = nu_mat3_identity();
+    info.color0    = NU_NULL;
+    info.color1    = NU_NULL;
+    info.uv_offset = NU_IVEC2_ZERO;
     return info;
 }
 nu_error_t
@@ -225,7 +225,6 @@ nu_renderpass_create (nu_renderer_t              *ctx,
                       nu_renderpass_handle_t     *pass)
 {
     return NU_TRY_CALL(ctx->_api.create_renderpass)(ctx, info, pass);
-    return NU_ERROR_NONE;
 }
 nu_error_t
 nu_renderpass_delete (nu_renderer_t *ctx, nu_renderpass_handle_t pass)
@@ -248,16 +247,25 @@ nu_renderpass_reset (nu_renderer_t *ctx, nu_renderpass_handle_t pass)
 {
 }
 void
-nu_draw (nu_renderer_t         *ctx,
-         nu_renderpass_handle_t pass,
-         nu_mesh_handle_t       mesh,
-         nu_material_handle_t   material,
-         nu_mat4_t              transform)
+nu_draw_mesh (nu_renderer_t         *ctx,
+              nu_renderpass_handle_t pass,
+              nu_mesh_handle_t       mesh,
+              nu_material_handle_t   material,
+              nu_mat4_t              transform)
 {
-    if (ctx->_api.draw)
+    if (ctx->_api.draw_mesh)
     {
-        ctx->_api.draw(ctx, pass, mesh, material, transform);
+        ctx->_api.draw_mesh(ctx, pass, mesh, material, transform);
     }
+}
+void
+nu_draw_text (nu_renderer_t         *ctx,
+              nu_renderpass_handle_t pass,
+              nu_material_handle_t   material,
+              const nu_char_t       *text,
+              nu_size_t              n,
+              nu_ivec2_t             pos)
+{
 }
 
 #endif

@@ -265,13 +265,13 @@ main (void)
     nu_material_handle_t material_white;
     {
         nu_material_info_t info = nu_material_info_default();
-        info.texture0           = &texture;
+        info.color0             = &texture;
         error = nu_material_create(&renderer, &info, &material);
         NU_ERROR_ASSERT(error);
 
-        info          = nu_material_info_default();
-        info.texture0 = &texture_white;
-        error         = nu_material_create(&renderer, &info, &material_white);
+        info        = nu_material_info_default();
+        info.color0 = &texture_white;
+        error       = nu_material_create(&renderer, &info, &material_white);
         NU_ERROR_ASSERT(error);
     }
 
@@ -340,6 +340,7 @@ main (void)
     // Create renderpasses
     nu_renderpass_handle_t main_pass;
     nu_renderpass_handle_t skybox_pass;
+    nu_renderpass_handle_t gui_pass;
     {
         nu_renderpass_info_t info;
 
@@ -352,6 +353,10 @@ main (void)
         info.reset_after_submit = NU_TRUE;
         error = nu_renderpass_create(&renderer, &info, &skybox_pass);
         NU_ERROR_ASSERT(error);
+
+        info.type               = NU_RENDERPASS_CANVAS;
+        info.reset_after_submit = NU_TRUE;
+        error = nu_renderpass_create(&renderer, &info, &gui_pass);
     }
 
     // Main loop
@@ -407,7 +412,7 @@ main (void)
         {
             nu_mat4_t model = nu_mat4_translate(
                 nu_sin(time / 1000 + i), nu_cos(time / 1000 + i), i * 1.05);
-            nu_draw(&renderer, main_pass, cube_mesh, material, model);
+            nu_draw_mesh(&renderer, main_pass, cube_mesh, material, model);
         }
 
         // Render custom mesh
@@ -417,6 +422,10 @@ main (void)
 
             model = nu_mat4_translate(10, 0, 0);
             nu_model_draw(&renderer, main_pass, &temple_model, model);
+        }
+
+        // Draw GUI
+        {
         }
 
         // Submit renderpass

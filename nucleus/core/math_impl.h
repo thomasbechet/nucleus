@@ -278,6 +278,15 @@ nu_vec4_zw (nu_vec4_t v)
     return ret;
 }
 
+nu_ivec2_t
+nu_ivec2 (nu_i32_t x, nu_i32_t y)
+{
+    nu_ivec2_t v;
+    v.x = x;
+    v.y = y;
+    return v;
+}
+
 nu_uvec2_t
 nu_uvec2 (nu_u32_t x, nu_u32_t y)
 {

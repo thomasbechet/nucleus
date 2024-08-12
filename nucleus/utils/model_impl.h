@@ -65,7 +65,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
                 return NU_ERROR_RESOURCE_LOADING;
             }
             nu_material_info_t info = nu_material_info_default();
-            info.texture0           = diffuse_tex;
+            info.color0             = diffuse_tex;
             nu_error_t error
                 = nu_material_create(data->renderer, &info, &item->material);
             NU_ERROR_CHECK(error, return error);
@@ -139,7 +139,7 @@ nuext_model_from_gltf (const nu_char_t *filename,
         tinfo.colors            = &white;
         nu_texture_create(renderer, &tinfo, &tex_item->texture);
         nu_material_info_t minfo = nu_material_info_default();
-        minfo.texture0           = &tex_item->texture;
+        minfo.color0             = &tex_item->texture;
         nu_material_create(renderer, &minfo, &mat_item->material);
     }
     nu_error_t error = nuext_load_gltf(
@@ -170,7 +170,7 @@ nu_model_draw (nu_renderer_t         *renderer,
             = &model->items.data[cmds[i].material].material;
         const nu_mesh_handle_t *mesh = &model->items.data[cmds[i].mesh].mesh;
         nu_mat4_t global_transform = nu_mat4_mul(transform, cmds[i].transform);
-        nu_draw(renderer, pass, *mesh, *material, global_transform);
+        nu_draw_mesh(renderer, pass, *mesh, *material, global_transform);
     }
 }
 

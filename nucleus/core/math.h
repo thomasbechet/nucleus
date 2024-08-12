@@ -20,6 +20,8 @@
 #define NU_VEC2_ZERO nu_vec2(0, 0)
 #define NU_VEC2_ONE  nu_vec2(1, 1)
 
+#define NU_IVEC2_ZERO nu_ivec2(0, 0)
+
 #define NU_UVEC2_ZERO nu_uvec2(0, 0)
 #define NU_UVEC2_ONE  nu_uvec2(1, 1)
 
@@ -202,6 +204,8 @@ NU_API float     nu_vec4_dot(nu_vec4_t a, nu_vec4_t b);
 NU_API float     nu_vec4_norm(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
+
+NU_API nu_ivec2_t nu_ivec2(nu_i32_t x, nu_i32_t y);
 
 NU_API nu_uvec2_t nu_uvec2(nu_u32_t x, nu_u32_t y);
 
