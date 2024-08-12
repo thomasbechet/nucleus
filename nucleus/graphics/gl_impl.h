@@ -635,6 +635,7 @@ nugl__update_material (nu_renderer_t            *ctx,
     {
         mat->texture1 = gl->textures.data[info->color1->_gl.index].texture;
     }
+    mat->uv_transform = info->uv_transform;
     return NU_ERROR_NONE;
 }
 static nu_error_t

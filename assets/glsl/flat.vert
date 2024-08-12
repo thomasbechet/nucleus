@@ -7,6 +7,7 @@ layout(location = 2) in vec3 in_normal;
 uniform uvec2 viewport_size;
 uniform mat4 model;
 uniform mat4 view_projection;
+uniform mat3 uv_transform;
 
 uniform sampler2D texture0;
 
@@ -27,8 +28,9 @@ void main()
     gl_Position = position;
 
     // Floors UVs
+    uv = (uv_transform * vec3(in_uv, 1)).xy;
     ivec2 tex_size = textureSize(texture0, 0);
-    uv = (floor(tex_size * in_uv) + 0.5) / tex_size;
+    uv = (floor(tex_size * uv) + 0.5) / tex_size;
 
     normal = mat3(transpose(inverse(model))) * in_normal;
 }

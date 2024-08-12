@@ -194,9 +194,9 @@ nu_material_info_t
 nu_material_info_default (void)
 {
     nu_material_info_t info;
-    info.color0    = NU_NULL;
-    info.color1    = NU_NULL;
-    info.uv_offset = NU_IVEC2_ZERO;
+    info.color0       = NU_NULL;
+    info.color1       = NU_NULL;
+    info.uv_transform = nu_mat3_identity();
     return info;
 }
 nu_error_t

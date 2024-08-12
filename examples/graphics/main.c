@@ -78,7 +78,7 @@ main (void)
     // Material
     {
         nu_material_info_t info = nu_material_info_default();
-        info.texture0           = &texture;
+        info.color0             = &texture;
         error = nu_material_create(&renderer, &info, &material);
         NU_ERROR_ASSERT(error);
     }
@@ -126,7 +126,7 @@ main (void)
 
         nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 1000) * 0.2, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
-        nu_draw(&renderer, renderpass, mesh, material, model);
+        nu_draw_mesh(&renderer, renderpass, mesh, material, model);
 
         nu_color_t          clear_color = NU_COLOR_BLACK;
         nu_texture_handle_t surface_color

@@ -105,7 +105,7 @@ typedef struct
 {
     const nu_texture_handle_t *color0;
     const nu_texture_handle_t *color1;
-    nu_ivec2_t                 uv_offset;
+    nu_mat3_t                  uv_transform;
 } nu_material_info_t;
 
 typedef struct
