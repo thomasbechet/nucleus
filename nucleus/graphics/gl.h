@@ -39,45 +39,106 @@ typedef struct
     GLuint    texture0;
     GLuint    texture1;
     nu_mat3_t uv_transform;
+} nugl__material_mesh_t;
+
+typedef struct
+{
+    GLuint                 texture0;
+    nu_texture_wrap_mode_t wrap_mode;
+} nugl__material_canvas_t;
+
+typedef struct
+{
+    nu_material_type_t type;
+    union
+    {
+        nugl__material_mesh_t   mesh;
+        nugl__material_canvas_t canvas;
+    };
 } nugl__material_t;
 
 typedef enum
 {
     NUGL__DRAW,
     NUGL__DRAW_INSTANCED,
-} nugl__command_type_t;
+} nugl__mesh_command_type_t;
 
 typedef struct
 {
-    nugl__command_type_t type;
-    GLuint               vao;
-    GLuint               vbo;
-    nu_size_t            vcount;
-    nu_mat4_t            transform; // TODO: remove me
-    GLuint               texture0;
-    GLuint               texture1;
-    nu_mat3_t            uv_transform;
-} nugl__command_t;
+    nugl__mesh_command_type_t type;
+    GLuint                    vao;
+    GLuint                    vbo;
+    nu_size_t                 vcount;
+    nu_mat4_t                 transform; // TODO: use indexed UBO
+    GLuint                    texture0;
+    GLuint                    texture1;
+    nu_mat3_t                 uv_transform;
+} nugl__mesh_command_t;
 
-typedef nu_vec(nugl__command_t) nugl__command_vec_t;
+typedef nu_vec(nugl__mesh_command_t) nugl__mesh_command_vec_t;
+
+typedef enum
+{
+    NUGL__CANVAS_BLIT,
+} nugl__canvas_command_type_t;
 
 typedef struct
 {
-    nu_color_t clear_color;
-    nu_bool_t  has_clear_color;
+    GLuint   texture;
+    nu_u32_t instance_start;
+    nu_u32_t instance_count;
+} nugl__blit_batch_t;
+
+typedef struct
+{
+    nugl__canvas_command_type_t type;
+    union
+    {
+        nugl__blit_batch_t blit;
+    };
+} nugl__canvas_command_t;
+
+typedef nu_vec(nugl__canvas_command_t) nugl__canvas_command_vec_t;
+
+typedef struct
+{
+    nu_u32_t pos;
+    nu_u32_t tex;
+    nu_u32_t size;
+    float    depth;
+} nugl__gpu_blit_t;
+
+typedef nu_vec(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
+
+typedef struct
+{
+    nugl__mesh_command_vec_t cmds;
+    nu_u32_t                 camera;
+    nu_color_t               clear_color;
+    nu_bool_t                has_clear_color;
 } nugl__renderpass_flat_t;
 
 typedef struct
 {
-    GLuint    cubemap;
-    nu_mat3_t rotation;
+    nugl__mesh_command_vec_t cmds;
+    nu_u32_t                 camera;
+    GLuint                   cubemap;
+    nu_mat3_t                rotation;
 } nugl__renderpass_skybox_t;
 
 typedef struct
 {
+    nugl__canvas_command_vec_t cmds;
+    nugl__gpu_blit_vec_t       blit_transfer;
+    GLuint                     blit_vbo;
+    nu_size_t                  blit_vbo_size;
+    GLuint                     blit_vao;
+    float                      depth;
+} nugl__renderpass_canvas_t;
+
+typedef struct
+{
     nu_renderpass_type_t type;
-    nugl__command_vec_t  cmds;
-    nu_u32_t             camera;
     GLuint               depth_target;
     GLuint               color_target;
     GLuint               fbo;
@@ -87,6 +148,7 @@ typedef struct
     {
         nugl__renderpass_flat_t   flat;
         nugl__renderpass_skybox_t skybox;
+        nugl__renderpass_canvas_t canvas;
     };
 } nugl__renderpass_t;
 
@@ -118,6 +180,7 @@ typedef struct
     GLuint blit_program;
     GLuint flat_program;
     GLuint skybox_program;
+    GLuint canvas_blit_program;
     GLuint nearest_sampler;
 
     nugl__camera_vec_t       cameras;

@@ -129,8 +129,8 @@ nuglfw__find_binding (nuglfw__input_t *backend, nu_u32_t binding, nu_u32_t id)
 static void
 nuglfw__update_viewport (nuglfw__viewport_t *v)
 {
-    nu_vec2_t global_pos  = nu_vec2(v->extent.x, v->extent.y);
-    nu_vec2_t global_size = nu_vec2(v->extent.w, v->extent.h);
+    nu_vec2_t global_pos  = nu_vec2(v->extent.p.x, v->extent.p.y);
+    nu_vec2_t global_size = nu_vec2(v->extent.s.x, v->extent.s.y);
 
     float aspect_ratio = (float)v->screen.x / (float)v->screen.y;
 
@@ -179,7 +179,7 @@ nuglfw__viewport_cursor (const nuglfw__viewport_t *v,
                          nu_vec2_t                *cursor)
 {
     nu_vec2_t relpos = nu_rect_normalize(v->viewport, pos);
-    *cursor = nu_vec2_mul(*cursor, nu_vec2(v->viewport.w, v->viewport.h));
+    *cursor = nu_vec2_mul(*cursor, nu_vec2(v->viewport.s.x, v->viewport.s.y));
 }
 
 static void
@@ -261,8 +261,8 @@ static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
     nu_platform_t *platform = glfwGetWindowUserPointer(window);
-    platform->_surface.glfw.viewport.extent.w = width;
-    platform->_surface.glfw.viewport.extent.h = height;
+    platform->_surface.glfw.viewport.extent.s.x = width;
+    platform->_surface.glfw.viewport.extent.s.y = height;
     nuglfw__update_viewport(&platform->_surface.glfw.viewport);
 }
 

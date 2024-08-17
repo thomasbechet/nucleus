@@ -295,6 +295,11 @@ nu_uvec2 (nu_u32_t x, nu_u32_t y)
     v.y = y;
     return v;
 }
+nu_uvec2_t
+nu_uvec2_min (nu_uvec2_t a, nu_uvec2_t b)
+{
+    return nu_uvec2(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
+}
 
 nu_uvec4_t
 nu_uvec4 (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
@@ -579,10 +584,8 @@ nu_rect_t
 nu_rect (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
 {
     nu_rect_t ret;
-    ret.x = x;
-    ret.y = y;
-    ret.w = w;
-    ret.h = h;
+    ret.p = nu_ivec2(x, y);
+    ret.s = nu_uvec2(w, h);
     return ret;
 }
 nu_bool_t
@@ -590,12 +593,12 @@ nu_rect_contains (nu_rect_t r, nu_vec2_t p)
 {
     nu_i32_t px = p.x;
     nu_i32_t py = p.y;
-    if (px < r.x || py < r.y)
+    if (px < r.p.x || py < r.p.y)
     {
         return NU_FALSE;
     }
-    nu_i32_t xw = r.x + r.w;
-    nu_i32_t xh = r.y + r.h;
+    nu_i32_t xw = r.p.x + r.s.x;
+    nu_i32_t xh = r.p.y + r.s.y;
     if (px > xw || py > xh)
     {
         return NU_FALSE;
@@ -606,8 +609,8 @@ nu_vec2_t
 nu_rect_normalize (nu_rect_t r, nu_vec2_t p)
 {
     nu_vec2_t ret;
-    ret.x = (p.x - (float)r.x) / (float)r.w;
-    ret.y = (p.y - (float)r.y) / (float)r.h;
+    ret.x = (p.x - (float)r.p.x) / (float)r.s.x;
+    ret.y = (p.y - (float)r.p.y) / (float)r.s.y;
     return ret;
 }
 

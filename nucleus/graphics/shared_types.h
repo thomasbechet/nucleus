@@ -13,6 +13,12 @@ typedef enum
 
 typedef enum
 {
+    NU_MATERIAL_MESH,
+    NU_MATERIAL_CANVAS,
+} nu_material_type_t;
+
+typedef enum
+{
     NU_TEXTURE_WRAP_CLAMP,
     NU_TEXTURE_WRAP_REPEAT,
     NU_TEXTURE_WRAP_MIRROR

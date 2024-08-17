@@ -324,6 +324,7 @@ nuext_load_gltf (const nu_char_t      *filename,
 static nu_color_t *
 nuext__parse_colors (const nu_byte_t *img,
                      nu_uvec2_t       size,
+                     nu_size_t        comp,
                      nu_allocator_t  *allocator)
 {
     nu_color_t *colors
@@ -331,10 +332,20 @@ nuext__parse_colors (const nu_byte_t *img,
     NU_CHECK(colors, return NU_NULL);
     for (nu_size_t i = 0; i < (size.x * size.y); ++i)
     {
-        colors[i].r = img[i * 3 + 0];
-        colors[i].g = img[i * 3 + 1];
-        colors[i].b = img[i * 3 + 2];
-        colors[i].a = 255;
+        for (nu_size_t n = 0; n < comp; ++n)
+        {
+        }
+        colors[i].r = img[i * comp + 0];
+        colors[i].g = img[i * comp + 1];
+        colors[i].b = img[i * comp + 2];
+        if (comp == 4)
+        {
+            colors[i].a = img[i * comp + 3];
+        }
+        else
+        {
+            colors[i].a = 255;
+        }
     }
     return colors;
 }
@@ -344,10 +355,10 @@ nuext_load_image (const nu_char_t *filename,
                   nu_image_t      *image)
 {
     int            w, h, n;
-    unsigned char *img = stbi_load(filename, &w, &h, &n, 3);
+    unsigned char *img = stbi_load(filename, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
     image->size = nu_uvec2(w, h);
-    image->data = nuext__parse_colors(img, image->size, allocator);
+    image->data = nuext__parse_colors(img, image->size, n, allocator);
     stbi_image_free(img);
     NU_CHECK(image->data, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;
@@ -359,10 +370,11 @@ nuext_load_image_memory (const nu_byte_t *data,
                          nu_image_t      *image)
 {
     int            w, h, n;
-    unsigned char *img = stbi_load_from_memory(data, data_size, &w, &h, &n, 3);
+    unsigned char *img
+        = stbi_load_from_memory(data, data_size, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
     image->size = nu_uvec2(w, h);
-    image->data = nuext__parse_colors(img, image->size, allocator);
+    image->data = nuext__parse_colors(img, image->size, n, allocator);
     stbi_image_free(img);
     NU_CHECK(image->data, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;

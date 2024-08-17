@@ -51,7 +51,8 @@ nu_renderer_init (nu_platform_t            *platform,
             renderer->_api.delete_renderpass = nugl__delete_renderpass;
 
             renderer->_api.submit_renderpass = nugl__submit_renderpass;
-            renderer->_api.draw_mesh         = nugl__draw_mesh;
+            renderer->_api.draw              = nugl__draw;
+            renderer->_api.blit              = nugl__blit;
             break;
         case NU_RENDERER_DX11:
             break;
@@ -191,12 +192,24 @@ nu_cubemap_delete (nu_renderer_t *ctx, nu_cubemap_handle_t cubemap)
 }
 
 nu_material_info_t
-nu_material_info_default (void)
+nu_material_info_default (nu_material_type_t type)
 {
     nu_material_info_t info;
-    info.color0       = NU_NULL;
-    info.color1       = NU_NULL;
-    info.uv_transform = nu_mat3_identity();
+    info.type = type;
+    switch (type)
+    {
+        case NU_MATERIAL_MESH: {
+            info.mesh.color0       = NU_NULL;
+            info.mesh.color1       = NU_NULL;
+            info.mesh.uv_transform = nu_mat3_identity();
+        }
+        break;
+        case NU_MATERIAL_CANVAS: {
+            info.canvas.color0    = NU_NULL;
+            info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
+        }
+        break;
+    }
     return info;
 }
 nu_error_t
@@ -245,27 +258,34 @@ nu_renderpass_submit (nu_renderer_t                *ctx,
 void
 nu_renderpass_reset (nu_renderer_t *ctx, nu_renderpass_handle_t pass)
 {
-}
-void
-nu_draw_mesh (nu_renderer_t         *ctx,
-              nu_renderpass_handle_t pass,
-              nu_mesh_handle_t       mesh,
-              nu_material_handle_t   material,
-              nu_mat4_t              transform)
-{
-    if (ctx->_api.draw_mesh)
+    if (ctx->_api.reset_renderpass)
     {
-        ctx->_api.draw_mesh(ctx, pass, mesh, material, transform);
+        ctx->_api.reset_renderpass(ctx, pass);
     }
 }
 void
-nu_draw_text (nu_renderer_t         *ctx,
-              nu_renderpass_handle_t pass,
-              nu_material_handle_t   material,
-              const nu_char_t       *text,
-              nu_size_t              n,
-              nu_ivec2_t             pos)
+nu_draw (nu_renderer_t         *ctx,
+         nu_renderpass_handle_t pass,
+         nu_material_handle_t   material,
+         nu_mesh_handle_t       mesh,
+         nu_mat4_t              transform)
 {
+    if (ctx->_api.draw)
+    {
+        ctx->_api.draw(ctx, pass, material, mesh, transform);
+    }
+}
+void
+nu_blit (nu_renderer_t         *ctx,
+         nu_renderpass_handle_t pass,
+         nu_material_handle_t   material,
+         nu_rect_t              extent,
+         nu_rect_t              tex_extent)
+{
+    if (ctx->_api.blit)
+    {
+        ctx->_api.blit(ctx, pass, material, extent, tex_extent);
+    }
 }
 
 #endif

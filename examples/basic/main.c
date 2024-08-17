@@ -233,11 +233,11 @@ main (void)
     // Load resources
     nu_texture_handle_t texture;
     nu_texture_handle_t texture_white;
+    nu_texture_handle_t texture_gui;
     {
         nu_image_t image;
         error = nuext_load_image(
             "../../../assets/brick_building_front_lowres.png", &alloc, &image);
-
         nu_texture_info_t info;
         info.size   = image.size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
@@ -248,6 +248,16 @@ main (void)
         nu_image_free(&image, &alloc);
 
         nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
+
+        error = nuext_load_image("../../../assets/GUI.png", &alloc, &image);
+        NU_ERROR_ASSERT(error);
+        info.size   = image.size;
+        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
+        info.format = NU_TEXTURE_FORMAT_COLOR;
+        info.colors = image.data;
+        error       = nu_texture_create(&renderer, &info, &texture_gui);
+        NU_ERROR_ASSERT(error);
+        nu_image_free(&image, &alloc);
     }
 
     // Load models
@@ -263,15 +273,21 @@ main (void)
     // Create material
     nu_material_handle_t material;
     nu_material_handle_t material_white;
+    nu_material_handle_t material_gui;
     {
-        nu_material_info_t info = nu_material_info_default();
-        info.color0             = &texture;
+        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
+        info.mesh.color0        = &texture;
         error = nu_material_create(&renderer, &info, &material);
         NU_ERROR_ASSERT(error);
 
-        info        = nu_material_info_default();
-        info.color0 = &texture_white;
-        error       = nu_material_create(&renderer, &info, &material_white);
+        info             = nu_material_info_default(NU_MATERIAL_MESH);
+        info.mesh.color0 = &texture_white;
+        error = nu_material_create(&renderer, &info, &material_white);
+        NU_ERROR_ASSERT(error);
+
+        info               = nu_material_info_default(NU_MATERIAL_CANVAS);
+        info.canvas.color0 = &texture_gui;
+        error = nu_material_create(&renderer, &info, &material_gui);
         NU_ERROR_ASSERT(error);
     }
 
@@ -412,7 +428,7 @@ main (void)
         {
             nu_mat4_t model = nu_mat4_translate(
                 nu_sin(time / 1000 + i), nu_cos(time / 1000 + i), i * 1.05);
-            nu_draw_mesh(&renderer, main_pass, cube_mesh, material, model);
+            nu_draw(&renderer, main_pass, material, cube_mesh, model);
         }
 
         // Render custom mesh
@@ -426,6 +442,16 @@ main (void)
 
         // Draw GUI
         {
+            for (nu_size_t i = 0; i < 200; ++i)
+            {
+                int x = i % 20;
+                int y = i / 20;
+                nu_blit(&renderer,
+                        gui_pass,
+                        material_gui,
+                        nu_rect(10 + x * 15, 10 + y * 15, 14, 14),
+                        nu_rect(81, 257, 14, 14));
+            }
         }
 
         // Submit renderpass
@@ -447,6 +473,9 @@ main (void)
         submit.skybox.cubemap      = skybox;
         submit.skybox.rotation     = nu_quat_identity();
         nu_renderpass_submit(&renderer, skybox_pass, &submit);
+
+        submit.canvas.color_target = &surface_tex;
+        nu_renderpass_submit(&renderer, gui_pass, &submit);
 
         // Render
         nu_render(&platform, &renderer);

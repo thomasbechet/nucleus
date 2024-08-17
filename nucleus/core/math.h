@@ -161,10 +161,8 @@ typedef union
 
 typedef struct
 {
-    nu_i32_t x;
-    nu_i32_t y;
-    nu_u32_t w;
-    nu_u32_t h;
+    nu_ivec2_t p;
+    nu_uvec2_t s;
 } nu_rect_t;
 
 NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);

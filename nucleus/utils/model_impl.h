@@ -10,6 +10,7 @@ typedef struct
     nu_renderer_t  *renderer;
     nu_allocator_t *alloc;
     nu_logger_t    *logger;
+    nu_u32_t        default_material_item;
 } nuext__gltf_to_model_userdata_t;
 
 static nu_error_t
@@ -64,8 +65,9 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
                 NU_ERROR(data->logger, "diffuse texture not found");
                 return NU_ERROR_RESOURCE_LOADING;
             }
-            nu_material_info_t info = nu_material_info_default();
-            info.color0             = diffuse_tex;
+            nu_material_info_t info
+                = nu_material_info_default(NU_MATERIAL_MESH);
+            info.mesh.color0 = diffuse_tex;
             nu_error_t error
                 = nu_material_create(data->renderer, &info, &item->material);
             NU_ERROR_CHECK(error, return error);
@@ -96,13 +98,14 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             {
                 NU_ERROR(
                     data->logger, "mesh not found %lu", asset->node.mesh_id);
-                break;
+                return NU_ERROR_RESOURCE_LOADING;
             }
             if (cmd->material == (nu_u16_t)-1)
             {
                 NU_ERROR(data->logger,
                          "material not found %lu",
                          asset->node.material_id);
+                cmd->material = data->default_material_item;
                 break;
             }
             item->id = asset->id;
@@ -131,6 +134,8 @@ nuext_model_from_gltf (const nu_char_t *filename,
         nu_vec_push(&model->items, alloc);
         nu__model_item_t *mat_item = model->items.data + 0;
         nu__model_item_t *tex_item = model->items.data + 1;
+        mat_item->id               = 0;
+        tex_item->id               = 1;
         nu_texture_info_t tinfo;
         nu_color_t        white = NU_COLOR_WHITE;
         tinfo.size              = nu_uvec2(1, 1);
@@ -138,9 +143,10 @@ nuext_model_from_gltf (const nu_char_t *filename,
         tinfo.format            = NU_TEXTURE_FORMAT_COLOR;
         tinfo.colors            = &white;
         nu_texture_create(renderer, &tinfo, &tex_item->texture);
-        nu_material_info_t minfo = nu_material_info_default();
-        minfo.color0             = &tex_item->texture;
+        nu_material_info_t minfo = nu_material_info_default(NU_MATERIAL_MESH);
+        minfo.mesh.color0        = &tex_item->texture;
         nu_material_create(renderer, &minfo, &mat_item->material);
+        userdata.default_material_item = 0;
     }
     nu_error_t error = nuext_load_gltf(
         filename, logger, alloc, nuext__gltf_to_model_callback, &userdata);
@@ -170,7 +176,7 @@ nu_model_draw (nu_renderer_t         *renderer,
             = &model->items.data[cmds[i].material].material;
         const nu_mesh_handle_t *mesh = &model->items.data[cmds[i].mesh].mesh;
         nu_mat4_t global_transform = nu_mat4_mul(transform, cmds[i].transform);
-        nu_draw_mesh(renderer, pass, *mesh, *material, global_transform);
+        nu_draw(renderer, pass, *material, *mesh, global_transform);
     }
 }
 

@@ -106,6 +106,22 @@ typedef struct
     const nu_texture_handle_t *color0;
     const nu_texture_handle_t *color1;
     nu_mat3_t                  uv_transform;
+} nu_material_mesh_t;
+
+typedef struct
+{
+    const nu_texture_handle_t *color0;
+    nu_texture_wrap_mode_t     wrap_mode;
+} nu_material_canvas_t;
+
+typedef struct
+{
+    nu_material_type_t type;
+    union
+    {
+        nu_material_mesh_t   mesh;
+        nu_material_canvas_t canvas;
+    };
 } nu_material_info_t;
 
 typedef struct
@@ -260,11 +276,18 @@ typedef struct
     void (*submit_renderpass)(struct nu_renderer           *ctx,
                               nu_renderpass_handle_t        pass,
                               const nu_renderpass_submit_t *info);
-    void (*draw_mesh)(struct nu_renderer    *ctx,
-                      nu_renderpass_handle_t pass,
-                      nu_mesh_handle_t       mesh,
-                      nu_material_handle_t   material,
-                      nu_mat4_t              transform);
+    void (*reset_renderpass)(struct nu_renderer    *ctx,
+                             nu_renderpass_handle_t pass);
+    void (*draw)(struct nu_renderer    *ctx,
+                 nu_renderpass_handle_t pass,
+                 nu_material_handle_t   material,
+                 nu_mesh_handle_t       mesh,
+                 nu_mat4_t              transform);
+    void (*blit)(struct nu_renderer    *ctx,
+                 nu_renderpass_handle_t pass,
+                 nu_material_handle_t   material,
+                 nu_rect_t              extent,
+                 nu_rect_t              tex_extent);
 } nu_renderer_api_t;
 
 typedef struct
@@ -324,7 +347,7 @@ NU_API nu_error_t        nu_cubemap_create(nu_renderer_t           *ctx,
 NU_API nu_error_t        nu_cubemap_delete(nu_renderer_t      *ctx,
                                            nu_cubemap_handle_t cubemap);
 
-NU_API nu_material_info_t nu_material_info_default(void);
+NU_API nu_material_info_t nu_material_info_default(nu_material_type_t type);
 NU_API nu_error_t         nu_material_create(nu_renderer_t            *ctx,
                                              const nu_material_info_t *info,
                                              nu_material_handle_t     *material);
@@ -345,23 +368,21 @@ NU_API void nu_renderpass_submit(nu_renderer_t                *ctx,
                                  const nu_renderpass_submit_t *info);
 NU_API void nu_renderpass_reset(nu_renderer_t         *ctx,
                                 nu_renderpass_handle_t pass);
-NU_API void nu_draw_mesh(nu_renderer_t         *ctx,
-                         nu_renderpass_handle_t pass,
-                         nu_mesh_handle_t       mesh,
-                         nu_material_handle_t   material,
-                         nu_mat4_t              transform);
-NU_API void nu_draw_blit(nu_renderer_t         *ctx,
-                         nu_renderpass_handle_t pass,
-                         nu_texture_handle_t    texture,
-                         nu_rect_t              extent,
-                         nu_rect_t              tex_extent,
-                         nu_color_t             filtering,
-                         nu_texture_wrap_mode_t wrap_mode);
-NU_API void nu_draw_text(nu_renderer_t         *ctx,
-                         nu_renderpass_handle_t pass,
-                         nu_material_handle_t   material,
-                         const nu_char_t       *text,
-                         nu_size_t              n,
-                         nu_ivec2_t             pos);
+NU_API void nu_draw(nu_renderer_t         *ctx,
+                    nu_renderpass_handle_t pass,
+                    nu_material_handle_t   material,
+                    nu_mesh_handle_t       mesh,
+                    nu_mat4_t              transform);
+NU_API void nu_blit(nu_renderer_t         *ctx,
+                    nu_renderpass_handle_t pass,
+                    nu_material_handle_t   material,
+                    nu_rect_t              extent,
+                    nu_rect_t              tex_extent);
+NU_API void nu_print(nu_renderer_t         *ctx,
+                     nu_renderpass_handle_t pass,
+                     nu_material_handle_t   material,
+                     const nu_char_t       *text,
+                     nu_size_t              n,
+                     nu_ivec2_t             pos);
 
 #endif
