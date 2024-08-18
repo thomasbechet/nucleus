@@ -27,7 +27,7 @@ NU_API void  nu_memcpy(void *dst, const void *src, nu_size_t n);
 NU_API void *nu_memalign(void *ptr, nu_size_t align);
 
 #ifdef NU_STDLIB
-NU_API void nuext_stdlib_allocator_init(nu_allocator_t *alloc);
+NU_API void nuext_allocator_init_stdlib(nu_allocator_t *alloc);
 #endif
 
 #endif

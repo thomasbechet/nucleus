@@ -108,7 +108,7 @@ main (void)
     nu_error_t error;
 
     // Create allocator
-    nuext_stdlib_allocator_init(&alloc);
+    nuext_allocator_init_stdlib(&alloc);
 
     // Create platform
     {
@@ -438,8 +438,9 @@ main (void)
         // Render loop
         for (int i = 0; i < 40; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(
-                nu_sin(time / 1000 + i) * 30, nu_cos(time / 1000 + i) * 10, i * 5);
+            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i) * 30,
+                                                nu_cos(time / 1000 + i) * 10,
+                                                i * 5);
             nu_draw(&renderer, main_pass, material, cube_mesh, model);
         }
 

@@ -3,6 +3,10 @@
 
 #include <nucleus/core/memory.h>
 
+//////////////////////////////////////////////////////////////////////////
+//////                           Vector                             //////
+//////////////////////////////////////////////////////////////////////////
+
 #define nu_vec(type)        \
     struct                  \
     {                       \
@@ -38,5 +42,55 @@
 #define nu_vec_last(v) (v)->size ? (v)->data + ((v)->size - 1) : NU_NULL
 
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                           Slotmap                            //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef nu_u32_t nu_slot_t;
+
+#define nu_slotmap(type)     \
+    struct                   \
+    {                        \
+        struct               \
+        {                    \
+            type      value; \
+            nu_slot_t next;  \
+        }        *data;      \
+        nu_slot_t free;      \
+        nu_size_t capacity;  \
+    }
+
+#define nu_slotmap_init(s, alloc, cap)                               \
+    do                                                               \
+    {                                                                \
+        (s)->data     = nu_alloc(alloc, sizeof(*(s)->data) * (cap)); \
+        (s)->capacity = cap;                                         \
+        (s)->free     = 1;                                           \
+        for (nu_size_t i = 1; i < (cap) - 1; ++i)                    \
+        {                                                            \
+            (s)->data[i - 1].next = i + 1;                           \
+        }                                                            \
+        (s)->data[(s)->capacity - 1].next = 0;                       \
+    } while (0)
+
+#define nu_slotmap_free(s, alloc) \
+    nu_free(alloc, (s)->data, sizeof(*(s)->data) * (s)->capacity)
+
+#define nu_slotmap_get(s, slot) (slot ? &(s)->data[slot - 1].value : NU_NULL)
+
+#define nu_slotmap_add(s, alloc) \
+    do {
+        if ((s)->free)
+        {
+
+        }
+        else
+        {
+            
+        }
+    } while (0)
+
+typedef nu_slotmap(nu_u32_t) nu_u32_slotmap_t;
 
 #endif

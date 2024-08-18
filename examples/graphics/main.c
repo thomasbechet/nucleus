@@ -25,7 +25,7 @@ main (void)
     nu_error_t error;
     NU_UNUSED(error);
 
-    nuext_stdlib_allocator_init(&alloc);
+    nuext_allocator_init_stdlib(&alloc);
 
     // Platform
     {

@@ -14,7 +14,7 @@ main (void)
     nu_error_t error;
     (void)error;
 
-    nuext_stdlib_allocator_init(&alloc);
+    nuext_allocator_init_stdlib(&alloc);
 
     nu_platform_info_t info;
     info.width     = 500;

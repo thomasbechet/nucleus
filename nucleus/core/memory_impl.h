@@ -49,7 +49,7 @@ nu__stdlib_alloctor_callback (
 }
 
 void
-nuext_stdlib_allocator_init (nu_allocator_t *alloc)
+nuext_allocator_init_stdlib (nu_allocator_t *alloc)
 {
     alloc->callback = nu__stdlib_alloctor_callback;
     alloc->userdata = NU_NULL;

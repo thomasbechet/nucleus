@@ -7,6 +7,7 @@
 #include <nucleus/utils/font.h>
 #include <nucleus/utils/image.h>
 #include <nucleus/utils/controller.h>
+#include <nucleus/utils/ui.h>
 
 #ifdef NU_IMPLEMENTATION
 
@@ -16,6 +17,7 @@
 #include <nucleus/utils/font_impl.h>
 #include <nucleus/utils/image_impl.h>
 #include <nucleus/utils/controller_impl.h>
+#include <nucleus/utils/ui_impl.h>
 
 #endif
 
