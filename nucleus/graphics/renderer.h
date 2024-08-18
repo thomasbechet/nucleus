@@ -378,11 +378,5 @@ NU_API void nu_blit(nu_renderer_t         *ctx,
                     nu_material_handle_t   material,
                     nu_rect_t              extent,
                     nu_rect_t              tex_extent);
-NU_API void nu_print(nu_renderer_t         *ctx,
-                     nu_renderpass_handle_t pass,
-                     nu_material_handle_t   material,
-                     const nu_char_t       *text,
-                     nu_size_t              n,
-                     nu_ivec2_t             pos);
 
 #endif

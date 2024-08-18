@@ -35,5 +35,5 @@ void main()
     gl_Position = vec4(position * 2 - 1, depth, 1);
 
     // Set output
-    uv = (vertex_tex + vertex_size * vertex_offset) / vec2(textureSize(texture0, 0));
+    uv = floor(vertex_tex + vertex_size * vertex_offset) / vec2(textureSize(texture0, 0));
 }

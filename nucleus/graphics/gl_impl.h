@@ -397,6 +397,7 @@ nugl__render (nu_renderer_t   *ctx,
                 nugl__write_canvas_buffers(gl, &pass->canvas);
                 glUseProgram(gl->canvas_blit_program);
 
+                glDisable(GL_DEPTH_TEST);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -404,10 +405,10 @@ nugl__render (nu_renderer_t   *ctx,
                                                    "viewport_size"),
                               1,
                               pass->fbo_size.xy);
-                for (nu_size_t i = 0; i < pass->canvas.cmds.size; ++i)
+                glBindVertexArray(pass->canvas.blit_vao);
+                for (nu_size_t c = 0; c < pass->canvas.cmds.size; ++c)
                 {
-                    glBindVertexArray(pass->canvas.blit_vao);
-                    nugl__canvas_command_t *cmd = pass->canvas.cmds.data + i;
+                    nugl__canvas_command_t *cmd = pass->canvas.cmds.data + c;
                     switch (cmd->type)
                     {
                         case NUGL__CANVAS_BLIT: {
@@ -420,11 +421,12 @@ nugl__render (nu_renderer_t   *ctx,
                         }
                         break;
                     }
-                    glBindVertexArray(0);
                 }
+                glBindVertexArray(0);
                 glDisable(GL_BLEND);
                 glUseProgram(0);
             }
+            break;
             default:
                 break;
         }
@@ -477,8 +479,10 @@ nugl__create_surface_color (nu_renderer_t *ctx, nu_uvec2_t size)
                  GL_RGB,
                  GL_UNSIGNED_BYTE,
                  NU_NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     nu_texture_handle_t handle;
     handle._gl.index = gl->surface_color_index;
@@ -788,45 +792,48 @@ nugl__create_canvas_renderpass (nugl__context_t           *gl,
     // Create VAO
     GLuint vao;
     glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
 
     // Create VBO
     GLuint vbo;
     glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // Configure VAO
+    glBindVertexArray(vao);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    glVertexAttribDivisor(0, 1);
+    glVertexAttribDivisor(1, 1);
+    glVertexAttribDivisor(2, 1);
+    glVertexAttribDivisor(3, 1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribIPointer(0,
                            1,
                            GL_UNSIGNED_INT,
                            sizeof(nugl__gpu_blit_t),
                            (void *)(offsetof(nugl__gpu_blit_t, pos)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribDivisor(0, 1);
     glVertexAttribIPointer(1,
                            1,
                            GL_UNSIGNED_INT,
                            sizeof(nugl__gpu_blit_t),
                            (void *)(offsetof(nugl__gpu_blit_t, tex)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribDivisor(1, 1);
     glVertexAttribIPointer(2,
                            1,
                            GL_UNSIGNED_INT,
                            sizeof(nugl__gpu_blit_t),
                            (void *)(offsetof(nugl__gpu_blit_t, size)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribDivisor(2, 1);
     glVertexAttribPointer(3,
                           1,
                           GL_FLOAT,
                           GL_FALSE,
                           sizeof(nugl__gpu_blit_t),
                           (void *)(offsetof(nugl__gpu_blit_t, depth)));
-    glEnableVertexAttribArray(3);
-    glVertexAttribDivisor(3, 1);
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     glBindVertexArray(0);
 
     pass->blit_vbo = vbo;
@@ -931,7 +938,7 @@ nugl__canvas_blit_rect (nugl__context_t           *gl,
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)
     {
-        last->blit.instance_count += 1;
+        last->blit.instance_count += blit_count;
     }
     else
     {

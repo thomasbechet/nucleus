@@ -345,6 +345,11 @@ main (void)
         }
     }
 
+    // Create font
+    nu_font_t font;
+    error = nu_font_default(&renderer, &alloc, &font);
+    NU_ERROR_ASSERT(error);
+
     // Create camera
     nu_camera_handle_t camera;
     nu_camera_info_t   camera_info = nu_camera_info_default();
@@ -442,7 +447,7 @@ main (void)
 
         // Draw GUI
         {
-            for (nu_size_t i = 0; i < 200; ++i)
+            for (nu_size_t i = 0; i < 30; ++i)
             {
                 int x = i % 20;
                 int y = i / 20;
@@ -452,6 +457,25 @@ main (void)
                         nu_rect(10 + x * 15, 10 + y * 15, 14, 14),
                         nu_rect(81, 257, 14, 14));
             }
+
+            const nu_char_t *s
+                = "Lorem Ipsum is simply dummy text of the printing and\n"
+                  "typesetting industry. Lorem Ipsum has been the industry's\n"
+                  "standard dummy text ever since the 1500s, when an unknown\n"
+                  "printer took a galley of type and scrambled it to make a\n"
+                  "type specimen book. It has survived not only five\n"
+                  "centuries, but also the leap into electronic typesetting,\n"
+                  "remaining essentially unchanged. It was popularised in the\n"
+                  "1960s with the release of Letraset sheets containing Lorem\n"
+                  "Ipsum passages, and more recently with desktop publishing\n"
+                  "software like Aldus PageMaker including versions of Lorem\n"
+                  "Ipsum.";
+            nu_print(&renderer,
+                     gui_pass,
+                     s,
+                     nu_strlen(s),
+                     nu_ivec2(10, HEIGHT / 2),
+                     &font);
         }
 
         // Submit renderpass

@@ -22,8 +22,8 @@ static const nu_char_t *nugl__shader_blit_frag =
 "\n"
 "void main()\n"
 "{\n"
-"    // vec2 uv = uv_filtering(in_uv, textureSize(t_surface, 0));\n"
-"    out_color = texture(t_surface, uv);\n"
+"    vec2 filtered_uv = uv_filtering(uv, textureSize(t_surface, 0));\n"
+"    out_color = texture(t_surface, filtered_uv);\n"
 "}\n"
 ;
 static const nu_char_t *nugl__shader_blit_vert = 
@@ -93,7 +93,7 @@ static const nu_char_t *nugl__shader_canvas_blit_vert =
 "    gl_Position = vec4(position * 2 - 1, depth, 1);\n"
 "\n"
 "    // Set output\n"
-"    uv = (vertex_tex + vertex_size * vertex_offset) / vec2(textureSize(texture0, 0));\n"
+"    uv = floor(vertex_tex + vertex_size * vertex_offset) / vec2(textureSize(texture0, 0));\n"
 "}\n"
 ;
 static const nu_char_t *nugl__shader_flat_frag = 
