@@ -414,10 +414,12 @@ nugl__render (nu_renderer_t   *ctx,
                         case NUGL__CANVAS_BLIT: {
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, cmd->blit.texture);
-                            glDrawArraysInstanced(GL_TRIANGLES,
-                                                  cmd->blit.instance_start,
-                                                  6,
-                                                  cmd->blit.instance_count);
+                            glDrawArraysInstancedBaseInstance(
+                                GL_TRIANGLES,
+                                0,
+                                6,
+                                cmd->blit.instance_count,
+                                cmd->blit.instance_start);
                         }
                         break;
                     }

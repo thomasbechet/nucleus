@@ -32,8 +32,6 @@ for c in ascii:
 
     draw.rectangle((0, 0, w, h), fill=(0, 0, 0, 0))
 # print(w, h)
-draw.text((0, 0), '!', font=font)
-im.save('test.png')
 
 # print(len(ba))
 # print(len(ascii))
