@@ -274,6 +274,7 @@ main (void)
     nu_material_handle_t material;
     nu_material_handle_t material_white;
     nu_material_handle_t material_gui;
+    nu_material_handle_t material_gui_repeat;
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
@@ -288,6 +289,12 @@ main (void)
         info               = nu_material_info_default(NU_MATERIAL_CANVAS);
         info.canvas.color0 = &texture_gui;
         error = nu_material_create(&renderer, &info, &material_gui);
+        NU_ERROR_ASSERT(error);
+
+        info                  = nu_material_info_default(NU_MATERIAL_CANVAS);
+        info.canvas.color0    = &texture_gui;
+        info.canvas.wrap_mode = NU_TEXTURE_WRAP_REPEAT;
+        error = nu_material_create(&renderer, &info, &material_gui_repeat);
         NU_ERROR_ASSERT(error);
     }
 
@@ -432,7 +439,7 @@ main (void)
         for (int i = 0; i < 40; ++i)
         {
             nu_mat4_t model = nu_mat4_translate(
-                nu_sin(time / 1000 + i), nu_cos(time / 1000 + i), i * 1.05);
+                nu_sin(time / 1000 + i) * 30, nu_cos(time / 1000 + i) * 10, i * 5);
             nu_draw(&renderer, main_pass, material, cube_mesh, model);
         }
 
@@ -454,9 +461,15 @@ main (void)
                 nu_blit(&renderer,
                         gui_pass,
                         material_gui,
-                        nu_rect(10 + x * 15, 10 + y * 15, 14, 14),
+                        nu_rect(10 + x * 15, 30 + y * 15, 14, 14),
                         nu_rect(81, 257, 14, 14));
             }
+
+            nu_blit(&renderer,
+                    gui_pass,
+                    material_gui_repeat,
+                    nu_rect(400, 10, 105, 105),
+                    nu_rect(81, 257, 14, 14));
 
             const nu_char_t *s
                 = "Lorem Ipsum is simply dummy text of the printing and\n"
@@ -476,6 +489,27 @@ main (void)
                      nu_strlen(s),
                      nu_ivec2(10, HEIGHT / 2),
                      &font);
+        }
+
+        // Print FPS
+        {
+#define AVG_SIZE 10
+            static nu_u32_t avg[AVG_SIZE] = { 0 };
+            static nu_u32_t head          = 0;
+
+            float frame_fps = nu_floor((1.0 / delta) * 1000.0);
+            avg[head]       = frame_fps;
+            head            = (head + 1) % AVG_SIZE;
+            float frame_avg = 0;
+            for (nu_size_t i = 0; i < AVG_SIZE; ++i)
+            {
+                frame_avg += avg[i];
+            }
+            frame_avg /= AVG_SIZE;
+
+            nu_char_t string[256];
+            nu_size_t n = snprintf(string, 256, "FPS: %d", (nu_u32_t)frame_avg);
+            nu_print(&renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
         }
 
         // Submit renderpass

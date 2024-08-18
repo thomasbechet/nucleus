@@ -929,8 +929,85 @@ nugl__canvas_blit_rect (nugl__context_t           *gl,
             blit_count = 1;
         }
         break;
-        case NU_TEXTURE_WRAP_REPEAT:
-            break;
+        case NU_TEXTURE_WRAP_REPEAT: {
+            // Calculate blit count
+            nu_size_t full_hblit_count = extent.s.x / tex_extent.s.x;
+            nu_size_t full_vblit_count = extent.s.y / tex_extent.s.y;
+            blit_count                 = full_hblit_count * full_vblit_count;
+
+            // Insert full blits
+            for (nu_size_t y = 0; y < full_vblit_count; ++y)
+            {
+                for (nu_size_t x = 0; x < full_hblit_count; ++x)
+                {
+                    nu_i32_t pos_x = extent.p.x + (x * tex_extent.s.x);
+                    nu_i32_t pos_y = extent.p.y + (y * tex_extent.s.y);
+                    nugl__canvas_add_blit(
+                        gl,
+                        pass,
+                        nu_ivec2(pos_x, pos_y),
+                        nu_uvec2(tex_extent.p.x, tex_extent.p.y),
+                        tex_extent.s);
+                }
+            }
+
+            // Insert partial blits
+            nu_size_t partial_hblit_size = extent.s.x % tex_extent.s.x;
+            nu_size_t partial_vblit_size = extent.s.y % tex_extent.s.y;
+
+            if (partial_hblit_size)
+            {
+                for (nu_size_t y = 0; y < full_vblit_count; ++y)
+                {
+                    nu_i32_t pos_x
+                        = extent.p.x + (full_hblit_count * tex_extent.s.x);
+                    nu_i32_t   pos_y = extent.p.y + (y * tex_extent.s.y);
+                    nu_uvec2_t size
+                        = nu_uvec2(partial_hblit_size, tex_extent.s.y);
+                    nugl__canvas_add_blit(
+                        gl,
+                        pass,
+                        nu_ivec2(pos_x, pos_y),
+                        nu_uvec2(tex_extent.p.x, tex_extent.p.y),
+                        size);
+                    ++blit_count;
+                }
+            }
+            if (partial_vblit_size)
+            {
+                for (nu_size_t x = 0; x < full_hblit_count; ++x)
+                {
+                    nu_i32_t pos_x = extent.p.x + (x * tex_extent.s.x);
+                    nu_i32_t pos_y
+                        = extent.p.y + (full_vblit_count * tex_extent.s.y);
+                    nu_uvec2_t size
+                        = nu_uvec2(tex_extent.s.x, partial_vblit_size);
+                    nugl__canvas_add_blit(
+                        gl,
+                        pass,
+                        nu_ivec2(pos_x, pos_y),
+                        nu_uvec2(tex_extent.p.x, tex_extent.p.y),
+                        size);
+                    ++blit_count;
+                }
+            }
+            if (partial_hblit_size && partial_vblit_size)
+            {
+                nu_i32_t pos_x
+                    = extent.p.x + (full_hblit_count * tex_extent.s.x);
+                nu_i32_t pos_y
+                    = extent.p.y + (full_vblit_count * tex_extent.s.y);
+                nu_uvec2_t size
+                    = nu_uvec2(partial_hblit_size, partial_vblit_size);
+                nugl__canvas_add_blit(gl,
+                                      pass,
+                                      nu_ivec2(pos_x, pos_y),
+                                      nu_uvec2(tex_extent.p.x, tex_extent.p.y),
+                                      size);
+                ++blit_count;
+            }
+        }
+        break;
         case NU_TEXTURE_WRAP_MIRROR:
             break;
     }
