@@ -67,9 +67,9 @@ typedef nu_u32_t nu_slot_t;
         (s)->data     = nu_alloc(alloc, sizeof(*(s)->data) * (cap)); \
         (s)->capacity = cap;                                         \
         (s)->free     = 1;                                           \
-        for (nu_size_t i = 1; i < (cap) - 1; ++i)                    \
+        for (nu_size_t i = 1; i < (cap); ++i)                        \
         {                                                            \
-            (s)->data[i - 1].next = i + 1;                           \
+            (s)->data[i - 1].next = i;                               \
         }                                                            \
         (s)->data[(s)->capacity - 1].next = 0;                       \
     } while (0)
@@ -79,16 +79,40 @@ typedef nu_u32_t nu_slot_t;
 
 #define nu_slotmap_get(s, slot) (slot ? &(s)->data[slot - 1].value : NU_NULL)
 
-#define nu_slotmap_add(s, alloc) \
-    do {
-        if ((s)->free)
-        {
+#define nu_slotmap_add(s, alloc, pslot)                                             \
+    do                                                                              \
+    {                                                                               \
+        if ((s)->free)                                                              \
+        {                                                                           \
+            *(pslot)  = (s)->free;                                                  \
+            (s)->free = (s)->data[(s)->free].next;                                  \
+        }                                                                           \
+        else                                                                        \
+        {                                                                           \
+            nu_size_t new_capacity = (s)->capacity * 2;                             \
+            (s)->data              = nu_realloc(alloc,                              \
+                                   (s)->data,                          \
+                                   sizeof(*(s)->data) * (s)->capacity, \
+                                   sizeof(*(s)->data) * new_capacity); \
+            for (nu_size_t i = (s)->capacity; i < (new_capacity); ++i)              \
+            {                                                                       \
+                (s)->data[i - 1].next = i;                                          \
+            }                                                                       \
+            (s)->data[new_capacity - 1].next = 0;                                   \
+            *(pslot)                         = (s)->capacity;                       \
+            (s)->free                        = (s)->capacity + 1;                   \
+            (s)->capacity                    = new_capacity;                        \
+        }                                                                           \
+    } while (0)
 
-        }
-        else
-        {
-            
-        }
+#define nu_slotmap_remove(s, slot)              \
+    do                                          \
+    {                                           \
+        if ((slot))                             \
+        {                                       \
+            (s)->data[(slot)].next = (s)->free; \
+            (s)->free              = slot;      \
+        }                                       \
     } while (0)
 
 typedef nu_slotmap(nu_u32_t) nu_u32_slotmap_t;
