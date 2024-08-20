@@ -10,6 +10,12 @@ typedef enum
     NU_UI_CONTROLLER_CURSOR,
 } nu_ui_controller_mode_t;
 
+typedef enum
+{
+    NU_UI_BUTTON,
+    NU_UI_CHECKBOX,
+} nu_ui_element_t;
+
 typedef struct
 {
     nu_u32_t top;
@@ -21,11 +27,29 @@ typedef struct
 typedef struct
 {
     nu_material_handle_t material;
-    nu_texture_handle_t  texture;
-    nu_rect_t            extent;
-    nu_margin_t          margin;
-    nu_bool_t            center;
-} nu__ui_image_t;
+    nu_ui_element_t      type;
+    union
+    {
+        struct
+        {
+            struct
+            {
+                nu_rect_t   extent;
+                nu_margin_t margin;
+            } pressed;
+            struct
+            {
+                nu_rect_t   extent;
+                nu_margin_t margin;
+            } released;
+            struct
+            {
+                nu_rect_t   extent;
+                nu_margin_t margin;
+            } hovered;
+        } button;
+    };
+} nu_ui_style_t;
 
 typedef struct
 {
@@ -42,7 +66,7 @@ typedef union
 {
     nu_renderpass_handle_t renderpass;
     nu__ui_controller_t    controller;
-    nu__ui_image_t         image;
+    nu_ui_style_t          style;
 } nu__ui_object_t;
 
 typedef nu_slotmap(nu__ui_object_t) nu__ui_object_slotmap_t;
@@ -52,6 +76,8 @@ typedef struct
     nu__ui_object_slotmap_t _objects;
     nu_slot_t               _main_renderpass;
     nu_slot_t               _first_controller;
+    nu_slot_t               _button_style;
+    nu_slot_t               _checkbox_style;
 
     nu_bool_t      _building;
     nu_renderer_t *_renderer; // Not null in build phase

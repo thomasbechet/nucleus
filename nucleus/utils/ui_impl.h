@@ -160,6 +160,7 @@ nu_ui_init (nu_allocator_t *alloc, nu_ui_t *ui)
     ui->_first_controller  = NU_NULL;
     ui->_active_renderpass = NU_NULL;
     ui->_building          = NU_FALSE;
+
     return NU_ERROR_NONE;
 }
 void

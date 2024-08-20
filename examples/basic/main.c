@@ -387,6 +387,11 @@ main (void)
         error = nu_renderpass_create(&renderer, &info, &gui_pass);
     }
 
+    // Create UI
+    nu_ui_t ui;
+    error = nu_ui_init(&alloc, &ui);
+    NU_ERROR_ASSERT(error);
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
@@ -504,6 +509,16 @@ main (void)
                            margin);
         }
 
+        // GUI
+        {
+            nu_ui_begin(&ui, &platform, &renderer);
+            if (nu_ui_button(&ui, nu_rect(300, 100, 20, 30)))
+            {
+                NU_INFO(&logger, "button pressed !");
+            }
+            nu_ui_end(&ui);
+        }
+
         // Print FPS
         {
 #define AVG_SIZE 10
@@ -547,6 +562,9 @@ main (void)
 
         submit.canvas.color_target = &surface_tex;
         nu_renderpass_submit(&renderer, gui_pass, &submit);
+
+        submit.canvas.color_target = &surface_tex;
+        nu_ui_submit_renderpasses(&ui, &renderer, &submit);
 
         // Render
         nu_render(&platform, &renderer);
