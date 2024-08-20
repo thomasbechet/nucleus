@@ -787,7 +787,6 @@ static nu_error_t
 nugl__create_canvas_renderpass (nugl__context_t           *gl,
                                 nugl__renderpass_canvas_t *pass)
 {
-    pass->blit_vbo_size = sizeof(nugl__gpu_blit_t) * pass->blit_vbo_size;
     nu_vec_init(&pass->cmds, &gl->allocator, 128);
     nu_vec_init(&pass->blit_transfer, &gl->allocator, 32);
 
@@ -838,9 +837,10 @@ nugl__create_canvas_renderpass (nugl__context_t           *gl,
 
     glBindVertexArray(0);
 
-    pass->blit_vbo = vbo;
-    pass->blit_vao = vao;
-    pass->depth    = 0;
+    pass->blit_vbo      = vbo;
+    pass->blit_vbo_size = 0;
+    pass->blit_vao      = vao;
+    pass->depth         = 0;
 
     return NU_ERROR_NONE;
 }
