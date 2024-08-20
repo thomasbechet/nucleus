@@ -16,14 +16,14 @@ typedef struct
     nu_u32_t bottom;
     nu_u32_t left;
     nu_u32_t right;
-} nu__ui_margin_t;
+} nu_margin_t;
 
 typedef struct
 {
     nu_material_handle_t material;
     nu_texture_handle_t  texture;
     nu_rect_t            extent;
-    nu__ui_margin_t      margin;
+    nu_margin_t          margin;
     nu_bool_t            center;
 } nu__ui_image_t;
 
@@ -57,6 +57,13 @@ typedef struct
     nu_renderer_t *_renderer; // Not null in build phase
     nu_slot_t      _active_renderpass;
 } nu_ui_t;
+
+NU_API void nu_blit_sliced(nu_renderer_t         *renderer,
+                           nu_renderpass_handle_t pass,
+                           nu_material_handle_t   handle,
+                           nu_rect_t              extent,
+                           nu_rect_t              tex_extent,
+                           nu_margin_t            margin);
 
 NU_API nu_error_t nu_ui_init(nu_allocator_t *alloc, nu_ui_t *ui);
 NU_API void       nu_ui_free(nu_ui_t *ui, nu_allocator_t *alloc);

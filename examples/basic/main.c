@@ -490,6 +490,18 @@ main (void)
                      nu_strlen(s),
                      nu_ivec2(10, HEIGHT / 2),
                      &font);
+
+            nu_margin_t margin;
+            margin.top    = 6;
+            margin.bottom = 6;
+            margin.left   = 6;
+            margin.right  = 6;
+            nu_blit_sliced(&renderer,
+                           gui_pass,
+                           material_gui_repeat,
+                           nu_rect(100, 100, 60, 100),
+                           nu_rect(2, 34, 44, 44),
+                           margin);
         }
 
         // Print FPS

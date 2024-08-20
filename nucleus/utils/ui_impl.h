@@ -3,6 +3,156 @@
 
 #include <nucleus/utils/ui.h>
 
+void
+nu_blit_sliced (nu_renderer_t         *renderer,
+                nu_renderpass_handle_t pass,
+                nu_material_handle_t   material,
+                nu_rect_t              extent,
+                nu_rect_t              tex_extent,
+                nu_margin_t            margin)
+{
+    nu_u32_t tex_mid_width  = tex_extent.s.x - margin.left - margin.right;
+    nu_u32_t tex_mid_height = tex_extent.s.y - margin.top - margin.bottom;
+    nu_u32_t ext_mid_width  = extent.s.x - margin.left - margin.right;
+    nu_u32_t ext_mid_height = extent.s.y - margin.top - margin.bottom;
+
+    // Top-Left
+    if (margin.top && margin.left)
+    {
+        nu_blit(
+            renderer,
+            pass,
+            material,
+            nu_rect(extent.p.x, extent.p.y, margin.left, margin.top),
+            nu_rect(tex_extent.p.x, tex_extent.p.y, margin.left, margin.top));
+    }
+
+    // Top-Mid
+    if (margin.top)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x + margin.left,
+                        extent.p.y,
+                        ext_mid_width,
+                        margin.top),
+                nu_rect(tex_extent.p.x + margin.left,
+                        tex_extent.p.y,
+                        tex_mid_width,
+                        margin.top));
+    }
+
+    // Top-Right
+    if (margin.top && margin.right)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x + extent.s.x - margin.right,
+                        extent.p.y,
+                        margin.right,
+                        margin.top),
+                nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
+                        tex_extent.p.y,
+                        margin.right,
+                        margin.top));
+    }
+
+    // Mid-Left
+    if (margin.left)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x,
+                        extent.p.y + margin.top,
+                        margin.right,
+                        ext_mid_height),
+                nu_rect(tex_extent.p.x,
+                        tex_extent.p.y + margin.top,
+                        margin.right,
+                        tex_mid_height));
+    }
+
+    // Mid-Mid
+    nu_blit(renderer,
+            pass,
+            material,
+            nu_rect(extent.p.x + margin.left,
+                    extent.p.y + margin.top,
+                    ext_mid_width,
+                    ext_mid_height),
+            nu_rect(tex_extent.p.x + margin.left,
+                    tex_extent.p.y + margin.top,
+                    tex_mid_width,
+                    tex_mid_height));
+
+    // Mid-Right
+    if (margin.right)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x + extent.s.x - margin.right,
+                        extent.p.y + margin.top,
+                        margin.right,
+                        ext_mid_height),
+                nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
+                        tex_extent.p.y + margin.top,
+                        margin.right,
+                        tex_mid_height));
+    }
+
+    // Bottom-Left
+    if (margin.bottom && margin.left)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x,
+                        extent.p.y + extent.s.y - margin.bottom,
+                        margin.left,
+                        margin.bottom),
+                nu_rect(tex_extent.p.x,
+                        tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                        margin.right,
+                        margin.bottom));
+    }
+
+    // Bottom-Mid
+    if (margin.bottom)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x + margin.left,
+                        extent.p.y + extent.s.y - margin.bottom,
+                        ext_mid_width,
+                        margin.bottom),
+                nu_rect(tex_extent.p.x + margin.left,
+                        tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                        tex_mid_width,
+                        margin.bottom));
+    }
+
+    // Bottom-Right
+    if (margin.bottom && margin.right)
+    {
+        nu_blit(renderer,
+                pass,
+                material,
+                nu_rect(extent.p.x + extent.s.x - margin.right,
+                        extent.p.y + extent.s.y - margin.bottom,
+                        margin.right,
+                        margin.bottom),
+                nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
+                        tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                        margin.right,
+                        margin.bottom));
+    }
+}
+
 nu_error_t
 nu_ui_init (nu_allocator_t *alloc, nu_ui_t *ui)
 {
