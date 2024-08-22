@@ -14,7 +14,7 @@ typedef enum
 {
     NU_UI_BUTTON,
     NU_UI_CHECKBOX,
-} nu_ui_element_t;
+} nu_ui_widget_t;
 
 typedef struct
 {
@@ -22,34 +22,35 @@ typedef struct
     nu_u32_t bottom;
     nu_u32_t left;
     nu_u32_t right;
-} nu_margin_t;
+} nu_ui_margin_t;
 
 typedef struct
 {
     nu_material_handle_t material;
-    nu_ui_element_t      type;
+    nu_rect_t            extent;
+    nu_ui_margin_t       margin;
+} nu_ui_image_style_t;
+
+typedef struct
+{
+    nu_ui_widget_t type;
     union
     {
         struct
         {
-            struct
-            {
-                nu_rect_t   extent;
-                nu_margin_t margin;
-            } pressed;
-            struct
-            {
-                nu_rect_t   extent;
-                nu_margin_t margin;
-            } released;
-            struct
-            {
-                nu_rect_t   extent;
-                nu_margin_t margin;
-            } hovered;
+            nu_ui_image_style_t pressed;
+            nu_ui_image_style_t released;
+            nu_ui_image_style_t hovered;
         } button;
+        struct
+        {
+            nu_ui_image_style_t checked;
+            nu_ui_image_style_t unchecked;
+        } checkbox;
     };
 } nu_ui_style_t;
+
+typedef nu_vec(nu_ui_style_t) nu_ui_style_vec_t;
 
 typedef struct
 {
@@ -66,19 +67,33 @@ typedef union
 {
     nu_renderpass_handle_t renderpass;
     nu__ui_controller_t    controller;
-    nu_ui_style_t          style;
 } nu__ui_object_t;
 
 typedef nu_slotmap(nu__ui_object_t) nu__ui_object_slotmap_t;
+typedef nu_u32_t nu__ui_id_t;
 
 typedef struct
 {
-    nu__ui_object_slotmap_t _objects;
-    nu_slot_t               _main_renderpass;
-    nu_slot_t               _first_controller;
-    nu_slot_t               _button_style;
-    nu_slot_t               _checkbox_style;
+    nu_ui_style_t *data;
+    nu_ui_style_t *prev;
+} nu__ui_style_t;
 
+typedef nu_vec(nu__ui_style_t) nu__ui_style_vec_t;
+
+typedef struct
+{
+    nu_allocator_t         *_allocator;
+    nu__ui_object_slotmap_t _objects;
+    nu_slot_t               _first_controller;
+
+    nu_renderpass_handle_t _main_renderpass;
+
+    nu__ui_style_vec_t _styles;
+    nu_ui_style_t     *_button_style;
+    nu_ui_style_t     *_checkbox_style;
+
+    nu__ui_id_t    _active_widget;
+    nu__ui_id_t    _hot_widget;
     nu_bool_t      _building;
     nu_renderer_t *_renderer; // Not null in build phase
     nu_slot_t      _active_renderpass;
@@ -89,10 +104,12 @@ NU_API void nu_blit_sliced(nu_renderer_t         *renderer,
                            nu_material_handle_t   handle,
                            nu_rect_t              extent,
                            nu_rect_t              tex_extent,
-                           nu_margin_t            margin);
+                           nu_ui_margin_t         margin);
 
-NU_API nu_error_t nu_ui_init(nu_allocator_t *alloc, nu_ui_t *ui);
-NU_API void       nu_ui_free(nu_ui_t *ui, nu_allocator_t *alloc);
+NU_API nu_error_t nu_ui_init(nu_renderer_t  *renderer,
+                             nu_allocator_t *alloc,
+                             nu_ui_t        *ui);
+NU_API void       nu_ui_free(nu_ui_t *ui);
 
 NU_API void nu_ui_begin(nu_ui_t       *ui,
                         nu_platform_t *platform,
@@ -103,6 +120,9 @@ NU_API void nu_ui_submit_renderpasses(const nu_ui_t                *ui,
                                       const nu_renderpass_submit_t *info);
 
 NU_API nu_renderpass_handle_t nu_ui_active_renderpass(const nu_ui_t *ui);
+
+NU_API void nu_ui_push_style(nu_ui_t *ui, nu_ui_style_t *style);
+NU_API void nu_ui_pop_style(nu_ui_t *ui);
 
 NU_API nu_bool_t nu_ui_button(nu_ui_t *ui, nu_rect_t r);
 

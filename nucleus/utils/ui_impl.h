@@ -9,7 +9,7 @@ nu_blit_sliced (nu_renderer_t         *renderer,
                 nu_material_handle_t   material,
                 nu_rect_t              extent,
                 nu_rect_t              tex_extent,
-                nu_margin_t            margin)
+                nu_ui_margin_t         margin)
 {
     nu_u32_t tex_mid_width  = tex_extent.s.x - margin.left - margin.right;
     nu_u32_t tex_mid_height = tex_extent.s.y - margin.top - margin.bottom;
@@ -154,19 +154,36 @@ nu_blit_sliced (nu_renderer_t         *renderer,
 }
 
 nu_error_t
-nu_ui_init (nu_allocator_t *alloc, nu_ui_t *ui)
+nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
 {
+    ui->_allocator = alloc;
     nu_slotmap_init(&ui->_objects, alloc, 32);
-    ui->_first_controller  = NU_NULL;
-    ui->_active_renderpass = NU_NULL;
+    ui->_first_controller = NU_NULL;
+
+    nu_vec_init(&ui->_styles, alloc, 10);
+    ui->_button_style   = NU_NULL;
+    ui->_checkbox_style = NU_NULL;
+
+    ui->_hot_widget        = 0;
+    ui->_active_widget     = 0;
     ui->_building          = NU_FALSE;
+    ui->_renderer          = NU_NULL;
+    ui->_active_renderpass = NU_NULL;
+
+    // Create main renderpass
+    nu_renderpass_info_t info;
+    info.type = NU_RENDERPASS_CANVAS;
+    nu_error_t error
+        = nu_renderpass_create(renderer, &info, &ui->_main_renderpass);
+    NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;
 }
 void
-nu_ui_free (nu_ui_t *ui, nu_allocator_t *alloc)
+nu_ui_free (nu_ui_t *ui)
 {
-    nu_slotmap_free(&ui->_objects, alloc);
+    nu_slotmap_free(&ui->_objects, ui->_allocator);
+    nu_vec_free(&ui->_styles, ui->_allocator);
 }
 
 static nu_renderpass_handle_t
@@ -205,6 +222,7 @@ nu_ui_submit_renderpasses (const nu_ui_t                *ui,
                            nu_renderer_t                *renderer,
                            const nu_renderpass_submit_t *info)
 {
+    nu_slot_t it = ui->_first_renderpass;
 }
 
 nu_renderpass_handle_t
@@ -212,6 +230,44 @@ nu_ui_active_renderpass (const nu_ui_t *ui)
 {
     NU_ASSERT(ui->_building);
     return nu_slotmap_get(&ui->_objects, ui->_active_renderpass)->renderpass;
+}
+
+void
+nu_ui_push_style (nu_ui_t *ui, nu_ui_style_t *style)
+{
+    nu_vec_push(&ui->_styles, ui->_allocator);
+    nu__ui_style_t *s = nu_vec_last(&ui->_styles);
+
+    s->data = style;
+    switch (style->type)
+    {
+        case NU_UI_BUTTON:
+            s->prev           = ui->_button_style;
+            ui->_button_style = style;
+            break;
+        case NU_UI_CHECKBOX:
+            s->prev             = ui->_checkbox_style;
+            ui->_checkbox_style = style;
+            break;
+    }
+}
+void
+nu_ui_pop_style (nu_ui_t *ui)
+{
+    nu__ui_style_t *last = nu_vec_last(&ui->_styles);
+    if (last)
+    {
+        switch (last->data->type)
+        {
+            case NU_UI_BUTTON:
+                ui->_button_style = last->prev;
+                break;
+            case NU_UI_CHECKBOX:
+                ui->_checkbox_style = last->prev;
+                break;
+        }
+        nu_vec_pop(&ui->_styles);
+    }
 }
 
 nu_bool_t

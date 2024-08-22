@@ -392,6 +392,13 @@ main (void)
     error = nu_ui_init(&alloc, &ui);
     NU_ERROR_ASSERT(error);
 
+    nu_ui_style_t button_style;
+    button_style.type                    = NU_UI_BUTTON;
+    button_style.button.pressed.material = material_gui_repeat;
+    button_style.button.pressed.extent   = nu_rect(2, 34, 44, 44);
+    button_style.button.pressed.margin   = (nu_ui_margin_t) { 6, 6, 6, 6 };
+    nu_ui_push_style(&ui, &button_style);
+
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
@@ -496,7 +503,7 @@ main (void)
                      nu_ivec2(10, HEIGHT / 2),
                      &font);
 
-            nu_margin_t margin;
+            nu_ui_margin_t margin;
             margin.top    = 6;
             margin.bottom = 6;
             margin.left   = 6;

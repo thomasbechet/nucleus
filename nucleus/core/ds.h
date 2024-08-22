@@ -39,6 +39,14 @@
         }                                                                           \
         ++(v)->size;                                                                \
     } while (0)
+#define nu_vec_pop(v)    \
+    do                   \
+    {                    \
+        if ((v)->size)   \
+        {                \
+            --(v)->size; \
+        }                \
+    } while (0)
 #define nu_vec_last(v) (v)->size ? (v)->data + ((v)->size - 1) : NU_NULL
 
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
