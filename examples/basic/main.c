@@ -389,14 +389,20 @@ main (void)
 
     // Create UI
     nu_ui_t ui;
-    error = nu_ui_init(&alloc, &ui);
+    error = nu_ui_init(&renderer, &alloc, &ui);
     NU_ERROR_ASSERT(error);
 
     nu_ui_style_t button_style;
-    button_style.type                    = NU_UI_BUTTON;
-    button_style.button.pressed.material = material_gui_repeat;
-    button_style.button.pressed.extent   = nu_rect(2, 34, 44, 44);
-    button_style.button.pressed.margin   = (nu_ui_margin_t) { 6, 6, 6, 6 };
+    button_style.type                     = NU_UI_BUTTON;
+    button_style.button.pressed.material  = material_gui_repeat;
+    button_style.button.pressed.extent    = nu_rect(113, 81, 30, 14);
+    button_style.button.pressed.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
+    button_style.button.released.material = material_gui_repeat;
+    button_style.button.released.extent   = nu_rect(113, 98, 30, 14);
+    button_style.button.released.margin   = (nu_ui_margin_t) { 3, 5, 3, 3 };
+    button_style.button.hovered.material  = material_gui_repeat;
+    button_style.button.hovered.extent    = nu_rect(113, 113, 30, 14);
+    button_style.button.hovered.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
     nu_ui_push_style(&ui, &button_style);
 
     // Main loop
@@ -519,7 +525,7 @@ main (void)
         // GUI
         {
             nu_ui_begin(&ui, &platform, &renderer);
-            if (nu_ui_button(&ui, nu_rect(300, 100, 20, 30)))
+            if (nu_ui_button(&ui, nu_rect(300, 100, 60, 20)))
             {
                 NU_INFO(&logger, "button pressed !");
             }

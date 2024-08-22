@@ -157,42 +157,55 @@ nu_error_t
 nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
 {
     ui->_allocator = alloc;
-    nu_slotmap_init(&ui->_objects, alloc, 32);
-    ui->_first_controller = NU_NULL;
 
     nu_vec_init(&ui->_styles, alloc, 10);
     ui->_button_style   = NU_NULL;
     ui->_checkbox_style = NU_NULL;
 
-    ui->_hot_widget        = 0;
     ui->_active_widget     = 0;
-    ui->_building          = NU_FALSE;
+    ui->_hot_widget        = 0;
+    ui->_active_controller = 0;
+    ui->_hot_controller    = 0;
     ui->_renderer          = NU_NULL;
-    ui->_active_renderpass = NU_NULL;
+
+    nu_vec_init(&ui->_passes, alloc, 1);
 
     // Create main renderpass
     nu_renderpass_info_t info;
     info.type = NU_RENDERPASS_CANVAS;
     nu_error_t error
-        = nu_renderpass_create(renderer, &info, &ui->_main_renderpass);
+        = nu_renderpass_create(renderer, &info, &ui->active_renderpass);
     NU_ERROR_CHECK(error, return error);
+    nu_vec_push(&ui->_passes, alloc);
+    nu__ui_pass_t *pass = nu_vec_last(&ui->_passes);
+    pass->renderpass    = ui->active_renderpass;
+
+    // Initialize controllers
+    for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
+    {
+        ui->controllers[i].active = NU_FALSE;
+    }
 
     return NU_ERROR_NONE;
 }
 void
-nu_ui_free (nu_ui_t *ui)
+nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
 {
-    nu_slotmap_free(&ui->_objects, ui->_allocator);
+    for (nu_size_t i = 0; i < ui->_passes.size; ++i)
+    {
+        nu_renderpass_reset(renderer, ui->_passes.data[i].renderpass);
+    }
+    nu_vec_free(&ui->_passes, ui->_allocator);
     nu_vec_free(&ui->_styles, ui->_allocator);
 }
 
 static nu_renderpass_handle_t
 nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
 {
-    if (slot)
-    {
-        return nu_slotmap_get(&ui->_objects, slot)->renderpass;
-    }
+    // if (slot)
+    // {
+    //     return nu_slotmap_get(&ui->_objects, slot)->renderpass;
+    // }
     nu_renderpass_info_t info;
     info.type               = NU_RENDERPASS_CANVAS;
     info.reset_after_submit = NU_FALSE;
@@ -204,32 +217,40 @@ nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
 }
 
 void
-nu_ui_begin (nu_ui_t *ui, nu_platform_t *platform, nu_renderer_t *renderer)
+nu_ui_begin (nu_ui_t             *ui,
+             const nu_platform_t *platform,
+             nu_renderer_t       *renderer)
 {
-    ui->_building          = NU_TRUE;
-    ui->_renderer          = renderer;
-    ui->_active_renderpass = ui->_active_renderpass;
+    // Reset renderpass
+    ui->_renderer = renderer;
+    for (nu_size_t i = 0; i < ui->_passes.size; ++i)
+    {
+        nu_renderpass_reset(renderer, ui->_passes.data[i].renderpass);
+    }
 
-    // Reset passes
+    // Update controllers
+    for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
+    {
+        if (ui->controllers[i].active)
+        {
+        }
+    }
 }
 void
 nu_ui_end (nu_ui_t *ui)
 {
-    NU_ASSERT(ui->_building);
+    NU_ASSERT(ui->_renderer);
 }
 void
 nu_ui_submit_renderpasses (const nu_ui_t                *ui,
                            nu_renderer_t                *renderer,
                            const nu_renderpass_submit_t *info)
 {
-    nu_slot_t it = ui->_first_renderpass;
-}
-
-nu_renderpass_handle_t
-nu_ui_active_renderpass (const nu_ui_t *ui)
-{
-    NU_ASSERT(ui->_building);
-    return nu_slotmap_get(&ui->_objects, ui->_active_renderpass)->renderpass;
+    for (nu_size_t i = ui->_passes.size; i > 0; --i)
+    {
+        nu_renderpass_submit(
+            renderer, ui->_passes.data[i - 1].renderpass, info);
+    }
 }
 
 void
@@ -270,9 +291,21 @@ nu_ui_pop_style (nu_ui_t *ui)
     }
 }
 
-nu_bool_t
-nu_ui_button (nu_ui_t *ui, nu_rect_t r)
+nu_u32_t
+nu_ui_controller (const nu_ui_t *ui)
 {
+    return ui->_active_controller;
+}
+
+nu_bool_t
+nu_ui_button (nu_ui_t *ui, nu_rect_t extent)
+{
+    nu_blit_sliced(ui->_renderer,
+                   ui->active_renderpass,
+                   ui->_button_style->button.hovered.material,
+                   extent,
+                   ui->_button_style->button.hovered.extent,
+                   ui->_button_style->button.hovered.margin);
     return NU_FALSE;
 }
 
