@@ -184,6 +184,7 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
         ui->controllers[i].active = NU_FALSE;
+        ui->controllers[i].cursor = NU_IVEC2_ZERO;
     }
 
     return NU_ERROR_NONE;
@@ -217,9 +218,7 @@ nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
 }
 
 void
-nu_ui_begin (nu_ui_t             *ui,
-             const nu_platform_t *platform,
-             nu_renderer_t       *renderer)
+nu_ui_begin (nu_ui_t *ui, nu_renderer_t *renderer)
 {
     // Reset renderpass
     ui->_renderer = renderer;
@@ -297,15 +296,43 @@ nu_ui_controller (const nu_ui_t *ui)
     return ui->_active_controller;
 }
 
-nu_bool_t
-nu_ui_button (nu_ui_t *ui, nu_rect_t extent)
+static nu_bool_t
+nu__ui_region_hit (const nu_ui_t *ui, nu_rect_t extent, nu_u32_t *controller)
+{
+    for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
+    {
+        if (nu_rect_containsi(extent, ui->controllers[i].cursor))
+        {
+            *controller = i;
+            return NU_TRUE;
+        }
+    }
+    return NU_FALSE;
+}
+
+static void
+nu__draw_image (nu_ui_t *ui, nu_rect_t extent, const nu_ui_image_style_t *style)
 {
     nu_blit_sliced(ui->_renderer,
                    ui->active_renderpass,
-                   ui->_button_style->button.hovered.material,
+                   style->material,
                    extent,
-                   ui->_button_style->button.hovered.extent,
-                   ui->_button_style->button.hovered.margin);
+                   style->extent,
+                   style->margin);
+}
+
+nu_bool_t
+nu_ui_button (nu_ui_t *ui, nu_rect_t extent)
+{
+    nu_u32_t controller;
+    if (nu__ui_region_hit(ui, extent, &controller))
+    {
+        nu__draw_image(ui, extent, &ui->_button_style->button.hovered);
+    }
+    else
+    {
+        nu__draw_image(ui, extent, &ui->_button_style->button.released);
+    }
     return NU_FALSE;
 }
 

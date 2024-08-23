@@ -52,21 +52,22 @@ typedef enum
     NU_UI_CONTROLLER_CURSOR,
 } nu_ui_controller_mode_t;
 
+typedef enum
+{
+    NU_UI_NONE,
+    NU_UI_CLICK,
+    NU_UI_UP,
+    NU_UI_DOWN,
+    NU_UI_LEFT,
+    NU_UI_RIGHT,
+} nu_ui_action_t;
+
 typedef struct
 {
     nu_ui_controller_mode_t mode;
     nu_bool_t               active;
-
-    nu_input_handle_t click;
-    nu_input_handle_t move_up;
-    nu_input_handle_t move_down;
-    nu_input_handle_t move_left;
-    nu_input_handle_t move_right;
-    nu_input_handle_t cursor_x;
-    nu_input_handle_t cursor_y;
-
-    nu_ivec2_t _cursor;
-    nu_bool_t  _click;
+    nu_ui_action_t          action;
+    nu_ivec2_t              cursor;
 } nu_ui_controller_t;
 
 typedef nu_vec(nu_ui_controller_t *) nu__ui_controller_vec_t;
@@ -120,9 +121,7 @@ NU_API nu_error_t nu_ui_init(nu_renderer_t  *renderer,
                              nu_ui_t        *ui);
 NU_API void       nu_ui_free(nu_ui_t *ui, nu_renderer_t *renderer);
 
-NU_API void nu_ui_begin(nu_ui_t             *ui,
-                        const nu_platform_t *platform,
-                        nu_renderer_t       *renderer);
+NU_API void nu_ui_begin(nu_ui_t *ui, nu_renderer_t *renderer);
 NU_API void nu_ui_end(nu_ui_t *ui);
 NU_API void nu_ui_submit_renderpasses(const nu_ui_t                *ui,
                                       nu_renderer_t                *renderer,

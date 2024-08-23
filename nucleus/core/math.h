@@ -237,6 +237,7 @@ NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
 
 NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
 NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);
+NU_API nu_bool_t nu_rect_containsi(nu_rect_t r, nu_ivec2_t p);
 NU_API nu_vec2_t nu_rect_normalize(nu_rect_t r, nu_vec2_t p);
 
 NU_API nu_mat4_t nu_perspective(float fov,

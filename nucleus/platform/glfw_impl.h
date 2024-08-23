@@ -610,7 +610,7 @@ nuglfw__bind_axis (nuglfw__input_t  *ctx,
 
     // Add binding
     nuglfw__binding_t *binding = nuglfw__add_binding(ctx, first_binding, input);
-    binding->axis.scale        = 4;
+    binding->axis.scale        = 1.0;
 
     return NU_ERROR_NONE;
 }

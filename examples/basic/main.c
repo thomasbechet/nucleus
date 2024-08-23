@@ -21,6 +21,8 @@ static nu_logger_t    logger;
 
 static nu_input_handle_t draw;
 static nu_input_handle_t quit;
+static nu_input_handle_t cursor_x;
+static nu_input_handle_t cursor_y;
 
 static nu_mesh_handle_t booster_mesh;
 static nu_mat4_t        booster_transform;
@@ -146,6 +148,8 @@ main (void)
     {
         error &= nu_input_create(&platform, &draw);
         error &= nu_input_create(&platform, &quit);
+        error &= nu_input_create(&platform, &cursor_x);
+        error &= nu_input_create(&platform, &cursor_y);
         error &= nu_input_create(&platform, &controller.move_forward);
         error &= nu_input_create(&platform, &controller.move_backward);
         error &= nu_input_create(&platform, &controller.move_left);
@@ -165,6 +169,8 @@ main (void)
     // Bind inputs
     {
         error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_ESCAPE);
+        error &= nuext_input_bind_axis(&platform, cursor_x, NUEXT_AXIS_MOUSE_X);
+        error &= nuext_input_bind_axis(&platform, cursor_y, NUEXT_AXIS_MOUSE_Y);
         error &= nuext_input_bind_button(
             &platform, controller.move_forward, NUEXT_BUTTON_W);
         error &= nuext_input_bind_button(
@@ -524,7 +530,13 @@ main (void)
 
         // GUI
         {
-            nu_ui_begin(&ui, &platform, &renderer);
+            ui.controllers[0].active = NU_TRUE;
+            ui.controllers[0].cursor
+                = nu_cursor_position(&platform, cursor_x, cursor_y);
+            NU_INFO(&logger, "%lf", ui.controllers[0].cursor.x);
+            NU_INFO(&logger, "%lf", nu_input_value(&platform, cursor_x));
+            NU_INFO(&logger, "%d", 0.5 * (float)platform._surface.size.x);
+            nu_ui_begin(&ui, &renderer);
             if (nu_ui_button(&ui, nu_rect(300, 100, 60, 20)))
             {
                 NU_INFO(&logger, "button pressed !");

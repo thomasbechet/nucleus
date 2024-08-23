@@ -589,7 +589,7 @@ nu_rect (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
     return ret;
 }
 nu_bool_t
-nu_rect_contains (nu_rect_t r, nu_vec2_t p)
+nu_rect_containsi (nu_rect_t r, nu_ivec2_t p)
 {
     nu_i32_t px = p.x;
     nu_i32_t py = p.y;
@@ -604,6 +604,11 @@ nu_rect_contains (nu_rect_t r, nu_vec2_t p)
         return NU_FALSE;
     }
     return NU_TRUE;
+}
+nu_bool_t
+nu_rect_contains (nu_rect_t r, nu_vec2_t p)
+{
+    return nu_rect_containsi(r, nu_ivec2(p.x, p.y));
 }
 nu_vec2_t
 nu_rect_normalize (nu_rect_t r, nu_vec2_t p)
