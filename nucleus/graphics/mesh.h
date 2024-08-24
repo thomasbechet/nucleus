@@ -11,11 +11,6 @@ typedef struct
     nu_size_t        count;
 } nu_mesh_info_t;
 
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_mesh_handle_t;
+NU_DEFINE_HANDLE(nu_mesh_handle_t);
 
 #endif

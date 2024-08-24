@@ -119,8 +119,8 @@
 #endif
 
 #ifdef NU_BUILD_GLFW
-#ifndef NU_BUILD_RENDERER_GL
-#define NU_BUILD_RENDERER_GL
+#ifndef NU_BUILD_GL
+#define NU_BUILD_GL
 #endif
 #endif
 
@@ -165,5 +165,13 @@ typedef int           nu_word_t;
 #define NU_FALSE 0
 #define NU_NULL  0
 #define NU_NOOP
+
+#define NU_DEFINE_HANDLE(type) \
+    typedef union              \
+    {                          \
+        void     *ptr;         \
+        nu_u32_t  id;          \
+        nu_size_t index;       \
+    } type
 
 #endif

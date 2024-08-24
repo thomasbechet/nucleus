@@ -32,11 +32,6 @@ typedef struct
     };
 } nu_material_info_t;
 
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_material_handle_t;
+NU_DEFINE_HANDLE(nu_material_handle_t);
 
 #endif

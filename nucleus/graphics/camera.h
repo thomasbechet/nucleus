@@ -1,6 +1,8 @@
 #ifndef NU_CAMERA_H
 #define NU_CAMERA_H
 
+#include <nucleus/core.h>
+
 typedef enum
 {
     NU_PROJECTION_PERSPECTIVE,
@@ -18,11 +20,6 @@ typedef struct
     nu_vec3_t       eye;
 } nu_camera_info_t;
 
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_camera_handle_t;
+NU_DEFINE_HANDLE(nu_camera_handle_t);
 
 #endif

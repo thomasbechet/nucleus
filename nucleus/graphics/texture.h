@@ -3,10 +3,6 @@
 
 #include <nucleus/core.h>
 
-#ifdef NU_BUILD_RENDERER_GL
-#include <nucleus/gl/handle.h>
-#endif
-
 typedef enum
 {
     NU_TEXTURE_FORMAT_COLOR,
@@ -34,11 +30,6 @@ typedef struct
     const nu_color_t   *colors;
 } nu_texture_info_t;
 
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_texture_handle_t;
+NU_DEFINE_HANDLE(nu_texture_handle_t);
 
 #endif

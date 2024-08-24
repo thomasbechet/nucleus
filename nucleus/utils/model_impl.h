@@ -89,7 +89,8 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
                 {
                     cmd->mesh = i;
                 }
-                if (items[i].id == asset->node.material_id)
+                if (asset->node.material_id
+                    && items[i].id == asset->node.material_id)
                 {
                     cmd->material = i;
                 }
@@ -103,10 +104,9 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             if (cmd->material == (nu_u16_t)-1)
             {
                 NU_ERROR(data->logger,
-                         "material not found %lu",
+                         "material not found %lu, using default one",
                          asset->node.material_id);
                 cmd->material = data->default_material_item;
-                break;
             }
             item->id = asset->id;
         }
@@ -172,11 +172,11 @@ nu_model_draw (nu_renderer_t         *renderer,
         {
             continue;
         }
-        const nu_material_handle_t *material
-            = &model->items.data[cmds[i].material].material;
-        const nu_mesh_handle_t *mesh = &model->items.data[cmds[i].mesh].mesh;
-        nu_mat4_t global_transform = nu_mat4_mul(transform, cmds[i].transform);
-        nu_draw(renderer, pass, *material, *mesh, global_transform);
+        const nu_material_handle_t material
+            = model->items.data[cmds[i].material].material;
+        const nu_mesh_handle_t mesh = model->items.data[cmds[i].mesh].mesh;
+        nu_mat4_t global_transform  = nu_mat4_mul(transform, cmds[i].transform);
+        nu_draw(renderer, pass, material, mesh, global_transform);
     }
 }
 

@@ -9,10 +9,6 @@
 #include <nucleus/graphics/renderpass.h>
 #include <nucleus/graphics/material.h>
 
-#ifdef NU_BUILD_RENDERER_GL
-#include <nucleus/gl/renderer.h>
-#endif
-
 typedef enum
 {
     NU_RENDERER_NULL,
@@ -21,21 +17,13 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_backend_t;
 
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__context_t gl;
-#endif
-} nu__renderer_backend_t;
-
 struct nu_renderer;
 
 typedef struct
 {
     // Engine API
-    nu_error_t (*init)(struct nu_renderer *ctx,
-                       nu_allocator_t     *allocator,
-                       nu_uvec2_t          size);
+    nu_error_t (*init)(struct nu_renderer *ctx, nu_uvec2_t size);
+    nu_error_t (*free)(struct nu_renderer *ctx);
     nu_error_t (*render)(struct nu_renderer *ctx,
                          const nu_rect_t    *global_viewport,
                          const nu_rect_t    *viewport);
@@ -111,11 +99,11 @@ typedef struct
 
 typedef struct nu_renderer
 {
-    nu_logger_t            _logger;
-    nu_allocator_t         _allocator;
-    nu_renderer_api_t      _api;
-    nu__renderer_backend_t _backend;
-    nu_texture_handle_t    _surface_color;
+    nu_logger_t         _logger;
+    nu_allocator_t      _allocator;
+    nu_renderer_api_t   _api;
+    void               *_backend;
+    nu_texture_handle_t _surface_color;
 } nu_renderer_t;
 
 NU_API nu_renderer_info_t nu_renderer_info_default(void);

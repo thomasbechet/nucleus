@@ -86,11 +86,6 @@ typedef union
     nu_renderpass_submit_canvas_t canvas;
 } nu_renderpass_submit_t;
 
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_renderpass_handle_t;
+NU_DEFINE_HANDLE(nu_renderpass_handle_t);
 
 #endif

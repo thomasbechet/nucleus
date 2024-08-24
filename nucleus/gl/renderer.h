@@ -171,8 +171,7 @@ typedef nu_vec(nugl__renderpass_t) nugl__renderpass_vec_t;
 
 typedef struct
 {
-    nu_allocator_t allocator;
-    nu_u32_t       surface_color_index;
+    nu_u32_t surface_color_index;
 
     GLuint blit_program;
     GLuint flat_program;

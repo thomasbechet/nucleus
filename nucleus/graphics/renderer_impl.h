@@ -3,7 +3,7 @@
 
 #include <nucleus/graphics/renderer.h>
 
-#ifdef NU_BUILD_RENDERER_GL
+#ifdef NU_BUILD_GL
 #include <nucleus/gl.h>
 #endif
 
@@ -32,6 +32,7 @@ nu_renderer_init (nu_platform_t            *platform,
             break;
         case NU_RENDERER_GL:
             renderer->_api.init                 = nugl__init;
+            renderer->_api.free                 = nugl__free;
             renderer->_api.render               = nugl__render;
             renderer->_api.create_surface_color = nugl__create_surface_color;
 
@@ -66,8 +67,8 @@ nu_renderer_init (nu_platform_t            *platform,
 
     // Initialize backend
     NU_INFO(&renderer->_logger, "initialize renderer context");
-    nu_error_t error = NU_TRY_CALL(renderer->_api.init)(
-        renderer, &renderer->_allocator, platform->_surface.size);
+    nu_error_t error
+        = NU_TRY_CALL(renderer->_api.init)(renderer, platform->_surface.size);
     NU_ERROR_CHECK(error, return error);
 
     // Create surface texture
@@ -83,6 +84,7 @@ nu_error_t
 nu_renderer_terminate (nu_renderer_t *renderer)
 {
     NU_INFO(&renderer->_logger, "terminate renderer context");
+    renderer->_api.free(renderer);
 
     return NU_ERROR_NONE;
 }

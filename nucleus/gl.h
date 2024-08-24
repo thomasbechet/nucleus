@@ -4,7 +4,7 @@
 #include <nucleus/gl/handle.h>
 #include <nucleus/gl/renderer.h>
 
-#if defined(NU_IMPLEMENTATION) && defined(NU_BUILD_RENDERER_GL)
+#ifdef NU_IMPLEMENTATION
 
 #include <nucleus/gl/renderer_impl.h>
 
