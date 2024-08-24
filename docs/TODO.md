@@ -7,8 +7,8 @@
 [x] Fullscreen window glfw
 [x] change nu_texture_t to nu_texture_handle_t
 [ ] fix gltf loader
-[ ] Mouse locked glfw (double click lock)
-[ ] GUI renderpass
+[x] Mouse locked glfw (double click lock)
+[x] GUI renderpass
 [x] Cubemap resource
 [x] Skybox renderpass
 [x] Input axis 3D

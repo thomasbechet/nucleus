@@ -1,9 +1,11 @@
-#ifndef NUGL_H
-#define NUGL_H
+#ifndef NUGL_RENDERER_H
+#define NUGL_RENDERER_H
 
 #include <nucleus/core.h>
-#include <nucleus/graphics/shared_types.h>
 #include <nucleus/external/glad/gl.h>
+#include <nucleus/graphics/texture.h>
+#include <nucleus/graphics/renderpass.h>
+#include <nucleus/graphics/material.h>
 
 #define NUGL__VERTEX_SIZE (3 + 2 + 3)
 
@@ -158,11 +160,6 @@ typedef struct
     GLuint depth;
     GLuint fbo;
 } nugl__rendertarget_t;
-
-typedef union
-{
-    nu_u32_t index;
-} nugl__handle_t;
 
 typedef nu_vec(nugl__camera_t) nugl__camera_vec_t;
 typedef nu_vec(nugl__mesh_t) nugl__mesh_vec_t;

@@ -4,7 +4,7 @@
 #include <nucleus/graphics/renderer.h>
 
 #ifdef NU_BUILD_RENDERER_GL
-#include <nucleus/graphics/gl_impl.h>
+#include <nucleus/gl.h>
 #endif
 
 #define NU_TRY_CALL(func) (!func) ? NU_ERROR_NONE : func

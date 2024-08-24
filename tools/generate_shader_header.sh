@@ -11,8 +11,8 @@ then
   exit
 fi
 
-printf "#ifndef NUGL_SHADERS_H\n"
-printf "#define NUGL_SHADERS_H\n"
+printf "#ifndef NUGL_SHADER_DATA_H\n"
+printf "#define NUGL_SHADER_DATA_H\n"
 
 printf "#include <nucleus/core/config.h>\n"
 

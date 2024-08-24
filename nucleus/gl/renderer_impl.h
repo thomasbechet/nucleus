@@ -1,8 +1,9 @@
-#ifndef NUGL_IMPL_H
-#define NUGL_IMPL_H
+#ifndef NUGL_RENDERER_IMPL_H
+#define NUGL_RENDERER_IMPL_H
 
 #include <nucleus/graphics/renderer.h>
-#include <nucleus/graphics/gl_shaders.h>
+#include <nucleus/gl/renderer.h>
+#include <nucleus/gl/shader_data.h>
 
 #define GLAD_GL_IMPLEMENTATION
 #include <nucleus/external/glad/gl.h>

@@ -2,10 +2,15 @@
 #define NU_RENDERER_H
 
 #include <nucleus/platform.h>
-#include <nucleus/graphics/shared_types.h>
+#include <nucleus/graphics/texture.h>
+#include <nucleus/graphics/camera.h>
+#include <nucleus/graphics/mesh.h>
+#include <nucleus/graphics/cubemap.h>
+#include <nucleus/graphics/renderpass.h>
+#include <nucleus/graphics/material.h>
 
 #ifdef NU_BUILD_RENDERER_GL
-#include <nucleus/graphics/gl.h>
+#include <nucleus/gl/renderer.h>
 #endif
 
 typedef enum
@@ -16,205 +21,12 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_backend_t;
 
-typedef enum
-{
-    NU_PROJECTION_PERSPECTIVE,
-    NU_PROJECTION_ORTHOGRAPHIC,
-} nu_projection_t;
-
-typedef struct
-{
-    nu_projection_t projection;
-    float           fov;
-    float           near;
-    float           far;
-    nu_vec3_t       up;
-    nu_vec3_t       center;
-    nu_vec3_t       eye;
-} nu_camera_info_t;
-
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_camera_handle_t;
-
-typedef struct
-{
-    const nu_vec3_t *positions;
-    const nu_vec2_t *uvs;
-    const nu_vec3_t *normals;
-    nu_size_t        count;
-} nu_mesh_info_t;
-
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_mesh_handle_t;
-
-typedef enum
-{
-    NU_TEXTURE_FORMAT_COLOR,
-    NU_TEXTURE_FORMAT_DEPTH
-} nu_texture_format_t;
-
-typedef enum
-{
-    NU_TEXTURE_USAGE_TARGET,
-    NU_TEXTURE_USAGE_SAMPLE
-} nu_texture_usage_t;
-
-typedef struct
-{
-    nu_uvec2_t          size;
-    nu_texture_format_t format;
-    nu_texture_usage_t  usage;
-    const nu_color_t   *colors;
-} nu_texture_info_t;
-
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_texture_handle_t;
-
-typedef struct
-{
-    nu_u32_t           size;
-    nu_texture_usage_t usage;
-    const nu_color_t  *colors_posx;
-    const nu_color_t  *colors_negx;
-    const nu_color_t  *colors_posy;
-    const nu_color_t  *colors_negy;
-    const nu_color_t  *colors_posz;
-    const nu_color_t  *colors_negz;
-} nu_cubemap_info_t;
-
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_cubemap_handle_t;
-
-typedef struct
-{
-    const nu_texture_handle_t *color0;
-    const nu_texture_handle_t *color1;
-    nu_mat3_t                  uv_transform;
-} nu_material_mesh_t;
-
-typedef struct
-{
-    const nu_texture_handle_t *color0;
-    nu_texture_wrap_mode_t     wrap_mode;
-} nu_material_canvas_t;
-
-typedef struct
-{
-    nu_material_type_t type;
-    union
-    {
-        nu_material_mesh_t   mesh;
-        nu_material_canvas_t canvas;
-    };
-} nu_material_info_t;
-
-typedef struct
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_material_handle_t;
-
 typedef union
 {
 #ifdef NU_BUILD_RENDERER_GL
     nugl__context_t gl;
 #endif
 } nu__renderer_backend_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_unlit_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_flat_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_transparent_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_skybox_info_t;
-
-typedef struct
-{
-    nu_renderpass_type_t type;
-    nu_bool_t            reset_after_submit;
-    union
-    {
-        nu_renderpass_unlit_info_t       unlit;
-        nu_renderpass_flat_info_t        flat;
-        nu_renderpass_transparent_info_t transparent;
-    };
-} nu_renderpass_info_t;
-
-typedef struct
-{
-    nu_camera_handle_t         camera;
-    const nu_texture_handle_t *color_target;
-    const nu_texture_handle_t *depth_target;
-    nu_color_t                *clear_color;
-    nu_cubemap_handle_t       *clear_skybox;
-} nu_renderpass_submit_unlit_t;
-
-typedef struct
-{
-    nu_camera_handle_t         camera;
-    const nu_texture_handle_t *color_target;
-    const nu_texture_handle_t *depth_target;
-    nu_color_t                *clear_color;
-} nu_renderpass_submit_flat_t;
-
-typedef struct
-{
-    nu_camera_handle_t         camera;
-    const nu_texture_handle_t *color_target;
-    const nu_texture_handle_t *depth_target;
-    nu_cubemap_handle_t        cubemap;
-    nu_quat_t                  rotation;
-} nu_renderpass_submit_skybox_t;
-
-typedef struct
-{
-    const nu_texture_handle_t *color_target;
-} nu_renderpass_submit_canvas_t;
-
-typedef union
-{
-    nu_renderpass_submit_unlit_t  unlit;
-    nu_renderpass_submit_flat_t   flat;
-    nu_renderpass_submit_skybox_t skybox;
-    nu_renderpass_submit_canvas_t canvas;
-} nu_renderpass_submit_t;
-
-typedef union
-{
-#ifdef NU_BUILD_RENDERER_GL
-    nugl__handle_t _gl;
-#endif
-} nu_renderpass_handle_t;
 
 struct nu_renderer;
 
