@@ -143,8 +143,8 @@ main (void)
         nu_swap_buffers(&platform);
     }
 
-    nu_renderer_terminate(&renderer);
-    nu_platform_terminate(&platform);
+    nu_renderer_free(&renderer);
+    nu_platform_free(&platform);
 
     return 0;
 }

@@ -370,7 +370,7 @@ nuglfw__init (nu_platform_t *platform)
 }
 
 static nu_error_t
-nuglfw__terminate (void)
+nuglfw__free (void)
 {
     glfwTerminate();
     return NU_ERROR_NONE;

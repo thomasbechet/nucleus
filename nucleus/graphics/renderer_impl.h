@@ -81,7 +81,7 @@ nu_renderer_init (nu_platform_t            *platform,
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_renderer_terminate (nu_renderer_t *renderer)
+nu_renderer_free (nu_renderer_t *renderer)
 {
     NU_INFO(&renderer->_logger, "terminate renderer context");
     renderer->_api.free(renderer);

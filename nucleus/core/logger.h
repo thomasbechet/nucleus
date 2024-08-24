@@ -31,7 +31,7 @@ NU_API nu_logger_info_t nu_logger_info_default(void);
 
 NU_API nu_error_t nu_logger_init(const nu_logger_info_t *info,
                                  nu_logger_t            *logger);
-NU_API nu_error_t nu_logger_terminate(nu_logger_t *logger);
+NU_API nu_error_t nu_logger_free(nu_logger_t *logger);
 
 NU_API void nu_log(nu_logger_t     *logger,
                    nu_log_level_t   level,

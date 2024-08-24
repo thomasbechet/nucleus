@@ -111,7 +111,7 @@ NU_API nu_renderer_info_t nu_renderer_info_default(void);
 NU_API nu_error_t nu_renderer_init(nu_platform_t            *platform,
                                    const nu_renderer_info_t *info,
                                    nu_renderer_t            *renderer);
-NU_API nu_error_t nu_renderer_terminate(nu_renderer_t *renderer);
+NU_API nu_error_t nu_renderer_free(nu_renderer_t *renderer);
 NU_API nu_error_t nu_render(nu_platform_t *platform, nu_renderer_t *renderer);
 NU_API nu_texture_handle_t nu_surface_color_target(
     const nu_platform_t *platform, const nu_renderer_t *renderer);

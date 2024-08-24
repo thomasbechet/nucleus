@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/platform.h>
@@ -38,7 +37,7 @@ main (void)
         nu_swap_buffers(&platform);
     }
 
-    nu_platform_terminate(&platform);
+    nu_platform_free(&platform);
 
     return 0;
 }

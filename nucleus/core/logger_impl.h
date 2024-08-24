@@ -19,7 +19,7 @@ nu_logger_init (const nu_logger_info_t *info, nu_logger_t *logger)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_logger_terminate (nu_logger_t *logger)
+nu_logger_free (nu_logger_t *logger)
 {
     return NU_ERROR_NONE;
 }

@@ -545,8 +545,8 @@ main (void)
     error = nu_renderpass_delete(&renderer, main_pass);
     NU_ERROR_ASSERT(error);
 
-    nu_renderer_terminate(&renderer);
-    nu_platform_terminate(&platform);
+    nu_renderer_free(&renderer);
+    nu_platform_free(&platform);
 
     return 0;
 }

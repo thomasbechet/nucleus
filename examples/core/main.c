@@ -27,7 +27,7 @@ main (void)
     }
     nu_slotmap_free(&sm, &alloc);
 
-    nu_logger_terminate(&logger);
+    nu_logger_free(&logger);
 
     return 0;
 }

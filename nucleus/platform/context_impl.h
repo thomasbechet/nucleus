@@ -42,7 +42,7 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_platform_terminate (nu_platform_t *platform)
+nu_platform_free (nu_platform_t *platform)
 {
     nu_error_t error;
 
@@ -50,7 +50,7 @@ nu_platform_terminate (nu_platform_t *platform)
 
     // Terminate surface (and inputs)
 #ifdef NU_BUILD_GLFW
-    nuglfw__terminate();
+    nuglfw__free();
 #endif
     return NU_ERROR_NONE;
 }
