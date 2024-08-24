@@ -75,12 +75,7 @@ typedef struct
     float previous;
 } nu__input_state_t;
 
-typedef struct
-{
-#ifdef NU_BUILD_GLFW
-    nu_u32_t _glfwid;
-#endif
-} nu_input_handle_t;
+NU_DEFINE_HANDLE(nu_input_handle_t);
 
 typedef enum
 {
