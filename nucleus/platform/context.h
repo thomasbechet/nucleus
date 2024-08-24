@@ -1,9 +1,7 @@
 #ifndef NU_CONTEXT_H
 #define NU_CONTEXT_H
 
-#include <nucleus/core/memory.h>
-#include <nucleus/core/math.h>
-#include <nucleus/core/logger.h>
+#include <nucleus/core.h>
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Surface Types                         //////
@@ -45,8 +43,11 @@ typedef struct
     nuglfw__viewport_t viewport;
     nu_bool_t          fullscreen;
     nu_bool_t          switch_fullscreen;
+    nu_bool_t          capture_mouse;
     nu_uvec2_t         previous_size;
     nu_uvec2_t         previous_position;
+    nu_timer_t         last_mouse_click;
+    nu_bool_t          switch_capture_mouse;
 } nuglfw__surface_t;
 
 #endif

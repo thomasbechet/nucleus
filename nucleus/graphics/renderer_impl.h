@@ -51,6 +51,7 @@ nu_renderer_init (nu_platform_t            *platform,
             renderer->_api.delete_renderpass = nugl__delete_renderpass;
 
             renderer->_api.submit_renderpass = nugl__submit_renderpass;
+            renderer->_api.reset_renderpass  = nugl__reset_renderpass;
             renderer->_api.draw              = nugl__draw;
             renderer->_api.blit              = nugl__blit;
             break;

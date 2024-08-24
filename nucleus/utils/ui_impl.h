@@ -153,6 +153,17 @@ nu_blit_sliced (nu_renderer_t         *renderer,
     }
 }
 
+static void
+nu__draw_image (nu_ui_t *ui, nu_rect_t extent, const nu_ui_image_style_t *style)
+{
+    nu_blit_sliced(ui->_renderer,
+                   ui->active_renderpass,
+                   style->material,
+                   extent,
+                   style->extent,
+                   style->margin);
+}
+
 nu_error_t
 nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
 {
@@ -161,9 +172,10 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     nu_vec_init(&ui->_styles, alloc, 10);
     ui->_button_style   = NU_NULL;
     ui->_checkbox_style = NU_NULL;
+    ui->_cursor_style   = NU_NULL;
 
-    ui->_active_widget     = 0;
-    ui->_hot_widget        = 0;
+    ui->_active_id         = 0;
+    ui->_hot_id            = 0;
     ui->_active_controller = 0;
     ui->_hot_controller    = 0;
     ui->_renderer          = NU_NULL;
@@ -183,8 +195,10 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     // Initialize controllers
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
-        ui->controllers[i].active = NU_FALSE;
-        ui->controllers[i].cursor = NU_IVEC2_ZERO;
+        ui->controllers[i].active       = NU_FALSE;
+        ui->controllers[i].cursor       = NU_IVEC2_ZERO;
+        ui->controllers[i].main_pressed = NU_FALSE;
+        ui->controllers[i].mode         = NU_UI_CONTROLLER_CURSOR;
     }
 
     return NU_ERROR_NONE;
@@ -203,10 +217,6 @@ nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
 static nu_renderpass_handle_t
 nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
 {
-    // if (slot)
-    // {
-    //     return nu_slotmap_get(&ui->_objects, slot)->renderpass;
-    // }
     nu_renderpass_info_t info;
     info.type               = NU_RENDERPASS_CANVAS;
     info.reset_after_submit = NU_FALSE;
@@ -227,18 +237,23 @@ nu_ui_begin (nu_ui_t *ui, nu_renderer_t *renderer)
         nu_renderpass_reset(renderer, ui->_passes.data[i].renderpass);
     }
 
-    // Update controllers
-    for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
-    {
-        if (ui->controllers[i].active)
-        {
-        }
-    }
+    ui->_next_id = 1;
+    ui->_hot_id  = 0;
+
+    NU_ASSERT(ui->_button_style);
+    NU_ASSERT(ui->_checkbox_style);
 }
 void
 nu_ui_end (nu_ui_t *ui)
 {
     NU_ASSERT(ui->_renderer);
+    NU_ASSERT(ui->_cursor_style);
+
+    // Draw cursor
+    nu_ivec2_t cursor = ui->controllers[0].cursor;
+    nu__draw_image(ui,
+                   nu_rect(cursor.x - 3, cursor.y - 3, 6, 5),
+                   &ui->_cursor_style->cursor.image);
 }
 void
 nu_ui_submit_renderpasses (const nu_ui_t                *ui,
@@ -269,6 +284,10 @@ nu_ui_push_style (nu_ui_t *ui, nu_ui_style_t *style)
             s->prev             = ui->_checkbox_style;
             ui->_checkbox_style = style;
             break;
+        case NU_UI_CURSOR:
+            s->prev           = ui->_cursor_style;
+            ui->_cursor_style = style;
+            break;
     }
 }
 void
@@ -285,6 +304,9 @@ nu_ui_pop_style (nu_ui_t *ui)
             case NU_UI_CHECKBOX:
                 ui->_checkbox_style = last->prev;
                 break;
+            case NU_UI_CURSOR:
+                ui->_cursor_style = last->prev;
+                break;
         }
         nu_vec_pop(&ui->_styles);
     }
@@ -297,7 +319,7 @@ nu_ui_controller (const nu_ui_t *ui)
 }
 
 static nu_bool_t
-nu__ui_region_hit (const nu_ui_t *ui, nu_rect_t extent, nu_u32_t *controller)
+nu__ui_hit (const nu_ui_t *ui, nu_rect_t extent, nu_u32_t *controller)
 {
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
@@ -310,30 +332,103 @@ nu__ui_region_hit (const nu_ui_t *ui, nu_rect_t extent, nu_u32_t *controller)
     return NU_FALSE;
 }
 
-static void
-nu__draw_image (nu_ui_t *ui, nu_rect_t extent, const nu_ui_image_style_t *style)
-{
-    nu_blit_sliced(ui->_renderer,
-                   ui->active_renderpass,
-                   style->material,
-                   extent,
-                   style->extent,
-                   style->margin);
-}
-
 nu_bool_t
 nu_ui_button (nu_ui_t *ui, nu_rect_t extent)
 {
-    nu_u32_t controller;
-    if (nu__ui_region_hit(ui, extent, &controller))
+    nu_u32_t  id = ui->_next_id++;
+    nu_u32_t  controller;
+    nu_bool_t result  = NU_FALSE;
+    nu_bool_t inside  = nu__ui_hit(ui, extent, &controller);
+    nu_bool_t pressed = ui->controllers[0].main_pressed;
+
+    if (inside)
     {
-        nu__draw_image(ui, extent, &ui->_button_style->button.hovered);
+        ui->_hot_id = id;
+    }
+
+    if (ui->_active_id == id && !pressed)
+    {
+        if (inside)
+        {
+            ui->_hot_id = id;
+        }
+        else
+        {
+            ui->_hot_id = 0;
+        }
+        ui->_active_id = 0;
+    }
+    else if (ui->_hot_id == id)
+    {
+        if (pressed)
+        {
+            if (ui->_active_id != id)
+            {
+                result = NU_TRUE;
+            }
+            ui->_active_id = id;
+        }
+    }
+
+    if (ui->_hot_id == id)
+    {
+        if (ui->_active_id == id)
+        {
+            nu__draw_image(ui, extent, &ui->_button_style->button.pressed);
+        }
+        else
+        {
+            nu__draw_image(ui, extent, &ui->_button_style->button.hovered);
+        }
     }
     else
     {
         nu__draw_image(ui, extent, &ui->_button_style->button.released);
     }
-    return NU_FALSE;
+
+    return result;
+}
+nu_bool_t
+nu_ui_checkbox (nu_ui_t *ui, nu_rect_t extent, nu_bool_t *state)
+{
+    NU_ASSERT(state);
+
+    nu_bool_t result = NU_FALSE;
+    nu_u32_t  id     = ui->_next_id++;
+    nu_u32_t  controller;
+    nu_bool_t inside  = nu__ui_hit(ui, extent, &controller);
+    nu_bool_t pressed = ui->controllers[0].main_pressed;
+
+    if (inside)
+    {
+        ui->_hot_id = id;
+        if (ui->_active_id != id && pressed)
+        {
+            ui->_active_id = id;
+            *state         = !(*state);
+            result         = NU_TRUE;
+        }
+        else if (!pressed)
+        {
+            ui->_active_id = 0;
+        }
+    }
+    else if (ui->_active_id == id)
+    {
+        ui->_active_id = 0;
+        ui->_hot_id    = 0;
+    }
+
+    if ((*state))
+    {
+        nu__draw_image(ui, extent, &ui->_checkbox_style->checkbox.checked);
+    }
+    else
+    {
+        nu__draw_image(ui, extent, &ui->_checkbox_style->checkbox.unchecked);
+    }
+
+    return result;
 }
 
 #endif

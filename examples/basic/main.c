@@ -20,89 +20,16 @@ static nu_renderer_t  renderer;
 static nu_logger_t    logger;
 
 static nu_input_handle_t draw;
+static nu_input_handle_t main_button;
 static nu_input_handle_t quit;
 static nu_input_handle_t cursor_x;
 static nu_input_handle_t cursor_y;
 
-static nu_mesh_handle_t booster_mesh;
-static nu_mat4_t        booster_transform;
-static nu_mesh_handle_t llpm_mesh;
-static nu_mat4_t        llpm_transform;
-static nu_mesh_handle_t vulcain_mesh;
-static nu_mat4_t        vulcain_transform;
-static nu_model_t       temple_model;
-static nu_model_t       ariane_model;
+static nu_model_t temple_model;
+static nu_model_t ariane_model;
 
 #define LOOP_TICK    0
 #define LOOP_PHYSICS 1
-
-static nu_error_t
-load_mesh (const nuext_gltf_mesh_t *mesh)
-{
-    nu_mesh_info_t info;
-    info.positions = mesh->positions;
-    info.uvs       = mesh->uvs;
-    info.normals   = mesh->normals;
-    info.count     = mesh->count;
-
-    if (NU_MATCH(mesh->name, "Cylinder.003"))
-    {
-        NU_INFO(
-            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
-        nu_error_t error = nu_mesh_create(&renderer, &info, &vulcain_mesh);
-        NU_ERROR_ASSERT(error);
-    }
-    else if (NU_MATCH(mesh->name, "Cylinder.002"))
-    {
-        NU_INFO(
-            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
-        nu_error_t error = nu_mesh_create(&renderer, &info, &booster_mesh);
-        NU_ERROR_ASSERT(error);
-    }
-    else if (NU_MATCH(mesh->name, "Cylinder"))
-    {
-        NU_INFO(
-            &logger, "load mesh %s with %d vertices", mesh->name, mesh->count);
-        nu_error_t error = nu_mesh_create(&renderer, &info, &llpm_mesh);
-        NU_ERROR_ASSERT(error);
-    }
-
-    return NU_ERROR_NONE;
-}
-static nu_error_t
-load_node (const nuext_gltf_node_t *node)
-{
-    if (NU_MATCH(node->name, "LLPM"))
-    {
-        llpm_transform = node->transform;
-    }
-    else if (NU_MATCH(node->name, "Booster"))
-    {
-        booster_transform = node->transform;
-    }
-    else if (NU_MATCH(node->name, "Vulcain"))
-    {
-        vulcain_transform = node->transform;
-    }
-    return NU_ERROR_NONE;
-}
-
-static nu_error_t
-load_asset (const nuext_gltf_asset_t *asset, void *userdata)
-{
-    switch (asset->type)
-    {
-        case NUEXT_GLTF_ASSET_MESH:
-            return load_mesh(&asset->mesh);
-        case NUEXT_GLTF_ASSET_TEXTURE:
-            break;
-        case NUEXT_GLTF_ASSET_MATERIAL:
-            break;
-        case NUEXT_GLTF_ASSET_NODE:
-            return load_node(&asset->node);
-    }
-    return NU_ERROR_NONE;
-}
 
 int
 main (void)
@@ -147,6 +74,7 @@ main (void)
     // Configure inputs
     {
         error &= nu_input_create(&platform, &draw);
+        error &= nu_input_create(&platform, &main_button);
         error &= nu_input_create(&platform, &quit);
         error &= nu_input_create(&platform, &cursor_x);
         error &= nu_input_create(&platform, &cursor_y);
@@ -168,7 +96,9 @@ main (void)
 
     // Bind inputs
     {
-        error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_ESCAPE);
+        error &= nuext_input_bind_button(
+            &platform, main_button, NUEXT_BUTTON_MOUSE_1);
+        error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_T);
         error &= nuext_input_bind_axis(&platform, cursor_x, NUEXT_AXIS_MOUSE_X);
         error &= nuext_input_bind_axis(&platform, cursor_y, NUEXT_AXIS_MOUSE_Y);
         error &= nuext_input_bind_button(
@@ -264,16 +194,6 @@ main (void)
         error       = nu_texture_create(&renderer, &info, &texture_gui);
         NU_ERROR_ASSERT(error);
         nu_image_free(&image, &alloc);
-    }
-
-    // Load models
-    {
-        error = nuext_load_gltf("../../../assets/ariane6.glb",
-                                &logger,
-                                &alloc,
-                                load_asset,
-                                NU_NULL);
-        NU_ERROR_ASSERT(error);
     }
 
     // Create material
@@ -401,15 +321,30 @@ main (void)
     nu_ui_style_t button_style;
     button_style.type                     = NU_UI_BUTTON;
     button_style.button.pressed.material  = material_gui_repeat;
-    button_style.button.pressed.extent    = nu_rect(113, 81, 30, 14);
+    button_style.button.pressed.extent    = nu_rect(113, 97, 30, 14);
     button_style.button.pressed.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
     button_style.button.released.material = material_gui_repeat;
-    button_style.button.released.extent   = nu_rect(113, 98, 30, 14);
+    button_style.button.released.extent   = nu_rect(113, 81, 30, 14);
     button_style.button.released.margin   = (nu_ui_margin_t) { 3, 5, 3, 3 };
     button_style.button.hovered.material  = material_gui_repeat;
     button_style.button.hovered.extent    = nu_rect(113, 113, 30, 14);
     button_style.button.hovered.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
     nu_ui_push_style(&ui, &button_style);
+    nu_ui_style_t checkbox_style;
+    checkbox_style.type                      = NU_UI_CHECKBOX;
+    checkbox_style.checkbox.checked.material = material_gui_repeat;
+    checkbox_style.checkbox.checked.extent   = nu_rect(97, 257, 14, 14);
+    checkbox_style.checkbox.checked.margin   = (nu_ui_margin_t) { 3, 3, 2, 2 };
+    checkbox_style.checkbox.unchecked.material = material_gui_repeat;
+    checkbox_style.checkbox.unchecked.extent   = nu_rect(81, 257, 14, 14);
+    checkbox_style.checkbox.unchecked.margin = (nu_ui_margin_t) { 2, 4, 2, 2 };
+    nu_ui_push_style(&ui, &checkbox_style);
+    nu_ui_style_t cursor_style;
+    cursor_style.type                  = NU_UI_CURSOR;
+    cursor_style.cursor.image.material = material_gui_repeat;
+    cursor_style.cursor.image.extent   = nu_rect(98, 38, 3, 3);
+    cursor_style.cursor.image.margin   = (nu_ui_margin_t) { 0, 0, 0, 0 };
+    nu_ui_push_style(&ui, &cursor_style);
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
@@ -421,8 +356,9 @@ main (void)
 
     nu_timer_t timer;
     nu_timer_reset(&timer);
-    float delta = 0.0f;
-    float time  = 0;
+    float     delta      = 0.0f;
+    float     time       = 0;
+    nu_bool_t bool_state = NU_TRUE;
 
     while (!nu_exit_requested(&platform) && running)
     {
@@ -467,6 +403,8 @@ main (void)
                                                 i * 5);
             nu_draw(&renderer, main_pass, material, cube_mesh, model);
         }
+        nu_mat4_t model = nu_mat4_identity();
+        nu_draw(&renderer, main_pass, material, cube_mesh, model);
 
         // Render custom mesh
         {
@@ -533,13 +471,16 @@ main (void)
             ui.controllers[0].active = NU_TRUE;
             ui.controllers[0].cursor
                 = nu_cursor_position(&platform, cursor_x, cursor_y);
-            NU_INFO(&logger, "%lf", ui.controllers[0].cursor.x);
-            NU_INFO(&logger, "%lf", nu_input_value(&platform, cursor_x));
-            NU_INFO(&logger, "%d", 0.5 * (float)platform._surface.size.x);
+            ui.controllers[0].main_pressed
+                = nu_input_pressed(&platform, main_button);
             nu_ui_begin(&ui, &renderer);
             if (nu_ui_button(&ui, nu_rect(300, 100, 60, 20)))
             {
                 NU_INFO(&logger, "button pressed !");
+            }
+            if (nu_ui_checkbox(&ui, nu_rect(300, 300, 14, 14), &bool_state))
+            {
+                NU_INFO(&logger, "checkbox changed %d", bool_state);
             }
             nu_ui_end(&ui);
         }

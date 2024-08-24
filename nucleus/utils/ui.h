@@ -7,7 +7,8 @@ typedef enum
 {
     NU_UI_BUTTON,
     NU_UI_CHECKBOX,
-} nu_ui_widget_t;
+    NU_UI_CURSOR,
+} nu_ui_element_t;
 
 typedef struct
 {
@@ -26,7 +27,7 @@ typedef struct
 
 typedef struct
 {
-    nu_ui_widget_t type;
+    nu_ui_element_t type;
     union
     {
         struct
@@ -40,6 +41,10 @@ typedef struct
             nu_ui_image_style_t checked;
             nu_ui_image_style_t unchecked;
         } checkbox;
+        struct
+        {
+            nu_ui_image_style_t image;
+        } cursor;
     };
 } nu_ui_style_t;
 
@@ -52,22 +57,12 @@ typedef enum
     NU_UI_CONTROLLER_CURSOR,
 } nu_ui_controller_mode_t;
 
-typedef enum
-{
-    NU_UI_NONE,
-    NU_UI_CLICK,
-    NU_UI_UP,
-    NU_UI_DOWN,
-    NU_UI_LEFT,
-    NU_UI_RIGHT,
-} nu_ui_action_t;
-
 typedef struct
 {
     nu_ui_controller_mode_t mode;
     nu_bool_t               active;
-    nu_ui_action_t          action;
     nu_ivec2_t              cursor;
+    nu_bool_t               main_pressed;
 } nu_ui_controller_t;
 
 typedef nu_vec(nu_ui_controller_t *) nu__ui_controller_vec_t;
@@ -101,9 +96,11 @@ typedef struct
     nu__ui_style_vec_t _styles;
     nu_ui_style_t     *_button_style;
     nu_ui_style_t     *_checkbox_style;
+    nu_ui_style_t     *_cursor_style;
 
-    nu_u32_t       _active_widget;
-    nu_u32_t       _hot_widget;
+    nu_u32_t       _next_id;
+    nu_u32_t       _active_id;
+    nu_u32_t       _hot_id;
     nu_u32_t       _active_controller;
     nu_u32_t       _hot_controller;
     nu_renderer_t *_renderer; // Not null in build phase
@@ -133,5 +130,8 @@ NU_API void nu_ui_pop_style(nu_ui_t *ui);
 NU_API nu_u32_t nu_ui_controller(const nu_ui_t *ui);
 
 NU_API nu_bool_t nu_ui_button(nu_ui_t *ui, nu_rect_t extent);
+NU_API nu_bool_t nu_ui_checkbox(nu_ui_t   *ui,
+                                nu_rect_t  extent,
+                                nu_bool_t *state);
 
 #endif
