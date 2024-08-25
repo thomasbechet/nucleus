@@ -75,7 +75,7 @@ typedef struct
     float previous;
 } nu__input_state_t;
 
-NU_DEFINE_HANDLE(nu_input_t);
+NU_DEFINE_HANDLE(nu_input_handle_t);
 
 typedef enum
 {

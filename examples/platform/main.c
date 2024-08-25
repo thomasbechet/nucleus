@@ -2,10 +2,10 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/platform.h>
 
-static nu_allocator_t alloc;
-static nu_logger_t    logger;
-static nu_platform_t  platform;
-static nu_input_t     exit_input;
+static nu_allocator_t    alloc;
+static nu_logger_t       logger;
+static nu_platform_t     platform;
+static nu_input_handle_t exit_input;
 
 int
 main (void)

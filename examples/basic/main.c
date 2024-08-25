@@ -19,11 +19,11 @@ static nu_platform_t  platform;
 static nu_renderer_t  renderer;
 static nu_logger_t    logger;
 
-static nu_input_t draw;
-static nu_input_t main_button;
-static nu_input_t quit;
-static nu_input_t cursor_x;
-static nu_input_t cursor_y;
+static nu_input_handle_t draw;
+static nu_input_handle_t main_button;
+static nu_input_handle_t quit;
+static nu_input_handle_t cursor_x;
+static nu_input_handle_t cursor_y;
 
 static nu_model_t temple_model;
 static nu_model_t ariane_model;
