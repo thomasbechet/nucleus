@@ -15,6 +15,6 @@ typedef struct
     const nu_color_t  *colors_negz;
 } nu_cubemap_info_t;
 
-NU_DEFINE_HANDLE(nu_cubemap_handle_t);
+NU_DEFINE_HANDLE(nu_cubemap_t);
 
 #endif

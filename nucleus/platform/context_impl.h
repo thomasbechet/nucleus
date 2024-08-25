@@ -25,7 +25,6 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     nu_error_t error;
 
     // Initialize context
-    platform->_allocator = info->allocator;
     nu_logger_init(&info->logger, &platform->_logger);
     platform->_surface.size    = nu_uvec2(info->width, info->height);
     platform->_close_requested = NU_FALSE;

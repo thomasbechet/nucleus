@@ -75,7 +75,7 @@ typedef struct
     float previous;
 } nu__input_state_t;
 
-NU_DEFINE_HANDLE(nu_input_handle_t);
+NU_DEFINE_HANDLE(nu_input_t);
 
 typedef enum
 {
@@ -235,7 +235,6 @@ typedef struct
 {
     nu_u32_t         width;
     nu_u32_t         height;
-    nu_allocator_t   allocator;
     nu_logger_info_t logger;
 } nu_platform_info_t;
 

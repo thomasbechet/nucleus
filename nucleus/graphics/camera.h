@@ -20,6 +20,6 @@ typedef struct
     nu_vec3_t       eye;
 } nu_camera_info_t;
 
-NU_DEFINE_HANDLE(nu_camera_handle_t);
+NU_DEFINE_HANDLE(nu_camera_t);
 
 #endif

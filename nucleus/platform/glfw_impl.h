@@ -307,6 +307,9 @@ nuglfw__init (nu_platform_t *platform)
         return NU_ERROR_BACKEND;
     }
 
+    // Set default mouse mode
+    glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     // Initialize viewport
     surface->viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
     surface->viewport.screen   = size;
@@ -409,7 +412,7 @@ nuglfw__poll_events (nuglfw__input_t   *ctx,
             }
             else
             {
-                glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
             }
             surface->switch_capture_mouse = NU_FALSE;
         }
@@ -428,8 +431,6 @@ nuglfw__poll_events (nuglfw__input_t   *ctx,
                                      surface->previous_size.x,
                                      surface->previous_size.y,
                                      GLFW_DONT_CARE);
-                // glfwSetInputMode(surface->win, GLFW_CURSOR,
-                // GLFW_CURSOR_NORMAL);
             }
             else
             {
@@ -454,7 +455,7 @@ nuglfw__poll_events (nuglfw__input_t   *ctx,
         }
 
         // Update mouse motion
-        if (surface->capture_mouse)
+        if (NU_TRUE || surface->capture_mouse)
         {
             nu_vec2_t mouse_motion
                 = nu_vec2_sub(ctx->mouse_position, ctx->mouse_old_position);
@@ -563,7 +564,7 @@ nuglfw__first_binding_from_axis (nuglfw__input_t *ctx, nuext_axis_t axis)
     return NU_NULL;
 }
 static nu_error_t
-nuglfw__create_input (nuglfw__input_t *ctx, nu_input_handle_t *input)
+nuglfw__create_input (nuglfw__input_t *ctx, nu_input_t *input)
 {
     input->index = ctx->free_input;
     if (input->index == NUGLFW_ID_NONE)
@@ -577,14 +578,14 @@ nuglfw__create_input (nuglfw__input_t *ctx, nu_input_handle_t *input)
     return NU_ERROR_NONE;
 }
 static const nu__input_state_t *
-nuglfw__input_state (const nuglfw__input_t *ctx, nu_input_handle_t input)
+nuglfw__input_state (const nuglfw__input_t *ctx, nu_input_t input)
 {
     return &ctx->inputs[input.index].state;
 }
 static nuglfw__binding_t *
-nuglfw__add_binding (nuglfw__input_t  *ctx,
-                     nu_u32_t         *first_binding,
-                     nu_input_handle_t input)
+nuglfw__add_binding (nuglfw__input_t *ctx,
+                     nu_u32_t        *first_binding,
+                     nu_input_t       input)
 {
     nu_u32_t           binding_id = ctx->free_binding;
     nuglfw__binding_t *binding    = &ctx->bindings[binding_id];
@@ -595,10 +596,10 @@ nuglfw__add_binding (nuglfw__input_t  *ctx,
     return binding;
 }
 static nu_error_t
-nuglfw__bind_button_value (nuglfw__input_t  *ctx,
-                           nu_input_handle_t input,
-                           nuext_button_t    button,
-                           float             pressed_value)
+nuglfw__bind_button_value (nuglfw__input_t *ctx,
+                           nu_input_t       input,
+                           nuext_button_t   button,
+                           float            pressed_value)
 {
     NU_ASSERT(input.index != NUGLFW_ID_NONE);
 
@@ -617,16 +618,14 @@ nuglfw__bind_button_value (nuglfw__input_t  *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nuglfw__bind_button (nuglfw__input_t  *ctx,
-                     nu_input_handle_t input,
-                     nuext_button_t    button)
+nuglfw__bind_button (nuglfw__input_t *ctx,
+                     nu_input_t       input,
+                     nuext_button_t   button)
 {
     return nuglfw__bind_button_value(ctx, input, button, NU_INPUT_PRESSED);
 }
 static nu_error_t
-nuglfw__bind_axis (nuglfw__input_t  *ctx,
-                   nu_input_handle_t input,
-                   nuext_axis_t      axis)
+nuglfw__bind_axis (nuglfw__input_t *ctx, nu_input_t input, nuext_axis_t axis)
 {
     NU_ASSERT(input.index != NUGLFW_ID_NONE);
 

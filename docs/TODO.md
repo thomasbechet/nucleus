@@ -5,7 +5,6 @@
 [x] Logger per system
 [x] Reorganize in modules
 [x] Fullscreen window glfw
-[x] change nu_texture_t to nu_texture_handle_t
 [ ] fix gltf loader
 [x] Mouse locked glfw (double click lock)
 [x] GUI renderpass

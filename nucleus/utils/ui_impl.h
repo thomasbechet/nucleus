@@ -4,12 +4,12 @@
 #include <nucleus/utils/ui.h>
 
 void
-nu_blit_sliced (nu_renderer_t         *renderer,
-                nu_renderpass_handle_t pass,
-                nu_material_handle_t   material,
-                nu_rect_t              extent,
-                nu_rect_t              tex_extent,
-                nu_ui_margin_t         margin)
+nu_blit_sliced (nu_renderer_t  *renderer,
+                nu_renderpass_t pass,
+                nu_material_t   material,
+                nu_rect_t       extent,
+                nu_rect_t       tex_extent,
+                nu_ui_margin_t  margin)
 {
     nu_u32_t tex_mid_width  = tex_extent.s.x - margin.left - margin.right;
     nu_u32_t tex_mid_height = tex_extent.s.y - margin.top - margin.bottom;
@@ -214,14 +214,14 @@ nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
     nu_vec_free(&ui->_styles, ui->_allocator);
 }
 
-static nu_renderpass_handle_t
+static nu_renderpass_t
 nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
 {
     nu_renderpass_info_t info;
     info.type               = NU_RENDERPASS_CANVAS;
     info.reset_after_submit = NU_FALSE;
-    nu_renderpass_handle_t handle;
-    nu_error_t error = nu_renderpass_create(ui->_renderer, &info, &handle);
+    nu_renderpass_t handle;
+    nu_error_t      error = nu_renderpass_create(ui->_renderer, &info, &handle);
     NU_ERROR_ASSERT(error);
 
     return handle;

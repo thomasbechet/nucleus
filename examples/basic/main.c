@@ -19,11 +19,11 @@ static nu_platform_t  platform;
 static nu_renderer_t  renderer;
 static nu_logger_t    logger;
 
-static nu_input_handle_t draw;
-static nu_input_handle_t main_button;
-static nu_input_handle_t quit;
-static nu_input_handle_t cursor_x;
-static nu_input_handle_t cursor_y;
+static nu_input_t draw;
+static nu_input_t main_button;
+static nu_input_t quit;
+static nu_input_t cursor_x;
+static nu_input_t cursor_y;
 
 static nu_model_t temple_model;
 static nu_model_t ariane_model;
@@ -44,7 +44,6 @@ main (void)
         nu_platform_info_t info = nu_platform_info_default();
         info.width              = WIDTH;
         info.height             = HEIGHT;
-        info.allocator          = alloc;
         error                   = nu_platform_init(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
@@ -98,7 +97,7 @@ main (void)
     {
         error &= nuext_input_bind_button(
             &platform, main_button, NUEXT_BUTTON_MOUSE_1);
-        error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_T);
+        error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_ESCAPE);
         error &= nuext_input_bind_axis(&platform, cursor_x, NUEXT_AXIS_MOUSE_X);
         error &= nuext_input_bind_axis(&platform, cursor_y, NUEXT_AXIS_MOUSE_Y);
         error &= nuext_input_bind_button(
@@ -141,7 +140,7 @@ main (void)
     }
 
     // Create depth buffer
-    nu_texture_handle_t depth_buffer;
+    nu_texture_t depth_buffer;
     {
         nu_texture_info_t info;
         info.usage  = NU_TEXTURE_USAGE_TARGET;
@@ -152,7 +151,7 @@ main (void)
     }
 
     // Create cube
-    nu_mesh_handle_t cube_mesh;
+    nu_mesh_t cube_mesh;
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
@@ -167,9 +166,9 @@ main (void)
     }
 
     // Load resources
-    nu_texture_handle_t texture;
-    nu_texture_handle_t texture_white;
-    nu_texture_handle_t texture_gui;
+    nu_texture_t texture;
+    nu_texture_t texture_white;
+    nu_texture_t texture_gui;
     {
         nu_image_t image;
         error = nuext_load_image(
@@ -197,10 +196,10 @@ main (void)
     }
 
     // Create material
-    nu_material_handle_t material;
-    nu_material_handle_t material_white;
-    nu_material_handle_t material_gui;
-    nu_material_handle_t material_gui_repeat;
+    nu_material_t material;
+    nu_material_t material_white;
+    nu_material_t material_gui;
+    nu_material_t material_gui_repeat;
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
@@ -245,7 +244,7 @@ main (void)
     }
 
     // Load cubemap
-    nu_cubemap_handle_t skybox;
+    nu_cubemap_t skybox;
     {
         const nu_char_t *filenames[] = {
             "../../../assets/skyboxes/vz_clear_ocean_up.png",
@@ -284,17 +283,17 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create camera
-    nu_camera_handle_t camera;
-    nu_camera_info_t   camera_info = nu_camera_info_default();
+    nu_camera_t      camera;
+    nu_camera_info_t camera_info = nu_camera_info_default();
     {
         error = nu_camera_create(&renderer, &camera_info, &camera);
         NU_ERROR_ASSERT(error);
     }
 
     // Create renderpasses
-    nu_renderpass_handle_t main_pass;
-    nu_renderpass_handle_t skybox_pass;
-    nu_renderpass_handle_t gui_pass;
+    nu_renderpass_t main_pass;
+    nu_renderpass_t skybox_pass;
+    nu_renderpass_t gui_pass;
     {
         nu_renderpass_info_t info;
 
@@ -509,7 +508,7 @@ main (void)
         // Submit renderpass
         nu_renderpass_submit_t submit;
 
-        nu_texture_handle_t surface_tex
+        nu_texture_t surface_tex
             = nu_surface_color_target(&platform, &renderer);
         nu_color_t clear_color = NU_COLOR_BLUE_SKY;
 

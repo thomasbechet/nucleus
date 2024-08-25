@@ -29,8 +29,8 @@ nu_swap_buffers (nu_platform_t *platform)
 }
 nu_ivec2_t
 nu_cursor_position (const nu_platform_t *platform,
-                    nu_input_handle_t    cursor_x,
-                    nu_input_handle_t    cursor_y)
+                    nu_input_t           cursor_x,
+                    nu_input_t           cursor_y)
 {
     float cx = nu_input_value(platform, cursor_x);
     float cy = nu_input_value(platform, cursor_y);

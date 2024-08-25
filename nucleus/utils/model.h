@@ -8,9 +8,9 @@ typedef struct
     nu_u32_t id;
     union
     {
-        nu_texture_handle_t  texture;
-        nu_material_handle_t material;
-        nu_mesh_handle_t     mesh;
+        nu_texture_t  texture;
+        nu_material_t material;
+        nu_mesh_t     mesh;
     };
 } nu__model_item_t;
 
@@ -36,9 +36,9 @@ NU_API nu_error_t nuext_model_from_gltf(const nu_char_t *filename,
                                         nu_allocator_t  *alloc,
                                         nu_model_t      *model);
 NU_API void       nu_model_free(nu_model_t *model, nu_allocator_t *alloc);
-NU_API void       nu_model_draw(nu_renderer_t         *renderer,
-                                nu_renderpass_handle_t pass,
-                                const nu_model_t      *model,
-                                nu_mat4_t              transform);
+NU_API void       nu_model_draw(nu_renderer_t    *renderer,
+                                nu_renderpass_t   pass,
+                                const nu_model_t *model,
+                                nu_mat4_t         transform);
 
 #endif
