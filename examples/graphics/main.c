@@ -112,7 +112,7 @@ main (void)
     nu_timer_t timer;
     nu_timer_reset(&timer);
     float time = 0;
-    while (!nu_exit_requested(&platform))
+    while (!nu_platform_exit_requested(&platform))
     {
         float delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
@@ -121,7 +121,7 @@ main (void)
         {
             break;
         }
-        nu_poll_events(&platform);
+        nu_platform_poll_events(&platform);
 
         nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 500) * 0.1, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
@@ -138,8 +138,8 @@ main (void)
         submit.flat.depth_target = &depth_buffer;
         nu_renderpass_submit(&renderer, renderpass, &submit);
 
-        nu_render(&platform, &renderer);
-        nu_swap_buffers(&platform);
+        nu_renderer_render(&platform, &renderer);
+        nu_platform_swap_buffers(&platform);
     }
 
     nu_renderer_free(&renderer);

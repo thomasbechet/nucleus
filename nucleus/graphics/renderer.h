@@ -112,11 +112,12 @@ typedef struct nu_renderer
         .logger = NU_LOGGER_INFO_DEFAULT, .api = NU_RENDERER_NULL \
     }
 
-NU_API nu_error_t nu_renderer_init(nu_platform_t            *platform,
-                                   const nu_renderer_info_t *info,
-                                   nu_renderer_t            *renderer);
-NU_API nu_error_t nu_renderer_free(nu_renderer_t *renderer);
-NU_API nu_error_t nu_render(nu_platform_t *platform, nu_renderer_t *renderer);
+NU_API nu_error_t          nu_renderer_init(nu_platform_t            *platform,
+                                            const nu_renderer_info_t *info,
+                                            nu_renderer_t            *renderer);
+NU_API nu_error_t          nu_renderer_free(nu_renderer_t *renderer);
+NU_API nu_error_t          nu_renderer_render(nu_platform_t *platform,
+                                              nu_renderer_t *renderer);
 NU_API nu_texture_handle_t nu_surface_color_target(
     const nu_platform_t *platform, const nu_renderer_t *renderer);
 

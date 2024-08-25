@@ -44,7 +44,7 @@ nu_platform_free (nu_platform_t *platform)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_poll_events (nu_platform_t *platform)
+nu_platform_poll_events (nu_platform_t *platform)
 {
 #ifdef NU_BUILD_GLFW
     nuglfw__poll_events(&platform->_input.glfw,
@@ -54,7 +54,7 @@ nu_poll_events (nu_platform_t *platform)
     return NU_ERROR_NONE;
 }
 nu_bool_t
-nu_exit_requested (const nu_platform_t *platform)
+nu_platform_exit_requested (const nu_platform_t *platform)
 {
     return platform->_close_requested;
 }

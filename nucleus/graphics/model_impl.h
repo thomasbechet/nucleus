@@ -1,7 +1,7 @@
 #ifndef NU_MODEL_IMPL_H
 #define NU_MODEL_IMPL_H
 
-#include <nucleus/utils/model.h>
+#include <nucleus/graphics/model.h>
 
 void
 nu_model_init (nu_allocator_t *alloc, nu_model_t *model)

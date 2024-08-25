@@ -2,8 +2,8 @@
 #define NU_LOADER_H
 
 #include <nucleus/graphics.h>
-#include <nucleus/utils/image.h>
-#include <nucleus/utils/model.h>
+#include <nucleus/graphics/image.h>
+#include <nucleus/graphics/model.h>
 
 typedef struct
 {

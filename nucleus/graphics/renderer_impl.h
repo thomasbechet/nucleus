@@ -80,7 +80,7 @@ nu_renderer_free (nu_renderer_t *renderer)
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_render (nu_platform_t *platform, nu_renderer_t *renderer)
+nu_renderer_render (nu_platform_t *platform, nu_renderer_t *renderer)
 {
     return NU_TRY_CALL(renderer->_api.render)(
         renderer,

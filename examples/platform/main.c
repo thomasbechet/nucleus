@@ -26,14 +26,14 @@ main (void)
 
     nuext_input_bind_button(&platform, exit_input, NUEXT_BUTTON_ESCAPE);
 
-    while (!nu_exit_requested(&platform))
+    while (!nu_platform_exit_requested(&platform))
     {
         if (nu_input_just_pressed(&platform, exit_input))
         {
             break;
         }
-        nu_poll_events(&platform);
-        nu_swap_buffers(&platform);
+        nu_platform_poll_events(&platform);
+        nu_platform_swap_buffers(&platform);
     }
 
     nu_platform_free(&platform);

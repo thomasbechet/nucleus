@@ -91,6 +91,16 @@ nu_input_axis3d (const nu_platform_t *platform,
 
     return ax;
 }
+nu_ivec2_t
+nuext_platform_cursor (const nu_platform_t *platform,
+                       nu_input_handle_t    cursor_x,
+                       nu_input_handle_t    cursor_y)
+{
+    float cx = nu_input_value(platform, cursor_x);
+    float cy = nu_input_value(platform, cursor_y);
+    return nu_ivec2((nu_i32_t)(cx * (float)platform->_surface.size.x),
+                    (nu_i32_t)(cy * (float)platform->_surface.size.y));
+}
 
 nu_error_t
 nuext_input_bind_button (nu_platform_t    *platform,

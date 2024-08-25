@@ -38,11 +38,11 @@ NU_API void  nu_timer_reset(nu_timer_t *timer);
 NU_API float nu_timer_elapsed(nu_timer_t *timer);
 
 NU_API nu_fixed_loop_t nu_fixed_loop(nu_u32_t id, float timestep);
-NU_API nu_bool_t       nu_next_fixed_loop(nu_fixed_loop_t *loops,
+NU_API nu_bool_t       nu_fixed_loop_next(nu_fixed_loop_t *loops,
                                           nu_size_t        count,
                                           nu_u32_t        *id);
-NU_API void            nu_update_fixed_loops(nu_fixed_loop_t *loops,
-                                             nu_size_t        count,
-                                             float            dt);
+NU_API void            nu_fixed_loop_update(nu_fixed_loop_t *loops,
+                                            nu_size_t        count,
+                                            float            dt);
 
 #endif

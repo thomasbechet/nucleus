@@ -99,7 +99,7 @@ nu_fixed_loop (nu_u32_t id, float timestep)
     return loop;
 }
 void
-nu_update_fixed_loops (nu_fixed_loop_t *loops, nu_size_t count, float dt)
+nu_fixed_loop_update (nu_fixed_loop_t *loops, nu_size_t count, float dt)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {
@@ -112,7 +112,7 @@ nu_update_fixed_loops (nu_fixed_loop_t *loops, nu_size_t count, float dt)
     }
 }
 nu_bool_t
-nu_next_fixed_loop (nu_fixed_loop_t *loops, nu_size_t count, nu_u32_t *id)
+nu_fixed_loop_next (nu_fixed_loop_t *loops, nu_size_t count, nu_u32_t *id)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {

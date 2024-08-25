@@ -2,8 +2,9 @@
 #define NU_NUCLEUS_H
 
 #include <nucleus/core.h>
-#include <nucleus/utils.h>
 #include <nucleus/platform.h>
 #include <nucleus/graphics.h>
+#include <nucleus/asset.h>
+#include <nucleus/utils.h>
 
 #endif

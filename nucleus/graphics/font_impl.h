@@ -1,9 +1,9 @@
 #ifndef NU_FONT_IMPL_H
 #define NU_FONT_IMPL_H
 
-#include <nucleus/utils/font.h>
-#include <nucleus/utils/image.h>
-#include <nucleus/utils/font_data.h>
+#include <nucleus/graphics/font.h>
+#include <nucleus/graphics/image.h>
+#include <nucleus/graphics/font_data.h>
 
 nu_error_t
 nu_font_init_default (nu_renderer_t  *renderer,

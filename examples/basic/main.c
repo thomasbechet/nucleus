@@ -14,10 +14,11 @@
 // #define WIDTH  512
 // #define HEIGHT 288
 
-static nu_allocator_t alloc;
-static nu_platform_t  platform;
-static nu_renderer_t  renderer;
-static nu_logger_t    logger;
+static nu_allocator_t     alloc;
+static nu_platform_t      platform;
+static nu_renderer_t      renderer;
+static nu_asset_manager_t asset_manager;
+static nu_logger_t        logger;
 
 static nu_input_handle_t draw;
 static nu_input_handle_t main_button;
@@ -358,11 +359,11 @@ main (void)
     float     time       = 0;
     nu_bool_t bool_state = NU_TRUE;
 
-    while (!nu_exit_requested(&platform) && running)
+    while (!nu_platform_exit_requested(&platform) && running)
     {
-        nu_update_fixed_loops(loops, 2, delta);
+        nu_fixed_loop_update(loops, 2, delta);
         nu_u32_t id;
-        while (nu_next_fixed_loop(loops, 2, &id))
+        while (nu_fixed_loop_next(loops, 2, &id))
         {
             switch (id)
             {
@@ -380,7 +381,7 @@ main (void)
         time += delta;
 
         // Poll events
-        nu_poll_events(&platform);
+        nu_platform_poll_events(&platform);
 
         // Check exit
         if (nu_input_just_pressed(&platform, quit))
@@ -459,7 +460,7 @@ main (void)
         {
             ui.controllers[0].active = NU_TRUE;
             ui.controllers[0].cursor
-                = nu_cursor_position(&platform, cursor_x, cursor_y);
+                = nuext_platform_cursor(&platform, cursor_x, cursor_y);
             ui.controllers[0].main_pressed
                 = nu_input_pressed(&platform, main_button);
             nu_ui_begin(&ui, &renderer);
@@ -523,10 +524,10 @@ main (void)
         nu_ui_submit_renderpasses(&ui, &renderer, &submit);
 
         // Render
-        nu_render(&platform, &renderer);
+        nu_renderer_render(&platform, &renderer);
 
         // Refresh surface
-        nu_swap_buffers(&platform);
+        nu_platform_swap_buffers(&platform);
     }
 
     // Free cube

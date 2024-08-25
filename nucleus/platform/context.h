@@ -256,7 +256,7 @@ typedef struct
 NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
                                    nu_platform_t            *platform);
 NU_API nu_error_t nu_platform_free(nu_platform_t *platform);
-NU_API nu_error_t nu_poll_events(nu_platform_t *platform);
-NU_API nu_bool_t  nu_exit_requested(const nu_platform_t *platform);
+NU_API nu_error_t nu_platform_poll_events(nu_platform_t *platform);
+NU_API nu_bool_t  nu_platform_exit_requested(const nu_platform_t *platform);
 
 #endif
