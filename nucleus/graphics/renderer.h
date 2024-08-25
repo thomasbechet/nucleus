@@ -42,8 +42,8 @@ typedef struct
 
     nu_error_t (*create_mesh)(struct nu_renderer   *ctx,
                               const nu_mesh_info_t *info,
-                              nu_mesh_handle_      *mesh);
-    nu_error_t (*delete_mesh)(struct nu_renderer *ctx, nu_mesh_handle_ mesh);
+                              nu_mesh_handle_t     *mesh);
+    nu_error_t (*delete_mesh)(struct nu_renderer *ctx, nu_mesh_handle_t mesh);
 
     nu_error_t (*create_texture)(struct nu_renderer      *ctx,
                                  const nu_texture_info_t *info,
@@ -81,7 +81,7 @@ typedef struct
     void (*draw_mesh)(struct nu_renderer    *ctx,
                       nu_renderpass_handle_t pass,
                       nu_material_handle_t   material,
-                      nu_mesh_handle_        mesh,
+                      nu_mesh_handle_t       mesh,
                       nu_mat4_t              transform);
     void (*draw_blit)(struct nu_renderer    *ctx,
                       nu_renderpass_handle_t pass,
@@ -131,8 +131,8 @@ NU_API nu_error_t nu_camera_update(nu_renderer_t          *ctx,
 
 NU_API nu_error_t nu_mesh_create(nu_renderer_t        *ctx,
                                  const nu_mesh_info_t *info,
-                                 nu_mesh_handle_      *mesh);
-NU_API nu_error_t nu_mesh_delete(nu_renderer_t *ctx, nu_mesh_handle_ mesh);
+                                 nu_mesh_handle_t     *mesh);
+NU_API nu_error_t nu_mesh_delete(nu_renderer_t *ctx, nu_mesh_handle_t mesh);
 
 NU_API nu_error_t nu_texture_create(nu_renderer_t           *ctx,
                                     const nu_texture_info_t *info,
@@ -172,7 +172,7 @@ NU_API void nu_renderpass_reset(nu_renderer_t         *ctx,
 NU_API void nu_draw_mesh(nu_renderer_t         *ctx,
                          nu_renderpass_handle_t pass,
                          nu_material_handle_t   material,
-                         nu_mesh_handle_        mesh,
+                         nu_mesh_handle_t       mesh,
                          nu_mat4_t              transform);
 NU_API void nu_draw_blit(nu_renderer_t         *ctx,
                          nu_renderpass_handle_t pass,

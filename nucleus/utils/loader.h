@@ -3,83 +3,41 @@
 
 #include <nucleus/graphics.h>
 #include <nucleus/utils/image.h>
+#include <nucleus/utils/model.h>
 
 typedef struct
 {
-    const nu_char_t *name;
-    const nu_vec3_t *positions;
-    const nu_vec2_t *uvs;
-    const nu_vec3_t *normals;
-    nu_size_t        count;
-} nuext_gltf_mesh_t;
+    const void *ptr;
+    nu_u16_t    index;
+} nu__gltf_model_cache_t;
+typedef nu_vec(nu__gltf_model_cache_t) nu__gltf_model_cache_vec_t;
 
 typedef struct
 {
-    const nu_char_t  *name;
-    nu_uvec2_t        size;
-    const nu_color_t *data;
-} nuext_gltf_texture_t;
+    nu_allocator_t            *_allocator;
+    nu_logger_t               *_logger;
+    nu__gltf_model_cache_vec_t _cache;
+    nu_bool_t                  _has_default_material;
+    nu_u32_t                   _default_material;
+} nu_gltf_loader_t;
 
-typedef struct
-{
-    const nu_char_t *name;
-    nu_u32_t         diffuse_id;
-} nuext_gltf_material_t;
+NU_API nu_error_t nu_gltf_loader_init(nu_allocator_t   *alloc,
+                                      nu_logger_t      *logger,
+                                      nu_gltf_loader_t *loader);
+NU_API void       nu_gltf_loader_free(nu_gltf_loader_t *loader);
 
-typedef struct
-{
-    const nu_char_t *name;
-    nu_u32_t         mesh_id;
-    nu_u32_t         material_id;
-    nu_mat4_t        transform;
-} nuext_gltf_node_t;
+NU_API nu_error_t nuext_gltf_load_model_filename(nu_gltf_loader_t *loader,
+                                                 const nu_char_t  *filename,
+                                                 nu_allocator_t   *alloc,
+                                                 nu_renderer_t    *renderer,
+                                                 nu_model_t       *model);
 
-typedef enum
-{
-    NUEXT_GLTF_MESH,
-    NUEXT_GLTF_TEXTURE,
-    NUEXT_GLTF_MATERIAL,
-    NUEXT_GLTF_NODE,
-} nuext_gltf_asset_type_t;
-
-typedef struct
-{
-    nuext_gltf_asset_type_t type;
-    nu_u32_t                id;
-    union
-    {
-        nuext_gltf_mesh_t     mesh;
-        nuext_gltf_texture_t  texture;
-        nuext_gltf_material_t material;
-        nuext_gltf_node_t     node;
-    };
-} nuext_gltf_asset_t;
-
-typedef nu_error_t (*nuext_gltf_callback_t)(const nuext_gltf_asset_t *asset,
-                                            void                     *userdata);
-typedef struct
-{
-    nu_allocator_t       *_allocator;
-    nu_logger_t          *_logger;
-    nuext_gltf_callback_t _callback;
-    void                 *_userdata;
-} nuext_gltf_loader_t;
-
-NU_API nu_error_t nuext_gltf_loader_init(nu_allocator_t       *alloc,
-                                         nu_logger_t          *logger,
-                                         nuext_gltf_callback_t callback,
-                                         void                 *userdata,
-                                         nuext_gltf_loader_t  *loader);
-NU_API void       nuext_gltf_loader_free(nuext_gltf_loader_t *loader);
-NU_API nu_error_t nuext_gltf_load(nuext_gltf_loader_t *loader,
-                                  const nu_char_t     *filename);
-
-NU_API nu_error_t nuext_load_image(const nu_char_t *filename,
-                                   nu_allocator_t  *allocator,
-                                   nu_image_t      *image);
-NU_API nu_error_t nuext_load_image_memory(const nu_byte_t *data,
-                                          nu_size_t        data_size,
-                                          nu_allocator_t  *allocator,
-                                          nu_image_t      *image);
+NU_API nu_error_t nuext_load_image_filename(const nu_char_t *filename,
+                                            nu_allocator_t  *allocator,
+                                            nu_image_t      *image);
+NU_API nu_error_t nu_load_image_memory(const nu_byte_t *data,
+                                       nu_size_t        data_size,
+                                       nu_allocator_t  *allocator,
+                                       nu_image_t      *image);
 
 #endif

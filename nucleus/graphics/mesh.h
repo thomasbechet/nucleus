@@ -11,6 +11,6 @@ typedef struct
     nu_size_t        count;
 } nu_mesh_info_t;
 
-NU_DEFINE_HANDLE(nu_mesh_handle_);
+NU_DEFINE_HANDLE(nu_mesh_handle_t);
 
 #endif

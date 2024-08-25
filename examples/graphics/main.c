@@ -13,11 +13,11 @@ static nu_platform_t          platform;
 static nu_renderer_t          renderer;
 static nu_renderpass_handle_t renderpass;
 static nu_texture_handle_t    depth_buffer;
-static nu_mesh_handle_        mesh;
+static nu_mesh_handle_t       mesh;
 static nu_texture_handle_t    texture;
 static nu_material_handle_t   material;
 static nu_camera_handle_t     camera;
-static nu_input_t             exit_input;
+static nu_input_handle_t      exit_input;
 
 int
 main (void)

@@ -544,7 +544,7 @@ nugl__delete_camera (nu_renderer_t *ctx, nu_camera_handle_t camera)
 static nu_error_t
 nugl__create_mesh (nu_renderer_t        *ctx,
                    const nu_mesh_info_t *info,
-                   nu_mesh_handle_      *mesh)
+                   nu_mesh_handle_t     *mesh)
 {
     NU_ASSERT(info->positions);
 
@@ -620,7 +620,7 @@ nugl__create_mesh (nu_renderer_t        *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_mesh (nu_renderer_t *ctx, nu_mesh_handle_ mesh)
+nugl__delete_mesh (nu_renderer_t *ctx, nu_mesh_handle_t mesh)
 {
     nugl__mesh_t *pmesh = nugl__ctx(ctx)->meshes.data + mesh.index;
     glDeleteVertexArrays(1, &pmesh->vao);
@@ -1186,7 +1186,7 @@ static void
 nugl__draw_mesh (nu_renderer_t         *ctx,
                  nu_renderpass_handle_t pass,
                  nu_material_handle_t   material,
-                 nu_mesh_handle_        mesh,
+                 nu_mesh_handle_t       mesh,
                  nu_mat4_t              transform)
 {
     nugl__context_t *gl = nugl__ctx(ctx);

@@ -6,9 +6,9 @@
 #include <nucleus/utils/font_data.h>
 
 nu_error_t
-nu_font_ini_default (nu_renderer_t  *renderer,
-                     nu_allocator_t *alloc,
-                     nu_font_t      *font)
+nu_font_init_default (nu_renderer_t  *renderer,
+                      nu_allocator_t *alloc,
+                      nu_font_t      *font)
 {
     nu_error_t error;
 
@@ -100,12 +100,12 @@ nu_font_free (nu_font_t *font, nu_renderer_t *renderer, nu_allocator_t *alloc)
     nu_material_delete(renderer, font->material);
 }
 void
-nu_print (nu_renderer_t         *ctx,
-          nu_renderpass_handle_t pass,
-          const nu_char_t       *text,
-          nu_size_t              n,
-          nu_ivec2_t             pos,
-          const nu_font_t       *font)
+nu_draw_text (nu_renderer_t         *ctx,
+              nu_renderpass_handle_t pass,
+              const nu_char_t       *text,
+              nu_size_t              n,
+              nu_ivec2_t             pos,
+              const nu_font_t       *font)
 {
     nu_rect_t extent
         = nu_rect(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);

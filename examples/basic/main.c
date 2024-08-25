@@ -148,7 +148,7 @@ main (void)
     }
 
     // Create cube
-    nu_mesh_handle_ cube_mesh;
+    nu_mesh_handle_t cube_mesh;
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
@@ -168,7 +168,7 @@ main (void)
     nu_texture_handle_t texture_gui;
     {
         nu_image_t image;
-        error = nuext_load_image(
+        error = nuext_load_image_filename(
             "../../../assets/brick_building_front_lowres.png", &alloc, &image);
         nu_texture_info_t info;
         info.size   = image.size;
@@ -181,7 +181,8 @@ main (void)
 
         nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
 
-        error = nuext_load_image("../../../assets/GUI.png", &alloc, &image);
+        error = nuext_load_image_filename(
+            "../../../assets/GUI.png", &alloc, &image);
         NU_ERROR_ASSERT(error);
         info.size   = image.size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
@@ -222,22 +223,25 @@ main (void)
 
     // Load temple
     {
-        error = nuext_model_from_gltf("../../../assets/temple_of_time.glb",
-                                      &renderer,
-                                      &logger,
-                                      &alloc,
-                                      &temple_model);
-        NU_ERROR_ASSERT(error);
-    }
+        nu_gltf_loader_t loader;
+        nu_gltf_loader_init(&alloc, &logger, &loader);
 
-    // Load ariane
-    {
-        error = nuext_model_from_gltf("../../../assets/ariane6.glb",
-                                      &renderer,
-                                      &logger,
-                                      &alloc,
-                                      &ariane_model);
+        error = nuext_gltf_load_model_filename(
+            &loader,
+            "../../../assets/temple_of_time.glb",
+            &alloc,
+            &renderer,
+            &temple_model);
         NU_ERROR_ASSERT(error);
+
+        error = nuext_gltf_load_model_filename(&loader,
+                                               "../../../assets/ariane6.glb",
+                                               &alloc,
+                                               &renderer,
+                                               &ariane_model);
+        NU_ERROR_ASSERT(error);
+
+        nu_gltf_loader_free(&loader);
     }
 
     // Load cubemap
@@ -254,7 +258,7 @@ main (void)
         nu_image_t images[6];
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            error = nuext_load_image(filenames[i], &alloc, &images[i]);
+            error = nuext_load_image_filename(filenames[i], &alloc, &images[i]);
             NU_ERROR_ASSERT(error);
         }
         nu_cubemap_info_t info;
@@ -276,7 +280,7 @@ main (void)
 
     // Create font
     nu_font_t font;
-    error = nu_font_ini_default(&renderer, &alloc, &font);
+    error = nu_font_init_default(&renderer, &alloc, &font);
     NU_ERROR_ASSERT(error);
 
     // Create camera
@@ -403,10 +407,10 @@ main (void)
         // Render custom mesh
         {
             nu_mat4_t model = nu_mat4_scale(0.2, 0.2, 0.2);
-            nu_model_draw(&renderer, main_pass, &ariane_model, model);
+            nu_draw_model(&renderer, main_pass, &ariane_model, model);
 
             model = nu_mat4_translate(10, 0, 0);
-            nu_model_draw(&renderer, main_pass, &temple_model, model);
+            nu_draw_model(&renderer, main_pass, &temple_model, model);
         }
 
         // Draw GUI
@@ -440,12 +444,12 @@ main (void)
                   "Ipsum passages, and more recently with desktop publishing\n"
                   "software like Aldus PageMaker including versions of Lorem\n"
                   "Ipsum.";
-            nu_print(&renderer,
-                     gui_pass,
-                     s,
-                     nu_strlen(s),
-                     nu_ivec2(10, HEIGHT / 2),
-                     &font);
+            nu_draw_text(&renderer,
+                         gui_pass,
+                         s,
+                         nu_strlen(s),
+                         nu_ivec2(10, HEIGHT / 2),
+                         &font);
         }
 
         // GUI
@@ -485,7 +489,8 @@ main (void)
 
             nu_char_t string[256];
             nu_size_t n = snprintf(string, 256, "FPS: %d", (nu_u32_t)frame_avg);
-            nu_print(&renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
+            nu_draw_text(
+                &renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
         }
 
         // Submit renderpass
