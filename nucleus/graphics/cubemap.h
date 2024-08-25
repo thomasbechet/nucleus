@@ -21,6 +21,6 @@ typedef struct
         .info = { 0 }           \
     }
 
-NU_DEFINE_HANDLE(nu_cubemap_t);
+NU_DEFINE_HANDLE(nu_cubemap_handle_t);
 
 #endif

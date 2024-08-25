@@ -137,7 +137,7 @@ main (void)
     }
 
     // Create depth buffer
-    nu_texture_t depth_buffer;
+    nu_texture_handle_t depth_buffer;
     {
         nu_texture_info_t info;
         info.usage  = NU_TEXTURE_USAGE_TARGET;
@@ -148,7 +148,7 @@ main (void)
     }
 
     // Create cube
-    nu_mesh_t cube_mesh;
+    nu_mesh_handle_ cube_mesh;
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
@@ -163,9 +163,9 @@ main (void)
     }
 
     // Load resources
-    nu_texture_t texture;
-    nu_texture_t texture_white;
-    nu_texture_t texture_gui;
+    nu_texture_handle_t texture;
+    nu_texture_handle_t texture_white;
+    nu_texture_handle_t texture_gui;
     {
         nu_image_t image;
         error = nuext_load_image(
@@ -193,10 +193,10 @@ main (void)
     }
 
     // Create material
-    nu_material_t material;
-    nu_material_t material_white;
-    nu_material_t material_gui;
-    nu_material_t material_gui_repeat;
+    nu_material_handle_t material;
+    nu_material_handle_t material_white;
+    nu_material_handle_t material_gui;
+    nu_material_handle_t material_gui_repeat;
     {
         nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0        = &texture;
@@ -241,7 +241,7 @@ main (void)
     }
 
     // Load cubemap
-    nu_cubemap_t skybox;
+    nu_cubemap_handle_t skybox;
     {
         const nu_char_t *filenames[] = {
             "../../../assets/skyboxes/vz_clear_ocean_up.png",
@@ -276,19 +276,19 @@ main (void)
 
     // Create font
     nu_font_t font;
-    error = nu_font_default(&renderer, &alloc, &font);
+    error = nu_font_ini_default(&renderer, &alloc, &font);
     NU_ERROR_ASSERT(error);
 
     // Create camera
-    nu_camera_t      camera;
-    nu_camera_info_t camera_info = NU_CAMERA_INFO_DEFAULT;
+    nu_camera_handle_t camera;
+    nu_camera_info_t   camera_info = NU_CAMERA_INFO_DEFAULT;
     error = nu_camera_create(&renderer, &camera_info, &camera);
     NU_ERROR_ASSERT(error);
 
     // Create renderpasses
-    nu_renderpass_t main_pass;
-    nu_renderpass_t skybox_pass;
-    nu_renderpass_t gui_pass;
+    nu_renderpass_handle_t main_pass;
+    nu_renderpass_handle_t skybox_pass;
+    nu_renderpass_handle_t gui_pass;
     {
         nu_renderpass_info_t info;
 
@@ -395,10 +395,10 @@ main (void)
             nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i) * 30,
                                                 nu_cos(time / 1000 + i) * 10,
                                                 i * 5);
-            nu_draw(&renderer, main_pass, material, cube_mesh, model);
+            nu_draw_mesh(&renderer, main_pass, material, cube_mesh, model);
         }
         nu_mat4_t model = nu_mat4_identity();
-        nu_draw(&renderer, main_pass, material, cube_mesh, model);
+        nu_draw_mesh(&renderer, main_pass, material, cube_mesh, model);
 
         // Render custom mesh
         {
@@ -415,18 +415,18 @@ main (void)
             {
                 int x = i % 20;
                 int y = i / 20;
-                nu_blit(&renderer,
-                        gui_pass,
-                        material_gui,
-                        nu_rect(10 + x * 15, 30 + y * 15, 14, 14),
-                        nu_rect(81, 257, 14, 14));
+                nu_draw_blit(&renderer,
+                             gui_pass,
+                             material_gui,
+                             nu_rect(10 + x * 15, 30 + y * 15, 14, 14),
+                             nu_rect(81, 257, 14, 14));
             }
 
-            nu_blit(&renderer,
-                    gui_pass,
-                    material_gui_repeat,
-                    nu_rect(400, 10, 105, 105),
-                    nu_rect(81, 257, 14, 14));
+            nu_draw_blit(&renderer,
+                         gui_pass,
+                         material_gui_repeat,
+                         nu_rect(400, 10, 105, 105),
+                         nu_rect(81, 257, 14, 14));
 
             const nu_char_t *s
                 = "Lorem Ipsum is simply dummy text of the printing and\n"
@@ -446,18 +446,6 @@ main (void)
                      nu_strlen(s),
                      nu_ivec2(10, HEIGHT / 2),
                      &font);
-
-            nu_ui_margin_t margin;
-            margin.top    = 6;
-            margin.bottom = 6;
-            margin.left   = 6;
-            margin.right  = 6;
-            nu_blit_sliced(&renderer,
-                           gui_pass,
-                           material_gui_repeat,
-                           nu_rect(100, 100, 60, 100),
-                           nu_rect(2, 34, 44, 44),
-                           margin);
         }
 
         // GUI
@@ -503,7 +491,7 @@ main (void)
         // Submit renderpass
         nu_renderpass_submit_t submit;
 
-        nu_texture_t surface_tex
+        nu_texture_handle_t surface_tex
             = nu_surface_color_target(&platform, &renderer);
         nu_color_t clear_color = NU_COLOR_BLUE_SKY;
 

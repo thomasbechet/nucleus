@@ -50,8 +50,8 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
         break;
         case NUEXT_GLTF_MATERIAL: {
             NU_DEBUG(data->logger, "load material %lu", asset->id);
-            const nu_texture_t     *diffuse_tex = NU_NULL;
-            const nu__model_item_t *items       = data->model->items.data;
+            const nu_texture_handle_t *diffuse_tex = NU_NULL;
+            const nu__model_item_t    *items       = data->model->items.data;
             for (nu_size_t i = 0; i < data->model->items.size; ++i)
             {
                 if (items[i].id == asset->material.diffuse_id)
@@ -164,10 +164,10 @@ nu_model_free (nu_model_t *model, nu_allocator_t *alloc)
     nu_vec_free(&model->commands, alloc);
 }
 void
-nu_model_draw (nu_renderer_t    *renderer,
-               nu_renderpass_t   pass,
-               const nu_model_t *model,
-               nu_mat4_t         transform)
+nu_model_draw (nu_renderer_t         *renderer,
+               nu_renderpass_handle_t pass,
+               const nu_model_t      *model,
+               nu_mat4_t              transform)
 {
     const nu__model_command_t *cmds = model->commands.data;
     for (nu_size_t i = 0; i < model->commands.size; ++i)
@@ -176,11 +176,11 @@ nu_model_draw (nu_renderer_t    *renderer,
         {
             continue;
         }
-        const nu_material_t material
+        const nu_material_handle_t material
             = model->items.data[cmds[i].material].material;
-        const nu_mesh_t mesh       = model->items.data[cmds[i].mesh].mesh;
+        const nu_mesh_handle_ mesh = model->items.data[cmds[i].mesh].mesh;
         nu_mat4_t global_transform = nu_mat4_mul(transform, cmds[i].transform);
-        nu_draw(renderer, pass, material, mesh, global_transform);
+        nu_draw_mesh(renderer, pass, material, mesh, global_transform);
     }
 }
 

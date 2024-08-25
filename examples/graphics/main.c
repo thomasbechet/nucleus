@@ -7,17 +7,17 @@
 #define WIDTH  500
 #define HEIGHT 500
 
-static nu_allocator_t  alloc;
-static nu_logger_t     logger;
-static nu_platform_t   platform;
-static nu_renderer_t   renderer;
-static nu_renderpass_t renderpass;
-static nu_texture_t    depth_buffer;
-static nu_mesh_t       mesh;
-static nu_texture_t    texture;
-static nu_material_t   material;
-static nu_camera_t     camera;
-static nu_input_t      exit_input;
+static nu_allocator_t         alloc;
+static nu_logger_t            logger;
+static nu_platform_t          platform;
+static nu_renderer_t          renderer;
+static nu_renderpass_handle_t renderpass;
+static nu_texture_handle_t    depth_buffer;
+static nu_mesh_handle_        mesh;
+static nu_texture_handle_t    texture;
+static nu_material_handle_t   material;
+static nu_camera_handle_t     camera;
+static nu_input_t             exit_input;
 
 int
 main (void)
@@ -125,10 +125,10 @@ main (void)
 
         nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 500) * 0.1, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
-        nu_draw(&renderer, renderpass, material, mesh, model);
+        nu_draw_mesh(&renderer, renderpass, material, mesh, model);
 
-        nu_color_t   clear_color = NU_COLOR_BLACK;
-        nu_texture_t surface_color
+        nu_color_t          clear_color = NU_COLOR_BLACK;
+        nu_texture_handle_t surface_color
             = nu_surface_color_target(&platform, &renderer);
 
         nu_renderpass_submit_t submit;

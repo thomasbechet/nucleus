@@ -28,6 +28,6 @@ typedef struct
         .up = NU_VEC3_UP                                                  \
     }
 
-NU_DEFINE_HANDLE(nu_camera_t);
+NU_DEFINE_HANDLE(nu_camera_handle_t);
 
 #endif

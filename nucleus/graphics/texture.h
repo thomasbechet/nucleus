@@ -30,6 +30,6 @@ typedef struct
     const nu_color_t   *colors;
 } nu_texture_info_t;
 
-NU_DEFINE_HANDLE(nu_texture_t);
+NU_DEFINE_HANDLE(nu_texture_handle_t);
 
 #endif

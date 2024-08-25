@@ -20,9 +20,9 @@ typedef struct
 
 typedef struct
 {
-    nu_material_t  material;
-    nu_rect_t      extent;
-    nu_ui_margin_t margin;
+    nu_material_handle_t material;
+    nu_rect_t            extent;
+    nu_ui_margin_t       margin;
 } nu_ui_image_style_t;
 
 typedef struct
@@ -77,7 +77,7 @@ typedef nu_vec(nu__ui_style_t) nu__ui_style_vec_t;
 
 typedef struct
 {
-    nu_renderpass_t renderpass;
+    nu_renderpass_handle_t renderpass;
 } nu__ui_pass_t;
 
 typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
@@ -86,8 +86,8 @@ typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
 
 typedef struct
 {
-    nu_renderpass_t    active_renderpass;
-    nu_ui_controller_t controllers[NU_UI_MAX_CONTROLLER];
+    nu_renderpass_handle_t active_renderpass;
+    nu_ui_controller_t     controllers[NU_UI_MAX_CONTROLLER];
 
     nu_allocator_t *_allocator;
 
@@ -106,12 +106,12 @@ typedef struct
     nu_renderer_t *_renderer; // Not null in build phase
 } nu_ui_t;
 
-NU_API void nu_blit_sliced(nu_renderer_t  *renderer,
-                           nu_renderpass_t pass,
-                           nu_material_t   handle,
-                           nu_rect_t       extent,
-                           nu_rect_t       tex_extent,
-                           nu_ui_margin_t  margin);
+NU_API void nu_blit_sliced(nu_renderer_t         *renderer,
+                           nu_renderpass_handle_t pass,
+                           nu_material_handle_t   handle,
+                           nu_rect_t              extent,
+                           nu_rect_t              tex_extent,
+                           nu_ui_margin_t         margin);
 
 NU_API nu_error_t nu_ui_init(nu_renderer_t  *renderer,
                              nu_allocator_t *alloc,
