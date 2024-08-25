@@ -22,7 +22,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
     NU_CHECK(item, return NU_ERROR_ALLOCATION);
     switch (asset->type)
     {
-        case NUEXT_GLTF_ASSET_MESH: {
+        case NUEXT_GLTF_MESH: {
             NU_DEBUG(data->logger, "load mesh %lu", asset->id);
             nu_mesh_info_t info;
             info.positions = asset->mesh.positions;
@@ -35,7 +35,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             item->id = asset->id;
         }
         break;
-        case NUEXT_GLTF_ASSET_TEXTURE: {
+        case NUEXT_GLTF_TEXTURE: {
             NU_DEBUG(data->logger, "load texture %lu", asset->id);
             nu_texture_info_t info;
             info.size   = asset->texture.size;
@@ -48,7 +48,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             item->id = asset->id;
         }
         break;
-        case NUEXT_GLTF_ASSET_MATERIAL: {
+        case NUEXT_GLTF_MATERIAL: {
             NU_DEBUG(data->logger, "load material %lu", asset->id);
             const nu_texture_t     *diffuse_tex = NU_NULL;
             const nu__model_item_t *items       = data->model->items.data;
@@ -73,7 +73,7 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
             item->id = asset->id;
         }
         break;
-        case NUEXT_GLTF_ASSET_NODE: {
+        case NUEXT_GLTF_NODE: {
             NU_DEBUG(data->logger, "load node %lu", asset->id);
             nu_vec_push(&data->model->commands, data->alloc);
             nu__model_command_t *cmd = nu_vec_last(&data->model->commands);
@@ -147,9 +147,14 @@ nuext_model_from_gltf (const nu_char_t *filename,
         nu_material_create(renderer, &minfo, &mat_item->material);
         userdata.default_material_item = 0;
     }
-    nu_error_t error = nuext_load_gltf(
-        filename, logger, alloc, nuext__gltf_to_model_callback, &userdata);
+    nu_error_t          error;
+    nuext_gltf_loader_t loader;
+    error = nuext_gltf_loader_init(
+        alloc, logger, nuext__gltf_to_model_callback, &userdata, &loader);
     NU_ERROR_CHECK(error, return error);
+    error = nuext_gltf_load(&loader, filename);
+    NU_ERROR_CHECK(error, return error);
+    nuext_gltf_loader_free(&loader);
     return NU_ERROR_NONE;
 }
 void

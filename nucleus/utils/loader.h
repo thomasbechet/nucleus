@@ -36,10 +36,10 @@ typedef struct
 
 typedef enum
 {
-    NUEXT_GLTF_ASSET_MESH,
-    NUEXT_GLTF_ASSET_TEXTURE,
-    NUEXT_GLTF_ASSET_MATERIAL,
-    NUEXT_GLTF_ASSET_NODE,
+    NUEXT_GLTF_MESH,
+    NUEXT_GLTF_TEXTURE,
+    NUEXT_GLTF_MATERIAL,
+    NUEXT_GLTF_NODE,
 } nuext_gltf_asset_type_t;
 
 typedef struct
@@ -57,12 +57,22 @@ typedef struct
 
 typedef nu_error_t (*nuext_gltf_callback_t)(const nuext_gltf_asset_t *asset,
                                             void                     *userdata);
+typedef struct
+{
+    nu_allocator_t       *_allocator;
+    nu_logger_t          *_logger;
+    nuext_gltf_callback_t _callback;
+    void                 *_userdata;
+} nuext_gltf_loader_t;
 
-NU_API nu_error_t nuext_load_gltf(const nu_char_t      *filename,
-                                  nu_logger_t          *logger,
-                                  nu_allocator_t       *allocator,
-                                  nuext_gltf_callback_t callback,
-                                  void                 *userdata);
+NU_API nu_error_t nuext_gltf_loader_init(nu_allocator_t       *alloc,
+                                         nu_logger_t          *logger,
+                                         nuext_gltf_callback_t callback,
+                                         void                 *userdata,
+                                         nuext_gltf_loader_t  *loader);
+NU_API void       nuext_gltf_loader_free(nuext_gltf_loader_t *loader);
+NU_API nu_error_t nuext_gltf_load(nuext_gltf_loader_t *loader,
+                                  const nu_char_t     *filename);
 
 NU_API nu_error_t nuext_load_image(const nu_char_t *filename,
                                    nu_allocator_t  *allocator,
