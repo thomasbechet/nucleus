@@ -76,7 +76,7 @@ main (void)
 
     // Material
     {
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
+        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0        = &texture;
         error = nu_material_create(&renderer, &info, &material);
         NU_ERROR_ASSERT(error);
@@ -84,7 +84,7 @@ main (void)
 
     // Camera
     {
-        nu_camera_info_t info = nu_camera_info_default();
+        nu_camera_info_t info = NU_CAMERA_INFO_DEFAULT;
         info.fov              = 60;
         info.eye              = nu_vec3(2, 1, 2);
         info.center           = NU_VEC3_ZERO;

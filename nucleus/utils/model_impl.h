@@ -65,9 +65,8 @@ nuext__gltf_to_model_callback (const nuext_gltf_asset_t *asset, void *userdata)
                 NU_ERROR(data->logger, "diffuse texture not found");
                 return NU_ERROR_RESOURCE_LOADING;
             }
-            nu_material_info_t info
-                = nu_material_info_default(NU_MATERIAL_MESH);
-            info.mesh.color0 = diffuse_tex;
+            nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
+            info.mesh.color0        = diffuse_tex;
             nu_error_t error
                 = nu_material_create(data->renderer, &info, &item->material);
             NU_ERROR_CHECK(error, return error);
@@ -143,7 +142,7 @@ nuext_model_from_gltf (const nu_char_t *filename,
         tinfo.format            = NU_TEXTURE_FORMAT_COLOR;
         tinfo.colors            = &white;
         nu_texture_create(renderer, &tinfo, &tex_item->texture);
-        nu_material_info_t minfo = nu_material_info_default(NU_MATERIAL_MESH);
+        nu_material_info_t minfo = NU_MATERIAL_INFO_DEFAULT_MESH;
         minfo.mesh.color0        = &tex_item->texture;
         nu_material_create(renderer, &minfo, &mat_item->material);
         userdata.default_material_item = 0;

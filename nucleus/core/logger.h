@@ -27,8 +27,6 @@ typedef struct
     nu_log_level_t level;
 } nu_logger_t;
 
-NU_API nu_logger_info_t nu_logger_info_default(void);
-
 NU_API nu_error_t nu_logger_init(const nu_logger_info_t *info,
                                  nu_logger_t            *logger);
 NU_API nu_error_t nu_logger_free(nu_logger_t *logger);
@@ -45,6 +43,12 @@ NU_API void nu_vlog(nu_logger_t     *logger,
                     nu_size_t        fileline,
                     const nu_char_t *format,
                     va_list          args);
+
+#define NU_LOGGER_INFO_DEFAULT \
+    (nu_logger_info_t)         \
+    {                          \
+        .level = NU_LOG_DEBUG  \
+    }
 
 #define __FILENAME__ \
     (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)

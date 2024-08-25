@@ -4,14 +4,6 @@
 #include <nucleus/core/logger.h>
 #include <nucleus/core/time.h>
 
-nu_logger_info_t
-nu_logger_info_default (void)
-{
-    nu_logger_info_t info;
-    info.level = NU_LOG_DEBUG;
-    return info;
-}
-
 nu_error_t
 nu_logger_init (const nu_logger_info_t *info, nu_logger_t *logger)
 {

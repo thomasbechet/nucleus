@@ -80,7 +80,7 @@ nu_font_default (nu_renderer_t  *renderer,
 
     // Create material
     {
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_CANVAS);
+        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_CANVAS;
         info.canvas.color0      = &font->texture;
         info.canvas.wrap_mode   = NU_TEXTURE_WRAP_CLAMP;
         error = nu_material_create(renderer, &info, &font->material);

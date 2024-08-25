@@ -9,16 +9,6 @@
 #include <nucleus/platform/glfw_impl.h>
 #endif
 
-nu_platform_info_t
-nu_platform_info_default (void)
-{
-    nu_platform_info_t info;
-    info.width  = 640;
-    info.height = 400;
-    info.logger = nu_logger_info_default();
-    return info;
-}
-
 nu_error_t
 nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
 {

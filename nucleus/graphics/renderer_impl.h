@@ -9,15 +9,6 @@
 
 #define NU_TRY_CALL(func) (!func) ? NU_ERROR_NONE : func
 
-nu_renderer_info_t
-nu_renderer_info_default (void)
-{
-    nu_renderer_info_t info;
-    info.logger = nu_logger_info_default();
-    info.api    = NU_RENDERER_NULL;
-    return info;
-}
-
 nu_error_t
 nu_renderer_init (nu_platform_t            *platform,
                   const nu_renderer_info_t *info,
@@ -103,19 +94,6 @@ nu_surface_color_target (const nu_platform_t *platform,
     return renderer->_surface_color;
 }
 
-nu_camera_info_t
-nu_camera_info_default (void)
-{
-    nu_camera_info_t info;
-    info.projection = NU_PROJECTION_PERSPECTIVE;
-    info.fov        = 80;
-    info.near       = 0.01;
-    info.far        = 100;
-    info.eye        = NU_VEC3_ZERO;
-    info.center     = NU_VEC3_FORWARD;
-    info.up         = NU_VEC3_UP;
-    return info;
-}
 nu_error_t
 nu_camera_create (nu_renderer_t          *ctx,
                   const nu_camera_info_t *info,
@@ -173,12 +151,6 @@ nu_texture_delete (nu_renderer_t *ctx, nu_texture_t texture)
     return NU_TRY_CALL(ctx->_api.delete_texture)(ctx, texture);
 }
 
-nu_cubemap_info_t
-nu_cubemap_info_default (void)
-{
-    nu_cubemap_info_t info = { 0 };
-    return info;
-}
 nu_error_t
 nu_cubemap_create (nu_renderer_t           *ctx,
                    const nu_cubemap_info_t *info,
@@ -192,27 +164,6 @@ nu_cubemap_delete (nu_renderer_t *ctx, nu_cubemap_t cubemap)
     return NU_TRY_CALL(ctx->_api.delete_cubemap)(ctx, cubemap);
 }
 
-nu_material_info_t
-nu_material_info_default (nu_material_type_t type)
-{
-    nu_material_info_t info;
-    info.type = type;
-    switch (type)
-    {
-        case NU_MATERIAL_MESH: {
-            info.mesh.color0       = NU_NULL;
-            info.mesh.color1       = NU_NULL;
-            info.mesh.uv_transform = nu_mat3_identity();
-        }
-        break;
-        case NU_MATERIAL_CANVAS: {
-            info.canvas.color0    = NU_NULL;
-            info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
-        }
-        break;
-    }
-    return info;
-}
 nu_error_t
 nu_material_create (nu_renderer_t            *ctx,
                     const nu_material_info_t *info,

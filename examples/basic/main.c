@@ -41,7 +41,7 @@ main (void)
 
     // Create platform
     {
-        nu_platform_info_t info = nu_platform_info_default();
+        nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
         info.width              = WIDTH;
         info.height             = HEIGHT;
         error                   = nu_platform_init(&info, &platform);
@@ -50,7 +50,7 @@ main (void)
 
     // Create renderer
     {
-        nu_renderer_info_t info = nu_renderer_info_default();
+        nu_renderer_info_t info = NU_RENDERER_INFO_DEFAULT;
         info.allocator          = alloc;
         info.api                = NU_RENDERER_GL;
         error                   = nu_renderer_init(&platform, &info, &renderer);
@@ -58,11 +58,8 @@ main (void)
     }
 
     // Create logger
-    {
-        nu_logger_info_t info = nu_logger_info_default();
-        error                 = nu_logger_init(&info, &logger);
-        NU_ERROR_ASSERT(error);
-    }
+    error = nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
+    NU_ERROR_ASSERT(error);
 
     // Create camera controller
     nu_camera_controller_t controller;
@@ -201,22 +198,22 @@ main (void)
     nu_material_t material_gui;
     nu_material_t material_gui_repeat;
     {
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
+        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0        = &texture;
         error = nu_material_create(&renderer, &info, &material);
         NU_ERROR_ASSERT(error);
 
-        info             = nu_material_info_default(NU_MATERIAL_MESH);
+        info             = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0 = &texture_white;
         error = nu_material_create(&renderer, &info, &material_white);
         NU_ERROR_ASSERT(error);
 
-        info               = nu_material_info_default(NU_MATERIAL_CANVAS);
+        info               = NU_MATERIAL_INFO_DEFAULT_CANVAS;
         info.canvas.color0 = &texture_gui;
         error = nu_material_create(&renderer, &info, &material_gui);
         NU_ERROR_ASSERT(error);
 
-        info                  = nu_material_info_default(NU_MATERIAL_CANVAS);
+        info                  = NU_MATERIAL_INFO_DEFAULT_CANVAS;
         info.canvas.color0    = &texture_gui;
         info.canvas.wrap_mode = NU_TEXTURE_WRAP_REPEAT;
         error = nu_material_create(&renderer, &info, &material_gui_repeat);
@@ -284,11 +281,9 @@ main (void)
 
     // Create camera
     nu_camera_t      camera;
-    nu_camera_info_t camera_info = nu_camera_info_default();
-    {
-        error = nu_camera_create(&renderer, &camera_info, &camera);
-        NU_ERROR_ASSERT(error);
-    }
+    nu_camera_info_t camera_info = NU_CAMERA_INFO_DEFAULT;
+    error = nu_camera_create(&renderer, &camera_info, &camera);
+    NU_ERROR_ASSERT(error);
 
     // Create renderpasses
     nu_renderpass_t main_pass;

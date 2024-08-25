@@ -8,8 +8,7 @@ static nu_logger_t    logger;
 int
 main (void)
 {
-    nu_logger_info_t info = nu_logger_info_default();
-    nu_logger_init(&info, &logger);
+    nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
 
     nuext_allocator_init_stdlib(&alloc);
 

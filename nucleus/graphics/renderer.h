@@ -102,7 +102,11 @@ typedef struct nu_renderer
     nu_texture_t      _surface_color;
 } nu_renderer_t;
 
-NU_API nu_renderer_info_t nu_renderer_info_default(void);
+#define NU_RENDERER_INFO_DEFAULT                                  \
+    (nu_renderer_info_t)                                          \
+    {                                                             \
+        .logger = NU_LOGGER_INFO_DEFAULT, .api = NU_RENDERER_NULL \
+    }
 
 NU_API nu_error_t   nu_renderer_init(nu_platform_t            *platform,
                                      const nu_renderer_info_t *info,
@@ -112,10 +116,9 @@ NU_API nu_error_t   nu_render(nu_platform_t *platform, nu_renderer_t *renderer);
 NU_API nu_texture_t nu_surface_color_target(const nu_platform_t *platform,
                                             const nu_renderer_t *renderer);
 
-NU_API nu_camera_info_t nu_camera_info_default(void);
-NU_API nu_error_t       nu_camera_create(nu_renderer_t          *ctx,
-                                         const nu_camera_info_t *info,
-                                         nu_camera_t            *camera);
+NU_API nu_error_t nu_camera_create(nu_renderer_t          *ctx,
+                                   const nu_camera_info_t *info,
+                                   nu_camera_t            *camera);
 NU_API nu_error_t nu_camera_delete(nu_renderer_t *ctx, nu_camera_t camera);
 NU_API nu_error_t nu_camera_update(nu_renderer_t          *ctx,
                                    nu_camera_t             camera,
@@ -134,21 +137,19 @@ NU_API nu_error_t nu_texture_create_color(nu_renderer_t *ctx,
                                           nu_texture_t  *texture);
 NU_API nu_error_t nu_texture_delete(nu_renderer_t *ctx, nu_texture_t texture);
 
-NU_API nu_cubemap_info_t nu_cubemap_info_default(void);
-NU_API nu_error_t        nu_cubemap_create(nu_renderer_t           *ctx,
-                                           const nu_cubemap_info_t *info,
-                                           nu_cubemap_t            *cubemap);
+NU_API nu_error_t nu_cubemap_create(nu_renderer_t           *ctx,
+                                    const nu_cubemap_info_t *info,
+                                    nu_cubemap_t            *cubemap);
 NU_API nu_error_t nu_cubemap_delete(nu_renderer_t *ctx, nu_cubemap_t cubemap);
 
-NU_API nu_material_info_t nu_material_info_default(nu_material_type_t type);
-NU_API nu_error_t         nu_material_create(nu_renderer_t            *ctx,
-                                             const nu_material_info_t *info,
-                                             nu_material_t            *material);
-NU_API nu_error_t         nu_material_delete(nu_renderer_t *ctx,
-                                             nu_material_t  material);
-NU_API nu_error_t         nu_material_update(nu_renderer_t            *ctx,
-                                             nu_material_t             material,
-                                             const nu_material_info_t *info);
+NU_API nu_error_t nu_material_create(nu_renderer_t            *ctx,
+                                     const nu_material_info_t *info,
+                                     nu_material_t            *material);
+NU_API nu_error_t nu_material_delete(nu_renderer_t *ctx,
+                                     nu_material_t  material);
+NU_API nu_error_t nu_material_update(nu_renderer_t            *ctx,
+                                     nu_material_t             material,
+                                     const nu_material_info_t *info);
 
 NU_API nu_error_t nu_renderpass_create(nu_renderer_t              *ctx,
                                        const nu_renderpass_info_t *info,

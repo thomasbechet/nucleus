@@ -247,7 +247,11 @@ typedef struct
     nu__input_t    _input;
 } nu_platform_t;
 
-NU_API nu_platform_info_t nu_platform_info_default(void);
+#define NU_PLATFORM_INFO_DEFAULT                                      \
+    (nu_platform_info_t)                                              \
+    {                                                                 \
+        .width = 640, .height = 400, .logger = NU_LOGGER_INFO_DEFAULT \
+    }
 
 NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
                                    nu_platform_t            *platform);
