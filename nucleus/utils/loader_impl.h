@@ -404,8 +404,8 @@ nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
                     }
                     if (!found)
                     {
-                        NU_ERROR(loader->_logger,
-                                 "material not found, using default");
+                        NU_WARNING(loader->_logger,
+                                   "material not found, using default");
                         nu__load_material_default(
                             loader, alloc, renderer, model);
                         material_index = loader->_default_material;

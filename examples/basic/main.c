@@ -396,21 +396,24 @@ main (void)
         // Render loop
         for (int i = 0; i < 40; ++i)
         {
-            nu_mat4_t model = nu_mat4_translate(nu_sin(time / 1000 + i) * 30,
-                                                nu_cos(time / 1000 + i) * 10,
-                                                i * 5);
+            nu_mat4_t model = nu_mat4_translate(
+                nu_sin(time / 100 + i) * 4, nu_cos(time / 100 + i) * 10, i * 5);
             nu_draw_mesh(&renderer, main_pass, material, cube_mesh, model);
         }
-        nu_mat4_t model = nu_mat4_identity();
-        nu_draw_mesh(&renderer, main_pass, material, cube_mesh, model);
 
         // Render custom mesh
         {
-            nu_mat4_t model = nu_mat4_scale(0.2, 0.2, 0.2);
-            nu_draw_model(&renderer, main_pass, &ariane_model, model);
+            nu_mat4_t transform = nu_mat4_scale(0.3, 0.3, 0.3);
+            nu_draw_model(&renderer, main_pass, &ariane_model, transform);
 
-            model = nu_mat4_translate(10, 0, 0);
-            nu_draw_model(&renderer, main_pass, &temple_model, model);
+            transform = nu_mat4_translate(10, 0, 0);
+            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            transform = nu_mat4_translate(20, 0, 0);
+            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            transform = nu_mat4_translate(30, 0, 0);
+            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            transform = nu_mat4_translate(40, 0, 0);
+            nu_draw_model(&renderer, main_pass, &temple_model, transform);
         }
 
         // Draw GUI
