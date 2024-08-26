@@ -2,6 +2,7 @@
 #define NU_ASSET_H
 
 #include <nucleus/asset/manager.h>
+#include <nucleus/asset/texture.h>
 
 #ifdef NU_IMPLEMENTATION
 

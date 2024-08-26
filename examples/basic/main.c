@@ -17,7 +17,7 @@
 static nu_allocator_t     alloc;
 static nu_platform_t      platform;
 static nu_renderer_t      renderer;
-static nu_asset_manager_t asset_manager;
+static nu_asset_manager_t asset;
 static nu_logger_t        logger;
 
 static nu_input_handle_t draw;
@@ -165,6 +165,7 @@ main (void)
 
     // Load resources
     nu_texture_handle_t texture;
+    nu_asset_texture_t  atexture;
     nu_texture_handle_t texture_white;
     nu_texture_handle_t texture_gui;
     {
