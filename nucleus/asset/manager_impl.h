@@ -56,14 +56,16 @@ nu_asset_find (nu_asset_manager_t *manager, nu_uid_t uid)
 {
     for (nu_size_t i = 0; i < manager->_entries.capacity; ++i)
     {
-        if ()
+        // if (manager->_entries.data[i].value.)
     }
+    return NU_NULL;
 }
 nu_bool_t
-nu_asset_find_handle (const nu_asset_manager_t,
-                      nu_uid_t           uid,
-                      nu_asset_handle_t *handle)
+nu_asset_find_handle (const nu_asset_manager_t *manager,
+                      nu_uid_t                  uid,
+                      nu_asset_handle_t        *handle)
 {
+    return NU_FALSE;
 }
 nu_error_t
 nu_asset_load_filename (nu_asset_manager_t *manager,

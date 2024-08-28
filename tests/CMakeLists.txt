@@ -6,6 +6,6 @@ include_directories(../)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-# add_executable(string string.c)
+add_executable(vec vec.c)
 
-# add_test(string string)
+add_test(vec vec)

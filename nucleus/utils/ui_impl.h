@@ -188,8 +188,7 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     nu_error_t error
         = nu_renderpass_create(renderer, &info, &ui->active_renderpass);
     NU_ERROR_CHECK(error, return error);
-    nu_vec_push(&ui->_passes, alloc);
-    nu__ui_pass_t *pass = nu_vec_last(&ui->_passes);
+    nu__ui_pass_t *pass = nu_vec_push(&ui->_passes, alloc);
     pass->renderpass    = ui->active_renderpass;
 
     // Initialize controllers
@@ -270,8 +269,7 @@ nu_ui_submit_renderpasses (const nu_ui_t                *ui,
 void
 nu_ui_push_style (nu_ui_t *ui, nu_ui_style_t *style)
 {
-    nu_vec_push(&ui->_styles, ui->_allocator);
-    nu__ui_style_t *s = nu_vec_last(&ui->_styles);
+    nu__ui_style_t *s = nu_vec_push(&ui->_styles, ui->_allocator);
 
     s->data = style;
     switch (style->type)
@@ -293,7 +291,7 @@ nu_ui_push_style (nu_ui_t *ui, nu_ui_style_t *style)
 void
 nu_ui_pop_style (nu_ui_t *ui)
 {
-    nu__ui_style_t *last = nu_vec_last(&ui->_styles);
+    nu__ui_style_t *last = nu__vec_last(&ui->_styles);
     if (last)
     {
         switch (last->data->type)

@@ -18,6 +18,7 @@
 #include <nucleus/core/memory_impl.h>
 #include <nucleus/core/time_impl.h>
 #include <nucleus/core/string_impl.h>
+#include <nucleus/core/ds_impl.h>
 
 #endif
 

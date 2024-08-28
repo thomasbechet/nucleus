@@ -154,13 +154,12 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             NU_ERROR_ASSERT(error);
 
             // Append asset
-            nu_vec_push(&model->assets, alloc);
-            nu__model_asset_t *asset = nu_vec_last(&model->assets);
+            nu__model_asset_t *asset = nu_vec_push(&model->assets, alloc);
             asset->mesh              = handle;
-            nu_vec_push(&loader->_cache, loader->_allocator);
-            nu__gltf_model_cache_t *cache = nu_vec_last(&loader->_cache);
-            cache->ptr                    = mesh;
-            cache->index                  = model->assets.size - 1;
+            nu__gltf_model_cache_t *cache
+                = nu_vec_push(&loader->_cache, loader->_allocator);
+            cache->ptr   = mesh;
+            cache->index = model->assets.size - 1;
         }
     }
 
@@ -197,13 +196,12 @@ nu__load_texture (nu_gltf_loader_t    *loader,
     nu_image_free(&image, loader->_allocator);
 
     // Append asset
-    nu_vec_push(&model->assets, alloc);
-    nu__model_asset_t *asset = nu_vec_last(&model->assets);
+    nu__model_asset_t *asset = nu_vec_push(&model->assets, alloc);
     asset->texture           = handle;
-    nu_vec_push(&loader->_cache, loader->_allocator);
-    nu__gltf_model_cache_t *cache = nu_vec_last(&loader->_cache);
-    cache->ptr                    = texture;
-    cache->index                  = model->assets.size - 1;
+    nu__gltf_model_cache_t *cache
+        = nu_vec_push(&loader->_cache, loader->_allocator);
+    cache->ptr   = texture;
+    cache->index = model->assets.size - 1;
 
     return error;
 }
@@ -244,13 +242,12 @@ nu__load_material (nu_gltf_loader_t     *loader,
     NU_ERROR_ASSERT(error);
 
     // Append asset
-    nu_vec_push(&model->assets, alloc);
-    nu__model_asset_t *asset = nu_vec_last(&model->assets);
+    nu__model_asset_t *asset = nu_vec_push(&model->assets, alloc);
     asset->material          = handle;
-    nu_vec_push(&loader->_cache, loader->_allocator);
-    nu__gltf_model_cache_t *cache = nu_vec_last(&loader->_cache);
-    cache->ptr                    = material;
-    cache->index                  = model->assets.size - 1;
+    nu__gltf_model_cache_t *cache
+        = nu_vec_push(&loader->_cache, loader->_allocator);
+    cache->ptr   = material;
+    cache->index = model->assets.size - 1;
 
     return NU_ERROR_NONE;
 }
@@ -266,15 +263,13 @@ nu__load_material_default (nu_gltf_loader_t *loader,
 
         nu_texture_handle_t texture;
         nu_texture_create_color(renderer, NU_COLOR_RED, &texture);
-        nu_vec_push(&model->assets, alloc);
-        nu_vec_last(&model->assets)->texture = texture;
+        nu_vec_push(&model->assets, alloc)->texture = texture;
 
         nu_material_handle_t material;
         nu_material_info_t   info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0          = &texture;
         nu_material_create(renderer, &info, &material);
-        nu_vec_push(&model->assets, alloc);
-        nu_vec_last(&model->assets)->material = material;
+        nu_vec_push(&model->assets, alloc)->material = material;
 
         loader->_default_material     = model->assets.size - 1;
         loader->_has_default_material = NU_TRUE;
@@ -432,8 +427,7 @@ nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
                 }
 
                 // Append node
-                nu_vec_push(&model->nodes, alloc);
-                nu__model_node_t *node = nu_vec_last(&model->nodes);
+                nu__model_node_t *node = nu_vec_push(&model->nodes, alloc);
                 node->mesh             = mesh_index;
                 node->material         = material_index;
                 node->transform        = transform;

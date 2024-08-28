@@ -24,30 +24,26 @@
     } while (0)
 #define nu_vec_free(v, alloc) \
     nu_free(alloc, (v)->data, sizeof(*(v)->data) * (v)->capacity)
+
 #define nu_vec_clear(v) (v)->size = 0
-#define nu_vec_push(v, alloc)                                                       \
-    do                                                                              \
-    {                                                                               \
-        if ((v)->size >= (v)->capacity)                                             \
-        {                                                                           \
-            nu_size_t new_capacity = (v)->capacity * 2;                             \
-            (v)->data              = nu_realloc(alloc,                              \
-                                   (v)->data,                          \
-                                   sizeof(*(v)->data) * (v)->capacity, \
-                                   sizeof(*(v)->data) * new_capacity); \
-            (v)->capacity          = new_capacity;                                  \
-        }                                                                           \
-        ++(v)->size;                                                                \
-    } while (0)
-#define nu_vec_pop(v)    \
-    do                   \
-    {                    \
-        if ((v)->size)   \
-        {                \
-            --(v)->size; \
-        }                \
-    } while (0)
-#define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
+
+NU_API nu_size_t nu__vec_push(nu_allocator_t *alloc,
+                              nu_size_t       tsize,
+                              void          **data,
+                              nu_size_t      *size,
+                              nu_size_t      *capacity);
+NU_API void     *nu__vec_pop(nu_size_t tsize, nu_size_t *size, void *data);
+
+#define nu_vec_push(v, alloc)            \
+    ((v)->data                           \
+     + nu__vec_push(alloc,               \
+                    sizeof(*(v)->data),  \
+                    (void **)&(v)->data, \
+                    &(v)->size,          \
+                    &(v)->capacity))
+
+#define nu_vec_pop(v)   (nu__vec_pop(sizeof(*(v)->data), &(v)->size, (v)->data))
+#define nu__vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 
@@ -112,7 +108,6 @@ typedef nu_u32_t nu_slot_t;
             (s)->free                        = (s)->capacity + 1;                   \
             (s)->capacity                    = new_capacity;                        \
         }                                                                           \
-        (s)->data[*(pslot) - 1].next = 0xFFFFFFFF;                                  \
     } while (0)
 
 #define nu_slotmap_remove(s, slot)                  \

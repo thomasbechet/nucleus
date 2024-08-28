@@ -474,9 +474,8 @@ nugl__create_surface_color (nu_renderer_t *ctx, nu_uvec2_t size)
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->textures, &ctx->_allocator);
+    nugl__texture_t *ptex   = nu_vec_push(&gl->textures, &ctx->_allocator);
     gl->surface_color_index = gl->textures.size - 1;
-    nugl__texture_t *ptex   = nu_vec_last(&gl->textures);
     ptex->size              = size;
 
     glGenTextures(1, &ptex->texture);
@@ -529,7 +528,7 @@ nugl__create_camera (nu_renderer_t          *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->cameras, &ctx->_allocator);
+    (void)nu_vec_push(&gl->cameras, &ctx->_allocator);
     camera->index = gl->cameras.size - 1;
 
     nu_error_t error = nugl__update_camera(ctx, *camera, info);
@@ -550,9 +549,8 @@ nugl__create_mesh (nu_renderer_t        *ctx,
 
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->meshes, &ctx->_allocator);
+    nugl__mesh_t *pmesh = nu_vec_push(&gl->meshes, &ctx->_allocator);
     mesh->index         = gl->meshes.size - 1;
-    nugl__mesh_t *pmesh = nu_vec_last(&gl->meshes);
 
     pmesh->vertex_count = info->count;
 
@@ -634,9 +632,8 @@ nugl__create_texture (nu_renderer_t           *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->textures, &ctx->_allocator);
+    nugl__texture_t *ptex = nu_vec_push(&gl->textures, &ctx->_allocator);
     texture->index        = gl->textures.size - 1;
-    nugl__texture_t *ptex = nu_vec_last(&gl->textures);
 
     ptex->size = info->size;
 
@@ -690,9 +687,8 @@ nugl__create_cubemap (nu_renderer_t           *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->cubemaps, &ctx->_allocator);
+    nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps, &ctx->_allocator);
     cubemap->index         = gl->cubemaps.size - 1;
-    nugl__cubemap_t *pcube = nu_vec_last(&gl->cubemaps);
 
     glGenTextures(1, &pcube->texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, pcube->texture);
@@ -771,7 +767,7 @@ nugl__create_material (nu_renderer_t            *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->materials, &ctx->_allocator);
+    (void)nu_vec_push(&gl->materials, &ctx->_allocator);
     material->index = gl->materials.size - 1;
 
     // Keep material type
@@ -860,9 +856,8 @@ nugl__create_renderpass (nu_renderer_t              *ctx,
     nu_error_t       error;
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->passes, &ctx->_allocator);
+    nugl__renderpass_t *data  = nu_vec_push(&gl->passes, &ctx->_allocator);
     nu_u32_t            index = gl->passes.size - 1;
-    nugl__renderpass_t *data  = gl->passes.data + index;
     data->type                = info->type;
     data->reset_after_submit  = info->reset_after_submit;
 
@@ -909,11 +904,11 @@ nugl__canvas_add_blit (nu_renderer_t             *ctx,
                        nu_uvec2_t                 tex,
                        nu_uvec2_t                 size)
 {
-    nu_vec_push(&pass->blit_transfer, &ctx->_allocator);
-    nugl__gpu_blit_t *blit = nu_vec_last(&pass->blit_transfer);
-    blit->pos              = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
-    blit->tex              = (tex.y << 16) | tex.x;
-    blit->size             = (size.y << 16) | size.x;
+    nugl__gpu_blit_t *blit
+        = nu_vec_push(&pass->blit_transfer, &ctx->_allocator);
+    blit->pos  = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
+    blit->tex  = (tex.y << 16) | tex.x;
+    blit->size = (size.y << 16) | size.x;
     blit->depth
         = (pass->depth - NUGL__MIN_DEPTH) / (NUGL__MAX_DEPTH - NUGL__MIN_DEPTH);
 }
@@ -1021,7 +1016,7 @@ nugl__canvas_blit_rect (nu_renderer_t             *ctx,
     }
     pass->depth += NUGL__DEPTH_INCREMENT;
 
-    nugl__canvas_command_t *last = nu_vec_last(&pass->cmds);
+    nugl__canvas_command_t *last = nu__vec_last(&pass->cmds);
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)
     {
@@ -1029,8 +1024,7 @@ nugl__canvas_blit_rect (nu_renderer_t             *ctx,
     }
     else
     {
-        nu_vec_push(&pass->cmds, &ctx->_allocator);
-        last                      = nu_vec_last(&pass->cmds);
+        last                      = nu_vec_push(&pass->cmds, &ctx->_allocator);
         last->type                = NUGL__CANVAS_BLIT;
         last->blit.texture        = texture;
         last->blit.instance_start = pass->blit_transfer.size - blit_count;
@@ -1058,8 +1052,7 @@ nugl__find_or_create_framebuffer (nu_renderer_t *ctx,
             color,
             depth);
 
-    nu_vec_push(&gl->targets, &ctx->_allocator);
-    nugl__rendertarget_t *target = nu_vec_last(&gl->targets);
+    nugl__rendertarget_t *target = nu_vec_push(&gl->targets, &ctx->_allocator);
     target->color                = color;
     target->depth                = depth;
 
@@ -1115,8 +1108,7 @@ nugl__submit_renderpass (nu_renderer_t                *ctx,
 {
     nugl__context_t *gl = nugl__ctx(ctx);
 
-    nu_vec_push(&gl->passes_order, &ctx->_allocator);
-    *(nu_vec_last(&gl->passes_order)) = pass.index;
+    *nu_vec_push(&gl->passes_order, &ctx->_allocator) = pass.index;
 
     nugl__renderpass_t *ppass = gl->passes.data + pass.index;
     switch (ppass->type)
@@ -1200,16 +1192,16 @@ nugl__draw_mesh (nu_renderer_t         *ctx,
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT: {
-            nu_vec_push(&ppass->flat.cmds, &ctx->_allocator);
-            nugl__mesh_command_t *cmd = nu_vec_last(&ppass->flat.cmds);
-            cmd->type                 = NUGL__DRAW;
-            cmd->transform            = transform;
-            cmd->vao                  = pmesh->vao;
-            cmd->vbo                  = pmesh->vbo;
-            cmd->vcount               = pmesh->vertex_count;
-            cmd->texture0             = pmat->mesh.texture0;
-            cmd->texture1             = pmat->mesh.texture1;
-            cmd->uv_transform         = pmat->mesh.uv_transform;
+            nugl__mesh_command_t *cmd
+                = nu_vec_push(&ppass->flat.cmds, &ctx->_allocator);
+            cmd->type         = NUGL__DRAW;
+            cmd->transform    = transform;
+            cmd->vao          = pmesh->vao;
+            cmd->vbo          = pmesh->vbo;
+            cmd->vcount       = pmesh->vertex_count;
+            cmd->texture0     = pmat->mesh.texture0;
+            cmd->texture1     = pmat->mesh.texture1;
+            cmd->uv_transform = pmat->mesh.uv_transform;
         }
         break;
         default:

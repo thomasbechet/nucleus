@@ -12,6 +12,19 @@ main (void)
 
     nuext_allocator_init_stdlib(&alloc);
 
+    {
+        nu_u32_vec_t v;
+        nu_vec_init(&v, &alloc, 10);
+        for (nu_size_t i = 0; i < 50; ++i)
+        {
+            *nu_vec_push(&v, &alloc) = i;
+        }
+        for (nu_size_t i = 0; i < 50; ++i)
+        {
+            NU_INFO(&logger, "%d", v.data[i]);
+        }
+    }
+
     nu_vec3_t v = NU_VEC3_ONE;
     NU_INFO(&logger, NU_VEC3_FORMAT, v.x, v.y, v.z);
 
