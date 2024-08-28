@@ -7,6 +7,7 @@
 #ifdef NU_IMPLEMENTATION
 
 #include <nucleus/asset/manager_impl.h>
+#include <nucleus/asset/texture_impl.h>
 
 #endif
 

@@ -17,7 +17,7 @@
 static nu_allocator_t     alloc;
 static nu_platform_t      platform;
 static nu_renderer_t      renderer;
-static nu_asset_manager_t asset;
+static nu_asset_manager_t assets;
 static nu_logger_t        logger;
 
 static nu_input_handle_t draw;
@@ -61,6 +61,11 @@ main (void)
     // Create logger
     error = nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
     NU_ERROR_ASSERT(error);
+
+    // Create asset manager
+    nu_asset_loader_t texture_loader;
+    nu_texture_loader_init(&alloc, &renderer, &texture_loader);
+    nu_asset_manager_init(&alloc, &assets);
 
     // Create camera controller
     nu_camera_controller_t controller;
@@ -165,7 +170,6 @@ main (void)
 
     // Load resources
     nu_texture_handle_t texture;
-    nu_asset_texture_t  atexture;
     nu_texture_handle_t texture_white;
     nu_texture_handle_t texture_gui;
     {

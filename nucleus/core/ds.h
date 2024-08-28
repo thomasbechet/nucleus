@@ -79,13 +79,14 @@ typedef nu_u32_t nu_slot_t;
         {                                                            \
             (s)->data[i - 1].next = i;                               \
         }                                                            \
-        (s)->data[(s)->capacity - 1].next = 0;                       \
+        (s)->data[(s)->capacity - 1].next = NU_NULL;                 \
     } while (0)
 
 #define nu_slotmap_free(s, alloc) \
     nu_free(alloc, (s)->data, sizeof(*(s)->data) * (s)->capacity)
 
-#define nu_slotmap_get(s, slot) (slot ? &(s)->data[slot - 1].value : NU_NULL)
+#define nu_slotmap_get(s, slot) \
+    ((slot) ? &(s)->data[(slot) - 1].value : NU_NULL)
 
 #define nu_slotmap_add(s, alloc, pslot)                                             \
     do                                                                              \
@@ -93,7 +94,7 @@ typedef nu_u32_t nu_slot_t;
         if ((s)->free)                                                              \
         {                                                                           \
             *(pslot)  = (s)->free;                                                  \
-            (s)->free = (s)->data[(s)->free].next;                                  \
+            (s)->free = (s)->data[(s)->free - 1].next;                              \
         }                                                                           \
         else                                                                        \
         {                                                                           \
@@ -106,22 +107,25 @@ typedef nu_u32_t nu_slot_t;
             {                                                                       \
                 (s)->data[i - 1].next = i;                                          \
             }                                                                       \
-            (s)->data[new_capacity - 1].next = 0;                                   \
+            (s)->data[new_capacity - 1].next = NU_NULL;                             \
             *(pslot)                         = (s)->capacity;                       \
             (s)->free                        = (s)->capacity + 1;                   \
             (s)->capacity                    = new_capacity;                        \
         }                                                                           \
+        (s)->data[*(pslot) - 1].next = 0xFFFFFFFF;                                  \
     } while (0)
 
-#define nu_slotmap_remove(s, slot)              \
-    do                                          \
-    {                                           \
-        if ((slot))                             \
-        {                                       \
-            (s)->data[(slot)].next = (s)->free; \
-            (s)->free              = slot;      \
-        }                                       \
+#define nu_slotmap_remove(s, slot)                  \
+    do                                              \
+    {                                               \
+        if ((slot))                                 \
+        {                                           \
+            (s)->data[(slot) - 1].next = (s)->free; \
+            (s)->free                  = slot;      \
+        }                                           \
     } while (0)
+
+#define nu_slotmap_is_used(s, i) ((s)->data[i].next == 0xFFFFFFFF)
 
 typedef nu_slotmap(nu_u32_t) nu_u32_slotmap_t;
 

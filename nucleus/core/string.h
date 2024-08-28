@@ -15,4 +15,8 @@ NU_API nu_size_t nu_strcmp(const nu_char_t *s1, const nu_char_t *s2);
 NU_API nu_u32_t nu_hash(const nu_char_t *s);
 NU_API nu_u32_t nu_hashn(const nu_char_t *s, nu_size_t n);
 
+typedef nu_u32_t nu_uid_t;
+
+#define NU_UID(name) nu_hash(name)
+
 #endif
