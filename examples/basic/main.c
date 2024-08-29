@@ -14,11 +14,11 @@
 // #define WIDTH  512
 // #define HEIGHT 288
 
-static nu_allocator_t     alloc;
-static nu_platform_t      platform;
-static nu_renderer_t      renderer;
-static nu_asset_manager_t assets;
-static nu_logger_t        logger;
+static nu_allocator_t alloc;
+static nu_platform_t  platform;
+static nu_renderer_t  renderer;
+// static nu_asset_manager_t assets;
+static nu_logger_t logger;
 
 static nu_input_handle_t draw;
 static nu_input_handle_t main_button;
@@ -63,9 +63,9 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create asset manager
-    nu_asset_loader_t texture_loader;
-    nu_texture_loader_init(&alloc, &renderer, &texture_loader);
-    nu_asset_manager_init(&alloc, &assets);
+    // nu_asset_loader_t texture_loader;
+    // nu_texture_loader_init(&alloc, &renderer, &texture_loader);
+    // nu_asset_manager_init(&alloc, &assets);
 
     // Create camera controller
     nu_camera_controller_t controller;

@@ -25,25 +25,25 @@
 #define nu_vec_free(v, alloc) \
     nu_free(alloc, (v)->data, sizeof(*(v)->data) * (v)->capacity)
 
-#define nu_vec_clear(v) (v)->size = 0
+#define nu_vec_clear(v) ((v)->size = 0)
 
 NU_API nu_size_t nu__vec_push(nu_allocator_t *alloc,
                               nu_size_t       tsize,
-                              void          **data,
+                              nu_byte_t     **data,
                               nu_size_t      *size,
                               nu_size_t      *capacity);
-NU_API void     *nu__vec_pop(nu_size_t tsize, nu_size_t *size, void *data);
+NU_API nu_size_t nu__vec_pop(nu_size_t tsize, nu_size_t *size);
 
-#define nu_vec_push(v, alloc)            \
-    ((v)->data                           \
-     + nu__vec_push(alloc,               \
-                    sizeof(*(v)->data),  \
-                    (void **)&(v)->data, \
-                    &(v)->size,          \
+#define nu_vec_push(v, alloc)                   \
+    ((v)->data                                  \
+     + nu__vec_push(alloc,                      \
+                    sizeof(*(v)->data),         \
+                    (nu_byte_t **)(&(v)->data), \
+                    &(v)->size,                 \
                     &(v)->capacity))
 
-#define nu_vec_pop(v)   (nu__vec_pop(sizeof(*(v)->data), &(v)->size, (v)->data))
-#define nu__vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
+#define nu_vec_pop(v)  ((v)->data + nu__vec_pop(sizeof(*(v)->data), &(v)->size))
+#define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 

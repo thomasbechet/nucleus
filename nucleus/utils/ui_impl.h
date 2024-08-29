@@ -291,7 +291,7 @@ nu_ui_push_style (nu_ui_t *ui, nu_ui_style_t *style)
 void
 nu_ui_pop_style (nu_ui_t *ui)
 {
-    nu__ui_style_t *last = nu__vec_last(&ui->_styles);
+    nu__ui_style_t *last = nu_vec_last(&ui->_styles);
     if (last)
     {
         switch (last->data->type)
@@ -306,7 +306,7 @@ nu_ui_pop_style (nu_ui_t *ui)
                 ui->_cursor_style = last->prev;
                 break;
         }
-        nu_vec_pop(&ui->_styles);
+        (void)nu_vec_pop(&ui->_styles);
     }
 }
 

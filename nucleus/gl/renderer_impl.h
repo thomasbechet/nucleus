@@ -1016,7 +1016,7 @@ nugl__canvas_blit_rect (nu_renderer_t             *ctx,
     }
     pass->depth += NUGL__DEPTH_INCREMENT;
 
-    nugl__canvas_command_t *last = nu__vec_last(&pass->cmds);
+    nugl__canvas_command_t *last = nu_vec_last(&pass->cmds);
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)
     {
