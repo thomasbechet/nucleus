@@ -21,14 +21,15 @@ nu__vec_push (nu_allocator_t *alloc,
     ++(*size);
     return data;
 }
-inline nu_size_t
+inline nu_bool_t
 nu__vec_pop (nu_size_t *size)
 {
-    if ((*size))
+    if (*size)
     {
         --(*size);
+        return NU_TRUE;
     }
-    return (*size);
+    return NU_FALSE;
 }
 
 #endif

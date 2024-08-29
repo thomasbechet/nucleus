@@ -32,7 +32,7 @@ NU_API void     *nu__vec_push(nu_allocator_t *alloc,
                               void           *data,
                               nu_size_t      *size,
                               nu_size_t      *capacity);
-NU_API nu_size_t nu__vec_pop(nu_size_t *size);
+NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 
 #define nu_vec_push(v, alloc)                                                \
     (((v)->data = nu__vec_push(                                              \
@@ -40,7 +40,8 @@ NU_API nu_size_t nu__vec_pop(nu_size_t *size);
          ? (v)->data + ((v)->size - 1)                                       \
          : NU_NULL)
 
-#define nu_vec_pop(v)  ((v)->data + nu__vec_pop(&(v)->size))
+#define nu_vec_pop(v) \
+    (nu__vec_pop(&(v)->size) ? (v)->data + (v)->size : NU_NULL)
 #define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
