@@ -29,18 +29,19 @@ main (void)
 
     // Platform
     {
-        nu_platform_info_t info;
-        info.width  = WIDTH;
-        info.height = HEIGHT;
-        error       = nu_platform_init(&info, &platform);
+        nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
+        info.width              = WIDTH;
+        info.height             = HEIGHT;
+        error                   = nu_platform_init(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
 
     // Renderer
     {
-        nu_renderer_info_t info;
-        info.api = NU_RENDERER_GL;
-        error    = nu_renderer_init(&platform, &info, &renderer);
+        nu_renderer_info_t info = NU_RENDERER_INFO_DEFAULT;
+        info.allocator          = alloc;
+        info.api                = NU_RENDERER_GL;
+        error                   = nu_renderer_init(&platform, &info, &renderer);
         NU_ERROR_ASSERT(error);
     }
 

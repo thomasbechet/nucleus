@@ -213,19 +213,6 @@ nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
     nu_vec_free(&ui->_styles, ui->_allocator);
 }
 
-static nu_renderpass_handle_t
-nu__ui_active_renderpass (nu_ui_t *ui, nu_slot_t slot)
-{
-    nu_renderpass_info_t info;
-    info.type               = NU_RENDERPASS_CANVAS;
-    info.reset_after_submit = NU_FALSE;
-    nu_renderpass_handle_t handle;
-    nu_error_t error = nu_renderpass_create(ui->_renderer, &info, &handle);
-    NU_ERROR_ASSERT(error);
-
-    return handle;
-}
-
 void
 nu_ui_begin (nu_ui_t *ui, nu_renderer_t *renderer)
 {

@@ -7,7 +7,7 @@ nu_error_t
 nu_asset_manager_init (nu_allocator_t *alloc, nu_asset_manager_t *manager)
 {
     manager->_allocator = alloc;
-    nu_slotmap_init(&manager->_entries, alloc, 10);
+    nu_pool_init(&manager->_entries, alloc, 10);
 
     for (nu_size_t i = 0; i < NU_ASSET_TYPE_MAX; ++i)
     {
@@ -19,7 +19,7 @@ nu_asset_manager_init (nu_allocator_t *alloc, nu_asset_manager_t *manager)
 void
 nu_asset_manager_free (nu_asset_manager_t *manager)
 {
-    nu_slotmap_free(&manager->_entries, manager->_allocator);
+    nu_pool_free(&manager->_entries, manager->_allocator);
 }
 
 void *
@@ -30,17 +30,18 @@ nu_asset_add (nu_asset_manager_t *manager,
 {
     nu__asset_type_t *t = manager->_types + type;
 
-    nu_slot_t slot;
-    nu_slotmap_add(&manager->_entries, manager->_allocator, &slot);
-    nu__asset_entry_t *entry = nu_slotmap_get(&manager->_entries, slot);
-    entry->type              = type;
-    entry->uid               = uid;
-    entry->data              = nu_alloc(manager->_allocator, t->size);
+    nu_u32_t           index;
+    nu__asset_entry_t *entry
+        = nu_pool_add(&manager->_entries, manager->_allocator, &index);
+    entry->type = type;
+    entry->uid  = uid;
+    entry->data = nu_alloc(manager->_allocator, t->size);
+    entry->used = NU_TRUE;
     nu_memset(entry->data, 0, t->size);
 
     if (handle)
     {
-        handle->id = slot;
+        handle->index = index;
     }
 
     return entry->data;
@@ -48,15 +49,18 @@ nu_asset_add (nu_asset_manager_t *manager,
 void *
 nu_asset_get (nu_asset_manager_t *manager, nu_asset_handle_t handle)
 {
-    nu_slot_t slot = handle.id;
-    return nu_slotmap_get(&manager->_entries, slot)->data;
+    return manager->_entries.data + handle.index;
 }
 void *
 nu_asset_find (nu_asset_manager_t *manager, nu_uid_t uid)
 {
     for (nu_size_t i = 0; i < manager->_entries.capacity; ++i)
     {
-        // if (manager->_entries.data[i].value.)
+        nu__asset_entry_t *entry = manager->_entries.data + i;
+        if (entry->used && entry->uid == uid)
+        {
+            return entry->data;
+        }
     }
     return NU_NULL;
 }
