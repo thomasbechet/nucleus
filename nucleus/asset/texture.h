@@ -2,6 +2,7 @@
 #define NU_ASSET_TEXTURE_H
 
 #include <nucleus/asset/manager.h>
+#include <nucleus/graphics.h>
 
 typedef struct
 {

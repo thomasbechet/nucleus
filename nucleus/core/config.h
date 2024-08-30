@@ -166,6 +166,12 @@ typedef int           nu_word_t;
 #define NU_NULL  0
 #define NU_NOOP
 
+#define NU_DEFINE_HANDLE_POINTER(type, data) \
+    typedef struct                           \
+    {                                        \
+        data val;                            \
+    } type
+
 #define NU_DEFINE_HANDLE(type) \
     typedef union              \
     {                          \

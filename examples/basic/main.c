@@ -63,9 +63,8 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create asset manager
-    nu_asset_loader_t texture_loader;
-    nu_texture_loader_init(&alloc, &renderer, &texture_loader);
-    nu_asset_manager_init(&alloc, &assets);
+    error = nu_asset_manager_init(&alloc, &assets);
+    NU_ERROR_ASSERT(error);
 
     // Create camera controller
     nu_camera_controller_t controller;
