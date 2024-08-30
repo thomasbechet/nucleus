@@ -64,7 +64,7 @@ NU_API nu_error_t nu_asset_manager_init(nu_allocator_t     *alloc,
 NU_API void       nu_asset_manager_free(nu_asset_manager_t *manager);
 NU_API nu_error_t nu_asset_register_base_loaders(nu_asset_manager_t *manager,
                                                  nu_platform_t      *platform,
-                                                 nu_renderer_t      *renderer);
+                                                 nu_renderer_t       renderer);
 
 NU_API void      *nu_asset_add(nu_asset_manager_t *manager,
                                nu_asset_type_t     type,

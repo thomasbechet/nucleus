@@ -18,7 +18,7 @@ main (void)
     nu_platform_info_t info;
     info.width  = 500;
     info.height = 500;
-    error       = nu_platform_init(&info, &platform);
+    error       = nu_platform_init(&info, &alloc, &platform);
     NU_ERROR_ASSERT(error);
 
     error = nu_input_create(&platform, &exit_input);

@@ -10,7 +10,9 @@
 #endif
 
 nu_error_t
-nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
+nu_platform_init (const nu_platform_info_t *info,
+                  nu_allocator_t           *alloc,
+                  nu_platform_t            *platform)
 {
     nu_error_t error;
 
@@ -18,6 +20,7 @@ nu_platform_init (const nu_platform_info_t *info, nu_platform_t *platform)
     nu_logger_init(&info->logger, &platform->_logger);
     platform->_surface.size    = nu_uvec2(info->width, info->height);
     platform->_close_requested = NU_FALSE;
+    platform->_allocator       = *alloc;
 
     NU_INFO(&platform->_logger,
             "initialize platform context (%dx%d)",

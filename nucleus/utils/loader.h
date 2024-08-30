@@ -29,7 +29,7 @@ NU_API void       nu_gltf_loader_free(nu_gltf_loader_t *loader);
 NU_API nu_error_t nuext_gltf_load_model_filename(nu_gltf_loader_t *loader,
                                                  const nu_char_t  *filename,
                                                  nu_allocator_t   *alloc,
-                                                 nu_renderer_t    *renderer,
+                                                 nu_renderer_t     renderer,
                                                  nu_model_t       *model);
 
 NU_API nu_error_t nuext_load_image_filename(const nu_char_t *filename,

@@ -34,7 +34,7 @@ nu_asset_manager_free (nu_asset_manager_t *manager)
 nu_error_t
 nu_asset_register_base_loaders (nu_asset_manager_t *manager,
                                 nu_platform_t      *platform,
-                                nu_renderer_t      *renderer)
+                                nu_renderer_t       renderer)
 {
     nu_error_t error;
     error = nu_texture_loader_init(manager->_allocator,

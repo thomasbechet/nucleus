@@ -4,7 +4,7 @@
 #include <nucleus/utils/ui.h>
 
 static void
-nu__blit_sliced (nu_renderer_t         *renderer,
+nu__blit_sliced (nu_renderer_t          renderer,
                  nu_renderpass_handle_t pass,
                  nu_material_handle_t   material,
                  nu_rect_t              extent,
@@ -165,7 +165,7 @@ nu__draw_image (nu_ui_t *ui, nu_rect_t extent, const nu_ui_image_style_t *style)
 }
 
 nu_error_t
-nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
+nu_ui_init (nu_renderer_t renderer, nu_allocator_t *alloc, nu_ui_t *ui)
 {
     ui->_allocator = alloc;
 
@@ -178,7 +178,7 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     ui->_hot_id            = 0;
     ui->_active_controller = 0;
     ui->_hot_controller    = 0;
-    ui->_renderer          = NU_NULL;
+    ui->_renderer          = renderer;
 
     nu_vec_init(&ui->_passes, alloc, 1);
 
@@ -203,7 +203,7 @@ nu_ui_init (nu_renderer_t *renderer, nu_allocator_t *alloc, nu_ui_t *ui)
     return NU_ERROR_NONE;
 }
 void
-nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
+nu_ui_free (nu_ui_t *ui, nu_renderer_t renderer)
 {
     for (nu_size_t i = 0; i < ui->_passes.size; ++i)
     {
@@ -214,7 +214,7 @@ nu_ui_free (nu_ui_t *ui, nu_renderer_t *renderer)
 }
 
 void
-nu_ui_begin (nu_ui_t *ui, nu_renderer_t *renderer)
+nu_ui_begin (nu_ui_t *ui, nu_renderer_t renderer)
 {
     // Reset renderpass
     ui->_renderer = renderer;
@@ -232,7 +232,6 @@ nu_ui_begin (nu_ui_t *ui, nu_renderer_t *renderer)
 void
 nu_ui_end (nu_ui_t *ui)
 {
-    NU_ASSERT(ui->_renderer);
     NU_ASSERT(ui->_cursor_style);
 
     // Draw cursor
@@ -243,7 +242,7 @@ nu_ui_end (nu_ui_t *ui)
 }
 void
 nu_ui_submit_renderpasses (const nu_ui_t                *ui,
-                           nu_renderer_t                *renderer,
+                           nu_renderer_t                 renderer,
                            const nu_renderpass_submit_t *info)
 {
     for (nu_size_t i = ui->_passes.size; i > 0; --i)

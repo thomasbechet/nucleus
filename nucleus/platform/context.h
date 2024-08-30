@@ -254,6 +254,7 @@ typedef struct
     }
 
 NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
+                                   nu_allocator_t           *alloc,
                                    nu_platform_t            *platform);
 NU_API nu_error_t nu_platform_free(nu_platform_t *platform);
 NU_API nu_error_t nu_platform_poll_events(nu_platform_t *platform);

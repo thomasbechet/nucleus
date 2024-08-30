@@ -169,7 +169,7 @@ typedef int           nu_word_t;
 #define NU_DEFINE_HANDLE_POINTER(type, data) \
     typedef struct                           \
     {                                        \
-        data val;                            \
+        data *ptr;                           \
     } type
 
 #define NU_DEFINE_HANDLE(type) \

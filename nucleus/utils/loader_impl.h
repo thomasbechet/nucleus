@@ -57,7 +57,7 @@ static nu_error_t
 nu__load_mesh (nu_gltf_loader_t *loader,
                const cgltf_mesh *mesh,
                nu_allocator_t   *alloc,
-               nu_renderer_t    *renderer,
+               nu_renderer_t     renderer,
                nu_model_t       *model)
 {
     nu_error_t error;
@@ -169,7 +169,7 @@ static nu_error_t
 nu__load_texture (nu_gltf_loader_t    *loader,
                   const cgltf_texture *texture,
                   nu_allocator_t      *alloc,
-                  nu_renderer_t       *renderer,
+                  nu_renderer_t        renderer,
                   nu_model_t          *model)
 {
     NU_DEBUG(loader->_logger, "loading texture: %s", texture->name);
@@ -209,7 +209,7 @@ static nu_error_t
 nu__load_material (nu_gltf_loader_t     *loader,
                    const cgltf_material *material,
                    nu_allocator_t       *alloc,
-                   nu_renderer_t        *renderer,
+                   nu_renderer_t         renderer,
                    nu_model_t           *model)
 {
     NU_DEBUG(loader->_logger, "loading material: %s", material->name);
@@ -254,7 +254,7 @@ nu__load_material (nu_gltf_loader_t     *loader,
 static nu_error_t
 nu__load_material_default (nu_gltf_loader_t *loader,
                            nu_allocator_t   *alloc,
-                           nu_renderer_t    *renderer,
+                           nu_renderer_t     renderer,
                            nu_model_t       *model)
 {
     if (!loader->_has_default_material)
@@ -296,7 +296,7 @@ nu_error_t
 nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
                                 const nu_char_t  *filename,
                                 nu_allocator_t   *alloc,
-                                nu_renderer_t    *renderer,
+                                nu_renderer_t     renderer,
                                 nu_model_t       *model)
 {
     cgltf_options options = { 0 };

@@ -45,7 +45,7 @@ main (void)
         nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
         info.width              = WIDTH;
         info.height             = HEIGHT;
-        error                   = nu_platform_init(&info, &platform);
+        error                   = nu_platform_init(&info, &alloc, &platform);
         NU_ERROR_ASSERT(error);
     }
 
@@ -54,7 +54,7 @@ main (void)
         nu_renderer_info_t info = NU_RENDERER_INFO_DEFAULT;
         info.allocator          = alloc;
         info.api                = NU_RENDERER_GL;
-        error                   = nu_renderer_init(&platform, &info, &renderer);
+        error = nu_renderer_create(&platform, &info, &renderer);
         NU_ERROR_ASSERT(error);
     }
 
@@ -65,6 +65,7 @@ main (void)
     // Create asset manager
     error = nu_asset_manager_init(&alloc, &assets);
     NU_ERROR_ASSERT(error);
+    error = nu_asset_register_base_loaders(&assets, &platform, renderer);
 
     // Create camera controller
     nu_camera_controller_t controller;
@@ -148,7 +149,7 @@ main (void)
         info.usage  = NU_TEXTURE_USAGE_TARGET;
         info.format = NU_TEXTURE_FORMAT_DEPTH;
         info.size   = nu_uvec2(WIDTH, HEIGHT);
-        error       = nu_texture_create(&renderer, &info, &depth_buffer);
+        error       = nu_texture_create(renderer, &info, &depth_buffer);
         NU_ERROR_ASSERT(error);
     }
 
@@ -163,7 +164,7 @@ main (void)
                                 .uvs       = cube_uvs,
                                 .normals   = cube_normals,
                                 .count     = NU_CUBE_MESH_VERTEX_COUNT };
-        error               = nu_mesh_create(&renderer, &info, &cube_mesh);
+        error               = nu_mesh_create(renderer, &info, &cube_mesh);
         NU_ERROR_ASSERT(error);
     }
 
@@ -180,11 +181,11 @@ main (void)
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
         info.format = NU_TEXTURE_FORMAT_COLOR;
         info.colors = image.data;
-        error       = nu_texture_create(&renderer, &info, &texture);
+        error       = nu_texture_create(renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
         nu_image_free(&image, &alloc);
 
-        nu_texture_create_color(&renderer, NU_COLOR_WHITE, &texture_white);
+        nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture_white);
 
         error = nuext_load_image_filename(
             "../../../assets/GUI.png", &alloc, &image);
@@ -193,7 +194,7 @@ main (void)
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
         info.format = NU_TEXTURE_FORMAT_COLOR;
         info.colors = image.data;
-        error       = nu_texture_create(&renderer, &info, &texture_gui);
+        error       = nu_texture_create(renderer, &info, &texture_gui);
         NU_ERROR_ASSERT(error);
         nu_image_free(&image, &alloc);
     }
@@ -206,23 +207,23 @@ main (void)
     {
         nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0        = &texture;
-        error = nu_material_create(&renderer, &info, &material);
+        error = nu_material_create(renderer, &info, &material);
         NU_ERROR_ASSERT(error);
 
         info             = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0 = &texture_white;
-        error = nu_material_create(&renderer, &info, &material_white);
+        error            = nu_material_create(renderer, &info, &material_white);
         NU_ERROR_ASSERT(error);
 
         info               = NU_MATERIAL_INFO_DEFAULT_CANVAS;
         info.canvas.color0 = &texture_gui;
-        error = nu_material_create(&renderer, &info, &material_gui);
+        error              = nu_material_create(renderer, &info, &material_gui);
         NU_ERROR_ASSERT(error);
 
         info                  = NU_MATERIAL_INFO_DEFAULT_CANVAS;
         info.canvas.color0    = &texture_gui;
         info.canvas.wrap_mode = NU_TEXTURE_WRAP_REPEAT;
-        error = nu_material_create(&renderer, &info, &material_gui_repeat);
+        error = nu_material_create(renderer, &info, &material_gui_repeat);
         NU_ERROR_ASSERT(error);
     }
 
@@ -235,14 +236,14 @@ main (void)
             &loader,
             "../../../assets/temple_of_time.glb",
             &alloc,
-            &renderer,
+            renderer,
             &temple_model);
         NU_ERROR_ASSERT(error);
 
         error = nuext_gltf_load_model_filename(&loader,
                                                "../../../assets/ariane6.glb",
                                                &alloc,
-                                               &renderer,
+                                               renderer,
                                                &ariane_model);
         NU_ERROR_ASSERT(error);
 
@@ -275,7 +276,7 @@ main (void)
         info.colors_negy = images[1].data;
         info.colors_posz = images[4].data;
         info.colors_negz = images[5].data;
-        error            = nu_cubemap_create(&renderer, &info, &skybox);
+        error            = nu_cubemap_create(renderer, &info, &skybox);
         NU_ERROR_ASSERT(error);
         for (nu_size_t i = 0; i < 6; ++i)
         {
@@ -285,13 +286,13 @@ main (void)
 
     // Create font
     nu_font_t font;
-    error = nu_font_init_default(&renderer, &alloc, &font);
+    error = nu_font_init_default(renderer, &alloc, &font);
     NU_ERROR_ASSERT(error);
 
     // Create camera
     nu_camera_handle_t camera;
     nu_camera_info_t   camera_info = NU_CAMERA_INFO_DEFAULT;
-    error = nu_camera_create(&renderer, &camera_info, &camera);
+    error = nu_camera_create(renderer, &camera_info, &camera);
     NU_ERROR_ASSERT(error);
 
     // Create renderpasses
@@ -303,22 +304,22 @@ main (void)
 
         info.type               = NU_RENDERPASS_FLAT;
         info.reset_after_submit = NU_TRUE;
-        error = nu_renderpass_create(&renderer, &info, &main_pass);
+        error = nu_renderpass_create(renderer, &info, &main_pass);
         NU_ERROR_ASSERT(error);
 
         info.type               = NU_RENDERPASS_SKYBOX;
         info.reset_after_submit = NU_TRUE;
-        error = nu_renderpass_create(&renderer, &info, &skybox_pass);
+        error = nu_renderpass_create(renderer, &info, &skybox_pass);
         NU_ERROR_ASSERT(error);
 
         info.type               = NU_RENDERPASS_CANVAS;
         info.reset_after_submit = NU_TRUE;
-        error = nu_renderpass_create(&renderer, &info, &gui_pass);
+        error = nu_renderpass_create(renderer, &info, &gui_pass);
     }
 
     // Create UI
     nu_ui_t ui;
-    error = nu_ui_init(&renderer, &alloc, &ui);
+    error = nu_ui_init(renderer, &alloc, &ui);
     NU_ERROR_ASSERT(error);
 
     nu_ui_style_t button_style;
@@ -396,29 +397,29 @@ main (void)
         // Update camera controller
         nu_camera_controller_update(
             &controller, &platform, delta, &camera_info);
-        nu_camera_update(&renderer, camera, &camera_info);
+        nu_camera_update(renderer, camera, &camera_info);
 
         // Render loop
         for (int i = 0; i < 40; ++i)
         {
             nu_mat4_t model = nu_mat4_translate(
                 nu_sin(time / 100 + i) * 4, nu_cos(time / 100 + i) * 10, i * 5);
-            nu_draw_mesh(&renderer, main_pass, material, cube_mesh, model);
+            nu_draw_mesh(renderer, main_pass, material, cube_mesh, model);
         }
 
         // Render custom mesh
         {
             nu_mat4_t transform = nu_mat4_scale(0.3, 0.3, 0.3);
-            nu_draw_model(&renderer, main_pass, &ariane_model, transform);
+            nu_draw_model(renderer, main_pass, &ariane_model, transform);
 
             transform = nu_mat4_translate(10, 0, 0);
-            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            nu_draw_model(renderer, main_pass, &temple_model, transform);
             transform = nu_mat4_translate(20, 0, 0);
-            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            nu_draw_model(renderer, main_pass, &temple_model, transform);
             transform = nu_mat4_translate(30, 0, 0);
-            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            nu_draw_model(renderer, main_pass, &temple_model, transform);
             transform = nu_mat4_translate(40, 0, 0);
-            nu_draw_model(&renderer, main_pass, &temple_model, transform);
+            nu_draw_model(renderer, main_pass, &temple_model, transform);
         }
 
         // Draw GUI
@@ -427,14 +428,14 @@ main (void)
             {
                 int x = i % 20;
                 int y = i / 20;
-                nu_draw_blit(&renderer,
+                nu_draw_blit(renderer,
                              gui_pass,
                              material_gui,
                              nu_rect(10 + x * 15, 30 + y * 15, 14, 14),
                              nu_rect(81, 257, 14, 14));
             }
 
-            nu_draw_blit(&renderer,
+            nu_draw_blit(renderer,
                          gui_pass,
                          material_gui_repeat,
                          nu_rect(400, 10, 105, 105),
@@ -452,7 +453,7 @@ main (void)
                   "Ipsum passages, and more recently with desktop publishing\n"
                   "software like Aldus PageMaker including versions of Lorem\n"
                   "Ipsum.";
-            nu_draw_text(&renderer,
+            nu_draw_text(renderer,
                          gui_pass,
                          s,
                          nu_strlen(s),
@@ -467,7 +468,7 @@ main (void)
                 = nuext_platform_cursor(&platform, cursor_x, cursor_y);
             ui.controllers[0].main_pressed
                 = nu_input_pressed(&platform, main_button);
-            nu_ui_begin(&ui, &renderer);
+            nu_ui_begin(&ui, renderer);
             if (nu_ui_button(&ui, nu_rect(300, 100, 60, 20)))
             {
                 NU_INFO(&logger, "button pressed !");
@@ -498,49 +499,49 @@ main (void)
             nu_char_t string[256];
             nu_size_t n = snprintf(string, 256, "FPS: %d", (nu_u32_t)frame_avg);
             nu_draw_text(
-                &renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
+                renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
         }
 
         // Submit renderpass
         nu_renderpass_submit_t submit;
 
         nu_texture_handle_t surface_tex
-            = nu_surface_color_target(&platform, &renderer);
+            = nu_surface_color_target(&platform, renderer);
         nu_color_t clear_color = NU_COLOR_BLUE_SKY;
 
         submit.flat.camera       = camera;
         submit.flat.color_target = &surface_tex;
         submit.flat.depth_target = &depth_buffer;
         submit.flat.clear_color  = &clear_color;
-        nu_renderpass_submit(&renderer, main_pass, &submit);
+        nu_renderpass_submit(renderer, main_pass, &submit);
 
         submit.skybox.camera       = camera;
         submit.skybox.color_target = &surface_tex;
         submit.skybox.depth_target = &depth_buffer;
         submit.skybox.cubemap      = skybox;
         submit.skybox.rotation     = nu_quat_identity();
-        nu_renderpass_submit(&renderer, skybox_pass, &submit);
+        nu_renderpass_submit(renderer, skybox_pass, &submit);
 
         submit.canvas.color_target = &surface_tex;
-        nu_renderpass_submit(&renderer, gui_pass, &submit);
+        nu_renderpass_submit(renderer, gui_pass, &submit);
 
         submit.canvas.color_target = &surface_tex;
-        nu_ui_submit_renderpasses(&ui, &renderer, &submit);
+        nu_ui_submit_renderpasses(&ui, renderer, &submit);
 
         // Render
-        nu_renderer_render(&platform, &renderer);
+        nu_renderer_render(&platform, renderer);
 
         // Refresh surface
         nu_platform_swap_buffers(&platform);
     }
 
     // Free cube
-    error = nu_mesh_delete(&renderer, cube_mesh);
+    error = nu_mesh_delete(renderer, cube_mesh);
     NU_ERROR_ASSERT(error);
-    error = nu_renderpass_delete(&renderer, main_pass);
+    error = nu_renderpass_delete(renderer, main_pass);
     NU_ERROR_ASSERT(error);
 
-    nu_renderer_free(&renderer);
+    nu_renderer_delete(&platform, renderer);
     nu_platform_free(&platform);
 
     return 0;
