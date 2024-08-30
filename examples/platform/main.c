@@ -13,12 +13,12 @@ main (void)
     nu_error_t error;
     (void)error;
 
-    nuext_allocator_init_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&alloc);
 
     nu_platform_info_t info;
     info.width  = 500;
     info.height = 500;
-    error       = nu_platform_init(&info, &alloc, &platform);
+    error       = nu_platform_init(&info, &platform);
     NU_ERROR_ASSERT(error);
 
     error = nu_input_create(&platform, &exit_input);

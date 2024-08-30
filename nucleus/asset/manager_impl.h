@@ -5,7 +5,7 @@
 #include <nucleus/asset/texture.h>
 
 nu_error_t
-nu_asset_manager_init (nu_allocator_t *alloc, nu_asset_manager_t *manager)
+nu_asset_manager_init (nu_allocator_t alloc, nu_asset_manager_t *manager)
 {
     nu_error_t error;
 

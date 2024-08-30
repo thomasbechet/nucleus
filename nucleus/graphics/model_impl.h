@@ -4,13 +4,13 @@
 #include <nucleus/graphics/model.h>
 
 void
-nu_model_init (nu_allocator_t *alloc, nu_model_t *model)
+nu_model_init (nu_allocator_t alloc, nu_model_t *model)
 {
     nu_vec_init(&model->assets, alloc, 1);
     nu_vec_init(&model->nodes, alloc, 1);
 }
 void
-nu_model_free (nu_model_t *model, nu_allocator_t *alloc)
+nu_model_free (nu_model_t *model, nu_allocator_t alloc)
 {
     nu_vec_free(&model->assets, alloc);
     nu_vec_free(&model->nodes, alloc);

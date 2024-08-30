@@ -25,14 +25,14 @@ main (void)
     nu_error_t error;
     NU_UNUSED(error);
 
-    nuext_allocator_init_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&alloc);
 
     // Platform
     {
         nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
         info.width              = WIDTH;
         info.height             = HEIGHT;
-        error                   = nu_platform_init(&info, &alloc, &platform);
+        error                   = nu_platform_init(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
 

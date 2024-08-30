@@ -165,7 +165,7 @@ nu__draw_image (nu_ui_t *ui, nu_rect_t extent, const nu_ui_image_style_t *style)
 }
 
 nu_error_t
-nu_ui_init (nu_renderer_t renderer, nu_allocator_t *alloc, nu_ui_t *ui)
+nu_ui_init (nu_renderer_t renderer, nu_allocator_t alloc, nu_ui_t *ui)
 {
     ui->_allocator = alloc;
 

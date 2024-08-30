@@ -14,7 +14,7 @@ nu_renderer_create (nu_platform_t            *platform,
                     const nu_renderer_info_t *info,
                     nu_renderer_t            *renderer)
 {
-    renderer->ptr = nu_alloc(&platform->_allocator, sizeof(*renderer->ptr));
+    renderer->ptr = nu_alloc(info->allocator, sizeof(*renderer->ptr));
     renderer->ptr->_allocator = info->allocator;
 
     switch (info->api)
@@ -79,7 +79,7 @@ nu_renderer_delete (nu_platform_t *platform, nu_renderer_t renderer)
 {
     NU_INFO(&renderer.ptr->_logger, "terminate renderer context");
     renderer.ptr->_api.free(renderer.ptr);
-    nu_free(&platform->_allocator, renderer.ptr, sizeof(*renderer.ptr));
+    nu_free(renderer.ptr->_allocator, renderer.ptr, sizeof(*renderer.ptr));
 
     return NU_ERROR_NONE;
 }

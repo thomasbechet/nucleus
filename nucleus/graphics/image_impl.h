@@ -4,14 +4,14 @@
 #include <nucleus/graphics/image.h>
 
 nu_error_t
-nu_image_init (nu_allocator_t *alloc, nu_uvec2_t size, nu_image_t *ima)
+nu_image_init (nu_allocator_t alloc, nu_uvec2_t size, nu_image_t *ima)
 {
     ima->size = size;
     ima->data = nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
     return NU_ERROR_NONE;
 }
 void
-nu_image_free (nu_image_t *ima, nu_allocator_t *alloc)
+nu_image_free (nu_image_t *ima, nu_allocator_t alloc)
 {
     nu_free(alloc, ima->data, sizeof(nu_color_t) * ima->size.x * ima->size.y);
 }

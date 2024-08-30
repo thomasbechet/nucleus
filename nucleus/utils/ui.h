@@ -89,7 +89,7 @@ typedef struct
     nu_renderpass_handle_t active_renderpass;
     nu_ui_controller_t     controllers[NU_UI_MAX_CONTROLLER];
 
-    nu_allocator_t *_allocator;
+    nu_allocator_t _allocator;
 
     nu__ui_pass_vec_t _passes;
 
@@ -113,9 +113,9 @@ NU_API void nu_blit_sliced(nu_renderer_t          renderer,
                            nu_rect_t              tex_extent,
                            nu_ui_margin_t         margin);
 
-NU_API nu_error_t nu_ui_init(nu_renderer_t   renderer,
-                             nu_allocator_t *alloc,
-                             nu_ui_t        *ui);
+NU_API nu_error_t nu_ui_init(nu_renderer_t  renderer,
+                             nu_allocator_t alloc,
+                             nu_ui_t       *ui);
 NU_API void       nu_ui_free(nu_ui_t *ui, nu_renderer_t renderer);
 
 NU_API void nu_ui_begin(nu_ui_t *ui, nu_renderer_t renderer);

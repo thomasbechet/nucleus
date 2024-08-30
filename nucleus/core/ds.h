@@ -39,11 +39,11 @@
 
 #define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
-NU_API void     *nu__vec_push(nu_allocator_t *alloc,
-                              nu_size_t       tsize,
-                              void           *data,
-                              nu_size_t      *size,
-                              nu_size_t      *capacity);
+NU_API void     *nu__vec_push(nu_allocator_t alloc,
+                              nu_size_t      tsize,
+                              void          *data,
+                              nu_size_t     *size,
+                              nu_size_t     *capacity);
 NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 
 typedef nu_vec(nu_bool_t) nu_bool_vec_t;
@@ -88,11 +88,11 @@ typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 
 #define nu_pool_remove(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)
 
-NU_API void *nu__pool_add(nu_allocator_t *alloc,
-                          nu_size_t       tsize,
-                          void           *data,
-                          nu_u32_t       *capacity,
-                          nu_u32_vec_t   *freelist,
-                          nu_u32_t       *pindex);
+NU_API void *nu__pool_add(nu_allocator_t alloc,
+                          nu_size_t      tsize,
+                          void          *data,
+                          nu_u32_t      *capacity,
+                          nu_u32_vec_t  *freelist,
+                          nu_u32_t      *pindex);
 
 #endif

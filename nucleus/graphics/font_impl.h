@@ -6,9 +6,9 @@
 #include <nucleus/graphics/font_data.h>
 
 nu_error_t
-nu_font_init_default (nu_renderer_t   renderer,
-                      nu_allocator_t *alloc,
-                      nu_font_t      *font)
+nu_font_init_default (nu_renderer_t  renderer,
+                      nu_allocator_t alloc,
+                      nu_font_t     *font)
 {
     nu_error_t error;
 
@@ -93,7 +93,7 @@ nu_font_init_default (nu_renderer_t   renderer,
     return NU_ERROR_NONE;
 }
 void
-nu_font_free (nu_font_t *font, nu_renderer_t renderer, nu_allocator_t *alloc)
+nu_font_free (nu_font_t *font, nu_renderer_t renderer, nu_allocator_t alloc)
 {
     nu_free(alloc, font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
     nu_texture_delete(renderer, font->texture);

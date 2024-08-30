@@ -14,14 +14,14 @@ int
 main (void)
 {
     nu_allocator_t alloc;
-    nuext_allocator_init_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&alloc);
 
     mystruct_vec_t v;
-    nu_vec_init(&v, &alloc, 1);
+    nu_vec_init(&v, alloc, 1);
 
     for (nu_size_t i = 0; i < 100; ++i)
     {
-        (void)nu_vec_push(&v, &alloc);
+        (void)nu_vec_push(&v, alloc);
         nu_vec_last(&v)->val = i;
     }
     for (nu_size_t i = 0; i < 100; ++i)

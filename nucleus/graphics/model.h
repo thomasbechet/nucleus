@@ -26,8 +26,8 @@ typedef struct
     nu__model_node_vec_t  nodes;
 } nu_model_t;
 
-NU_API void nu_model_init(nu_allocator_t *alloc, nu_model_t *model);
-NU_API void nu_model_free(nu_model_t *model, nu_allocator_t *alloc);
+NU_API void nu_model_init(nu_allocator_t alloc, nu_model_t *model);
+NU_API void nu_model_free(nu_model_t *model, nu_allocator_t alloc);
 NU_API void nu_draw_model(nu_renderer_t          renderer,
                           nu_renderpass_handle_t pass,
                           const nu_model_t      *model,

@@ -240,11 +240,10 @@ typedef struct
 
 typedef struct
 {
-    nu_allocator_t _allocator;
-    nu_bool_t      _close_requested;
-    nu_logger_t    _logger;
-    nu__surface_t  _surface;
-    nu__input_t    _input;
+    nu_bool_t     _close_requested;
+    nu_logger_t   _logger;
+    nu__surface_t _surface;
+    nu__input_t   _input;
 } nu_platform_t;
 
 #define NU_PLATFORM_INFO_DEFAULT                                      \
@@ -254,7 +253,6 @@ typedef struct
     }
 
 NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
-                                   nu_allocator_t           *alloc,
                                    nu_platform_t            *platform);
 NU_API nu_error_t nu_platform_free(nu_platform_t *platform);
 NU_API nu_error_t nu_platform_poll_events(nu_platform_t *platform);

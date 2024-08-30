@@ -13,14 +13,14 @@ typedef struct
 
 typedef struct
 {
-    nu_renderer_t   _renderer;
-    nu_allocator_t *_allocator;
+    nu_renderer_t  _renderer;
+    nu_allocator_t _allocator;
 } nu_texture_loader_t;
 
-NU_API nu_error_t nu_texture_loader_init(nu_allocator_t    *alloc,
+NU_API nu_error_t nu_texture_loader_init(nu_allocator_t     alloc,
                                          nu_renderer_t      renderer,
                                          nu_asset_loader_t *loader);
 NU_API void       nu_texture_loader_free(nu_asset_loader_t *loader,
-                                         nu_allocator_t    *alloc);
+                                         nu_allocator_t     alloc);
 
 #endif

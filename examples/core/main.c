@@ -10,14 +10,14 @@ main (void)
 {
     nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
 
-    nuext_allocator_init_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&alloc);
 
     {
         nu_u32_vec_t v;
-        nu_vec_init(&v, &alloc, 10);
+        nu_vec_init(&v, alloc, 10);
         for (nu_size_t i = 0; i < 50; ++i)
         {
-            *nu_vec_push(&v, &alloc) = i;
+            *nu_vec_push(&v, alloc) = i;
         }
         for (nu_size_t i = 0; i < 50; ++i)
         {

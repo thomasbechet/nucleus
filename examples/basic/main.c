@@ -38,14 +38,14 @@ main (void)
     nu_error_t error;
 
     // Create allocator
-    nuext_allocator_init_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&alloc);
 
     // Create platform
     {
         nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
         info.width              = WIDTH;
         info.height             = HEIGHT;
-        error                   = nu_platform_init(&info, &alloc, &platform);
+        error                   = nu_platform_init(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
 
@@ -63,7 +63,7 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create asset manager
-    error = nu_asset_manager_init(&alloc, &assets);
+    error = nu_asset_manager_init(alloc, &assets);
     NU_ERROR_ASSERT(error);
     error = nu_asset_register_base_loaders(&assets, &platform, renderer);
 
@@ -175,7 +175,7 @@ main (void)
     {
         nu_image_t image;
         error = nuext_load_image_filename(
-            "../../../assets/brick_building_front_lowres.png", &alloc, &image);
+            "../../../assets/brick_building_front_lowres.png", alloc, &image);
         nu_texture_info_t info;
         info.size   = image.size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
@@ -183,12 +183,12 @@ main (void)
         info.colors = image.data;
         error       = nu_texture_create(renderer, &info, &texture);
         NU_ERROR_ASSERT(error);
-        nu_image_free(&image, &alloc);
+        nu_image_free(&image, alloc);
 
         nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture_white);
 
         error = nuext_load_image_filename(
-            "../../../assets/GUI.png", &alloc, &image);
+            "../../../assets/GUI.png", alloc, &image);
         NU_ERROR_ASSERT(error);
         info.size   = image.size;
         info.usage  = NU_TEXTURE_USAGE_SAMPLE;
@@ -196,7 +196,7 @@ main (void)
         info.colors = image.data;
         error       = nu_texture_create(renderer, &info, &texture_gui);
         NU_ERROR_ASSERT(error);
-        nu_image_free(&image, &alloc);
+        nu_image_free(&image, alloc);
     }
 
     // Create material
@@ -230,19 +230,19 @@ main (void)
     // Load temple
     {
         nu_gltf_loader_t loader;
-        nu_gltf_loader_init(&alloc, &logger, &loader);
+        nu_gltf_loader_init(alloc, &logger, &loader);
 
         error = nuext_gltf_load_model_filename(
             &loader,
             "../../../assets/temple_of_time.glb",
-            &alloc,
+            alloc,
             renderer,
             &temple_model);
         NU_ERROR_ASSERT(error);
 
         error = nuext_gltf_load_model_filename(&loader,
                                                "../../../assets/ariane6.glb",
-                                               &alloc,
+                                               alloc,
                                                renderer,
                                                &ariane_model);
         NU_ERROR_ASSERT(error);
@@ -264,7 +264,7 @@ main (void)
         nu_image_t images[6];
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            error = nuext_load_image_filename(filenames[i], &alloc, &images[i]);
+            error = nuext_load_image_filename(filenames[i], alloc, &images[i]);
             NU_ERROR_ASSERT(error);
         }
         nu_cubemap_info_t info;
@@ -280,13 +280,13 @@ main (void)
         NU_ERROR_ASSERT(error);
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            nu_image_free(&images[i], &alloc);
+            nu_image_free(&images[i], alloc);
         }
     }
 
     // Create font
     nu_font_t font;
-    error = nu_font_init_default(renderer, &alloc, &font);
+    error = nu_font_init_default(renderer, alloc, &font);
     NU_ERROR_ASSERT(error);
 
     // Create camera
@@ -319,7 +319,7 @@ main (void)
 
     // Create UI
     nu_ui_t ui;
-    error = nu_ui_init(renderer, &alloc, &ui);
+    error = nu_ui_init(renderer, alloc, &ui);
     NU_ERROR_ASSERT(error);
 
     nu_ui_style_t button_style;

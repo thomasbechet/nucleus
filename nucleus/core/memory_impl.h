@@ -4,23 +4,25 @@
 #include <nucleus/core/memory.h>
 
 void *
-nu_alloc (nu_allocator_t *alloc, nu_size_t s)
+nu_alloc (nu_allocator_t alloc, nu_size_t s)
 {
-    return alloc->callback(NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc->userdata);
+    return alloc.ptr->callback(
+        NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
 }
 void *
-nu_realloc (nu_allocator_t *alloc, void *ptr, nu_size_t s, nu_size_t n)
+nu_realloc (nu_allocator_t alloc, void *ptr, nu_size_t s, nu_size_t n)
 {
     if (s == n)
     {
         return ptr;
     }
-    return alloc->callback(ptr, s, n, NU_DEFAULT_ALIGN, alloc->userdata);
+    return alloc.ptr->callback(
+        ptr, s, n, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
 }
 void
-nu_free (nu_allocator_t *alloc, void *ptr, nu_size_t s)
+nu_free (nu_allocator_t alloc, void *ptr, nu_size_t s)
 {
-    alloc->callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc->userdata);
+    alloc.ptr->callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
 }
 
 #ifdef NU_STDLIB
@@ -49,10 +51,11 @@ nu__stdlib_alloctor_callback (
 }
 
 void
-nuext_allocator_init_stdlib (nu_allocator_t *alloc)
+nuext_allocator_create_stdlib (nu_allocator_t *alloc)
 {
-    alloc->callback = nu__stdlib_alloctor_callback;
-    alloc->userdata = NU_NULL;
+    alloc->ptr           = malloc(sizeof(*alloc->ptr));
+    alloc->ptr->callback = nu__stdlib_alloctor_callback;
+    alloc->ptr->userdata = NU_NULL;
 }
 
 #endif

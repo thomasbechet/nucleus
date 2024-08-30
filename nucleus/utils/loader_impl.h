@@ -56,7 +56,7 @@ nu__emplace_vertex (const nu_vec3_t *positions,
 static nu_error_t
 nu__load_mesh (nu_gltf_loader_t *loader,
                const cgltf_mesh *mesh,
-               nu_allocator_t   *alloc,
+               nu_allocator_t    alloc,
                nu_renderer_t     renderer,
                nu_model_t       *model)
 {
@@ -168,7 +168,7 @@ nu__load_mesh (nu_gltf_loader_t *loader,
 static nu_error_t
 nu__load_texture (nu_gltf_loader_t    *loader,
                   const cgltf_texture *texture,
-                  nu_allocator_t      *alloc,
+                  nu_allocator_t       alloc,
                   nu_renderer_t        renderer,
                   nu_model_t          *model)
 {
@@ -208,7 +208,7 @@ nu__load_texture (nu_gltf_loader_t    *loader,
 static nu_error_t
 nu__load_material (nu_gltf_loader_t     *loader,
                    const cgltf_material *material,
-                   nu_allocator_t       *alloc,
+                   nu_allocator_t        alloc,
                    nu_renderer_t         renderer,
                    nu_model_t           *model)
 {
@@ -253,7 +253,7 @@ nu__load_material (nu_gltf_loader_t     *loader,
 }
 static nu_error_t
 nu__load_material_default (nu_gltf_loader_t *loader,
-                           nu_allocator_t   *alloc,
+                           nu_allocator_t    alloc,
                            nu_renderer_t     renderer,
                            nu_model_t       *model)
 {
@@ -278,7 +278,7 @@ nu__load_material_default (nu_gltf_loader_t *loader,
 }
 
 nu_error_t
-nu_gltf_loader_init (nu_allocator_t   *alloc,
+nu_gltf_loader_init (nu_allocator_t    alloc,
                      nu_logger_t      *logger,
                      nu_gltf_loader_t *loader)
 {
@@ -295,7 +295,7 @@ nu_gltf_loader_free (nu_gltf_loader_t *loader)
 nu_error_t
 nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
                                 const nu_char_t  *filename,
-                                nu_allocator_t   *alloc,
+                                nu_allocator_t    alloc,
                                 nu_renderer_t     renderer,
                                 nu_model_t       *model)
 {
@@ -443,7 +443,7 @@ static nu_color_t *
 nu__parse_colors (const nu_byte_t *img,
                   nu_uvec2_t       size,
                   nu_size_t        comp,
-                  nu_allocator_t  *alloc)
+                  nu_allocator_t   alloc)
 {
     nu_color_t *colors = nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
     NU_CHECK(colors, return NU_NULL);
@@ -468,7 +468,7 @@ nu__parse_colors (const nu_byte_t *img,
 }
 nu_error_t
 nuext_load_image_filename (const nu_char_t *filename,
-                           nu_allocator_t  *allocator,
+                           nu_allocator_t   allocator,
                            nu_image_t      *image)
 {
     int            w, h, n;
@@ -483,7 +483,7 @@ nuext_load_image_filename (const nu_char_t *filename,
 nu_error_t
 nu_load_image_memory (const nu_byte_t *data,
                       nu_size_t        data_size,
-                      nu_allocator_t  *allocator,
+                      nu_allocator_t   allocator,
                       nu_image_t      *image)
 {
     int            w, h, n;

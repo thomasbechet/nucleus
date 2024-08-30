@@ -4,11 +4,11 @@
 #include <nucleus/core/ds.h>
 
 inline void *
-nu__vec_push (nu_allocator_t *alloc,
-              nu_size_t       tsize,
-              void           *data,
-              nu_size_t      *size,
-              nu_size_t      *capacity)
+nu__vec_push (nu_allocator_t alloc,
+              nu_size_t      tsize,
+              void          *data,
+              nu_size_t     *size,
+              nu_size_t     *capacity)
 {
     NU_ASSERT(data && size && capacity);
     if ((*size) >= (*capacity))
@@ -33,12 +33,12 @@ nu__vec_pop (nu_size_t *size)
 }
 
 inline void *
-nu__pool_add (nu_allocator_t *alloc,
-              nu_size_t       tsize,
-              void           *data,
-              nu_u32_t       *capacity,
-              nu_u32_vec_t   *freelist,
-              nu_u32_t       *pindex)
+nu__pool_add (nu_allocator_t alloc,
+              nu_size_t      tsize,
+              void          *data,
+              nu_u32_t      *capacity,
+              nu_u32_vec_t  *freelist,
+              nu_u32_t      *pindex)
 {
     if (freelist->size)
     {
