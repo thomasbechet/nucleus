@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NU_STDLIB
 #define NU_IMPLEMENTATION
 #include <nucleus/utils.h>
@@ -11,13 +10,13 @@ static nu_allocator_t         alloc;
 static nu_logger_t            logger;
 static nu_platform_t          platform;
 static nu_renderer_t          renderer;
-static nu_renderpass_handle_t renderpass;
-static nu_texture_handle_t    depth_buffer;
-static nu_mesh_handle_t       mesh;
-static nu_texture_handle_t    texture;
-static nu_material_handle_t   material;
-static nu_camera_handle_t     camera;
-static nu_input_handle_t      exit_input;
+static nu_renderpass_t renderpass;
+static nu_texture_t    depth_buffer;
+static nu_mesh_t       mesh;
+static nu_texture_t    texture;
+static nu_material_t   material;
+static nu_camera_t     camera;
+static nu_input_t             exit_input;
 
 int
 main (void)
@@ -27,21 +26,34 @@ main (void)
 
     nuext_allocator_create_stdlib(&alloc);
 
+    // Create logger
+    {
+        nu_logger_info_t info;
+        info.allocator = alloc;
+        info.level     = NU_LOG_DEBUG;
+        error          = nu_logger_create(&info, &logger);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Platform
     {
-        nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
-        info.width              = WIDTH;
-        info.height             = HEIGHT;
-        error                   = nu_platform_init(&info, &platform);
+        nu_platform_info_t info;
+        info.width     = WIDTH;
+        info.height    = HEIGHT;
+        info.allocator = alloc;
+        info.logger    = logger;
+        error          = nu_platform_create(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
 
     // Renderer
     {
-        nu_renderer_info_t info = NU_RENDERER_INFO_DEFAULT;
-        info.allocator          = alloc;
-        info.api                = NU_RENDERER_GL;
-        error = nu_renderer_create(&platform, &info, &renderer);
+        nu_renderer_info_t info;
+        info.allocator = alloc;
+        info.api       = NU_RENDERER_GL;
+        info.platform  = platform;
+        info.logger    = logger;
+        error          = nu_renderer_create(&info, &renderer);
         NU_ERROR_ASSERT(error);
     }
 
@@ -105,32 +117,31 @@ main (void)
 
     // Exit input
     {
-        error = nu_input_create(&platform, &exit_input);
+        error = nu_input_create(platform, &exit_input);
         NU_ERROR_ASSERT(error);
-        nuext_input_bind_button(&platform, exit_input, NUEXT_BUTTON_ESCAPE);
+        nuext_input_bind_button(platform, exit_input, NUEXT_BUTTON_ESCAPE);
     }
 
     nu_timer_t timer;
     nu_timer_reset(&timer);
     float time = 0;
-    while (!nu_platform_exit_requested(&platform))
+    while (!nu_platform_exit_requested(platform))
     {
         float delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
         time += delta;
-        if (nu_input_just_pressed(&platform, exit_input))
+        if (nu_input_just_pressed(exit_input))
         {
             break;
         }
-        nu_platform_poll_events(&platform);
+        nu_platform_poll_events(platform);
 
         nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 500) * 0.1, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
         nu_draw_mesh(renderer, renderpass, material, mesh, model);
 
-        nu_color_t          clear_color = NU_COLOR_BLACK;
-        nu_texture_handle_t surface_color
-            = nu_surface_color_target(&platform, renderer);
+        nu_color_t          clear_color   = NU_COLOR_BLACK;
+        nu_texture_t surface_color = nu_surface_color_target(renderer);
 
         nu_renderpass_submit_t submit;
         submit.flat.camera       = camera;
@@ -139,12 +150,12 @@ main (void)
         submit.flat.depth_target = &depth_buffer;
         nu_renderpass_submit(renderer, renderpass, &submit);
 
-        nu_renderer_render(&platform, renderer);
-        nu_platform_swap_buffers(&platform);
+        nu_renderer_render(renderer);
+        nu_platform_swap_buffers(platform);
     }
 
-    nu_renderer_delete(&platform, renderer);
-    nu_platform_free(&platform);
+    nu_renderer_delete(renderer);
+    nu_platform_delete(platform);
 
     return 0;
 }

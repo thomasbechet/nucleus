@@ -5,19 +5,22 @@
 #include <nucleus/core/time.h>
 
 nu_error_t
-nu_logger_init (const nu_logger_info_t *info, nu_logger_t *logger)
+nu_logger_create (const nu_logger_info_t *info, nu_logger_t *logger)
 {
-    logger->level = info->level;
+    logger->ptr             = nu_alloc(info->allocator, sizeof(*logger->ptr));
+    logger->ptr->_level     = info->level;
+    logger->ptr->_allocator = info->allocator;
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_logger_free (nu_logger_t *logger)
+nu_logger_delete (nu_logger_t logger)
 {
+    nu_free(logger.ptr->_allocator, logger.ptr, sizeof(*logger.ptr));
     return NU_ERROR_NONE;
 }
 
 void
-nu_log (nu_logger_t     *logger,
+nu_log (nu_logger_t      logger,
         nu_log_level_t   level,
         const nu_char_t *filename,
         nu_size_t        fileline,
@@ -30,14 +33,14 @@ nu_log (nu_logger_t     *logger,
     va_end(args);
 }
 void
-nu_vlog (nu_logger_t     *logger,
+nu_vlog (nu_logger_t      logger,
          nu_log_level_t   level,
          const nu_char_t *filename,
          nu_size_t        fileline,
          const nu_char_t *format,
          va_list          args)
 {
-    if (logger->level < level)
+    if (logger.ptr->_level < level)
     {
         return;
     }

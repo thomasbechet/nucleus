@@ -133,8 +133,8 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             }
 
             // Create mesh
-            nu_mesh_handle_t handle;
-            nu_mesh_info_t   info;
+            nu_mesh_t      handle;
+            nu_mesh_info_t info;
             info.positions = buf_positions;
             info.uvs       = buf_uvs;
             info.normals   = buf_normals;
@@ -185,8 +185,8 @@ nu__load_texture (nu_gltf_loader_t    *loader,
     NU_ERROR_CHECK(error, return error);
 
     // Create texture
-    nu_texture_handle_t handle;
-    nu_texture_info_t   info;
+    nu_texture_t      handle;
+    nu_texture_info_t info;
     info.size   = image.size;
     info.usage  = NU_TEXTURE_USAGE_SAMPLE;
     info.format = NU_TEXTURE_FORMAT_COLOR;
@@ -235,10 +235,10 @@ nu__load_material (nu_gltf_loader_t     *loader,
     }
 
     // Create material
-    nu_material_handle_t handle;
-    nu_material_info_t   info = NU_MATERIAL_INFO_DEFAULT_MESH;
-    info.mesh.color0          = &model->assets.data[index].texture;
-    nu_error_t error          = nu_material_create(renderer, &info, &handle);
+    nu_material_t      handle;
+    nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
+    info.mesh.color0        = &model->assets.data[index].texture;
+    nu_error_t error        = nu_material_create(renderer, &info, &handle);
     NU_ERROR_ASSERT(error);
 
     // Append asset
@@ -261,13 +261,13 @@ nu__load_material_default (nu_gltf_loader_t *loader,
     {
         NU_DEBUG(loader->_logger, "loading default material");
 
-        nu_texture_handle_t texture;
+        nu_texture_t texture;
         nu_texture_create_color(renderer, NU_COLOR_RED, &texture);
         nu_vec_push(&model->assets, alloc)->texture = texture;
 
-        nu_material_handle_t material;
-        nu_material_info_t   info = NU_MATERIAL_INFO_DEFAULT_MESH;
-        info.mesh.color0          = &texture;
+        nu_material_t      material;
+        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
+        info.mesh.color0        = &texture;
         nu_material_create(renderer, &info, &material);
         nu_vec_push(&model->assets, alloc)->material = material;
 
@@ -279,7 +279,7 @@ nu__load_material_default (nu_gltf_loader_t *loader,
 
 nu_error_t
 nu_gltf_loader_init (nu_allocator_t    alloc,
-                     nu_logger_t      *logger,
+                     nu_logger_t       logger,
                      nu_gltf_loader_t *loader)
 {
     loader->_allocator = alloc;

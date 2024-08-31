@@ -8,82 +8,60 @@
 #endif
 
 nu_error_t
-nu_input_create (nu_platform_t *platform, nu_input_handle_t *input)
+nu_input_create (nu_platform_t platform, nu_input_t *input)
 {
-#ifdef NU_BUILD_GLFW
-    return nuglfw__create_input(&platform->_input.glfw, input);
-#endif
+    input->ptr        = nu_alloc(platform.ptr->_allocator, sizeof(*input->ptr));
+    input->ptr->value = NU_INPUT_RELEASED;
+    input->ptr->previous = NU_INPUT_RELEASED;
     return NU_ERROR_NONE;
 }
 nu_bool_t
-nu_input_changed (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_changed (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return state->value != state->previous;
+    return input.ptr->value != input.ptr->previous;
 }
 nu_bool_t
-nu_input_pressed (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_pressed (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return NU_INPUT_IS_PRESSED(state->value);
+    return NU_INPUT_IS_PRESSED(input.ptr->value);
 }
 nu_bool_t
-nu_input_just_pressed (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_just_pressed (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return NU_INPUT_IS_PRESSED(state->value)
-           && !NU_INPUT_IS_PRESSED(state->previous);
+    return NU_INPUT_IS_PRESSED(input.ptr->value)
+           && !NU_INPUT_IS_PRESSED(input.ptr->previous);
 }
 nu_bool_t
-nu_input_released (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_released (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return !NU_INPUT_IS_PRESSED(state->value);
+    return !NU_INPUT_IS_PRESSED(input.ptr->value);
 }
 nu_bool_t
-nu_input_just_released (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_just_released (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return !NU_INPUT_IS_PRESSED(state->value)
-           && NU_INPUT_IS_PRESSED(state->previous);
+    return !NU_INPUT_IS_PRESSED(input.ptr->value)
+           && NU_INPUT_IS_PRESSED(input.ptr->previous);
 }
 float
-nu_input_value (const nu_platform_t *platform, nu_input_handle_t input)
+nu_input_value (nu_input_t input)
 {
-    const nu__input_state_t *state
-        = nuglfw__input_state(&platform->_input.glfw, input);
-    return state->value;
+    return input.ptr->value;
 }
 
 nu_vec3_t
-nu_input_axis3d (const nu_platform_t *platform,
-                 nu_input_handle_t    pos_x,
-                 nu_input_handle_t    neg_x,
-                 nu_input_handle_t    pos_y,
-                 nu_input_handle_t    neg_y,
-                 nu_input_handle_t    pos_z,
-                 nu_input_handle_t    neg_z,
-                 nu_bool_t            normalize)
+nu_input_axis3d (nu_input_t pos_x,
+                 nu_input_t neg_x,
+                 nu_input_t pos_y,
+                 nu_input_t neg_y,
+                 nu_input_t pos_z,
+                 nu_input_t neg_z,
+                 nu_bool_t  normalize)
 {
     nu_vec3_t ax;
 
-    ax.x = NU_CLAMP(nu_input_value(platform, neg_x)
-                        - nu_input_value(platform, pos_x),
-                    -1,
-                    1);
-    ax.y = NU_CLAMP(nu_input_value(platform, pos_y)
-                        - nu_input_value(platform, neg_y),
-                    -1,
-                    1);
-    ax.z = NU_CLAMP(nu_input_value(platform, pos_z)
-                        - nu_input_value(platform, neg_z),
-                    -1,
-                    1);
+    ax.x = NU_CLAMP(nu_input_value(neg_x) - nu_input_value(pos_x), -1, 1);
+    ax.y = NU_CLAMP(nu_input_value(pos_y) - nu_input_value(neg_y), -1, 1);
+    ax.z = NU_CLAMP(nu_input_value(pos_z) - nu_input_value(neg_z), -1, 1);
     if (normalize)
     {
         ax = nu_vec3_normalize(ax);
@@ -92,45 +70,45 @@ nu_input_axis3d (const nu_platform_t *platform,
     return ax;
 }
 nu_ivec2_t
-nuext_platform_cursor (const nu_platform_t *platform,
-                       nu_input_handle_t    cursor_x,
-                       nu_input_handle_t    cursor_y)
+nuext_platform_cursor (nu_platform_t platform,
+                       nu_input_t    cursor_x,
+                       nu_input_t    cursor_y)
 {
-    float cx = nu_input_value(platform, cursor_x);
-    float cy = nu_input_value(platform, cursor_y);
-    return nu_ivec2((nu_i32_t)(cx * (float)platform->_surface.size.x),
-                    (nu_i32_t)(cy * (float)platform->_surface.size.y));
+    float cx = nu_input_value(cursor_x);
+    float cy = nu_input_value(cursor_y);
+    return nu_ivec2((nu_i32_t)(cx * (float)platform.ptr->_surface.size.x),
+                    (nu_i32_t)(cy * (float)platform.ptr->_surface.size.y));
 }
 
 nu_error_t
-nuext_input_bind_button (nu_platform_t    *platform,
-                         nu_input_handle_t input,
-                         nuext_button_t    button)
+nuext_input_bind_button (nu_platform_t  platform,
+                         nu_input_t     input,
+                         nuext_button_t button)
 {
 #ifdef NU_BUILD_GLFW
-    return nuglfw__bind_button(&platform->_input.glfw, input, button);
+    return nuglfw__bind_button(&platform.ptr->_input.glfw, input, button);
 #endif
     return NU_ERROR_NONE;
 }
 nu_error_t
-nuext_input_bind_button_value (nu_platform_t    *platform,
-                               nu_input_handle_t input,
-                               nuext_button_t    button,
-                               float             value)
+nuext_input_bind_button_value (nu_platform_t  platform,
+                               nu_input_t     input,
+                               nuext_button_t button,
+                               float          value)
 {
 #ifdef NU_BUILD_GLFW
     return nuglfw__bind_button_value(
-        &platform->_input.glfw, input, button, value);
+        &platform.ptr->_input.glfw, input, button, value);
 #endif
     return NU_ERROR_NONE;
 }
 nu_error_t
-nuext_input_bind_axis (nu_platform_t    *platform,
-                       nu_input_handle_t input,
-                       nuext_axis_t      axis)
+nuext_input_bind_axis (nu_platform_t platform,
+                       nu_input_t    input,
+                       nuext_axis_t  axis)
 {
 #ifdef NU_BUILD_GLFW
-    return nuglfw__bind_axis(&platform->_input.glfw, input, axis);
+    return nuglfw__bind_axis(&platform.ptr->_input.glfw, input, axis);
 #endif
     return NU_ERROR_NONE;
 }

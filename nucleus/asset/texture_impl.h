@@ -19,7 +19,7 @@ nu__texture_loader_load_sync (void                       *loader,
     NU_ASSERT(info->filename);
 
     nu_texture_loader_t *context = loader;
-    nu_texture_t        *texture = data;
+    nu_texture_asset_t  *texture = data;
 
     nu_image_t image;
     nu_error_t error = nuext_load_image_filename(

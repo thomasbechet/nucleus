@@ -10,12 +10,12 @@
 #define NU_TRY_CALL(func) (!func) ? NU_ERROR_NONE : func
 
 nu_error_t
-nu_renderer_create (nu_platform_t            *platform,
-                    const nu_renderer_info_t *info,
-                    nu_renderer_t            *renderer)
+nu_renderer_create (const nu_renderer_info_t *info, nu_renderer_t *renderer)
 {
     renderer->ptr = nu_alloc(info->allocator, sizeof(*renderer->ptr));
     renderer->ptr->_allocator = info->allocator;
+    renderer->ptr->_platform  = info->platform;
+    renderer->ptr->_logger    = info->logger;
 
     switch (info->api)
     {
@@ -55,44 +55,41 @@ nu_renderer_create (nu_platform_t            *platform,
             break;
     }
 
-    // Initialize logger
-    nu_logger_init(&info->logger, &renderer->ptr->_logger);
-
     // Initialize backend
-    NU_INFO(&renderer->ptr->_logger, "initialize renderer context");
+    NU_INFO(renderer->ptr->_logger, "initialize renderer context");
     nu_error_t error = NU_TRY_CALL(renderer->ptr->_api.init)(
-        renderer->ptr, platform->_surface.size);
+        renderer->ptr, renderer->ptr->_platform.ptr->_surface.size);
     NU_ERROR_CHECK(error, return error);
 
     // Create surface texture
     if (renderer->ptr->_api.create_surface_color)
     {
         renderer->ptr->_surface_color
-            = renderer->ptr->_api.create_surface_color(renderer->ptr,
-                                                       platform->_surface.size);
+            = renderer->ptr->_api.create_surface_color(
+                renderer->ptr, renderer->ptr->_platform.ptr->_surface.size);
     }
 
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_renderer_delete (nu_platform_t *platform, nu_renderer_t renderer)
+nu_renderer_delete (nu_renderer_t renderer)
 {
-    NU_INFO(&renderer.ptr->_logger, "terminate renderer context");
+    NU_INFO(renderer.ptr->_logger, "terminate renderer context");
     renderer.ptr->_api.free(renderer.ptr);
     nu_free(renderer.ptr->_allocator, renderer.ptr, sizeof(*renderer.ptr));
 
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_renderer_render (nu_platform_t *platform, nu_renderer_t renderer)
+nu_renderer_render (nu_renderer_t renderer)
 {
     return NU_TRY_CALL(renderer.ptr->_api.render)(
         renderer.ptr,
-        &platform->_surface.glfw.viewport.extent,
-        &platform->_surface.glfw.viewport.viewport);
+        &renderer.ptr->_platform.ptr->_surface.glfw.viewport.extent,
+        &renderer.ptr->_platform.ptr->_surface.glfw.viewport.viewport);
 }
-nu_texture_handle_t
-nu_surface_color_target (const nu_platform_t *platform, nu_renderer_t renderer)
+nu_texture_t
+nu_surface_color_target (nu_renderer_t renderer)
 {
     return renderer.ptr->_surface_color;
 }
@@ -100,19 +97,19 @@ nu_surface_color_target (const nu_platform_t *platform, nu_renderer_t renderer)
 nu_error_t
 nu_camera_create (nu_renderer_t           renderer,
                   const nu_camera_info_t *info,
-                  nu_camera_handle_t     *camera)
+                  nu_camera_t            *camera)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_camera)(
         renderer.ptr, info, camera);
 }
 nu_error_t
-nu_camera_delete (nu_renderer_t renderer, nu_camera_handle_t camera)
+nu_camera_delete (nu_renderer_t renderer, nu_camera_t camera)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_camera)(renderer.ptr, camera);
 }
 nu_error_t
 nu_camera_update (nu_renderer_t           renderer,
-                  nu_camera_handle_t      camera,
+                  nu_camera_t             camera,
                   const nu_camera_info_t *info)
 {
     return NU_TRY_CALL(renderer.ptr->_api.update_camera)(
@@ -122,13 +119,13 @@ nu_camera_update (nu_renderer_t           renderer,
 nu_error_t
 nu_mesh_create (nu_renderer_t         renderer,
                 const nu_mesh_info_t *info,
-                nu_mesh_handle_t     *mesh)
+                nu_mesh_t            *mesh)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_mesh)(
         renderer.ptr, info, mesh);
 }
 nu_error_t
-nu_mesh_delete (nu_renderer_t renderer, nu_mesh_handle_t mesh)
+nu_mesh_delete (nu_renderer_t renderer, nu_mesh_t mesh)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_mesh)(renderer.ptr, mesh);
 }
@@ -136,15 +133,15 @@ nu_mesh_delete (nu_renderer_t renderer, nu_mesh_handle_t mesh)
 nu_error_t
 nu_texture_create (nu_renderer_t            renderer,
                    const nu_texture_info_t *info,
-                   nu_texture_handle_t     *texture)
+                   nu_texture_t            *texture)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_texture)(
         renderer.ptr, info, texture);
 }
 nu_error_t
-nu_texture_create_color (nu_renderer_t        renderer,
-                         nu_color_t           color,
-                         nu_texture_handle_t *texture)
+nu_texture_create_color (nu_renderer_t renderer,
+                         nu_color_t    color,
+                         nu_texture_t *texture)
 {
     nu_error_t        error;
     nu_texture_info_t info;
@@ -155,7 +152,7 @@ nu_texture_create_color (nu_renderer_t        renderer,
     return nu_texture_create(renderer, &info, texture);
 }
 nu_error_t
-nu_texture_delete (nu_renderer_t renderer, nu_texture_handle_t texture)
+nu_texture_delete (nu_renderer_t renderer, nu_texture_t texture)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_texture)(renderer.ptr,
                                                           texture);
@@ -164,13 +161,13 @@ nu_texture_delete (nu_renderer_t renderer, nu_texture_handle_t texture)
 nu_error_t
 nu_cubemap_create (nu_renderer_t            renderer,
                    const nu_cubemap_info_t *info,
-                   nu_cubemap_handle_t     *cubemap)
+                   nu_cubemap_t            *cubemap)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_cubemap)(
         renderer.ptr, info, cubemap);
 }
 nu_error_t
-nu_cubemap_delete (nu_renderer_t renderer, nu_cubemap_handle_t cubemap)
+nu_cubemap_delete (nu_renderer_t renderer, nu_cubemap_t cubemap)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_cubemap)(renderer.ptr,
                                                           cubemap);
@@ -179,20 +176,20 @@ nu_cubemap_delete (nu_renderer_t renderer, nu_cubemap_handle_t cubemap)
 nu_error_t
 nu_material_create (nu_renderer_t             renderer,
                     const nu_material_info_t *info,
-                    nu_material_handle_t     *material)
+                    nu_material_t            *material)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_material)(
         renderer.ptr, info, material);
 }
 nu_error_t
-nu_material_delete (nu_renderer_t renderer, nu_material_handle_t material)
+nu_material_delete (nu_renderer_t renderer, nu_material_t material)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_material)(renderer.ptr,
                                                            material);
 }
 nu_error_t
 nu_material_update (nu_renderer_t             renderer,
-                    nu_material_handle_t      material,
+                    nu_material_t             material,
                     const nu_material_info_t *info)
 {
     return NU_TRY_CALL(renderer.ptr->_api.update_material)(
@@ -202,13 +199,13 @@ nu_material_update (nu_renderer_t             renderer,
 nu_error_t
 nu_renderpass_create (nu_renderer_t               renderer,
                       const nu_renderpass_info_t *info,
-                      nu_renderpass_handle_t     *pass)
+                      nu_renderpass_t            *pass)
 {
     return NU_TRY_CALL(renderer.ptr->_api.create_renderpass)(
         renderer.ptr, info, pass);
 }
 nu_error_t
-nu_renderpass_delete (nu_renderer_t renderer, nu_renderpass_handle_t pass)
+nu_renderpass_delete (nu_renderer_t renderer, nu_renderpass_t pass)
 {
     return NU_TRY_CALL(renderer.ptr->_api.delete_renderpass)(renderer.ptr,
                                                              pass);
@@ -216,7 +213,7 @@ nu_renderpass_delete (nu_renderer_t renderer, nu_renderpass_handle_t pass)
 
 void
 nu_renderpass_submit (nu_renderer_t                 renderer,
-                      nu_renderpass_handle_t        pass,
+                      nu_renderpass_t               pass,
                       const nu_renderpass_submit_t *info)
 {
     if (renderer.ptr->_api.submit_renderpass)
@@ -225,7 +222,7 @@ nu_renderpass_submit (nu_renderer_t                 renderer,
     }
 }
 void
-nu_renderpass_reset (nu_renderer_t renderer, nu_renderpass_handle_t pass)
+nu_renderpass_reset (nu_renderer_t renderer, nu_renderpass_t pass)
 {
     if (renderer.ptr->_api.reset_renderpass)
     {
@@ -233,11 +230,11 @@ nu_renderpass_reset (nu_renderer_t renderer, nu_renderpass_handle_t pass)
     }
 }
 void
-nu_draw_mesh (nu_renderer_t          renderer,
-              nu_renderpass_handle_t pass,
-              nu_material_handle_t   material,
-              nu_mesh_handle_t       mesh,
-              nu_mat4_t              transform)
+nu_draw_mesh (nu_renderer_t   renderer,
+              nu_renderpass_t pass,
+              nu_material_t   material,
+              nu_mesh_t       mesh,
+              nu_mat4_t       transform)
 {
     if (renderer.ptr->_api.draw_mesh)
     {
@@ -246,11 +243,11 @@ nu_draw_mesh (nu_renderer_t          renderer,
     }
 }
 void
-nu_draw_blit (nu_renderer_t          renderer,
-              nu_renderpass_handle_t pass,
-              nu_material_handle_t   material,
-              nu_rect_t              extent,
-              nu_rect_t              tex_extent)
+nu_draw_blit (nu_renderer_t   renderer,
+              nu_renderpass_t pass,
+              nu_material_t   material,
+              nu_rect_t       extent,
+              nu_rect_t       tex_extent)
 {
     if (renderer.ptr->_api.draw_blit)
     {

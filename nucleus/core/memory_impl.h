@@ -58,6 +58,12 @@ nuext_allocator_create_stdlib (nu_allocator_t *alloc)
     alloc->ptr->userdata = NU_NULL;
 }
 
+void
+nu_allocator_delete (nu_allocator_t alloc)
+{
+    free(alloc.ptr); // TODO: use callback to alloc/free itself
+}
+
 #endif
 
 void *

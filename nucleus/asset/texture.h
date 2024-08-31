@@ -6,10 +6,10 @@
 
 typedef struct
 {
-    nu_texture_handle_t handle;
-    nu_texture_info_t   info;
-    nu_bool_t           has_image;
-} nu_texture_t;
+    nu_texture_t      handle;
+    nu_texture_info_t info;
+    nu_bool_t         has_image;
+} nu_texture_asset_t;
 
 typedef struct
 {

@@ -20,9 +20,9 @@ typedef struct
 
 typedef struct
 {
-    nu_material_handle_t material;
-    nu_rect_t            extent;
-    nu_ui_margin_t       margin;
+    nu_material_t  material;
+    nu_rect_t      extent;
+    nu_ui_margin_t margin;
 } nu_ui_image_style_t;
 
 typedef struct
@@ -77,7 +77,7 @@ typedef nu_vec(nu__ui_style_t) nu__ui_style_vec_t;
 
 typedef struct
 {
-    nu_renderpass_handle_t renderpass;
+    nu_renderpass_t renderpass;
 } nu__ui_pass_t;
 
 typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
@@ -86,8 +86,8 @@ typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
 
 typedef struct
 {
-    nu_renderpass_handle_t active_renderpass;
-    nu_ui_controller_t     controllers[NU_UI_MAX_CONTROLLER];
+    nu_renderpass_t    _active_renderpass;
+    nu_ui_controller_t _controllers[NU_UI_MAX_CONTROLLER];
 
     nu_allocator_t _allocator;
 
@@ -104,34 +104,42 @@ typedef struct
     nu_u32_t      _active_controller;
     nu_u32_t      _hot_controller;
     nu_renderer_t _renderer;
-} nu_ui_t;
+} nu__ui_t;
 
-NU_API void nu_blit_sliced(nu_renderer_t          renderer,
-                           nu_renderpass_handle_t pass,
-                           nu_material_handle_t   handle,
-                           nu_rect_t              extent,
-                           nu_rect_t              tex_extent,
-                           nu_ui_margin_t         margin);
+typedef struct
+{
+    nu_allocator_t allocator;
+    nu_renderer_t  renderer;
+} nu_ui_info_t;
 
-NU_API nu_error_t nu_ui_init(nu_renderer_t  renderer,
-                             nu_allocator_t alloc,
-                             nu_ui_t       *ui);
-NU_API void       nu_ui_free(nu_ui_t *ui, nu_renderer_t renderer);
+NU_DEFINE_HANDLE_POINTER(nu_ui_t, nu__ui_t);
 
-NU_API void nu_ui_begin(nu_ui_t *ui, nu_renderer_t renderer);
-NU_API void nu_ui_end(nu_ui_t *ui);
-NU_API void nu_ui_submit_renderpasses(const nu_ui_t                *ui,
-                                      nu_renderer_t                 renderer,
+NU_API void nu_blit_sliced(nu_renderer_t   renderer,
+                           nu_renderpass_t pass,
+                           nu_material_t   handle,
+                           nu_rect_t       extent,
+                           nu_rect_t       tex_extent,
+                           nu_ui_margin_t  margin);
+
+NU_API nu_error_t nu_ui_create(const nu_ui_info_t *info, nu_ui_t *ui);
+NU_API void       nu_ui_delete(nu_ui_t ui);
+
+NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_ivec2_t pos);
+NU_API void nu_ui_set_pressed(nu_ui_t   ui,
+                              nu_u32_t  controller,
+                              nu_bool_t pressed);
+
+NU_API void nu_ui_begin(nu_ui_t ui);
+NU_API void nu_ui_end(nu_ui_t ui);
+NU_API void nu_ui_submit_renderpasses(nu_ui_t                       ui,
                                       const nu_renderpass_submit_t *info);
 
-NU_API void nu_ui_push_style(nu_ui_t *ui, nu_ui_style_t *style);
-NU_API void nu_ui_pop_style(nu_ui_t *ui);
+NU_API void nu_ui_push_style(nu_ui_t ui, nu_ui_style_t *style);
+NU_API void nu_ui_pop_style(nu_ui_t ui);
 
-NU_API nu_u32_t nu_ui_controller(const nu_ui_t *ui);
+NU_API nu_u32_t nu_ui_controller(nu_ui_t ui);
 
-NU_API nu_bool_t nu_ui_button(nu_ui_t *ui, nu_rect_t extent);
-NU_API nu_bool_t nu_ui_checkbox(nu_ui_t   *ui,
-                                nu_rect_t  extent,
-                                nu_bool_t *state);
+NU_API nu_bool_t nu_ui_button(nu_ui_t ui, nu_rect_t extent);
+NU_API nu_bool_t nu_ui_checkbox(nu_ui_t ui, nu_rect_t extent, nu_bool_t *state);
 
 #endif

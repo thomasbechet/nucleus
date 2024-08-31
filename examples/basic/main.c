@@ -20,11 +20,11 @@ static nu_renderer_t      renderer;
 static nu_asset_manager_t assets;
 static nu_logger_t        logger;
 
-static nu_input_handle_t draw;
-static nu_input_handle_t main_button;
-static nu_input_handle_t quit;
-static nu_input_handle_t cursor_x;
-static nu_input_handle_t cursor_y;
+static nu_input_t draw;
+static nu_input_t main_button;
+static nu_input_t quit;
+static nu_input_t cursor_x;
+static nu_input_t cursor_y;
 
 static nu_model_t temple_model;
 static nu_model_t ariane_model;
@@ -40,27 +40,36 @@ main (void)
     // Create allocator
     nuext_allocator_create_stdlib(&alloc);
 
+    // Create logger
+    {
+        nu_logger_info_t info;
+        info.allocator = alloc;
+        info.level     = NU_LOG_DEBUG;
+        error          = nu_logger_create(&info, &logger);
+        NU_ERROR_ASSERT(error);
+    }
+
     // Create platform
     {
-        nu_platform_info_t info = NU_PLATFORM_INFO_DEFAULT;
-        info.width              = WIDTH;
-        info.height             = HEIGHT;
-        error                   = nu_platform_init(&info, &platform);
+        nu_platform_info_t info;
+        info.width     = WIDTH;
+        info.height    = HEIGHT;
+        info.allocator = alloc;
+        info.logger    = logger;
+        error          = nu_platform_create(&info, &platform);
         NU_ERROR_ASSERT(error);
     }
 
     // Create renderer
     {
-        nu_renderer_info_t info = NU_RENDERER_INFO_DEFAULT;
-        info.allocator          = alloc;
-        info.api                = NU_RENDERER_GL;
-        error = nu_renderer_create(&platform, &info, &renderer);
+        nu_renderer_info_t info;
+        info.allocator = alloc;
+        info.api       = NU_RENDERER_GL;
+        info.platform  = platform;
+        info.logger    = logger;
+        error          = nu_renderer_create(&info, &renderer);
         NU_ERROR_ASSERT(error);
     }
-
-    // Create logger
-    error = nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
-    NU_ERROR_ASSERT(error);
 
     // Create asset manager
     error = nu_asset_manager_init(alloc, &assets);
@@ -75,75 +84,73 @@ main (void)
 
     // Configure inputs
     {
-        error &= nu_input_create(&platform, &draw);
-        error &= nu_input_create(&platform, &main_button);
-        error &= nu_input_create(&platform, &quit);
-        error &= nu_input_create(&platform, &cursor_x);
-        error &= nu_input_create(&platform, &cursor_y);
-        error &= nu_input_create(&platform, &controller.move_forward);
-        error &= nu_input_create(&platform, &controller.move_backward);
-        error &= nu_input_create(&platform, &controller.move_left);
-        error &= nu_input_create(&platform, &controller.move_right);
-        error &= nu_input_create(&platform, &controller.move_up);
-        error &= nu_input_create(&platform, &controller.move_down);
-        error &= nu_input_create(&platform, &controller.view_pitch_neg);
-        error &= nu_input_create(&platform, &controller.view_pitch_pos);
-        error &= nu_input_create(&platform, &controller.view_yaw_neg);
-        error &= nu_input_create(&platform, &controller.view_yaw_pos);
-        error &= nu_input_create(&platform, &controller.view_roll_neg);
-        error &= nu_input_create(&platform, &controller.view_roll_pos);
-        error &= nu_input_create(&platform, &controller.switch_mode);
+        error &= nu_input_create(platform, &draw);
+        error &= nu_input_create(platform, &main_button);
+        error &= nu_input_create(platform, &quit);
+        error &= nu_input_create(platform, &cursor_x);
+        error &= nu_input_create(platform, &cursor_y);
+        error &= nu_input_create(platform, &controller.move_forward);
+        error &= nu_input_create(platform, &controller.move_backward);
+        error &= nu_input_create(platform, &controller.move_left);
+        error &= nu_input_create(platform, &controller.move_right);
+        error &= nu_input_create(platform, &controller.move_up);
+        error &= nu_input_create(platform, &controller.move_down);
+        error &= nu_input_create(platform, &controller.view_pitch_neg);
+        error &= nu_input_create(platform, &controller.view_pitch_pos);
+        error &= nu_input_create(platform, &controller.view_yaw_neg);
+        error &= nu_input_create(platform, &controller.view_yaw_pos);
+        error &= nu_input_create(platform, &controller.view_roll_neg);
+        error &= nu_input_create(platform, &controller.view_roll_pos);
+        error &= nu_input_create(platform, &controller.switch_mode);
         NU_ERROR_ASSERT(error);
     }
 
     // Bind inputs
     {
         error &= nuext_input_bind_button(
-            &platform, main_button, NUEXT_BUTTON_MOUSE_1);
-        error &= nuext_input_bind_button(&platform, quit, NUEXT_BUTTON_ESCAPE);
-        error &= nuext_input_bind_axis(&platform, cursor_x, NUEXT_AXIS_MOUSE_X);
-        error &= nuext_input_bind_axis(&platform, cursor_y, NUEXT_AXIS_MOUSE_Y);
+            platform, main_button, NUEXT_BUTTON_MOUSE_1);
+        error &= nuext_input_bind_button(platform, quit, NUEXT_BUTTON_ESCAPE);
+        error &= nuext_input_bind_axis(platform, cursor_x, NUEXT_AXIS_MOUSE_X);
+        error &= nuext_input_bind_axis(platform, cursor_y, NUEXT_AXIS_MOUSE_Y);
         error &= nuext_input_bind_button(
-            &platform, controller.move_forward, NUEXT_BUTTON_W);
+            platform, controller.move_forward, NUEXT_BUTTON_W);
         error &= nuext_input_bind_button(
-            &platform, controller.move_backward, NUEXT_BUTTON_S);
+            platform, controller.move_backward, NUEXT_BUTTON_S);
         error &= nuext_input_bind_button(
-            &platform, controller.move_left, NUEXT_BUTTON_A);
+            platform, controller.move_left, NUEXT_BUTTON_A);
         error &= nuext_input_bind_button(
-            &platform, controller.move_right, NUEXT_BUTTON_D);
+            platform, controller.move_right, NUEXT_BUTTON_D);
         error &= nuext_input_bind_button(
-            &platform, controller.move_up, NUEXT_BUTTON_X);
+            platform, controller.move_up, NUEXT_BUTTON_X);
         error &= nuext_input_bind_button(
-            &platform, controller.move_down, NUEXT_BUTTON_Z);
-        error &= nuext_input_bind_axis(&platform,
-                                       controller.view_pitch_neg,
-                                       NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
-        error &= nuext_input_bind_axis(&platform,
-                                       controller.view_pitch_pos,
-                                       NUEXT_AXIS_MOUSE_MOTION_Y_POS);
+            platform, controller.move_down, NUEXT_BUTTON_Z);
         error &= nuext_input_bind_axis(
-            &platform, controller.view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
+            platform, controller.view_pitch_neg, NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
         error &= nuext_input_bind_axis(
-            &platform, controller.view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
+            platform, controller.view_pitch_pos, NUEXT_AXIS_MOUSE_MOTION_Y_POS);
+        error &= nuext_input_bind_axis(
+            platform, controller.view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
+        error &= nuext_input_bind_axis(
+            platform, controller.view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_pitch_neg, NUEXT_BUTTON_K, 0.08);
+            platform, controller.view_pitch_neg, NUEXT_BUTTON_K, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_pitch_pos, NUEXT_BUTTON_J, 0.08);
+            platform, controller.view_pitch_pos, NUEXT_BUTTON_J, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_yaw_neg, NUEXT_BUTTON_H, 0.08);
+            platform, controller.view_yaw_neg, NUEXT_BUTTON_H, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_yaw_pos, NUEXT_BUTTON_L, 0.08);
+            platform, controller.view_yaw_pos, NUEXT_BUTTON_L, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_roll_neg, NUEXT_BUTTON_E, 0.08);
+            platform, controller.view_roll_neg, NUEXT_BUTTON_E, 0.08);
         error &= nuext_input_bind_button_value(
-            &platform, controller.view_roll_pos, NUEXT_BUTTON_Q, 0.08);
+            platform, controller.view_roll_pos, NUEXT_BUTTON_Q, 0.08);
         error &= nuext_input_bind_button(
-            &platform, controller.switch_mode, NUEXT_BUTTON_C);
+            platform, controller.switch_mode, NUEXT_BUTTON_C);
         NU_ERROR_ASSERT(error);
     }
 
     // Create depth buffer
-    nu_texture_handle_t depth_buffer;
+    nu_texture_t depth_buffer;
     {
         nu_texture_info_t info;
         info.usage  = NU_TEXTURE_USAGE_TARGET;
@@ -154,7 +161,7 @@ main (void)
     }
 
     // Create cube
-    nu_mesh_handle_t cube_mesh;
+    nu_mesh_t cube_mesh;
     {
         nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
         nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
@@ -169,9 +176,9 @@ main (void)
     }
 
     // Load resources
-    nu_texture_handle_t texture;
-    nu_texture_handle_t texture_white;
-    nu_texture_handle_t texture_gui;
+    nu_texture_t texture;
+    nu_texture_t texture_white;
+    nu_texture_t texture_gui;
     {
         nu_image_t image;
         error = nuext_load_image_filename(
@@ -200,10 +207,10 @@ main (void)
     }
 
     // Create material
-    nu_material_handle_t material;
-    nu_material_handle_t material_white;
-    nu_material_handle_t material_gui;
-    nu_material_handle_t material_gui_repeat;
+    nu_material_t material;
+    nu_material_t material_white;
+    nu_material_t material_gui;
+    nu_material_t material_gui_repeat;
     {
         nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
         info.mesh.color0        = &texture;
@@ -230,7 +237,7 @@ main (void)
     // Load temple
     {
         nu_gltf_loader_t loader;
-        nu_gltf_loader_init(alloc, &logger, &loader);
+        nu_gltf_loader_init(alloc, logger, &loader);
 
         error = nuext_gltf_load_model_filename(
             &loader,
@@ -251,7 +258,7 @@ main (void)
     }
 
     // Load cubemap
-    nu_cubemap_handle_t skybox;
+    nu_cubemap_t skybox;
     {
         const nu_char_t *filenames[] = {
             "../../../assets/skyboxes/vz_clear_ocean_up.png",
@@ -290,15 +297,15 @@ main (void)
     NU_ERROR_ASSERT(error);
 
     // Create camera
-    nu_camera_handle_t camera;
-    nu_camera_info_t   camera_info = NU_CAMERA_INFO_DEFAULT;
+    nu_camera_t      camera;
+    nu_camera_info_t camera_info = NU_CAMERA_INFO_DEFAULT;
     error = nu_camera_create(renderer, &camera_info, &camera);
     NU_ERROR_ASSERT(error);
 
     // Create renderpasses
-    nu_renderpass_handle_t main_pass;
-    nu_renderpass_handle_t skybox_pass;
-    nu_renderpass_handle_t gui_pass;
+    nu_renderpass_t main_pass;
+    nu_renderpass_t skybox_pass;
+    nu_renderpass_t gui_pass;
     {
         nu_renderpass_info_t info;
 
@@ -319,8 +326,13 @@ main (void)
 
     // Create UI
     nu_ui_t ui;
-    error = nu_ui_init(renderer, alloc, &ui);
-    NU_ERROR_ASSERT(error);
+    {
+        nu_ui_info_t info;
+        info.allocator = alloc;
+        info.renderer  = renderer;
+        error          = nu_ui_create(&info, &ui);
+        NU_ERROR_ASSERT(error);
+    }
 
     nu_ui_style_t button_style;
     button_style.type                     = NU_UI_BUTTON;
@@ -333,7 +345,7 @@ main (void)
     button_style.button.hovered.material  = material_gui_repeat;
     button_style.button.hovered.extent    = nu_rect(113, 113, 30, 14);
     button_style.button.hovered.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
-    nu_ui_push_style(&ui, &button_style);
+    nu_ui_push_style(ui, &button_style);
     nu_ui_style_t checkbox_style;
     checkbox_style.type                      = NU_UI_CHECKBOX;
     checkbox_style.checkbox.checked.material = material_gui_repeat;
@@ -342,13 +354,13 @@ main (void)
     checkbox_style.checkbox.unchecked.material = material_gui_repeat;
     checkbox_style.checkbox.unchecked.extent   = nu_rect(81, 257, 14, 14);
     checkbox_style.checkbox.unchecked.margin = (nu_ui_margin_t) { 2, 4, 2, 2 };
-    nu_ui_push_style(&ui, &checkbox_style);
+    nu_ui_push_style(ui, &checkbox_style);
     nu_ui_style_t cursor_style;
     cursor_style.type                  = NU_UI_CURSOR;
     cursor_style.cursor.image.material = material_gui_repeat;
     cursor_style.cursor.image.extent   = nu_rect(98, 38, 3, 3);
     cursor_style.cursor.image.margin   = (nu_ui_margin_t) { 0, 0, 0, 0 };
-    nu_ui_push_style(&ui, &cursor_style);
+    nu_ui_push_style(ui, &cursor_style);
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
@@ -364,7 +376,7 @@ main (void)
     float     time       = 0;
     nu_bool_t bool_state = NU_TRUE;
 
-    while (!nu_platform_exit_requested(&platform) && running)
+    while (!nu_platform_exit_requested(platform) && running)
     {
         nu_fixed_loop_update(loops, 2, delta);
         nu_u32_t id;
@@ -386,17 +398,16 @@ main (void)
         time += delta;
 
         // Poll events
-        nu_platform_poll_events(&platform);
+        nu_platform_poll_events(platform);
 
         // Check exit
-        if (nu_input_just_pressed(&platform, quit))
+        if (nu_input_just_pressed(quit))
         {
             running = NU_FALSE;
         }
 
         // Update camera controller
-        nu_camera_controller_update(
-            &controller, &platform, delta, &camera_info);
+        nu_camera_controller_update(&controller, delta, &camera_info);
         nu_camera_update(renderer, camera, &camera_info);
 
         // Render loop
@@ -463,21 +474,19 @@ main (void)
 
         // GUI
         {
-            ui.controllers[0].active = NU_TRUE;
-            ui.controllers[0].cursor
-                = nuext_platform_cursor(&platform, cursor_x, cursor_y);
-            ui.controllers[0].main_pressed
-                = nu_input_pressed(&platform, main_button);
-            nu_ui_begin(&ui, renderer);
-            if (nu_ui_button(&ui, nu_rect(300, 100, 60, 20)))
+            nu_ui_set_cursor(
+                ui, 0, nuext_platform_cursor(platform, cursor_x, cursor_y));
+            nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
+            nu_ui_begin(ui);
+            if (nu_ui_button(ui, nu_rect(300, 100, 60, 20)))
             {
-                NU_INFO(&logger, "button pressed !");
+                NU_INFO(logger, "button pressed !");
             }
-            if (nu_ui_checkbox(&ui, nu_rect(300, 300, 14, 14), &bool_state))
+            if (nu_ui_checkbox(ui, nu_rect(300, 300, 14, 14), &bool_state))
             {
-                NU_INFO(&logger, "checkbox changed %d", bool_state);
+                NU_INFO(logger, "checkbox changed %d", bool_state);
             }
-            nu_ui_end(&ui);
+            nu_ui_end(ui);
         }
 
         // Print FPS
@@ -505,9 +514,8 @@ main (void)
         // Submit renderpass
         nu_renderpass_submit_t submit;
 
-        nu_texture_handle_t surface_tex
-            = nu_surface_color_target(&platform, renderer);
-        nu_color_t clear_color = NU_COLOR_BLUE_SKY;
+        nu_texture_t surface_tex = nu_surface_color_target(renderer);
+        nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
         submit.flat.camera       = camera;
         submit.flat.color_target = &surface_tex;
@@ -526,13 +534,13 @@ main (void)
         nu_renderpass_submit(renderer, gui_pass, &submit);
 
         submit.canvas.color_target = &surface_tex;
-        nu_ui_submit_renderpasses(&ui, renderer, &submit);
+        nu_ui_submit_renderpasses(ui, &submit);
 
         // Render
-        nu_renderer_render(&platform, renderer);
+        nu_renderer_render(renderer);
 
         // Refresh surface
-        nu_platform_swap_buffers(&platform);
+        nu_platform_swap_buffers(platform);
     }
 
     // Free cube
@@ -541,8 +549,8 @@ main (void)
     error = nu_renderpass_delete(renderer, main_pass);
     NU_ERROR_ASSERT(error);
 
-    nu_renderer_delete(&platform, renderer);
-    nu_platform_free(&platform);
+    nu_renderer_delete(renderer);
+    nu_platform_delete(platform);
 
     return 0;
 }

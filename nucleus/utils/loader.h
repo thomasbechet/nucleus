@@ -15,14 +15,14 @@ typedef nu_vec(nu__gltf_model_cache_t) nu__gltf_model_cache_vec_t;
 typedef struct
 {
     nu_allocator_t             _allocator;
-    nu_logger_t               *_logger;
+    nu_logger_t                _logger;
     nu__gltf_model_cache_vec_t _cache;
     nu_bool_t                  _has_default_material;
     nu_u32_t                   _default_material;
 } nu_gltf_loader_t;
 
 NU_API nu_error_t nu_gltf_loader_init(nu_allocator_t    alloc,
-                                      nu_logger_t      *logger,
+                                      nu_logger_t       logger,
                                       nu_gltf_loader_t *loader);
 NU_API void       nu_gltf_loader_free(nu_gltf_loader_t *loader);
 

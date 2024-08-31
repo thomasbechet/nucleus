@@ -19,20 +19,17 @@ nu_camera_controller_init (nu_camera_controller_t *controller)
 }
 void
 nu_camera_controller_update (nu_camera_controller_t *controller,
-                             const nu_platform_t    *platform,
                              float                   dt,
                              nu_camera_info_t       *info)
 {
-    nu_vec3_t look = nu_input_axis3d(platform,
-                                     controller->view_yaw_neg,
+    nu_vec3_t look = nu_input_axis3d(controller->view_yaw_neg,
                                      controller->view_yaw_pos,
                                      controller->view_pitch_pos,
                                      controller->view_pitch_neg,
                                      controller->view_roll_pos,
                                      controller->view_roll_neg,
                                      NU_FALSE);
-    nu_vec3_t move = nu_input_axis3d(platform,
-                                     controller->move_left,
+    nu_vec3_t move = nu_input_axis3d(controller->move_left,
                                      controller->move_right,
                                      controller->move_up,
                                      controller->move_down,
@@ -41,7 +38,7 @@ nu_camera_controller_update (nu_camera_controller_t *controller,
                                      NU_TRUE);
 
     // Switch mode
-    if (nu_input_just_pressed(platform, controller->switch_mode))
+    if (nu_input_just_pressed(controller->switch_mode))
     {
         controller->_free_mode = !controller->_free_mode;
     }

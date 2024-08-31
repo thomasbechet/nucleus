@@ -2,11 +2,7 @@
 #define NU_LOGGER_H
 
 #include <nucleus/core/config.h>
-
-typedef struct
-{
-    nu_u32_t todo;
-} nu__logger_t;
+#include <nucleus/core/memory.h>
 
 typedef enum
 {
@@ -20,35 +16,33 @@ typedef enum
 typedef struct
 {
     nu_log_level_t level;
+    nu_allocator_t allocator;
 } nu_logger_info_t;
 
 typedef struct
 {
-    nu_log_level_t level;
-} nu_logger_t;
+    nu_log_level_t _level;
+    nu_allocator_t _allocator;
+} nu__logger_t;
 
-NU_API nu_error_t nu_logger_init(const nu_logger_info_t *info,
-                                 nu_logger_t            *logger);
-NU_API nu_error_t nu_logger_free(nu_logger_t *logger);
+NU_DEFINE_HANDLE_POINTER(nu_logger_t, nu__logger_t);
 
-NU_API void nu_log(nu_logger_t     *logger,
+NU_API nu_error_t nu_logger_create(const nu_logger_info_t *info,
+                                   nu_logger_t            *logger);
+NU_API nu_error_t nu_logger_delete(nu_logger_t logger);
+
+NU_API void nu_log(nu_logger_t      logger,
                    nu_log_level_t   level,
                    const nu_char_t *filename,
                    nu_size_t        fileline,
                    const nu_char_t *format,
                    ...);
-NU_API void nu_vlog(nu_logger_t     *logger,
+NU_API void nu_vlog(nu_logger_t      logger,
                     nu_log_level_t   level,
                     const nu_char_t *filename,
                     nu_size_t        fileline,
                     const nu_char_t *format,
                     va_list          args);
-
-#define NU_LOGGER_INFO_DEFAULT \
-    (nu_logger_info_t)         \
-    {                          \
-        .level = NU_LOG_DEBUG  \
-    }
 
 #define __FILENAME__ \
     (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)

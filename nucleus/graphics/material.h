@@ -11,15 +11,15 @@ typedef enum
 
 typedef struct
 {
-    const nu_texture_handle_t *color0;
-    const nu_texture_handle_t *color1;
-    nu_mat3_t                  uv_transform;
+    const nu_texture_t *color0;
+    const nu_texture_t *color1;
+    nu_mat3_t           uv_transform;
 } nu_material_mesh_t;
 
 typedef struct
 {
-    const nu_texture_handle_t *color0;
-    nu_texture_wrap_mode_t     wrap_mode;
+    const nu_texture_t    *color0;
+    nu_texture_wrap_mode_t wrap_mode;
 } nu_material_canvas_t;
 
 typedef struct
@@ -45,6 +45,6 @@ typedef struct
         .canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP             \
     }
 
-NU_DEFINE_HANDLE(nu_material_handle_t);
+NU_DEFINE_HANDLE(nu_material_t);
 
 #endif

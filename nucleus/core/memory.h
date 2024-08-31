@@ -32,4 +32,6 @@ NU_API void *nu_memalign(void *ptr, nu_size_t align);
 NU_API void nuext_allocator_create_stdlib(nu_allocator_t *alloc);
 #endif
 
+NU_API void nu_allocator_delete(nu_allocator_t alloc);
+
 #endif

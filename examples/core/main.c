@@ -8,9 +8,12 @@ static nu_logger_t    logger;
 int
 main (void)
 {
-    nu_logger_init(&NU_LOGGER_INFO_DEFAULT, &logger);
-
     nuext_allocator_create_stdlib(&alloc);
+
+    nu_logger_info_t info;
+    info.level     = NU_LOG_DEBUG;
+    info.allocator = alloc;
+    nu_logger_create(&info, &logger);
 
     {
         nu_u32_vec_t v;
@@ -21,14 +24,14 @@ main (void)
         }
         for (nu_size_t i = 0; i < 50; ++i)
         {
-            NU_INFO(&logger, "%d", v.data[i]);
+            NU_INFO(logger, "%d", v.data[i]);
         }
     }
 
     nu_vec3_t v = NU_VEC3_ONE;
-    NU_INFO(&logger, NU_VEC3_FORMAT, v.x, v.y, v.z);
+    NU_INFO(logger, NU_VEC3_FORMAT, v.x, v.y, v.z);
 
-    nu_logger_free(&logger);
+    nu_logger_delete(logger);
 
     return 0;
 }

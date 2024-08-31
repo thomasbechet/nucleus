@@ -59,7 +59,7 @@ typedef struct
     nuglfw__surface_t glfw;
 #endif
     nu_uvec2_t size;
-} nu__surface_t;
+} nu__platform_surface_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                         Input Types                          //////
@@ -74,8 +74,6 @@ typedef struct
     float value;
     float previous;
 } nu__input_state_t;
-
-NU_DEFINE_HANDLE(nu_input_handle_t);
 
 typedef enum
 {
@@ -181,8 +179,8 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t id;
-    nu_u32_t next;
+    nu__input_state_t *state;
+    nu_u32_t           next;
     union
     {
         nuglfw__binding_button_t button;
@@ -190,20 +188,12 @@ typedef struct
     };
 } nuglfw__binding_t;
 
-typedef union
-{
-    nu__input_state_t state;
-    nu_u32_t          free;
-} nuglfw__input_state_t;
-
 typedef struct
 {
-    nu_u32_t              free_binding;
-    nu_u32_t              free_input;
-    nuglfw__binding_t     bindings[NUGLFW_MAX_BINDING];
-    nuglfw__input_state_t inputs[NUGLFW_MAX_INPUT];
-    nu_u32_t              input_count;
-    nu_u32_t              key_to_first_binding[NUGLFW_MAX_KEY_COUNT];
+    nu_u32_t          free_binding;
+    nu_u32_t          first_binding;
+    nuglfw__binding_t bindings[NUGLFW_MAX_BINDING];
+    nu_u32_t          key_to_first_binding[NUGLFW_MAX_KEY_COUNT];
     nu_u32_t  mouse_button_to_first_binding[NUGLFW_MAX_MOUSE_BUTTON_COUNT];
     nu_u32_t  mouse_x_first_binding;
     nu_u32_t  mouse_y_first_binding;
@@ -225,7 +215,7 @@ typedef struct
 #ifdef NU_BUILD_GLFW
     nuglfw__input_t glfw;
 #endif
-} nu__input_t;
+} nu__platform_input_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Context Types                          //////
@@ -233,29 +223,27 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t         width;
-    nu_u32_t         height;
-    nu_logger_info_t logger;
+    nu_u32_t       width;
+    nu_u32_t       height;
+    nu_allocator_t allocator;
+    nu_logger_t    logger;
 } nu_platform_info_t;
 
 typedef struct
 {
-    nu_bool_t     _close_requested;
-    nu_logger_t   _logger;
-    nu__surface_t _surface;
-    nu__input_t   _input;
-} nu_platform_t;
+    nu_bool_t              _close_requested;
+    nu_logger_t            _logger;
+    nu__platform_surface_t _surface;
+    nu__platform_input_t   _input;
+    nu_allocator_t         _allocator;
+} nu__platform_t;
 
-#define NU_PLATFORM_INFO_DEFAULT                                      \
-    (nu_platform_info_t)                                              \
-    {                                                                 \
-        .width = 640, .height = 400, .logger = NU_LOGGER_INFO_DEFAULT \
-    }
+NU_DEFINE_HANDLE_POINTER(nu_platform_t, nu__platform_t);
 
-NU_API nu_error_t nu_platform_init(const nu_platform_info_t *info,
-                                   nu_platform_t            *platform);
-NU_API nu_error_t nu_platform_free(nu_platform_t *platform);
-NU_API nu_error_t nu_platform_poll_events(nu_platform_t *platform);
-NU_API nu_bool_t  nu_platform_exit_requested(const nu_platform_t *platform);
+NU_API nu_error_t nu_platform_create(const nu_platform_info_t *info,
+                                     nu_platform_t            *platform);
+NU_API nu_error_t nu_platform_delete(nu_platform_t platform);
+NU_API nu_error_t nu_platform_poll_events(nu_platform_t platform);
+NU_API nu_bool_t  nu_platform_exit_requested(nu_platform_t platform);
 
 #endif
