@@ -10,9 +10,9 @@
 nu_error_t
 nu_input_create (nu_platform_t platform, nu_input_t *input)
 {
-    input->_ptr        = (nu__input_state_t *)nu_alloc(platform._ptr->allocator,
-                                                sizeof(*input->_ptr));
-    input->_ptr->value = NU_INPUT_RELEASED;
+    input->_ptr           = (nu__input_t *)nu_alloc(platform._ptr->allocator,
+                                          sizeof(*input->_ptr));
+    input->_ptr->value    = NU_INPUT_RELEASED;
     input->_ptr->previous = NU_INPUT_RELEASED;
     return NU_ERROR_NONE;
 }

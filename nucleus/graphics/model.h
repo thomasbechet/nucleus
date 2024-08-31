@@ -22,15 +22,18 @@ typedef nu_vec(nu__model_node_t) nu__model_node_vec_t;
 
 typedef struct
 {
+    nu_allocator_t        allocator;
     nu__model_asset_vec_t assets;
     nu__model_node_vec_t  nodes;
-} nu_model_t;
+} nu__model_t;
 
-NU_API void nu_model_init(nu_allocator_t alloc, nu_model_t *model);
-NU_API void nu_model_free(nu_model_t *model, nu_allocator_t alloc);
-NU_API void nu_draw_model(nu_renderer_t     renderer,
-                          nu_renderpass_t   pass,
-                          const nu_model_t *model,
-                          nu_mat4_t         transform);
+NU_DEFINE_HANDLE_POINTER(nu_model_t, nu__model_t);
+
+NU_API void nu_model_create(nu_allocator_t alloc, nu_model_t *model);
+NU_API void nu_model_delete(nu_model_t model);
+NU_API void nu_draw_model(nu_renderer_t   renderer,
+                          nu_renderpass_t pass,
+                          nu_model_t      model,
+                          nu_mat4_t       transform);
 
 #endif

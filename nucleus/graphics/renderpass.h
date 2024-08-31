@@ -17,73 +17,43 @@ typedef enum
 
 typedef struct
 {
-    int todo;
-} nu_renderpass_unlit_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_flat_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_transparent_info_t;
-
-typedef struct
-{
-    int todo;
-} nu_renderpass_skybox_info_t;
-
-typedef struct
-{
     nu_renderpass_type_t type;
     nu_bool_t            reset_after_submit;
     union
     {
-        nu_renderpass_unlit_info_t       unlit;
-        nu_renderpass_flat_info_t        flat;
-        nu_renderpass_transparent_info_t transparent;
+        nu_u32_t todo;
     };
 } nu_renderpass_info_t;
 
-typedef struct
-{
-    nu_camera_t         camera;
-    const nu_texture_t *color_target;
-    const nu_texture_t *depth_target;
-    nu_color_t         *clear_color;
-    nu_cubemap_t       *clear_skybox;
-} nu_renderpass_submit_unlit_t;
-
-typedef struct
-{
-    nu_camera_t         camera;
-    const nu_texture_t *color_target;
-    const nu_texture_t *depth_target;
-    nu_color_t         *clear_color;
-} nu_renderpass_submit_flat_t;
-
-typedef struct
-{
-    nu_camera_t         camera;
-    const nu_texture_t *color_target;
-    const nu_texture_t *depth_target;
-    nu_cubemap_t        cubemap;
-    nu_quat_t           rotation;
-} nu_renderpass_submit_skybox_t;
-
-typedef struct
-{
-    const nu_texture_t *color_target;
-} nu_renderpass_submit_canvas_t;
-
 typedef union
 {
-    nu_renderpass_submit_unlit_t  unlit;
-    nu_renderpass_submit_flat_t   flat;
-    nu_renderpass_submit_skybox_t skybox;
-    nu_renderpass_submit_canvas_t canvas;
+    struct
+    {
+        nu_camera_t         camera;
+        const nu_texture_t *color_target;
+        const nu_texture_t *depth_target;
+        nu_color_t         *clear_color;
+        nu_cubemap_t       *clear_skybox;
+    } unlit;
+    struct
+    {
+        nu_camera_t         camera;
+        const nu_texture_t *color_target;
+        const nu_texture_t *depth_target;
+        nu_color_t         *clear_color;
+    } flat;
+    struct
+    {
+        nu_camera_t         camera;
+        const nu_texture_t *color_target;
+        const nu_texture_t *depth_target;
+        nu_cubemap_t        cubemap;
+        nu_quat_t           rotation;
+    } skybox;
+    struct
+    {
+        const nu_texture_t *color_target;
+    } canvas;
 } nu_renderpass_submit_t;
 
 NU_DEFINE_HANDLE(nu_renderpass_t);

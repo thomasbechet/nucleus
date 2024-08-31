@@ -112,9 +112,9 @@ nuglfw__dispatch_binding_axis (nuglfw__input_t *backend,
     }
 }
 static nu_bool_t
-nuglfw__find_binding (nuglfw__input_t   *backend,
-                      nu_u32_t           binding,
-                      nu__input_state_t *state)
+nuglfw__find_binding (nuglfw__input_t *backend,
+                      nu_u32_t         binding,
+                      nu__input_t     *state)
 {
     nu_u32_t current = binding;
     while (current != NUGLFW_ID_NONE)
@@ -390,9 +390,9 @@ nuglfw__poll_events (nuglfw__input_t   *ctx,
         nu_u32_t current = ctx->first_binding;
         while (current != NUGLFW_ID_NONE)
         {
-            nu__input_state_t *state = ctx->bindings[current].state;
-            state->previous          = state->value;
-            current                  = ctx->bindings[current].next;
+            nu__input_t *state = ctx->bindings[current].state;
+            state->previous    = state->value;
+            current            = ctx->bindings[current].next;
         }
 
         // Reset mouse scroll

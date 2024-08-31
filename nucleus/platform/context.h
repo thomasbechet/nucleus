@@ -73,7 +73,7 @@ typedef struct
 {
     float value;
     float previous;
-} nu__input_state_t;
+} nu__input_t;
 
 typedef enum
 {
@@ -179,8 +179,8 @@ typedef struct
 
 typedef struct
 {
-    nu__input_state_t *state;
-    nu_u32_t           next;
+    nu__input_t *state;
+    nu_u32_t     next;
     union
     {
         nuglfw__binding_button_t button;
