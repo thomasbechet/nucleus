@@ -5,79 +5,83 @@
 #include <nucleus/asset/texture.h>
 
 nu_error_t
-nu_asset_manager_init (nu_allocator_t alloc, nu_asset_manager_t *manager)
+nu_asset_manager_create (nu_allocator_t alloc, nu_asset_manager_t *manager)
 {
     nu_error_t error;
 
-    manager->_allocator = alloc;
-    nu_pool_init(&manager->_entries, alloc, 10);
+    manager->_ptr
+        = (nu__asset_manager_t *)nu_alloc(alloc, sizeof(*manager->_ptr));
+    manager->_ptr->allocator = alloc;
+    nu_pool_init(&manager->_ptr->entries, alloc, 10);
 
     for (nu_size_t i = 0; i < NU_ASSET_TYPE_MAX; ++i)
     {
-        manager->_types[i].size          = 0;
-        manager->_types[i].loader.loader = NU_NULL;
+        manager->_ptr->types[i].size          = 0;
+        manager->_ptr->types[i].loader.loader = NU_NULL;
     }
 
     return NU_ERROR_NONE;
 }
 void
-nu_asset_manager_free (nu_asset_manager_t *manager)
+nu_asset_manager_delete (nu_asset_manager_t manager)
 {
     // Free base loaders
-    if (manager->_types[NU_ASSET_TEXTURE].loader.loader)
+    if (manager._ptr->types[NU_ASSET_TEXTURE].loader.loader)
     {
-        nu_texture_loader_free(&manager->_types[NU_ASSET_TEXTURE].loader,
-                               manager->_allocator);
+        nu_texture_loader_free(&manager._ptr->types[NU_ASSET_TEXTURE].loader,
+                               manager._ptr->allocator);
     }
-    nu_pool_free(&manager->_entries, manager->_allocator);
+    nu_pool_free(&manager._ptr->entries, manager._ptr->allocator);
+    nu_free(manager._ptr->allocator, manager._ptr, sizeof(*manager._ptr));
 }
 nu_error_t
-nu_asset_register_base_loaders (nu_asset_manager_t *manager,
-                                nu_platform_t      *platform,
-                                nu_renderer_t       renderer)
+nu_asset_register_base_loaders (nu_asset_manager_t manager,
+                                nu_platform_t      platform,
+                                nu_renderer_t      renderer)
 {
     nu_error_t error;
-    error = nu_texture_loader_init(manager->_allocator,
-                                   renderer,
-                                   &manager->_types[NU_ASSET_TEXTURE].loader);
+    error
+        = nu_texture_loader_init(manager._ptr->allocator,
+                                 renderer,
+                                 &manager._ptr->types[NU_ASSET_TEXTURE].loader);
     NU_ERROR_CHECK(error, return error);
     return NU_ERROR_NONE;
 }
 
 void *
-nu_asset_add (nu_asset_manager_t *manager,
-              nu_asset_type_t     type,
-              nu_uid_t            uid,
-              nu_asset_handle_t  *handle)
+nu_asset_add (nu_asset_manager_t manager,
+              nu_asset_type_t    type,
+              nu_uid_t           uid,
+              nu_asset_handle_t *handle)
 {
-    nu__asset_type_t *t = manager->_types + type;
+    nu__asset_type_t *t = manager._ptr->types + type;
 
     nu_u32_t           index;
     nu__asset_entry_t *entry
-        = nu_pool_add(&manager->_entries, manager->_allocator, &index);
+        = nu_pool_add(&manager._ptr->entries, manager._ptr->allocator, &index);
     entry->type = type;
     entry->uid  = uid;
-    entry->data = nu_alloc(manager->_allocator, t->size);
+    entry->data = nu_alloc(manager._ptr->allocator, t->size);
     entry->used = NU_TRUE;
     nu_memset(entry->data, 0, t->size);
 
     if (handle)
     {
-        handle->index = index;
+        handle->_index = index;
     }
 
     return entry->data;
 }
 void *
-nu_asset_get (nu_asset_manager_t *manager, nu_asset_handle_t handle)
+nu_asset_get (nu_asset_manager_t manager, nu_asset_handle_t handle)
 {
-    return manager->_entries.data + handle.index;
+    return manager._ptr->entries.data + handle._index;
 }
 void *
-nu_asset_find (nu_asset_manager_t *manager,
-               nu_asset_type_t     type,
-               nu_uid_t            uid,
-               nu_asset_handle_t  *handle)
+nu_asset_find (nu_asset_manager_t manager,
+               nu_asset_type_t    type,
+               nu_uid_t           uid,
+               nu_asset_handle_t *handle)
 {
     nu_asset_handle_t h;
     if (nu_asset_find_handle(manager, type, uid, &h))
@@ -86,37 +90,37 @@ nu_asset_find (nu_asset_manager_t *manager,
         {
             *handle = h;
         }
-        return manager->_entries.data[h.index].data;
+        return manager._ptr->entries.data[h._index].data;
     }
     return NU_NULL;
 }
 nu_bool_t
-nu_asset_find_handle (const nu_asset_manager_t *manager,
-                      nu_asset_type_t           type,
-                      nu_uid_t                  uid,
-                      nu_asset_handle_t        *handle)
+nu_asset_find_handle (nu_asset_manager_t manager,
+                      nu_asset_type_t    type,
+                      nu_uid_t           uid,
+                      nu_asset_handle_t *handle)
 {
     NU_ASSERT(handle);
-    for (nu_size_t i = 0; i < manager->_entries.capacity; ++i)
+    for (nu_size_t i = 0; i < manager._ptr->entries.capacity; ++i)
     {
-        nu__asset_entry_t *entry = manager->_entries.data + i;
+        nu__asset_entry_t *entry = manager._ptr->entries.data + i;
         if (entry->used && entry->type == type && entry->uid == uid)
         {
-            handle->index = i;
+            handle->_index = i;
             return NU_TRUE;
         }
     }
     return NU_FALSE;
 }
 nu_error_t
-nuext_asset_load_filename (nu_asset_manager_t *manager,
-                           nu_asset_type_t     type,
-                           const nu_char_t    *filename,
-                           const nu_char_t    *name,
-                           nu_asset_handle_t  *handle)
+nuext_asset_load_filename (nu_asset_manager_t manager,
+                           nu_asset_type_t    type,
+                           const nu_char_t   *filename,
+                           const nu_char_t   *name,
+                           nu_asset_handle_t *handle)
 {
     void             *data = nu_asset_add(manager, type, NU_UID(name), handle);
-    nu__asset_type_t *t    = manager->_types + type;
+    nu__asset_type_t *t    = manager._ptr->types + type;
 
     nu_error_t error = NU_ERROR_NONE;
     if (t->loader.loader)

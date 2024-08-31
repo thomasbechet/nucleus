@@ -18,8 +18,8 @@ nu__texture_loader_load_sync (void                       *loader,
 {
     NU_ASSERT(info->filename);
 
-    nu_texture_loader_t *context = loader;
-    nu_texture_asset_t  *texture = data;
+    nu_texture_loader_t *context = (nu_texture_loader_t *)loader;
+    nu_texture_asset_t  *texture = (nu_texture_asset_t *)data;
 
     nu_image_t image;
     nu_error_t error = nuext_load_image_filename(
@@ -49,9 +49,10 @@ nu_texture_loader_init (nu_allocator_t     alloc,
                         nu_renderer_t      renderer,
                         nu_asset_loader_t *loader)
 {
-    nu_texture_loader_t *data = nu_alloc(alloc, sizeof(*data));
-    data->_allocator          = alloc;
-    data->_renderer           = renderer;
+    nu_texture_loader_t *data
+        = (nu_texture_loader_t *)nu_alloc(alloc, sizeof(*data));
+    data->_allocator = alloc;
+    data->_renderer  = renderer;
 
     loader->loader     = data;
     loader->load_async = nu__texture_loader_load_async;

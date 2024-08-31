@@ -8,7 +8,9 @@
      || defined(_WIN32))
 #define NU_PLATFORM_WINDOWS
 #elif defined(__linux__) || defined(__unix__)
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE // Ensure ppoll definition for glfw
+#endif
 #define NU_PLATFORM_UNIX
 #elif defined(__APPLE__)
 #define NU_PLATFORM_APPLE
@@ -19,6 +21,10 @@
 #elif defined(NU_PLATFORM_UNIX)
 #include <time.h>
 #elif defined(NU_PLATFORM_APPLE)
+#endif
+
+#ifdef __cplusplus
+#define NU_CXX
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -169,15 +175,15 @@ typedef int           nu_word_t;
 #define NU_DEFINE_HANDLE_POINTER(type, data) \
     typedef struct                           \
     {                                        \
-        data *ptr;                           \
+        data *_ptr;                          \
     } type
 
 #define NU_DEFINE_HANDLE(type) \
     typedef union              \
     {                          \
-        void     *ptr;         \
-        nu_u32_t  id;          \
-        nu_size_t index;       \
+        void     *_ptr;        \
+        nu_u32_t  _id;         \
+        nu_size_t _index;      \
     } type
 
 #endif

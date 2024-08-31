@@ -96,12 +96,12 @@ typedef struct
 
 typedef struct nu_renderer
 {
-    nu_logger_t       _logger;
-    nu_allocator_t    _allocator;
-    nu_renderer_api_t _api;
-    void             *_backend;
-    nu_texture_t      _surface_color;
-    nu_platform_t     _platform;
+    nu_logger_t       logger;
+    nu_allocator_t    allocator;
+    nu_renderer_api_t api;
+    void             *backend;
+    nu_texture_t      surface_color;
+    nu_platform_t     platform;
 } nu__renderer_t;
 
 NU_DEFINE_HANDLE_POINTER(nu_renderer_t, nu__renderer_t);
@@ -112,9 +112,10 @@ NU_API nu_error_t   nu_renderer_delete(nu_renderer_t renderer);
 NU_API nu_error_t   nu_renderer_render(nu_renderer_t renderer);
 NU_API nu_texture_t nu_surface_color_target(nu_renderer_t renderer);
 
-NU_API nu_error_t nu_camera_create(nu_renderer_t           handle,
-                                   const nu_camera_info_t *info,
-                                   nu_camera_t            *camera);
+NU_API nu_camera_info_t nu_camera_info(void);
+NU_API nu_error_t       nu_camera_create(nu_renderer_t           handle,
+                                         const nu_camera_info_t *info,
+                                         nu_camera_t            *camera);
 NU_API nu_error_t nu_camera_delete(nu_renderer_t handle, nu_camera_t camera);
 NU_API nu_error_t nu_camera_update(nu_renderer_t           handle,
                                    nu_camera_t             camera,
@@ -138,14 +139,15 @@ NU_API nu_error_t nu_cubemap_create(nu_renderer_t            handle,
                                     nu_cubemap_t            *cubemap);
 NU_API nu_error_t nu_cubemap_delete(nu_renderer_t handle, nu_cubemap_t cubemap);
 
-NU_API nu_error_t nu_material_create(nu_renderer_t             handle,
-                                     const nu_material_info_t *info,
-                                     nu_material_t            *material);
-NU_API nu_error_t nu_material_delete(nu_renderer_t handle,
-                                     nu_material_t material);
-NU_API nu_error_t nu_material_update(nu_renderer_t             handle,
-                                     nu_material_t             material,
-                                     const nu_material_info_t *info);
+NU_API nu_material_info_t nu_material_info_default(nu_material_type_t type);
+NU_API nu_error_t         nu_material_create(nu_renderer_t             handle,
+                                             const nu_material_info_t *info,
+                                             nu_material_t            *material);
+NU_API nu_error_t         nu_material_delete(nu_renderer_t handle,
+                                             nu_material_t material);
+NU_API nu_error_t         nu_material_update(nu_renderer_t             handle,
+                                             nu_material_t             material,
+                                             const nu_material_info_t *info);
 
 NU_API nu_error_t nu_renderpass_create(nu_renderer_t               handle,
                                        const nu_renderpass_info_t *info,

@@ -27,7 +27,8 @@ nu_font_init_default (nu_renderer_t  renderer,
 
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
-    font->glyphs = nu_alloc(alloc, sizeof(nu_rect_t) * font->glyphs_count);
+    font->glyphs
+        = (nu_rect_t *)nu_alloc(alloc, sizeof(nu_rect_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_ERROR_ALLOCATION);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
@@ -80,9 +81,10 @@ nu_font_init_default (nu_renderer_t  renderer,
 
     // Create material
     {
-        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_CANVAS;
-        info.canvas.color0      = &font->texture;
-        info.canvas.wrap_mode   = NU_TEXTURE_WRAP_CLAMP;
+        nu_material_info_t info;
+        info.type             = NU_MATERIAL_CANVAS;
+        info.canvas.color0    = &font->texture;
+        info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
         error = nu_material_create(renderer, &info, &font->material);
         NU_ERROR_CHECK(error, return error);
     }

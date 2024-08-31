@@ -75,7 +75,7 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             cgltf_attribute   *attribute = primitive->attributes + a;
             cgltf_accessor    *accessor  = attribute->data;
             cgltf_buffer_view *view      = accessor->buffer_view;
-            nu_char_t         *data      = view->buffer->data;
+            nu_byte_t         *data      = (nu_byte_t *)view->buffer->data;
             switch (attribute->type)
             {
                 case cgltf_attribute_type_position:
@@ -98,18 +98,18 @@ nu__load_mesh (nu_gltf_loader_t *loader,
         {
             cgltf_accessor    *accessor     = primitive->indices;
             cgltf_buffer_view *view         = accessor->buffer_view;
-            nu_char_t         *data         = view->buffer->data;
+            nu_byte_t         *data         = (nu_byte_t *)view->buffer->data;
             nu_size_t          indice_count = accessor->count;
 
             nu_vec3_t *buf_positions = NU_NULL;
             nu_vec2_t *buf_uvs       = NU_NULL;
             nu_vec3_t *buf_normals   = NU_NULL;
-            buf_positions            = nu_alloc(loader->_allocator,
-                                     sizeof(*buf_positions) * indice_count);
-            buf_uvs
-                = nu_alloc(loader->_allocator, sizeof(*buf_uvs) * indice_count);
-            buf_normals = nu_alloc(loader->_allocator,
-                                   sizeof(*buf_normals) * indice_count);
+            buf_positions            = (nu_vec3_t *)nu_alloc(
+                loader->_allocator, sizeof(*buf_positions) * indice_count);
+            buf_uvs     = (nu_vec2_t *)nu_alloc(loader->_allocator,
+                                            sizeof(*buf_uvs) * indice_count);
+            buf_normals = (nu_vec3_t *)nu_alloc(
+                loader->_allocator, sizeof(*buf_normals) * indice_count);
 
             switch (accessor->component_type)
             {
@@ -140,7 +140,7 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             info.normals   = buf_normals;
             info.count     = indice_count;
             error          = nu_mesh_create(renderer, &info, &handle);
-            NU_ERROR_ASSERT(error);
+            NU_ERROR_CHECK(error, return error);
 
             // Free resources
             nu_free(loader->_allocator,
@@ -151,7 +151,7 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             nu_free(loader->_allocator,
                     buf_normals,
                     sizeof(*buf_normals) * indice_count);
-            NU_ERROR_ASSERT(error);
+            NU_ERROR_CHECK(error, return error);
 
             // Append asset
             nu__model_asset_t *asset = nu_vec_push(&model->assets, alloc);
@@ -236,9 +236,12 @@ nu__load_material (nu_gltf_loader_t     *loader,
 
     // Create material
     nu_material_t      handle;
-    nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
-    info.mesh.color0        = &model->assets.data[index].texture;
-    nu_error_t error        = nu_material_create(renderer, &info, &handle);
+    nu_material_info_t info;
+    info.type              = NU_MATERIAL_MESH;
+    info.mesh.color0       = &model->assets.data[index].texture;
+    info.mesh.color1       = NU_NULL;
+    info.mesh.uv_transform = nu_mat3_identity();
+    nu_error_t error       = nu_material_create(renderer, &info, &handle);
     NU_ERROR_ASSERT(error);
 
     // Append asset
@@ -266,7 +269,7 @@ nu__load_material_default (nu_gltf_loader_t *loader,
         nu_vec_push(&model->assets, alloc)->texture = texture;
 
         nu_material_t      material;
-        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
+        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
         nu_material_create(renderer, &info, &material);
         nu_vec_push(&model->assets, alloc)->material = material;
@@ -299,7 +302,8 @@ nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
                                 nu_renderer_t     renderer,
                                 nu_model_t       *model)
 {
-    cgltf_options options = { 0 };
+    cgltf_options options;
+    nu_memset(&options, 0, sizeof(options));
     // TODO: custom allocator
     cgltf_data  *data = NU_NULL;
     cgltf_result result;
@@ -445,7 +449,8 @@ nu__parse_colors (const nu_byte_t *img,
                   nu_size_t        comp,
                   nu_allocator_t   alloc)
 {
-    nu_color_t *colors = nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
+    nu_color_t *colors
+        = (nu_color_t *)nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
     NU_CHECK(colors, return NU_NULL);
     for (nu_size_t i = 0; i < (size.x * size.y); ++i)
     {

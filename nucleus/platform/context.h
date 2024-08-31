@@ -231,11 +231,11 @@ typedef struct
 
 typedef struct
 {
-    nu_bool_t              _close_requested;
-    nu_logger_t            _logger;
-    nu__platform_surface_t _surface;
-    nu__platform_input_t   _input;
-    nu_allocator_t         _allocator;
+    nu_bool_t              close_requested;
+    nu_logger_t            logger;
+    nu__platform_surface_t surface;
+    nu__platform_input_t   input;
+    nu_allocator_t         allocator;
 } nu__platform_t;
 
 NU_DEFINE_HANDLE_POINTER(nu_platform_t, nu__platform_t);

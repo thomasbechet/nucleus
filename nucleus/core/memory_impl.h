@@ -6,8 +6,8 @@
 void *
 nu_alloc (nu_allocator_t alloc, nu_size_t s)
 {
-    return alloc.ptr->callback(
-        NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
+    return alloc._ptr->callback(
+        NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
 }
 void *
 nu_realloc (nu_allocator_t alloc, void *ptr, nu_size_t s, nu_size_t n)
@@ -16,13 +16,13 @@ nu_realloc (nu_allocator_t alloc, void *ptr, nu_size_t s, nu_size_t n)
     {
         return ptr;
     }
-    return alloc.ptr->callback(
-        ptr, s, n, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
+    return alloc._ptr->callback(
+        ptr, s, n, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
 }
 void
 nu_free (nu_allocator_t alloc, void *ptr, nu_size_t s)
 {
-    alloc.ptr->callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc.ptr->userdata);
+    alloc._ptr->callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
 }
 
 #ifdef NU_STDLIB
@@ -53,15 +53,15 @@ nu__stdlib_alloctor_callback (
 void
 nuext_allocator_create_stdlib (nu_allocator_t *alloc)
 {
-    alloc->ptr           = malloc(sizeof(*alloc->ptr));
-    alloc->ptr->callback = nu__stdlib_alloctor_callback;
-    alloc->ptr->userdata = NU_NULL;
+    alloc->_ptr           = (nu__allocator_t *)malloc(sizeof(*alloc->_ptr));
+    alloc->_ptr->callback = nu__stdlib_alloctor_callback;
+    alloc->_ptr->userdata = NU_NULL;
 }
 
 void
 nu_allocator_delete (nu_allocator_t alloc)
 {
-    free(alloc.ptr); // TODO: use callback to alloc/free itself
+    free(alloc._ptr); // TODO: use callback to alloc/free itself
 }
 
 #endif
@@ -71,10 +71,10 @@ nu_memset (void *dst, nu_word_t c, nu_size_t n)
 {
     if (n != 0)
     {
-        unsigned char *d = dst;
+        nu_byte_t *d = (nu_byte_t *)dst;
         do
         {
-            *d++ = (unsigned char)c;
+            *d++ = (nu_byte_t)c;
         } while (--n != 0);
     }
     return (dst);
@@ -83,9 +83,9 @@ nu_memset (void *dst, nu_word_t c, nu_size_t n)
 void
 nu_memcpy (void *dst, const void *src, nu_size_t n)
 {
-    nu_size_t      i;
-    nu_u8_t       *u8_dst = dst;
-    const nu_u8_t *u8_src = src;
+    nu_size_t        i;
+    nu_byte_t       *u8_dst = (nu_byte_t *)dst;
+    const nu_byte_t *u8_src = (const nu_byte_t *)src;
 
     for (i = 0; i < n; ++i)
     {

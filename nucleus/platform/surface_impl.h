@@ -23,7 +23,7 @@ nu_error_t
 nu_platform_swap_buffers (nu_platform_t platform)
 {
 #ifdef NU_BUILD_GLFW
-    nuglfw__swap_buffers(&platform.ptr->_surface.glfw);
+    nuglfw__swap_buffers(&platform._ptr->surface.glfw);
 #endif
     return NU_ERROR_NONE;
 }
@@ -33,7 +33,7 @@ nuext_platform_viewport_mode (nu_platform_t         platform,
                               nuext_viewport_mode_t mode)
 {
 #ifdef NU_BUILD_GLFW
-    nuglfw__swap_buffers(&platform.ptr->_surface.glfw);
+    nuglfw__swap_buffers(&platform._ptr->surface.glfw);
 #endif
     return NU_ERROR_NONE;
 }

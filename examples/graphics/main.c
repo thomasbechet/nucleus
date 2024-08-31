@@ -6,17 +6,17 @@
 #define WIDTH  500
 #define HEIGHT 500
 
-static nu_allocator_t         alloc;
-static nu_logger_t            logger;
-static nu_platform_t          platform;
-static nu_renderer_t          renderer;
+static nu_allocator_t  alloc;
+static nu_logger_t     logger;
+static nu_platform_t   platform;
+static nu_renderer_t   renderer;
 static nu_renderpass_t renderpass;
 static nu_texture_t    depth_buffer;
 static nu_mesh_t       mesh;
 static nu_texture_t    texture;
 static nu_material_t   material;
 static nu_camera_t     camera;
-static nu_input_t             exit_input;
+static nu_input_t      exit_input;
 
 int
 main (void)
@@ -89,7 +89,7 @@ main (void)
 
     // Material
     {
-        nu_material_info_t info = NU_MATERIAL_INFO_DEFAULT_MESH;
+        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
         error = nu_material_create(renderer, &info, &material);
         NU_ERROR_ASSERT(error);
@@ -97,7 +97,7 @@ main (void)
 
     // Camera
     {
-        nu_camera_info_t info = NU_CAMERA_INFO_DEFAULT;
+        nu_camera_info_t info = nu_camera_info();
         info.fov              = 60;
         info.eye              = nu_vec3(2, 1, 2);
         info.center           = NU_VEC3_ZERO;
@@ -140,7 +140,7 @@ main (void)
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
         nu_draw_mesh(renderer, renderpass, material, mesh, model);
 
-        nu_color_t          clear_color   = NU_COLOR_BLACK;
+        nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target(renderer);
 
         nu_renderpass_submit_t submit;

@@ -3,6 +3,12 @@
 
 #include <nucleus/core/memory.h>
 
+#ifdef NU_CXX
+#define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
+#else
+#define NU_VOID_CAST(type, expr) (expr)
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 //////                           Vector                             //////
 //////////////////////////////////////////////////////////////////////////
@@ -15,12 +21,13 @@
         nu_size_t capacity; \
     }
 
-#define nu_vec_init(v, alloc, cap)                                   \
-    do                                                               \
-    {                                                                \
-        (v)->data     = nu_alloc(alloc, sizeof(*(v)->data) * (cap)); \
-        (v)->capacity = (cap);                                       \
-        (v)->size     = 0;                                           \
+#define nu_vec_init(v, alloc, cap)                                                 \
+    do                                                                             \
+    {                                                                              \
+        (v)->data     = NU_VOID_CAST((v)->data,                                    \
+                                 nu_alloc(alloc, sizeof(*(v)->data) * (cap))); \
+        (v)->capacity = (cap);                                                     \
+        (v)->size     = 0;                                                         \
     } while (0)
 
 #define nu_vec_free(v, alloc) \
@@ -28,10 +35,14 @@
 
 #define nu_vec_clear(v) ((v)->size = 0)
 
-#define nu_vec_push(v, alloc)                                                \
-    (((v)->data = nu__vec_push(                                              \
-          alloc, sizeof(*(v)->data), (v)->data, &(v)->size, &(v)->capacity)) \
-         ? (v)->data + ((v)->size - 1)                                       \
+#define nu_vec_push(v, alloc)                                   \
+    (((v)->data = NU_VOID_CAST((v)->data,                       \
+                               nu__vec_push(alloc,              \
+                                            sizeof(*(v)->data), \
+                                            (v)->data,          \
+                                            &(v)->size,         \
+                                            &(v)->capacity)))   \
+         ? (v)->data + ((v)->size - 1)                          \
          : NU_NULL)
 
 #define nu_vec_pop(v) \
@@ -61,12 +72,13 @@ typedef nu_vec(nu_u32_t) nu_u32_vec_t;
         nu_u32_vec_t _freelist; \
     }
 
-#define nu_pool_init(p, alloc, cap)                                  \
-    do                                                               \
-    {                                                                \
-        (p)->data     = nu_alloc(alloc, sizeof(*(p)->data) * (cap)); \
-        (p)->capacity = cap;                                         \
-        nu_vec_init(&(p)->_freelist, alloc, (cap));                  \
+#define nu_pool_init(p, alloc, cap)                                                \
+    do                                                                             \
+    {                                                                              \
+        (p)->data     = NU_VOID_CAST((p)->data,                                    \
+                                 nu_alloc(alloc, sizeof(*(p)->data) * (cap))); \
+        (p)->capacity = cap;                                                       \
+        nu_vec_init(&(p)->_freelist, alloc, (cap));                                \
     } while (0)
 
 #define nu_pool_free(p, alloc)                                         \
@@ -76,14 +88,15 @@ typedef nu_vec(nu_u32_t) nu_u32_vec_t;
         nu_vec_free(&(p)->_freelist, alloc);                           \
     } while (0)
 
-#define nu_pool_add(s, alloc, pindex)             \
-    ((s)->data = nu__pool_add(alloc,              \
-                              sizeof(*(s)->data), \
-                              (s)->data,          \
-                              &(s)->capacity,     \
-                              &(s)->_freelist,    \
-                              pindex)             \
-                     ? (s)->data + (*pindex)      \
+#define nu_pool_add(s, alloc, pindex)                          \
+    ((s)->data = NU_VOID_CAST((s)->data,                       \
+                              nu__pool_add(alloc,              \
+                                           sizeof(*(s)->data), \
+                                           (s)->data,          \
+                                           &(s)->capacity,     \
+                                           &(s)->_freelist,    \
+                                           pindex))            \
+                     ? (s)->data + (*pindex)                   \
                      : NU_NULL)
 
 #define nu_pool_remove(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)

@@ -53,38 +53,39 @@ typedef nu_pool(nu__asset_entry_t) nu__asset_entry_pool_t;
 
 typedef struct
 {
-    nu_allocator_t         _allocator;
-    nu__asset_type_t       _types[NU_ASSET_TYPE_MAX];
-    nu__asset_entry_pool_t _entries;
-    nu_asset_bundle_t      _active_bundle;
-} nu_asset_manager_t;
+    nu_allocator_t         allocator;
+    nu__asset_type_t       types[NU_ASSET_TYPE_MAX];
+    nu__asset_entry_pool_t entries;
+    nu_asset_bundle_t      active_bundle;
+} nu__asset_manager_t;
 
-NU_API nu_error_t nu_asset_manager_init(nu_allocator_t      alloc,
-                                        nu_asset_manager_t *manager);
-NU_API void       nu_asset_manager_free(nu_asset_manager_t *manager);
-NU_API nu_error_t nu_asset_register_base_loaders(nu_asset_manager_t *manager,
-                                                 nu_platform_t      *platform,
-                                                 nu_renderer_t       renderer);
+NU_DEFINE_HANDLE_POINTER(nu_asset_manager_t, nu__asset_manager_t);
 
-NU_API void      *nu_asset_add(nu_asset_manager_t *manager,
-                               nu_asset_type_t     type,
-                               nu_uid_t            uid,
-                               nu_asset_handle_t  *handle);
-NU_API void      *nu_asset_get(nu_asset_manager_t *manager,
-                               nu_asset_handle_t   handle);
-NU_API void      *nu_asset_find(nu_asset_manager_t *manager,
-                                nu_asset_type_t     type,
-                                nu_uid_t            uid,
-                                nu_asset_handle_t  *handle);
-NU_API nu_bool_t  nu_asset_find_handle(const nu_asset_manager_t *manager,
-                                       nu_asset_type_t           type,
-                                       nu_uid_t                  uid,
-                                       nu_asset_handle_t        *handle);
-NU_API nu_error_t nuext_asset_load_filename(nu_asset_manager_t *manager,
-                                            nu_asset_type_t     type,
-                                            const nu_char_t    *filename,
-                                            const nu_char_t    *name,
-                                            nu_asset_handle_t  *handle);
+NU_API nu_error_t nu_asset_manager_create(nu_allocator_t      alloc,
+                                          nu_asset_manager_t *manager);
+NU_API void       nu_asset_manager_delete(nu_asset_manager_t manager);
+NU_API nu_error_t nu_asset_register_base_loaders(nu_asset_manager_t manager,
+                                                 nu_platform_t      platform,
+                                                 nu_renderer_t      renderer);
+
+NU_API void *nu_asset_add(nu_asset_manager_t manager,
+                          nu_asset_type_t    type,
+                          nu_uid_t           uid,
+                          nu_asset_handle_t *handle);
+NU_API void *nu_asset_get(nu_asset_manager_t manager, nu_asset_handle_t handle);
+NU_API void *nu_asset_find(nu_asset_manager_t manager,
+                           nu_asset_type_t    type,
+                           nu_uid_t           uid,
+                           nu_asset_handle_t *handle);
+NU_API nu_bool_t  nu_asset_find_handle(const nu_asset_manager_t manager,
+                                       nu_asset_type_t          type,
+                                       nu_uid_t                 uid,
+                                       nu_asset_handle_t       *handle);
+NU_API nu_error_t nuext_asset_load_filename(nu_asset_manager_t manager,
+                                            nu_asset_type_t    type,
+                                            const nu_char_t   *filename,
+                                            const nu_char_t   *name,
+                                            nu_asset_handle_t *handle);
 
 #define nu_asset_find_texture(manager, name) \
     ((nu_texture_t *)nu_asset_find(          \

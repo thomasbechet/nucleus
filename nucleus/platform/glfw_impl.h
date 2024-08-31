@@ -188,31 +188,32 @@ static void
 nuglfw__key_callback (
     GLFWwindow *window, int key, int scancode, int action, int mode)
 {
-    nu__platform_t *platform = glfwGetWindowUserPointer(window);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
     if (key != GLFW_KEY_UNKNOWN)
     {
         if (action == GLFW_PRESS)
         {
             nuglfw__dispatch_binding_button(
-                &platform->_input.glfw,
-                platform->_input.glfw.key_to_first_binding[key],
+                &platform->input.glfw,
+                platform->input.glfw.key_to_first_binding[key],
                 NU_TRUE);
 
             if (key == NUGLFW_FULLSCREEN_KEY)
             {
-                platform->_surface.glfw.switch_fullscreen = NU_TRUE;
+                platform->surface.glfw.switch_fullscreen = NU_TRUE;
             }
             else if (key == GLFW_KEY_ESCAPE
-                     && platform->_surface.glfw.capture_mouse)
+                     && platform->surface.glfw.capture_mouse)
             {
-                platform->_surface.glfw.switch_capture_mouse = NU_TRUE;
+                platform->surface.glfw.switch_capture_mouse = NU_TRUE;
             }
         }
         else if (action == GLFW_RELEASE)
         {
             nuglfw__dispatch_binding_button(
-                &platform->_input.glfw,
-                platform->_input.glfw.key_to_first_binding[key],
+                &platform->input.glfw,
+                platform->input.glfw.key_to_first_binding[key],
                 NU_FALSE);
         }
     }
@@ -223,68 +224,72 @@ nuglfw__mouse_button_callback (GLFWwindow *window,
                                int         action,
                                int         mode)
 {
-    nu__platform_t *platform = glfwGetWindowUserPointer(window);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
     if (action == GLFW_PRESS)
     {
         nuglfw__dispatch_binding_button(
-            &platform->_input.glfw,
-            platform->_input.glfw.mouse_button_to_first_binding[button],
+            &platform->input.glfw,
+            platform->input.glfw.mouse_button_to_first_binding[button],
             NU_TRUE);
 
         if (button == GLFW_MOUSE_BUTTON_1
-            && !platform->_surface.glfw.capture_mouse)
+            && !platform->surface.glfw.capture_mouse)
         {
-            if (nu_timer_elapsed(&platform->_surface.glfw.last_mouse_click)
+            if (nu_timer_elapsed(&platform->surface.glfw.last_mouse_click)
                 < 500.0)
             {
-                platform->_surface.glfw.switch_capture_mouse = NU_TRUE;
+                platform->surface.glfw.switch_capture_mouse = NU_TRUE;
             }
-            nu_timer_reset(&platform->_surface.glfw.last_mouse_click);
+            nu_timer_reset(&platform->surface.glfw.last_mouse_click);
         }
     }
     else if (action == GLFW_RELEASE)
     {
         nuglfw__dispatch_binding_button(
-            &platform->_input.glfw,
-            platform->_input.glfw.mouse_button_to_first_binding[button],
+            &platform->input.glfw,
+            platform->input.glfw.mouse_button_to_first_binding[button],
             NU_FALSE);
     }
 }
 static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
-    nu__platform_t *platform             = glfwGetWindowUserPointer(window);
-    platform->_input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
+    platform->input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
 }
 static void
 nuglfw__character_callback (GLFWwindow *window, int codepoint)
 {
-    nu__platform_t *platform = glfwGetWindowUserPointer(window);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
 }
 static void
 nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      xoffset,
                                double      yoffset)
 {
-    nu__platform_t *platform = glfwGetWindowUserPointer(window);
-    platform->_input.glfw.mouse_scroll
-        = nu_vec2((float)xoffset, (float)yoffset);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
+    platform->input.glfw.mouse_scroll = nu_vec2((float)xoffset, (float)yoffset);
 }
 static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
-    nu__platform_t *platform = glfwGetWindowUserPointer(window);
-    platform->_surface.glfw.viewport.extent.s.x = width;
-    platform->_surface.glfw.viewport.extent.s.y = height;
-    nuglfw__update_viewport(&platform->_surface.glfw.viewport);
+    nu__platform_t *platform
+        = (nu__platform_t *)glfwGetWindowUserPointer(window);
+    platform->surface.glfw.viewport.extent.s.x = width;
+    platform->surface.glfw.viewport.extent.s.y = height;
+    nuglfw__update_viewport(&platform->surface.glfw.viewport);
 }
 
 static nu_error_t
 nuglfw__init (nu__platform_t *platform)
 {
-    nuglfw__surface_t *surface = &platform->_surface.glfw;
-    nuglfw__input_t   *input   = &platform->_input.glfw;
-    nu_uvec2_t         size    = platform->_surface.size;
+    nuglfw__surface_t *surface = &platform->surface.glfw;
+    nuglfw__input_t   *input   = &platform->input.glfw;
+    nu_uvec2_t         size    = platform->surface.size;
 
     const nu_int_t width  = NUGLFW_WINDOW_WIDTH;
     const nu_int_t height = NUGLFW_WINDOW_HEIGHT;
@@ -568,7 +573,7 @@ nuglfw__add_binding (nuglfw__input_t *ctx,
 {
     nu_u32_t           binding_id = ctx->free_binding;
     nuglfw__binding_t *binding    = &ctx->bindings[binding_id];
-    binding->state                = input.ptr;
+    binding->state                = input._ptr;
     ctx->free_binding             = binding->next;
     binding->next                 = *first_binding;
     *first_binding                = binding_id;
@@ -583,7 +588,7 @@ nuglfw__bind_button_value (nuglfw__input_t *ctx,
     // Check duplicated binding
     nu_u32_t *first_binding = nuglfw__first_binding_from_button(ctx, button);
     NU_ASSERT(first_binding);
-    if (nuglfw__find_binding(ctx, *first_binding, input.ptr))
+    if (nuglfw__find_binding(ctx, *first_binding, input._ptr))
     {
         return NU_ERROR_DUPLICATED;
     }
@@ -607,7 +612,7 @@ nuglfw__bind_axis (nuglfw__input_t *ctx, nu_input_t input, nuext_axis_t axis)
     // Check duplicated
     nu_u32_t *first_binding = nuglfw__first_binding_from_axis(ctx, axis);
     NU_ASSERT(first_binding);
-    if (nuglfw__find_binding(ctx, *first_binding, input.ptr))
+    if (nuglfw__find_binding(ctx, *first_binding, input._ptr))
     {
         return NU_ERROR_DUPLICATED;
     }

@@ -10,42 +10,43 @@
 nu_error_t
 nu_input_create (nu_platform_t platform, nu_input_t *input)
 {
-    input->ptr        = nu_alloc(platform.ptr->_allocator, sizeof(*input->ptr));
-    input->ptr->value = NU_INPUT_RELEASED;
-    input->ptr->previous = NU_INPUT_RELEASED;
+    input->_ptr        = (nu__input_state_t *)nu_alloc(platform._ptr->allocator,
+                                                sizeof(*input->_ptr));
+    input->_ptr->value = NU_INPUT_RELEASED;
+    input->_ptr->previous = NU_INPUT_RELEASED;
     return NU_ERROR_NONE;
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)
 {
-    return input.ptr->value != input.ptr->previous;
+    return input._ptr->value != input._ptr->previous;
 }
 nu_bool_t
 nu_input_pressed (nu_input_t input)
 {
-    return NU_INPUT_IS_PRESSED(input.ptr->value);
+    return NU_INPUT_IS_PRESSED(input._ptr->value);
 }
 nu_bool_t
 nu_input_just_pressed (nu_input_t input)
 {
-    return NU_INPUT_IS_PRESSED(input.ptr->value)
-           && !NU_INPUT_IS_PRESSED(input.ptr->previous);
+    return NU_INPUT_IS_PRESSED(input._ptr->value)
+           && !NU_INPUT_IS_PRESSED(input._ptr->previous);
 }
 nu_bool_t
 nu_input_released (nu_input_t input)
 {
-    return !NU_INPUT_IS_PRESSED(input.ptr->value);
+    return !NU_INPUT_IS_PRESSED(input._ptr->value);
 }
 nu_bool_t
 nu_input_just_released (nu_input_t input)
 {
-    return !NU_INPUT_IS_PRESSED(input.ptr->value)
-           && NU_INPUT_IS_PRESSED(input.ptr->previous);
+    return !NU_INPUT_IS_PRESSED(input._ptr->value)
+           && NU_INPUT_IS_PRESSED(input._ptr->previous);
 }
 float
 nu_input_value (nu_input_t input)
 {
-    return input.ptr->value;
+    return input._ptr->value;
 }
 
 nu_vec3_t
@@ -76,8 +77,8 @@ nuext_platform_cursor (nu_platform_t platform,
 {
     float cx = nu_input_value(cursor_x);
     float cy = nu_input_value(cursor_y);
-    return nu_ivec2((nu_i32_t)(cx * (float)platform.ptr->_surface.size.x),
-                    (nu_i32_t)(cy * (float)platform.ptr->_surface.size.y));
+    return nu_ivec2((nu_i32_t)(cx * (float)platform._ptr->surface.size.x),
+                    (nu_i32_t)(cy * (float)platform._ptr->surface.size.y));
 }
 
 nu_error_t
@@ -86,7 +87,7 @@ nuext_input_bind_button (nu_platform_t  platform,
                          nuext_button_t button)
 {
 #ifdef NU_BUILD_GLFW
-    return nuglfw__bind_button(&platform.ptr->_input.glfw, input, button);
+    return nuglfw__bind_button(&platform._ptr->input.glfw, input, button);
 #endif
     return NU_ERROR_NONE;
 }
@@ -98,7 +99,7 @@ nuext_input_bind_button_value (nu_platform_t  platform,
 {
 #ifdef NU_BUILD_GLFW
     return nuglfw__bind_button_value(
-        &platform.ptr->_input.glfw, input, button, value);
+        &platform._ptr->input.glfw, input, button, value);
 #endif
     return NU_ERROR_NONE;
 }
@@ -108,7 +109,7 @@ nuext_input_bind_axis (nu_platform_t platform,
                        nuext_axis_t  axis)
 {
 #ifdef NU_BUILD_GLFW
-    return nuglfw__bind_axis(&platform.ptr->_input.glfw, input, axis);
+    return nuglfw__bind_axis(&platform._ptr->input.glfw, input, axis);
 #endif
     return NU_ERROR_NONE;
 }

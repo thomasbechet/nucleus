@@ -86,24 +86,24 @@ typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
 
 typedef struct
 {
-    nu_renderpass_t    _active_renderpass;
-    nu_ui_controller_t _controllers[NU_UI_MAX_CONTROLLER];
+    nu_renderpass_t    active_renderpass;
+    nu_ui_controller_t controllers[NU_UI_MAX_CONTROLLER];
 
-    nu_allocator_t _allocator;
+    nu_allocator_t allocator;
 
-    nu__ui_pass_vec_t _passes;
+    nu__ui_pass_vec_t passes;
 
-    nu__ui_style_vec_t _styles;
-    nu_ui_style_t     *_button_style;
-    nu_ui_style_t     *_checkbox_style;
-    nu_ui_style_t     *_cursor_style;
+    nu__ui_style_vec_t styles;
+    nu_ui_style_t     *button_style;
+    nu_ui_style_t     *checkbox_style;
+    nu_ui_style_t     *cursor_style;
 
-    nu_u32_t      _next_id;
-    nu_u32_t      _active_id;
-    nu_u32_t      _hot_id;
-    nu_u32_t      _active_controller;
-    nu_u32_t      _hot_controller;
-    nu_renderer_t _renderer;
+    nu_u32_t      next_id;
+    nu_u32_t      active_id;
+    nu_u32_t      hot_id;
+    nu_u32_t      active_controller;
+    nu_u32_t      hot_controller;
+    nu_renderer_t renderer;
 } nu__ui_t;
 
 typedef struct

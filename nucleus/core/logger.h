@@ -21,8 +21,8 @@ typedef struct
 
 typedef struct
 {
-    nu_log_level_t _level;
-    nu_allocator_t _allocator;
+    nu_log_level_t level;
+    nu_allocator_t allocator;
 } nu__logger_t;
 
 NU_DEFINE_HANDLE_POINTER(nu_logger_t, nu__logger_t);

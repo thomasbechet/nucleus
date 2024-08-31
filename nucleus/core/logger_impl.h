@@ -7,15 +7,16 @@
 nu_error_t
 nu_logger_create (const nu_logger_info_t *info, nu_logger_t *logger)
 {
-    logger->ptr             = nu_alloc(info->allocator, sizeof(*logger->ptr));
-    logger->ptr->_level     = info->level;
-    logger->ptr->_allocator = info->allocator;
+    logger->_ptr
+        = (nu__logger_t *)nu_alloc(info->allocator, sizeof(*logger->_ptr));
+    logger->_ptr->level     = info->level;
+    logger->_ptr->allocator = info->allocator;
     return NU_ERROR_NONE;
 }
 nu_error_t
 nu_logger_delete (nu_logger_t logger)
 {
-    nu_free(logger.ptr->_allocator, logger.ptr, sizeof(*logger.ptr));
+    nu_free(logger._ptr->allocator, logger._ptr, sizeof(*logger._ptr));
     return NU_ERROR_NONE;
 }
 
@@ -40,7 +41,7 @@ nu_vlog (nu_logger_t      logger,
          const nu_char_t *format,
          va_list          args)
 {
-    if (logger.ptr->_level < level)
+    if (logger._ptr->level < level)
     {
         return;
     }

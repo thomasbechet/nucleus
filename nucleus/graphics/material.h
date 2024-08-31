@@ -32,19 +32,6 @@ typedef struct
     };
 } nu_material_info_t;
 
-#define NU_MATERIAL_INFO_DEFAULT_MESH                                   \
-    (nu_material_info_t)                                                \
-    {                                                                   \
-        .type = NU_MATERIAL_MESH, .mesh.color0 = NU_NULL,               \
-        .mesh.color1 = NU_NULL, .mesh.uv_transform = nu_mat3_identity() \
-    }
-#define NU_MATERIAL_INFO_DEFAULT_CANVAS                       \
-    (nu_material_info_t)                                      \
-    {                                                         \
-        .type = NU_MATERIAL_CANVAS, .canvas.color0 = NU_NULL, \
-        .canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP             \
-    }
-
 NU_DEFINE_HANDLE(nu_material_t);
 
 #endif
