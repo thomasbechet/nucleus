@@ -6,7 +6,7 @@
 #define WIDTH  500
 #define HEIGHT 500
 
-static nu_allocator_t  alloc;
+static nu_allocator_t  allocator;
 static nu_logger_t     logger;
 static nu_platform_t   platform;
 static nu_renderer_t   renderer;
@@ -24,12 +24,12 @@ main (void)
     nu_error_t error;
     NU_UNUSED(error);
 
-    nuext_allocator_create_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&allocator);
 
     // Create logger
     {
         nu_logger_info_t info;
-        info.allocator = alloc;
+        info.allocator = allocator;
         info.level     = NU_LOG_DEBUG;
         error          = nu_logger_create(&info, &logger);
         NU_ERROR_ASSERT(error);
@@ -40,7 +40,7 @@ main (void)
         nu_platform_info_t info;
         info.width     = WIDTH;
         info.height    = HEIGHT;
-        info.allocator = alloc;
+        info.allocator = allocator;
         info.logger    = logger;
         error          = nu_platform_create(&info, &platform);
         NU_ERROR_ASSERT(error);
@@ -49,7 +49,7 @@ main (void)
     // Renderer
     {
         nu_renderer_info_t info;
-        info.allocator = alloc;
+        info.allocator = allocator;
         info.api       = NU_RENDERER_GL;
         info.platform  = platform;
         info.logger    = logger;
@@ -83,7 +83,8 @@ main (void)
 
     // Texture
     {
-        error = nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture);
+        error
+            = nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture);
         NU_ERROR_ASSERT(error);
     }
 

@@ -2,25 +2,25 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/core.h>
 
-static nu_allocator_t alloc;
+static nu_allocator_t allocator;
 static nu_logger_t    logger;
 
 int
 main (void)
 {
-    nuext_allocator_create_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&allocator);
 
     nu_logger_info_t info;
     info.level     = NU_LOG_DEBUG;
-    info.allocator = alloc;
+    info.allocator = allocator;
     nu_logger_create(&info, &logger);
 
     {
         nu_u32_vec_t v;
-        nu_vec_init(&v, alloc, 10);
+        nu_vec_init(&v, allocator, 10);
         for (nu_size_t i = 0; i < 50; ++i)
         {
-            *nu_vec_push(&v, alloc) = i;
+            *nu_vec_push(&v, allocator) = i;
         }
         for (nu_size_t i = 0; i < 50; ++i)
         {

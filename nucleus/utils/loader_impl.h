@@ -177,7 +177,7 @@ nu__load_texture (nu_gltf_loader_t    *loader,
     cgltf_buffer_view *tview = texture->image->buffer_view;
 
     nu_image_t image;
-    nu_error_t error = nu_load_image_memory(
+    nu_error_t error = nu_image_load_memory(
         (const nu_byte_t *)tview->buffer->data + tview->offset,
         tview->size,
         loader->_allocator,
@@ -185,15 +185,10 @@ nu__load_texture (nu_gltf_loader_t    *loader,
     NU_ERROR_CHECK(error, return error);
 
     // Create texture
-    nu_texture_t      handle;
-    nu_texture_info_t info;
-    info.size   = image.size;
-    info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-    info.format = NU_TEXTURE_FORMAT_COLOR;
-    info.colors = image.data;
-    error       = nu_texture_create(renderer, &info, &handle);
+    nu_texture_t handle;
+    error = nu_texture_create_image(renderer, image, &handle);
     NU_ERROR_ASSERT(error);
-    nu_image_free(&image, loader->_allocator);
+    nu_image_delete(image);
 
     // Append asset
     nu__model_asset_t *asset = nu_vec_push(&model->_ptr->assets, alloc);
@@ -293,7 +288,7 @@ nu_gltf_loader_free (nu_gltf_loader_t *loader)
     nu_vec_free(&loader->_cache, loader->_allocator);
 }
 nu_error_t
-nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
+nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
                                 const nu_char_t  *filename,
                                 nu_allocator_t    alloc,
                                 nu_renderer_t     renderer,
@@ -441,62 +436,58 @@ nuext_gltf_load_model_filename (nu_gltf_loader_t *loader,
     return NU_ERROR_NONE;
 }
 
-static nu_color_t *
-nu__parse_colors (const nu_byte_t *img,
+static void
+nu__parse_colors (const nu_byte_t *src,
+                  nu_color_t      *dst,
                   nu_uvec2_t       size,
-                  nu_size_t        comp,
-                  nu_allocator_t   alloc)
+                  nu_size_t        comp)
 {
-    nu_color_t *colors
-        = (nu_color_t *)nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
-    NU_CHECK(colors, return NU_NULL);
     for (nu_size_t i = 0; i < (size.x * size.y); ++i)
     {
         for (nu_size_t n = 0; n < comp; ++n)
         {
         }
-        colors[i].r = img[i * comp + 0];
-        colors[i].g = img[i * comp + 1];
-        colors[i].b = img[i * comp + 2];
+        dst[i].r = src[i * comp + 0];
+        dst[i].g = src[i * comp + 1];
+        dst[i].b = src[i * comp + 2];
         if (comp == 4)
         {
-            colors[i].a = img[i * comp + 3];
+            dst[i].a = src[i * comp + 3];
         }
         else
         {
-            colors[i].a = 255;
+            dst[i].a = 255;
         }
     }
-    return colors;
 }
 nu_error_t
-nuext_load_image_filename (const nu_char_t *filename,
+nuext_image_load_filename (const nu_char_t *filename,
                            nu_allocator_t   allocator,
                            nu_image_t      *image)
 {
-    int            w, h, n;
-    unsigned char *img = stbi_load(filename, &w, &h, &n, STBI_default);
+    int        w, h, n;
+    nu_byte_t *img = stbi_load(filename, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
-    image->size = nu_uvec2(w, h);
-    image->data = nu__parse_colors(img, image->size, n, allocator);
+    nu_uvec2_t size = nu_uvec2(w, h);
+    nu_image_create(allocator, size, image);
+    nu__parse_colors(img, nu_image_colors(*image), size, n);
     stbi_image_free(img);
-    NU_CHECK(image->data, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;
 }
 nu_error_t
-nu_load_image_memory (const nu_byte_t *data,
+nu_image_load_memory (const nu_byte_t *data,
                       nu_size_t        data_size,
                       nu_allocator_t   allocator,
                       nu_image_t      *image)
 {
-    int            w, h, n;
-    unsigned char *img
+    int        w, h, n;
+    nu_byte_t *img
         = stbi_load_from_memory(data, data_size, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
-    image->size = nu_uvec2(w, h);
-    image->data = nu__parse_colors(img, image->size, n, allocator);
+    nu_uvec2_t size = nu_uvec2(w, h);
+    nu_image_create(allocator, size, image);
+    nu__parse_colors(img, nu_image_colors(*image), size, n);
     stbi_image_free(img);
-    NU_CHECK(image->data, return NU_ERROR_ALLOCATION);
     return NU_ERROR_NONE;
 }
 

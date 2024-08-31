@@ -22,18 +22,15 @@ nu__texture_loader_load_sync (void                       *loader,
     nu_texture_asset_t  *texture = (nu_texture_asset_t *)data;
 
     nu_image_t image;
-    nu_error_t error = nuext_load_image_filename(
+    nu_error_t error = nuext_image_load_filename(
         info->filename, context->_allocator, &image);
     NU_ERROR_CHECK(error, return error);
 
-    texture->info.size   = image.size;
-    texture->info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-    texture->info.format = NU_TEXTURE_FORMAT_COLOR;
-    texture->info.colors = image.data;
-    texture->has_image   = NU_FALSE;
-    error                = nu_texture_create(
+    texture->info      = nu_image_texture_info(image);
+    texture->has_image = NU_FALSE;
+    error              = nu_texture_create(
         context->_renderer, &texture->info, &texture->handle);
-    nu_image_free(&image, context->_allocator);
+    nu_image_delete(image);
     NU_ERROR_CHECK(error, return error);
 
     return NU_ERROR_NONE;

@@ -2,7 +2,7 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/platform.h>
 
-static nu_allocator_t alloc;
+static nu_allocator_t allocator;
 static nu_logger_t    logger;
 static nu_platform_t  platform;
 static nu_input_t     exit_input;
@@ -13,7 +13,7 @@ main (void)
     nu_error_t error;
     (void)error;
 
-    nuext_allocator_create_stdlib(&alloc);
+    nuext_allocator_create_stdlib(&allocator);
 
     nu_platform_info_t info;
     info.width  = 500;

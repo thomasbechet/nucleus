@@ -39,29 +39,26 @@ main (void)
     nuext_allocator_create_stdlib(&allocator);
 
     // Create logger
-    nu_logger_create(
-        &(nu_logger_info_t) { .allocator = allocator, .level = NU_LOG_DEBUG },
-        &logger);
+    nu_logger_info_t logger_info;
+    logger_info.allocator = allocator;
+    logger_info.level     = NU_LOG_DEBUG;
+    nu_logger_create(&logger_info, &logger);
 
     // Create platform
-    nu_platform_create(
-        &(nu_platform_info_t) {
-            .width     = WIDTH,
-            .height    = HEIGHT,
-            .allocator = allocator,
-            .logger    = logger,
-        },
-        &platform);
+    nu_platform_info_t platform_info;
+    platform_info.width     = WIDTH;
+    platform_info.height    = HEIGHT;
+    platform_info.allocator = allocator;
+    platform_info.logger    = logger;
+    nu_platform_create(&platform_info, &platform);
 
     // Create renderer
-    nu_renderer_create(
-        &(nu_renderer_info_t) {
-            .allocator = allocator,
-            .api       = NU_RENDERER_GL,
-            .platform  = platform,
-            .logger    = logger,
-        },
-        &renderer);
+    nu_renderer_info_t renderer_info;
+    renderer_info.allocator = allocator;
+    renderer_info.api       = NU_RENDERER_GL;
+    renderer_info.platform  = platform;
+    renderer_info.logger    = logger;
+    nu_renderer_create(&renderer_info, &renderer);
 
     // Create asset manager
     nu_asset_manager_create(allocator, &assets);
@@ -126,14 +123,12 @@ main (void)
     nuext_input_bind_button(platform, controller.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer;
-    nu_texture_create(renderer,
-                      &(nu_texture_info_t) {
-                          .usage  = NU_TEXTURE_USAGE_TARGET,
-                          .format = NU_TEXTURE_FORMAT_DEPTH,
-                          .size   = nu_uvec2(WIDTH, HEIGHT),
-                      },
-                      &depth_buffer);
+    nu_texture_t      depth_buffer;
+    nu_texture_info_t depth_buffer_info;
+    depth_buffer_info.usage  = NU_TEXTURE_USAGE_TARGET,
+    depth_buffer_info.format = NU_TEXTURE_FORMAT_DEPTH,
+    depth_buffer_info.size   = nu_uvec2(WIDTH, HEIGHT),
+    nu_texture_create(renderer, &depth_buffer_info, &depth_buffer);
 
     // Create cube
     nu_mesh_t cube_mesh;
@@ -141,12 +136,11 @@ main (void)
     nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
     nu_vec3_t cube_normals[NU_CUBE_MESH_VERTEX_COUNT];
     nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs, cube_normals);
-    nu_mesh_create(renderer,
-                   &(nu_mesh_info_t) { .positions = cube_positions,
-                                       .uvs       = cube_uvs,
-                                       .normals   = cube_normals,
-                                       .count     = NU_CUBE_MESH_VERTEX_COUNT },
-                   &cube_mesh);
+    nu_mesh_info_t cube_mesh_info;
+    cube_mesh_info.positions = cube_positions, cube_mesh_info.uvs = cube_uvs,
+    cube_mesh_info.normals = cube_normals,
+    cube_mesh_info.count   = NU_CUBE_MESH_VERTEX_COUNT;
+    nu_mesh_create(renderer, &cube_mesh_info, &cube_mesh);
 
     // Load resources
     nu_texture_t texture;
@@ -154,32 +148,18 @@ main (void)
     nu_texture_t texture_gui;
     {
         nu_image_t image;
-        nuext_load_image_filename(
+        nuext_image_load_filename(
             "../../../assets/brick_building_front_lowres.png",
             allocator,
             &image);
-        nu_texture_create(renderer,
-                          &(nu_texture_info_t) {
-                              .size   = image.size,
-                              .usage  = NU_TEXTURE_USAGE_SAMPLE,
-                              .format = NU_TEXTURE_FORMAT_COLOR,
-                              .colors = image.data,
-                          },
-                          &texture);
-        nu_image_free(&image, allocator);
+        nu_texture_create_image(renderer, image, &texture);
+        nu_image_delete(image);
 
         nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture_white);
 
-        nuext_load_image_filename("../../../assets/GUI.png", allocator, &image);
-        nu_texture_create(renderer,
-                          &(nu_texture_info_t) {
-                              .size   = image.size,
-                              .usage  = NU_TEXTURE_USAGE_SAMPLE,
-                              .format = NU_TEXTURE_FORMAT_COLOR,
-                              .colors = image.data,
-                          },
-                          &texture_gui);
-        nu_image_free(&image, allocator);
+        nuext_image_load_filename("../../../assets/GUI.png", allocator, &image);
+        nu_texture_create_image(renderer, image, &texture_gui);
+        nu_image_delete(image);
     }
 
     // Create material
@@ -211,13 +191,13 @@ main (void)
         nu_gltf_loader_t loader;
         nu_gltf_loader_init(allocator, logger, &loader);
 
-        nuext_gltf_load_model_filename(&loader,
+        nuext_model_load_gltf_filename(&loader,
                                        "../../../assets/temple_of_time.glb",
                                        allocator,
                                        renderer,
                                        &temple_model);
 
-        nuext_gltf_load_model_filename(&loader,
+        nuext_model_load_gltf_filename(&loader,
                                        "../../../assets/ariane6.glb",
                                        allocator,
                                        renderer,
@@ -240,29 +220,27 @@ main (void)
         nu_image_t images[6];
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            nuext_load_image_filename(filenames[i], allocator, &images[i]);
+            nuext_image_load_filename(filenames[i], allocator, &images[i]);
         }
-        nu_cubemap_create(renderer,
-                          &(nu_cubemap_info_t) {
-                              .size        = images->size.x,
-                              .usage       = NU_TEXTURE_USAGE_SAMPLE,
-                              .colors_posx = images[3].data,
-                              .colors_negx = images[2].data,
-                              .colors_posy = images[0].data,
-                              .colors_negy = images[1].data,
-                              .colors_posz = images[4].data,
-                              .colors_negz = images[5].data,
-                          },
-                          &skybox);
+        nu_cubemap_info_t info;
+        info.size        = nu_image_size(images[0]).x;
+        info.usage       = NU_TEXTURE_USAGE_SAMPLE;
+        info.colors_posx = nu_image_colors(images[3]);
+        info.colors_negx = nu_image_colors(images[2]);
+        info.colors_posy = nu_image_colors(images[0]);
+        info.colors_negy = nu_image_colors(images[1]);
+        info.colors_posz = nu_image_colors(images[4]);
+        info.colors_negz = nu_image_colors(images[5]);
+        nu_cubemap_create(renderer, &info, &skybox);
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            nu_image_free(&images[i], allocator);
+            nu_image_delete(images[i]);
         }
     }
 
     // Create font
     nu_font_t font;
-    nu_font_init_default(renderer, allocator, &font);
+    nu_font_create_default(renderer, allocator, &font);
 
     // Create camera
     nu_camera_t      camera;
@@ -424,10 +402,10 @@ main (void)
               "Ipsum.";
         nu_draw_text(renderer,
                      gui_pass,
+                     font,
                      s,
                      nu_strlen(s),
-                     nu_ivec2(10, HEIGHT / 2),
-                     &font);
+                     nu_ivec2(10, HEIGHT / 2));
 
         // GUI
         nu_ui_set_cursor(
@@ -461,7 +439,7 @@ main (void)
 
         nu_char_t string[256];
         nu_size_t n = snprintf(string, 256, "FPS: %d", (nu_u32_t)frame_avg);
-        nu_draw_text(renderer, gui_pass, string, n, nu_ivec2(10, 10), &font);
+        nu_draw_text(renderer, gui_pass, font, string, n, nu_ivec2(10, 10));
 
         // Submit renderpass
         nu_renderpass_submit_t submit;

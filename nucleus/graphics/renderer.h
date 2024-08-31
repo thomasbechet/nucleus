@@ -8,6 +8,7 @@
 #include <nucleus/graphics/cubemap.h>
 #include <nucleus/graphics/renderpass.h>
 #include <nucleus/graphics/material.h>
+#include <nucleus/graphics/image.h>
 
 typedef enum
 {
@@ -131,6 +132,9 @@ NU_API nu_error_t nu_texture_create(nu_renderer_t            handle,
                                     nu_texture_t            *texture);
 NU_API nu_error_t nu_texture_create_color(nu_renderer_t handle,
                                           nu_color_t    color,
+                                          nu_texture_t *texture);
+NU_API nu_error_t nu_texture_create_image(nu_renderer_t renderer,
+                                          nu_image_t    image,
                                           nu_texture_t *texture);
 NU_API nu_error_t nu_texture_delete(nu_renderer_t handle, nu_texture_t texture);
 

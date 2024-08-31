@@ -6,11 +6,16 @@
 #include <nucleus/graphics/font_data.h>
 
 nu_error_t
-nu_font_init_default (nu_renderer_t  renderer,
-                      nu_allocator_t alloc,
-                      nu_font_t     *font)
+nu_font_create_default (nu_renderer_t  renderer,
+                        nu_allocator_t alloc,
+                        nu_font_t     *handle)
 {
     nu_error_t error;
+
+    nu__font_t *font = (nu__font_t *)nu_alloc(alloc, sizeof(*font));
+    handle->_ptr     = font;
+    font->allocator  = alloc;
+    font->renderer   = renderer;
 
     // Find min/max characters
     font->min_char             = (nu_char_t)127;
@@ -34,12 +39,12 @@ nu_font_init_default (nu_renderer_t  renderer,
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
     // Load default font data into image
+    nu_uvec2_t image_size
+        = nu_uvec2(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
     nu_image_t image;
-    error = nu_image_init(
-        alloc,
-        nu_uvec2(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT),
-        &image);
+    error = nu_image_create(alloc, image_size, &image);
     NU_ERROR_CHECK(error, return error);
+    nu_color_t *image_data = nu_image_colors(image);
 
     nu_rect_t extent = nu_rect(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     for (nu_size_t ci = 0; ci < char_count; ++ci)
@@ -53,14 +58,14 @@ nu_font_init_default (nu_renderer_t  renderer,
 
             nu_size_t px = extent.p.x + p % NU__FONT_DATA_WIDTH;
             nu_size_t py = extent.p.y + p / NU__FONT_DATA_WIDTH;
-            nu_size_t pi = py * image.size.x + px;
+            nu_size_t pi = py * image_size.x + px;
 
             nu_byte_t color = bit_set ? 0xFF : 0x00;
-            NU_ASSERT(pi < (image.size.x * image.size.y));
-            image.data[pi].r = color;
-            image.data[pi].g = color;
-            image.data[pi].b = color;
-            image.data[pi].a = color;
+            NU_ASSERT(pi < (image_size.x * image_size.y));
+            image_data[pi].r = color;
+            image_data[pi].g = color;
+            image_data[pi].b = color;
+            image_data[pi].a = color;
         }
         nu_size_t gi = nu__font_data_chars[ci] - font->min_char;
         NU_ASSERT(gi < font->glyphs_count);
@@ -69,15 +74,8 @@ nu_font_init_default (nu_renderer_t  renderer,
     }
 
     // Create renderer image
-    {
-        nu_texture_info_t info;
-        info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-        info.format = NU_TEXTURE_FORMAT_COLOR;
-        info.size   = image.size;
-        info.colors = image.data;
-        error       = nu_texture_create(renderer, &info, &font->texture);
-        NU_ERROR_CHECK(error, return error);
-    }
+    error = nu_texture_create_image(renderer, image, &font->texture);
+    NU_ERROR_CHECK(error, return error);
 
     // Create material
     {
@@ -90,26 +88,30 @@ nu_font_init_default (nu_renderer_t  renderer,
     }
 
     // Free resources
-    nu_image_free(&image, alloc);
+    nu_image_delete(image);
 
     return NU_ERROR_NONE;
 }
 void
-nu_font_free (nu_font_t *font, nu_renderer_t renderer, nu_allocator_t alloc)
+nu_font_delete (nu_font_t handle)
 {
-    nu_free(alloc, font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
-    nu_texture_delete(renderer, font->texture);
-    nu_material_delete(renderer, font->material);
+    nu__font_t *font = handle._ptr;
+    nu_free(
+        font->allocator, font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
+    nu_texture_delete(font->renderer, font->texture);
+    nu_material_delete(font->renderer, font->material);
+    nu_free(font->allocator, font, sizeof(*font));
 }
 void
-nu_draw_text (nu_renderer_t    ctx,
+nu_draw_text (nu_renderer_t    renderer,
               nu_renderpass_t  pass,
+              nu_font_t        handle,
               const nu_char_t *text,
               nu_size_t        n,
-              nu_ivec2_t       pos,
-              const nu_font_t *font)
+              nu_ivec2_t       pos)
 {
-    nu_rect_t extent
+    nu__font_t *font = handle._ptr;
+    nu_rect_t   extent
         = nu_rect(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)
     {
@@ -126,7 +128,7 @@ nu_draw_text (nu_renderer_t    ctx,
         }
         nu_size_t gi         = c - font->min_char;
         nu_rect_t tex_extent = font->glyphs[gi];
-        nu_draw_blit(ctx, pass, font->material, extent, tex_extent);
+        nu_draw_blit(renderer, pass, font->material, extent, tex_extent);
         extent.p.x += font->glyph_size.x;
     }
 }

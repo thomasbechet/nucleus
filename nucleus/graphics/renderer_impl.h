@@ -157,12 +157,19 @@ nu_texture_create_color (nu_renderer_t renderer,
                          nu_color_t    color,
                          nu_texture_t *texture)
 {
-    nu_error_t        error;
     nu_texture_info_t info;
     info.size   = nu_uvec2(1, 1);
     info.usage  = NU_TEXTURE_USAGE_SAMPLE;
     info.format = NU_TEXTURE_FORMAT_COLOR;
     info.colors = &color;
+    return nu_texture_create(renderer, &info, texture);
+}
+nu_error_t
+nu_texture_create_image (nu_renderer_t renderer,
+                         nu_image_t    image,
+                         nu_texture_t *texture)
+{
+    nu_texture_info_t info = nu_image_texture_info(image);
     return nu_texture_create(renderer, &info, texture);
 }
 nu_error_t
