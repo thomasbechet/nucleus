@@ -112,7 +112,7 @@ typedef struct
     nu_renderer_t  renderer;
 } nu_ui_info_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_ui_t, nu__ui_t);
+NU_DEFINE_HANDLE_OBJECT(nu_ui_t, nu__ui_t);
 
 NU_API void nu_blit_sliced(nu_renderer_t   renderer,
                            nu_renderpass_t pass,

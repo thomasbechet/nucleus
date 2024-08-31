@@ -15,7 +15,7 @@ typedef struct
     void *userdata;
 } nu__allocator_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_allocator_t, nu__allocator_t);
+NU_DEFINE_HANDLE_OBJECT(nu_allocator_t, nu__allocator_t);
 
 NU_API void *nu_alloc(nu_allocator_t alloc, nu_size_t s);
 NU_API void *nu_realloc(nu_allocator_t alloc,

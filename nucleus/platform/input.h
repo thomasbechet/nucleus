@@ -5,7 +5,7 @@
 #include <nucleus/core/logger.h>
 #include <nucleus/platform/context.h>
 
-NU_DEFINE_HANDLE_POINTER(nu_input_t, nu__input_t);
+NU_DEFINE_HANDLE_OBJECT(nu_input_t, nu__input_t);
 
 NU_API nu_error_t nu_input_create(nu_platform_t platform, nu_input_t *input);
 NU_API nu_bool_t  nu_input_changed(nu_input_t input);

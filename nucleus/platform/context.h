@@ -238,7 +238,7 @@ typedef struct
     nu_allocator_t         allocator;
 } nu__platform_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_platform_t, nu__platform_t);
+NU_DEFINE_HANDLE_OBJECT(nu_platform_t, nu__platform_t);
 
 NU_API nu_error_t nu_platform_create(const nu_platform_info_t *info,
                                      nu_platform_t            *platform);

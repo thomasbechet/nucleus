@@ -172,10 +172,10 @@ typedef int           nu_word_t;
 #define NU_NULL  0
 #define NU_NOOP
 
-#define NU_DEFINE_HANDLE_POINTER(type, data) \
-    typedef struct                           \
-    {                                        \
-        data *_ptr;                          \
+#define NU_DEFINE_HANDLE_OBJECT(type, data) \
+    typedef struct                          \
+    {                                       \
+        data *_ptr;                         \
     } type
 
 #define NU_DEFINE_HANDLE(type) \

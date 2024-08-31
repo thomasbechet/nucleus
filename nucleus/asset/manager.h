@@ -24,24 +24,6 @@ typedef struct
 
 typedef struct
 {
-    void *loader;
-    nu_error_t (*load_async)(void                       *loader,
-                             const nu_asset_load_info_t *info,
-                             void                       *data);
-    nu_error_t (*load_sync)(void                       *loader,
-                            const nu_asset_load_info_t *info,
-                            void                       *data);
-    nu_error_t (*unload)(void *loader, void *data);
-} nu_asset_loader_t;
-
-typedef struct
-{
-    nu_size_t         size;
-    nu_asset_loader_t loader;
-} nu__asset_type_t;
-
-typedef struct
-{
     nu_asset_type_t   type;
     nu_uid_t          uid;
     void             *data;
@@ -54,19 +36,15 @@ typedef nu_pool(nu__asset_entry_t) nu__asset_entry_pool_t;
 typedef struct
 {
     nu_allocator_t         allocator;
-    nu__asset_type_t       types[NU_ASSET_TYPE_MAX];
     nu__asset_entry_pool_t entries;
     nu_asset_bundle_t      active_bundle;
 } nu__asset_manager_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_asset_manager_t, nu__asset_manager_t);
+NU_DEFINE_HANDLE_OBJECT(nu_asset_manager_t, nu__asset_manager_t);
 
 NU_API nu_error_t nu_asset_manager_create(nu_allocator_t      alloc,
                                           nu_asset_manager_t *manager);
 NU_API void       nu_asset_manager_delete(nu_asset_manager_t manager);
-NU_API nu_error_t nu_asset_register_base_loaders(nu_asset_manager_t manager,
-                                                 nu_platform_t      platform,
-                                                 nu_renderer_t      renderer);
 
 NU_API void *nu_asset_add(nu_asset_manager_t manager,
                           nu_asset_type_t    type,

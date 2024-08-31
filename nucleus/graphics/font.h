@@ -16,7 +16,7 @@ typedef struct
     nu_char_t      max_char;
 } nu__font_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_font_t, nu__font_t);
+NU_DEFINE_HANDLE_OBJECT(nu_font_t, nu__font_t);
 
 NU_API nu_error_t nu_font_create_default(nu_renderer_t  renderer,
                                          nu_allocator_t allocator,

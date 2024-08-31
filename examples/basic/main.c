@@ -62,7 +62,6 @@ main (void)
 
     // Create asset manager
     nu_asset_manager_create(allocator, &assets);
-    nu_asset_register_base_loaders(assets, platform, renderer);
 
     // Create camera controller
     nu_camera_controller_t controller;

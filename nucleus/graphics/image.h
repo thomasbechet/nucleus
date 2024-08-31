@@ -10,7 +10,7 @@ typedef struct
     nu_allocator_t allocator;
 } nu__image_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_image_t, nu__image_t);
+NU_DEFINE_HANDLE_OBJECT(nu_image_t, nu__image_t);
 
 NU_API nu_error_t        nu_image_create(nu_allocator_t alloc,
                                          nu_uvec2_t     size,

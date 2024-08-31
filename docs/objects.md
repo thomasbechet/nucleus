@@ -1,0 +1,11 @@
+# Object List :
+- font
+- material -> renderer
+- texture -> renderer
+- logger
+- asset manager
+- platform
+- renderer -> platform
+- font -> renderer
+- model 
+- allocator

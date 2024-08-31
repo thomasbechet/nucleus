@@ -105,7 +105,7 @@ typedef struct nu_renderer
     nu_platform_t     platform;
 } nu__renderer_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_renderer_t, nu__renderer_t);
+NU_DEFINE_HANDLE_OBJECT(nu_renderer_t, nu__renderer_t);
 
 NU_API nu_error_t   nu_renderer_create(const nu_renderer_info_t *info,
                                        nu_renderer_t            *renderer);

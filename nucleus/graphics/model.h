@@ -27,7 +27,7 @@ typedef struct
     nu__model_node_vec_t  nodes;
 } nu__model_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_model_t, nu__model_t);
+NU_DEFINE_HANDLE_OBJECT(nu_model_t, nu__model_t);
 
 NU_API void nu_model_create(nu_allocator_t alloc, nu_model_t *model);
 NU_API void nu_model_delete(nu_model_t model);

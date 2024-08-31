@@ -25,7 +25,7 @@ typedef struct
     nu_allocator_t allocator;
 } nu__logger_t;
 
-NU_DEFINE_HANDLE_POINTER(nu_logger_t, nu__logger_t);
+NU_DEFINE_HANDLE_OBJECT(nu_logger_t, nu__logger_t);
 
 NU_API nu_error_t nu_logger_create(const nu_logger_info_t *info,
                                    nu_logger_t            *logger);
