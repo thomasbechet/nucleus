@@ -1,37 +1,23 @@
-#define NU_STDLIB
+#define NU_NO_PLATFORM
 #define NU_IMPLEMENTATION
-#include <nucleus/core.h>
+#include <nucleus/nucleus.h>
 
-static nu_allocator_t allocator;
-static nu_logger_t    logger;
+typedef nu_pool(nu_u32_t) nu_u32_pool_t;
 
 int
 main (void)
 {
-    nuext_allocator_create_stdlib(&allocator);
+    nu_initialize();
 
-    nu_logger_info_t info;
-    info.level     = NU_LOG_DEBUG;
-    info.allocator = allocator;
-    nu_logger_create(&info, &logger);
+    NU_INFO("Hello World");
 
-    {
-        nu_u32_vec_t v;
-        nu_vec_init(&v, allocator, 10);
-        for (nu_size_t i = 0; i < 50; ++i)
-        {
-            *nu_vec_push(&v, allocator) = i;
-        }
-        for (nu_size_t i = 0; i < 50; ++i)
-        {
-            NU_INFO(logger, "%d", v.data[i]);
-        }
-    }
+    nu_u32_pool_t pool;
+    nu_pool_init(10, &pool);
+    nu_size_t index;
+    nu_u32_t *a = nu_pool_add(&pool, &index);
+    NU_INFO("%d", index);
 
-    nu_vec3_t v = NU_VEC3_ONE;
-    NU_INFO(logger, NU_VEC3_FORMAT, v.x, v.y, v.z);
-
-    nu_logger_delete(logger);
+    nu_terminate();
 
     return 0;
 }

@@ -9,17 +9,6 @@
 #include <nucleus/core/time.h>
 #include <nucleus/core/string.h>
 #include <nucleus/core/ds.h>
-
-#ifdef NU_IMPLEMENTATION
-
-#include <nucleus/core/color_impl.h>
-#include <nucleus/core/logger_impl.h>
-#include <nucleus/core/math_impl.h>
-#include <nucleus/core/memory_impl.h>
-#include <nucleus/core/time_impl.h>
-#include <nucleus/core/string_impl.h>
-#include <nucleus/core/ds_impl.h>
-
-#endif
+#include <nucleus/core/context.h>
 
 #endif

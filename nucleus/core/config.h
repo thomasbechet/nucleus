@@ -4,6 +4,15 @@
 //////////////////////////////////////////////////////////////////////////
 //////                       Platform Detection                     //////
 //////////////////////////////////////////////////////////////////////////
+
+#define NU_BUILD_PLATFORM
+#ifdef NU_NO_PLATFORM
+#undef NU_BUILD_PLATFORM
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                       Platform Detection                     //////
+//////////////////////////////////////////////////////////////////////////
 #if (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__) \
      || defined(_WIN32))
 #define NU_PLATFORM_WINDOWS
@@ -16,26 +25,32 @@
 #define NU_PLATFORM_APPLE
 #endif
 
-#if defined(NU_PLATFORM_WINDOWS)
-#include <Windows.h>
-#elif defined(NU_PLATFORM_UNIX)
-#include <time.h>
-#elif defined(NU_PLATFORM_APPLE)
-#endif
-
 #ifdef __cplusplus
 #define NU_CXX
 #endif
 
 //////////////////////////////////////////////////////////////////////////
-//////                         Error Macros                         //////
+//////                         External Includes                    //////
 //////////////////////////////////////////////////////////////////////////
+
+#define NU_STDLIB
 #ifdef NU_STDLIB
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #endif
+
+#if defined(NU_PLATFORM_WINDOWS)
+#include <Windows.h>
+#elif defined(NU_PLATFORM_UNIX)
+#elif defined(NU_PLATFORM_APPLE)
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                         Error Macros                         //////
+//////////////////////////////////////////////////////////////////////////
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
@@ -78,6 +93,7 @@
 //////////////////////////////////////////////////////////////////////////
 //////                     Import/Export Macros                     //////
 //////////////////////////////////////////////////////////////////////////
+
 #if defined(NU_PLATFORM_WINDOWS)
 
 #define NU_API_EXPORT __declspec(dllexport)
@@ -104,12 +120,6 @@
 #endif
 
 #define NU_API NU_API_EXPORT
-
-//////////////////////////////////////////////////////////////////////////
-//////                      Additional Macros                       //////
-//////////////////////////////////////////////////////////////////////////
-
-#define NU_UNUSED(x) (void)x
 
 //////////////////////////////////////////////////////////////////////////
 //////                     Backends Selection                       //////
@@ -172,11 +182,11 @@ typedef int           nu_word_t;
 #define NU_NULL  0
 #define NU_NOOP
 
-#define NU_DEFINE_HANDLE_OBJECT(type, data) \
-    typedef struct                          \
-    {                                       \
-        data *_ptr;                         \
-    } type
+//////////////////////////////////////////////////////////////////////////
+//////                      Additional Macros                       //////
+//////////////////////////////////////////////////////////////////////////
+
+#define NU_UNUSED(x) (void)x
 
 #define NU_DEFINE_HANDLE(type) \
     typedef union              \

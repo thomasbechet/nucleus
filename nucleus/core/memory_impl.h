@@ -1,29 +1,7 @@
 #ifndef NU_MEMORY_IMPL_H
 #define NU_MEMORY_IMPL_H
 
-#include <nucleus/core/memory.h>
-
-void *
-nu_alloc (nu_allocator_t alloc, nu_size_t s)
-{
-    return alloc._ptr->callback(
-        NU_NULL, 0, s, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
-}
-void *
-nu_realloc (nu_allocator_t alloc, void *ptr, nu_size_t s, nu_size_t n)
-{
-    if (s == n)
-    {
-        return ptr;
-    }
-    return alloc._ptr->callback(
-        ptr, s, n, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
-}
-void
-nu_free (nu_allocator_t alloc, void *ptr, nu_size_t s)
-{
-    alloc._ptr->callback(ptr, s, 0, NU_DEFAULT_ALIGN, alloc._ptr->userdata);
-}
+#include <nucleus/internal.h>
 
 #ifdef NU_STDLIB
 #include <stdlib.h>
@@ -32,9 +10,9 @@ static void *
 nu__stdlib_alloctor_callback (
     void *p, nu_size_t s, nu_size_t n, nu_size_t a, void *u)
 {
-    (void)s;
-    (void)a;
-    (void)u;
+    NU_UNUSED(s);
+    NU_UNUSED(a);
+    NU_UNUSED(u);
     if (p && n)
     {
         return realloc(p, n);
@@ -50,21 +28,58 @@ nu__stdlib_alloctor_callback (
     }
 }
 
-void
-nuext_allocator_create_stdlib (nu_allocator_t *alloc)
+static nu_allocator_t
+nu__allocator_stdlib (void)
 {
-    alloc->_ptr           = (nu__allocator_t *)malloc(sizeof(*alloc->_ptr));
-    alloc->_ptr->callback = nu__stdlib_alloctor_callback;
-    alloc->_ptr->userdata = NU_NULL;
-}
-
-void
-nu_allocator_delete (nu_allocator_t alloc)
-{
-    free(alloc._ptr); // TODO: use callback to alloc/free itself
+    nu_allocator_t a;
+    a.callback = nu__stdlib_alloctor_callback;
+    a.userdata = NU_NULL;
+    return a;
 }
 
 #endif
+
+nu_allocator_t *
+nu_allocator_core (void)
+{
+    return &_ctx.allocator;
+}
+
+void *
+nu_alloc_a (nu_allocator_t *a, nu_size_t s)
+{
+    return a->callback(NU_NULL, 0, s, NU_DEFAULT_ALIGN, a->userdata);
+}
+void *
+nu_realloc_a (nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n)
+{
+    if (s == n)
+    {
+        return p;
+    }
+    return a->callback(p, s, n, NU_DEFAULT_ALIGN, a->userdata);
+}
+void
+nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
+{
+    a->callback(p, s, 0, NU_DEFAULT_ALIGN, a->userdata);
+}
+
+void *
+nu_alloc (nu_size_t s)
+{
+    return nu_alloc_a(&_ctx.allocator, s);
+}
+void *
+nu_realloc (void *p, nu_size_t s, nu_size_t n)
+{
+    return nu_realloc_a(&_ctx.allocator, p, s, n);
+}
+void
+nu_free (void *p, nu_size_t s)
+{
+    nu_free_a(&_ctx.allocator, p, s);
+}
 
 void *
 nu_memset (void *dst, nu_word_t c, nu_size_t n)

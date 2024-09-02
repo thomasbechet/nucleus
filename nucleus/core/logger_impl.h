@@ -1,28 +1,10 @@
 #ifndef NU_LOGGER_IMPL_H
 #define NU_LOGGER_IMPL_H
 
-#include <nucleus/core/logger.h>
-#include <nucleus/core/time.h>
-
-nu_error_t
-nu_logger_create (const nu_logger_info_t *info, nu_logger_t *logger)
-{
-    logger->_ptr
-        = (nu__logger_t *)nu_alloc(info->allocator, sizeof(*logger->_ptr));
-    logger->_ptr->level     = info->level;
-    logger->_ptr->allocator = info->allocator;
-    return NU_ERROR_NONE;
-}
-nu_error_t
-nu_logger_delete (nu_logger_t logger)
-{
-    nu_free(logger._ptr->allocator, logger._ptr, sizeof(*logger._ptr));
-    return NU_ERROR_NONE;
-}
+#include <nucleus/internal.h>
 
 void
-nu_log (nu_logger_t      logger,
-        nu_log_level_t   level,
+nu_log (nu_log_level_t   level,
         const nu_char_t *filename,
         nu_size_t        fileline,
         const nu_char_t *format,
@@ -30,18 +12,17 @@ nu_log (nu_logger_t      logger,
 {
     va_list args;
     va_start(args, format);
-    nu_vlog(logger, level, filename, fileline, format, args);
+    nu_vlog(level, filename, fileline, format, args);
     va_end(args);
 }
 void
-nu_vlog (nu_logger_t      logger,
-         nu_log_level_t   level,
+nu_vlog (nu_log_level_t   level,
          const nu_char_t *filename,
          nu_size_t        fileline,
          const nu_char_t *format,
          va_list          args)
 {
-    if (logger._ptr->level < level)
+    if (_ctx.logger.level < level)
     {
         return;
     }
