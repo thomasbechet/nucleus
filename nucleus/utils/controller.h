@@ -1,21 +1,11 @@
 #ifndef NU_CONTROLLER_H
 #define NU_CONTROLLER_H
 
-#include <nucleus/graphics.h>
+#include <nucleus/platform/platform.h>
+#include <nucleus/graphics/graphics.h>
 
 typedef struct
 {
-    nu_vec3_t _pos;
-    nu_vec3_t _vel;
-    nu_vec3_t _acc;
-    nu_quat_t _rot;
-    float     _yaw;
-    float     _pitch;
-    nu_bool_t _free_mode;
-
-    float fov;
-    float speed;
-
     nu_input_t view_pitch_neg;
     nu_input_t view_pitch_pos;
     nu_input_t view_yaw_neg;
@@ -29,11 +19,15 @@ typedef struct
     nu_input_t move_forward;
     nu_input_t move_backward;
     nu_input_t switch_mode;
-} nu_camera_controller_t;
+} nu_camera_controller_info_t;
 
-NU_API void nu_camera_controller_init(nu_camera_controller_t *controller);
-NU_API void nu_camera_controller_update(nu_camera_controller_t *controller,
-                                        float                   dt,
-                                        nu_camera_info_t       *info);
+NU_DEFINE_HANDLE(nu_camera_controller_t);
+
+NU_API void nu_camera_controller_create(const nu_camera_controller_info_t *info,
+                                        nu_camera_controller_t *controller);
+NU_API void nu_camera_controller_delete(nu_camera_controller_t controller);
+NU_API void nu_camera_controller_update(nu_camera_controller_t controller,
+                                        float                  dt,
+                                        nu_camera_info_t      *info);
 
 #endif

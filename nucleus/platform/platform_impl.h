@@ -3,6 +3,12 @@
 
 #include <nucleus/internal.h>
 
+#include <nucleus/platform/input_impl.h>
+#include <nucleus/platform/surface_impl.h>
+#ifdef NU_BUILD_GLFW
+#include <nucleus/platform/glfw_impl.h>
+#endif
+
 static nu_error_t
 nu__platform_init (const nu_platform_info_t *info)
 {

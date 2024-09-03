@@ -1,7 +1,7 @@
 #ifndef NU_LOADER_IMPL_H
 #define NU_LOADER_IMPL_H
 
-#include <nucleus/utils/loader.h>
+#include <nucleus/internal.h>
 
 #define CGLTF_IMPLEMENTATION
 #include <nucleus/external/cgltf/cgltf.h>
@@ -56,12 +56,10 @@ nu__emplace_vertex (const nu_vec3_t *positions,
 static nu_error_t
 nu__load_mesh (nu_gltf_loader_t *loader,
                const cgltf_mesh *mesh,
-               nu_allocator_t    alloc,
-               nu_renderer_t     renderer,
                nu_model_t       *model)
 {
     nu_error_t error;
-    NU_DEBUG(loader->_logger, "loading mesh: %s", mesh->name);
+    NU_DEBUG("loading mesh: %s", mesh->name);
     for (nu_size_t p = 0; p < mesh->primitives_count; ++p)
     {
         cgltf_primitive *primitive = mesh->primitives + p;
@@ -104,12 +102,11 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             nu_vec3_t *buf_positions = NU_NULL;
             nu_vec2_t *buf_uvs       = NU_NULL;
             nu_vec3_t *buf_normals   = NU_NULL;
-            buf_positions            = (nu_vec3_t *)nu_alloc(
-                loader->_allocator, sizeof(*buf_positions) * indice_count);
-            buf_uvs     = (nu_vec2_t *)nu_alloc(loader->_allocator,
-                                            sizeof(*buf_uvs) * indice_count);
-            buf_normals = (nu_vec3_t *)nu_alloc(
-                loader->_allocator, sizeof(*buf_normals) * indice_count);
+            buf_positions
+                = (nu_vec3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
+            buf_uvs = (nu_vec2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
+            buf_normals
+                = (nu_vec3_t *)nu_alloc(sizeof(*buf_normals) * indice_count);
 
             switch (accessor->component_type)
             {
@@ -139,22 +136,17 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             info.uvs       = buf_uvs;
             info.normals   = buf_normals;
             info.count     = indice_count;
-            error          = nu_mesh_create(renderer, &info, &handle);
+            error          = nu_mesh_create(&info, &handle);
             NU_ERROR_CHECK(error, return error);
 
             // Free resources
-            nu_free(loader->_allocator,
-                    buf_positions,
-                    sizeof(*buf_positions) * indice_count);
-            nu_free(
-                loader->_allocator, buf_uvs, sizeof(*buf_uvs) * indice_count);
-            nu_free(loader->_allocator,
-                    buf_normals,
-                    sizeof(*buf_normals) * indice_count);
+            nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
+            nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
+            nu_free(buf_normals, sizeof(*buf_normals) * indice_count);
             NU_ERROR_CHECK(error, return error);
 
             // Append asset
-            nu__model_asset_t *asset = nu_vec_push(&model->_ptr->assets, alloc);
+            nu__model_asset_t *asset = nu_vec_push(&model->_ptr->assets);
             asset->mesh              = handle;
             nu__gltf_model_cache_t *cache
                 = nu_vec_push(&loader->_cache, loader->_allocator);

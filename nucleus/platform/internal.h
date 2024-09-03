@@ -4,9 +4,13 @@
 #include <nucleus/platform/input.h>
 #include <nucleus/platform/surface.h>
 #include <nucleus/platform/platform.h>
+#ifdef NU_BUILD_GLFW
+#define GLFW_INCLUDE_NONE
+#include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
+#endif
 
 //////////////////////////////////////////////////////////////////////////
-//////                        Surface Types                         //////
+//////                          Surface                             //////
 //////////////////////////////////////////////////////////////////////////
 
 #ifdef NU_BUILD_GLFW
@@ -53,7 +57,7 @@ typedef struct
 } nu__surface_t;
 
 //////////////////////////////////////////////////////////////////////////
-//////                         Input Types                          //////
+//////                             Input                            //////
 //////////////////////////////////////////////////////////////////////////
 
 #ifdef NU_BUILD_GLFW
@@ -136,7 +140,7 @@ typedef struct
 } nu__input_t;
 
 //////////////////////////////////////////////////////////////////////////
-//////                      Platform Types                          //////
+//////                           Module                             //////
 //////////////////////////////////////////////////////////////////////////
 
 typedef struct

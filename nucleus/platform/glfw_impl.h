@@ -3,9 +3,6 @@
 
 #include <nucleus/internal.h>
 
-#define GLFW_INCLUDE_NONE
-#include <nucleus/external/glfw-3.4/include/GLFW/glfw3.h>
-
 static int nuglfw__button_to_key[] = { GLFW_KEY_A,
                                        GLFW_KEY_B,
                                        GLFW_KEY_C,

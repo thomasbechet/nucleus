@@ -1,7 +1,7 @@
 #ifndef NU_GEOMETRY_IMPL_H
 #define NU_GEOMETRY_IMPL_H
 
-#include <nucleus/utils/geometry.h>
+#include <nucleus/internal.h>
 
 void
 nu_generate_cube_mesh (float     side_length,

@@ -1,7 +1,7 @@
 #ifndef NU_MESH_H
 #define NU_MESH_H
 
-#include <nucleus/core.h>
+#include <nucleus/core/core.h>
 
 typedef struct
 {

@@ -1,35 +1,31 @@
 #ifndef NU_IMAGE_IMPL_H
 #define NU_IMAGE_IMPL_H
 
-#include <nucleus/graphics/image.h>
+#include <nucleus/internal.h>
 
 nu_error_t
-nu_image_create (nu_allocator_t alloc, nu_uvec2_t size, nu_image_t *ima)
+nu_image_create (nu_uvec2_t size, nu_image_t *image)
 {
-    ima->_ptr            = (nu__image_t *)nu_alloc(alloc, sizeof(*ima->_ptr));
-    ima->_ptr->allocator = alloc;
-    ima->_ptr->size      = size;
-    ima->_ptr->colors
-        = (nu_color_t *)nu_alloc(alloc, sizeof(nu_color_t) * size.x * size.y);
+    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &image->_index);
+    im->size        = size;
+    im->colors = (nu_color_t *)nu_alloc(sizeof(nu_color_t) * size.x * size.y);
     return NU_ERROR_NONE;
 }
 void
 nu_image_delete (nu_image_t ima)
 {
-    nu_free(ima._ptr->allocator,
-            ima._ptr->colors,
-            sizeof(nu_color_t) * ima._ptr->size.x * ima._ptr->size.y);
-    nu_free(ima._ptr->allocator, ima._ptr, sizeof(*ima._ptr));
+    nu__image_t *im = &_ctx.graphics.images.data[ima._index];
+    nu_free(im->colors, sizeof(nu_color_t) * im->size.x * im->size.y);
 }
 nu_color_t *
 nu_image_colors (nu_image_t image)
 {
-    return image._ptr->colors;
+    return _ctx.graphics.images.data[image._index].colors;
 }
 nu_uvec2_t
 nu_image_size (nu_image_t image)
 {
-    return image._ptr->size;
+    return _ctx.graphics.images.data[image._index].size;
 }
 nu_texture_info_t
 nu_image_texture_info (nu_image_t image)

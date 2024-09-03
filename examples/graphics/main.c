@@ -1,15 +1,9 @@
-#define NU_STDLIB
 #define NU_IMPLEMENTATION
-#include <nucleus/utils.h>
-#include <nucleus/graphics.h>
+#include <nucleus/nucleus.h>
 
 #define WIDTH  500
 #define HEIGHT 500
 
-static nu_allocator_t  allocator;
-static nu_logger_t     logger;
-static nu_platform_t   platform;
-static nu_renderer_t   renderer;
 static nu_renderpass_t renderpass;
 static nu_texture_t    depth_buffer;
 static nu_mesh_t       mesh;
@@ -24,45 +18,12 @@ main (void)
     nu_error_t error;
     NU_UNUSED(error);
 
-    nuext_allocator_create_stdlib(&allocator);
-
-    // Create logger
-    {
-        nu_logger_info_t info;
-        info.allocator = allocator;
-        info.level     = NU_LOG_DEBUG;
-        error          = nu_logger_create(&info, &logger);
-        NU_ERROR_ASSERT(error);
-    }
-
-    // Platform
-    {
-        nu_platform_info_t info;
-        info.width     = WIDTH;
-        info.height    = HEIGHT;
-        info.allocator = allocator;
-        info.logger    = logger;
-        error          = nu_platform_create(&info, &platform);
-        NU_ERROR_ASSERT(error);
-    }
-
-    // Renderer
-    {
-        nu_renderer_info_t info;
-        info.allocator = allocator;
-        info.api       = NU_RENDERER_GL;
-        info.platform  = platform;
-        info.logger    = logger;
-        error          = nu_renderer_create(&info, &renderer);
-        NU_ERROR_ASSERT(error);
-    }
-
     // Renderpass
     {
         nu_renderpass_info_t info;
         info.type               = NU_RENDERPASS_FLAT;
         info.reset_after_submit = NU_TRUE;
-        error = nu_renderpass_create(renderer, &info, &renderpass);
+        error                   = nu_renderpass_create(&info, &renderpass);
         NU_ERROR_ASSERT(error);
     }
 
@@ -77,14 +38,13 @@ main (void)
         info.uvs       = uvs;
         info.normals   = normals;
         info.count     = NU_CUBE_MESH_VERTEX_COUNT;
-        error          = nu_mesh_create(renderer, &info, &mesh);
+        error          = nu_mesh_create(&info, &mesh);
         NU_ERROR_ASSERT(error);
     }
 
     // Texture
     {
-        error
-            = nu_texture_create_color(renderer, NU_COLOR_WHITE, &texture);
+        error = nu_texture_create_color(NU_COLOR_WHITE, &texture);
         NU_ERROR_ASSERT(error);
     }
 
@@ -92,7 +52,7 @@ main (void)
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
-        error = nu_material_create(renderer, &info, &material);
+        error                   = nu_material_create(&info, &material);
         NU_ERROR_ASSERT(error);
     }
 
@@ -102,7 +62,7 @@ main (void)
         info.fov              = 60;
         info.eye              = nu_vec3(2, 1, 2);
         info.center           = NU_VEC3_ZERO;
-        error                 = nu_camera_create(renderer, &info, &camera);
+        error                 = nu_camera_create(&info, &camera);
         NU_ERROR_ASSERT(error);
     }
 
@@ -112,21 +72,21 @@ main (void)
         info.size   = nu_uvec2(WIDTH, HEIGHT);
         info.usage  = NU_TEXTURE_USAGE_TARGET;
         info.format = NU_TEXTURE_FORMAT_DEPTH;
-        error       = nu_texture_create(renderer, &info, &depth_buffer);
+        error       = nu_texture_create(&info, &depth_buffer);
         NU_ERROR_ASSERT(error);
     }
 
     // Exit input
     {
-        error = nu_input_create(platform, &exit_input);
+        error = nu_input_create(&exit_input);
         NU_ERROR_ASSERT(error);
-        nuext_input_bind_button(platform, exit_input, NUEXT_BUTTON_ESCAPE);
+        nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
     }
 
     nu_timer_t timer;
     nu_timer_reset(&timer);
     float time = 0;
-    while (!nu_platform_exit_requested(platform))
+    while (!nu_exit_requested())
     {
         float delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
@@ -135,28 +95,25 @@ main (void)
         {
             break;
         }
-        nu_platform_poll_events(platform);
+        nu_poll_events();
 
         nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 500) * 0.1, 0);
         model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
-        nu_draw_mesh(renderer, renderpass, material, mesh, model);
+        nu_draw_mesh(renderpass, material, mesh, model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;
-        nu_texture_t surface_color = nu_surface_color_target(renderer);
+        nu_texture_t surface_color = nu_surface_color_target();
 
         nu_renderpass_submit_t submit;
         submit.flat.camera       = camera;
         submit.flat.clear_color  = &clear_color;
         submit.flat.color_target = &surface_color;
         submit.flat.depth_target = &depth_buffer;
-        nu_renderpass_submit(renderer, renderpass, &submit);
+        nu_renderpass_submit(renderpass, &submit);
 
-        nu_renderer_render(renderer);
-        nu_platform_swap_buffers(platform);
+        nu_renderer_render();
+        nu_swap_buffers();
     }
-
-    nu_renderer_delete(renderer);
-    nu_platform_delete(platform);
 
     return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef NU_SURFACE_H
 #define NU_SURFACE_H
 
-#include <nucleus/core.h>
+#include <nucleus/core/core.h>
 
 NU_API nu_error_t nu_swap_buffers(void);
 

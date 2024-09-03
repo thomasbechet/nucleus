@@ -1,21 +1,14 @@
 #ifndef NU_FONT_IMPL_H
 #define NU_FONT_IMPL_H
 
-#include <nucleus/graphics/font.h>
-#include <nucleus/graphics/image.h>
-#include <nucleus/graphics/font_data.h>
+#include <nucleus/internal.h>
 
 nu_error_t
-nu_font_create_default (nu_renderer_t  renderer,
-                        nu_allocator_t alloc,
-                        nu_font_t     *handle)
+nu_font_create_default (nu_font_t *handle)
 {
     nu_error_t error;
 
-    nu__font_t *font = (nu__font_t *)nu_alloc(alloc, sizeof(*font));
-    handle->_ptr     = font;
-    font->allocator  = alloc;
-    font->renderer   = renderer;
+    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &handle->_index);
 
     // Find min/max characters
     font->min_char             = (nu_char_t)127;
@@ -33,7 +26,7 @@ nu_font_create_default (nu_renderer_t  renderer,
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
-        = (nu_rect_t *)nu_alloc(alloc, sizeof(nu_rect_t) * font->glyphs_count);
+        = (nu_rect_t *)nu_alloc(sizeof(nu_rect_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_ERROR_ALLOCATION);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
@@ -42,7 +35,7 @@ nu_font_create_default (nu_renderer_t  renderer,
     nu_uvec2_t image_size
         = nu_uvec2(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
     nu_image_t image;
-    error = nu_image_create(alloc, image_size, &image);
+    error = nu_image_create(image_size, &image);
     NU_ERROR_CHECK(error, return error);
     nu_color_t *image_data = nu_image_colors(image);
 
@@ -74,7 +67,7 @@ nu_font_create_default (nu_renderer_t  renderer,
     }
 
     // Create renderer image
-    error = nu_texture_create_image(renderer, image, &font->texture);
+    error = nu_texture_create_image(image, &font->texture);
     NU_ERROR_CHECK(error, return error);
 
     // Create material
@@ -83,7 +76,7 @@ nu_font_create_default (nu_renderer_t  renderer,
         info.type             = NU_MATERIAL_CANVAS;
         info.canvas.color0    = &font->texture;
         info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
-        error = nu_material_create(renderer, &info, &font->material);
+        error                 = nu_material_create(&info, &font->material);
         NU_ERROR_CHECK(error, return error);
     }
 
@@ -95,16 +88,13 @@ nu_font_create_default (nu_renderer_t  renderer,
 void
 nu_font_delete (nu_font_t handle)
 {
-    nu__font_t *font = handle._ptr;
-    nu_free(
-        font->allocator, font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
-    nu_texture_delete(font->renderer, font->texture);
-    nu_material_delete(font->renderer, font->material);
-    nu_free(font->allocator, font, sizeof(*font));
+    nu__font_t *font = &_ctx.graphics.fonts.data[handle._index];
+    nu_free(font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
+    nu_texture_delete(font->texture);
+    nu_material_delete(font->material);
 }
 void
-nu_draw_text (nu_renderer_t    renderer,
-              nu_renderpass_t  pass,
+nu_draw_text (nu_renderpass_t  pass,
               nu_font_t        handle,
               const nu_char_t *text,
               nu_size_t        n,
@@ -128,7 +118,7 @@ nu_draw_text (nu_renderer_t    renderer,
         }
         nu_size_t gi         = c - font->min_char;
         nu_rect_t tex_extent = font->glyphs[gi];
-        nu_draw_blit(renderer, pass, font->material, extent, tex_extent);
+        nu_draw_blit(pass, font->material, extent, tex_extent);
         extent.p.x += font->glyph_size.x;
     }
 }

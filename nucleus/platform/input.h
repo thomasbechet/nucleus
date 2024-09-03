@@ -1,7 +1,7 @@
 #ifndef NU_INPUT_H
 #define NU_INPUT_H
 
-#include <nucleus/core.h>
+#include <nucleus/core/core.h>
 
 #define NU_INPUT_PRESSED       1.0f
 #define NU_INPUT_RELEASED      0.0f

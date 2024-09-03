@@ -1,7 +1,6 @@
 #ifndef NU_LOADER_H
 #define NU_LOADER_H
 
-#include <nucleus/graphics.h>
 #include <nucleus/graphics/image.h>
 #include <nucleus/graphics/model.h>
 
@@ -14,22 +13,17 @@ typedef nu_vec(nu__gltf_model_cache_t) nu__gltf_model_cache_vec_t;
 
 typedef struct
 {
-    nu_allocator_t             _allocator;
-    nu_logger_t                _logger;
     nu__gltf_model_cache_vec_t _cache;
     nu_bool_t                  _has_default_material;
     nu_u32_t                   _default_material;
 } nu_gltf_loader_t;
 
-NU_API nu_error_t nu_gltf_loader_init(nu_allocator_t    alloc,
-                                      nu_logger_t       logger,
-                                      nu_gltf_loader_t *loader);
+NU_API nu_error_t nu_gltf_loader_init(nu_gltf_loader_t *loader);
 NU_API void       nu_gltf_loader_free(nu_gltf_loader_t *loader);
 
 NU_API nu_error_t nuext_model_load_gltf_filename(nu_gltf_loader_t *loader,
                                                  const nu_char_t  *filename,
                                                  nu_allocator_t    alloc,
-                                                 nu_renderer_t     renderer,
                                                  nu_model_t       *model);
 
 NU_API nu_error_t nuext_image_load_filename(const nu_char_t *filename,

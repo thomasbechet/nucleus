@@ -1,7 +1,8 @@
-#ifndef NU_PLATFORM_PLATFORM_H
-#define NU_PLATFORM_PLATFORM_H
+#ifndef NU_PLATFORM_H
+#define NU_PLATFORM_H
 
-#include <nucleus/core.h>
+#include <nucleus/platform/input.h>
+#include <nucleus/platform/surface.h>
 
 typedef struct
 {

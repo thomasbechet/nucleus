@@ -3,6 +3,72 @@
 
 #include <nucleus/graphics/renderer.h>
 
+//////////////////////////////////////////////////////////////////////////
+//////                            Font                              //////
+//////////////////////////////////////////////////////////////////////////
+
+#include <nucleus/graphics/font_data.h>
+
+typedef struct
+{
+    nu_texture_t  texture;
+    nu_material_t material;
+    nu_rect_t    *glyphs;
+    nu_size_t     glyphs_count;
+    nu_uvec2_t    glyph_size;
+    nu_char_t     min_char;
+    nu_char_t     max_char;
+} nu__font_t;
+
+typedef nu_pool(nu__font_t) nu__font_pool_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                            Image                             //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_uvec2_t     size;
+    nu_color_t    *colors;
+    nu_allocator_t allocator;
+} nu__image_t;
+
+typedef nu_pool(nu__image_t) nu__image_pool_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                            Model                             //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_u16_t  mesh;
+    nu_u16_t  material;
+    nu_mat4_t transform;
+} nu__model_node_t;
+
+typedef union
+{
+    nu_mesh_t     mesh;
+    nu_texture_t  texture;
+    nu_material_t material;
+} nu__model_asset_t;
+
+typedef nu_vec(nu__model_asset_t) nu__model_asset_vec_t;
+typedef nu_vec(nu__model_node_t) nu__model_node_vec_t;
+
+typedef struct
+{
+    nu_allocator_t        allocator;
+    nu__model_asset_vec_t assets;
+    nu__model_node_vec_t  nodes;
+} nu__model_t;
+
+typedef nu_pool(nu__model_t) nu__model_pool_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                          Renderer                            //////
+//////////////////////////////////////////////////////////////////////////
+
 typedef struct
 {
     // Engine API
@@ -60,5 +126,20 @@ typedef struct
     void             *backend;
     nu_texture_t      surface_color;
 } nu__renderer_t;
+
+//////////////////////////////////////////////////////////////////////////
+//////                          Module                              //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu__renderer_t   renderer;
+    nu__font_pool_t  fonts;
+    nu__image_pool_t images;
+    nu__model_pool_t models;
+} nu__graphics_t;
+
+static nu_error_t nu__graphics_init(const nu_renderer_info_t *info);
+static nu_error_t nu__graphics_free(void);
 
 #endif

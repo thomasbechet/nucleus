@@ -1,7 +1,6 @@
 #ifndef NU_RENDERER_H
 #define NU_RENDERER_H
 
-#include <nucleus/platform.h>
 #include <nucleus/graphics/texture.h>
 #include <nucleus/graphics/camera.h>
 #include <nucleus/graphics/mesh.h>

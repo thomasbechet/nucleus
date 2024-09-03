@@ -1,11 +1,11 @@
-#ifndef NUGL_RENDERER_H
-#define NUGL_RENDERER_H
+#ifndef NU_GL_INTERNAL_H
+#define NU_GL_INTERNAL_H
 
-#include <nucleus/core.h>
+#include <nucleus/graphics/internal.h>
+
+#include <nucleus/gl/shader_data.h>
+#define GLAD_GL_IMPLEMENTATION
 #include <nucleus/external/glad/gl.h>
-#include <nucleus/graphics/texture.h>
-#include <nucleus/graphics/renderpass.h>
-#include <nucleus/graphics/material.h>
 
 #define NUGL__VERTEX_SIZE (3 + 2 + 3)
 
@@ -187,6 +187,8 @@ typedef struct
     nugl__rendertarget_vec_t targets;
     nugl__renderpass_vec_t   passes;
     nu_u32_vec_t             passes_order;
-} nugl__context_t;
+} nu__gl_t;
+
+static void nugl__setup_api(nu_renderer_api_t *api);
 
 #endif

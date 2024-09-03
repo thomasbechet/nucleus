@@ -1,15 +1,10 @@
-#ifndef NUGL_RENDERER_IMPL_H
-#define NUGL_RENDERER_IMPL_H
+#ifndef NU_GL_IMPL_H
+#define NU_GL_IMPL_H
 
-#include <nucleus/graphics/renderer.h>
-#include <nucleus/gl/renderer.h>
-#include <nucleus/gl/shader_data.h>
-
-#define GLAD_GL_IMPLEMENTATION
-#include <nucleus/external/glad/gl.h>
+#include <nucleus/internal.h>
 
 static void
-nugl__reset_renderpass_typed (nugl__context_t *gl, nugl__renderpass_t *pass)
+nugl__reset_renderpass_typed (nugl__renderpass_t *pass)
 {
     switch (pass->type)
     {
@@ -35,8 +30,7 @@ nugl__reset_renderpass_typed (nugl__context_t *gl, nugl__renderpass_t *pass)
     }
 }
 static void
-nugl__write_canvas_buffers (nugl__context_t           *gl,
-                            nugl__renderpass_canvas_t *pass)
+nugl__write_canvas_buffers (nugl__renderpass_canvas_t *pass)
 {
     nu_size_t required_size
         = sizeof(nugl__gpu_blit_t) * pass->blit_transfer.size;
@@ -55,8 +49,7 @@ nugl__write_canvas_buffers (nugl__context_t           *gl,
 }
 
 static nu_error_t
-nugl__compile_shader (nu__renderer_t  *ctx,
-                      const nu_char_t *vert,
+nugl__compile_shader (const nu_char_t *vert,
                       const nu_char_t *frag,
                       GLuint          *program)
 {
@@ -75,7 +68,7 @@ nugl__compile_shader (nu__renderer_t  *ctx,
         glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
-        NU_ERROR(ctx->logger, "%s", log);
+        NU_ERROR("%s", log);
 
         glDeleteShader(vertex_shader);
         return NU_ERROR_SHADER_COMPILATION;
@@ -91,7 +84,7 @@ nugl__compile_shader (nu__renderer_t  *ctx,
         glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
-        NU_ERROR(ctx->logger, "%s", log);
+        NU_ERROR("%s", log);
 
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
@@ -147,7 +140,6 @@ MessageCallback (GLenum        source,
                  const GLchar *message,
                  const void   *userParam)
 {
-    nu__renderer_t *ctx = (nu__renderer_t *)userParam;
     if (type == GL_DEBUG_TYPE_OTHER) // Skip other messages
     {
         return;
@@ -155,82 +147,69 @@ MessageCallback (GLenum        source,
     switch (severity)
     {
         case GL_DEBUG_SEVERITY_HIGH:
-            NU_ERROR(ctx->logger,
-                     "GL: %s, message = %s",
+            NU_ERROR("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            NU_ERROR(ctx->logger,
-                     "GL: %s, message = %s",
+            NU_ERROR("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            NU_WARNING(ctx->logger,
-                       "GL: %s, message = %s",
+            NU_WARNING("GL: %s, message = %s",
                        nugl__message_type_string(type),
                        message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            NU_INFO(ctx->logger,
-                    "GL: %s, message = %s",
+            NU_INFO("GL: %s, message = %s",
                     nugl__message_type_string(type),
                     message);
             break;
     }
 }
 
-static nugl__context_t *
-nugl__ctx (nu__renderer_t *ctx)
-{
-    return (nugl__context_t *)ctx->backend;
-}
 static nu_error_t
-nugl__init (nu__renderer_t *ctx, nu_uvec2_t size)
+nugl__init (void)
 {
     nu_error_t error;
 
-    // Allocate context
-    ctx->backend = nu_alloc(ctx->allocator, sizeof(nugl__context_t));
-
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
     // Initialize containers
-    nu_vec_init(&gl->cameras, ctx->allocator, 16);
-    nu_vec_init(&gl->meshes, ctx->allocator, 16);
-    nu_vec_init(&gl->textures, ctx->allocator, 16);
-    nu_vec_init(&gl->cubemaps, ctx->allocator, 16);
-    nu_vec_init(&gl->materials, ctx->allocator, 16);
-    nu_vec_init(&gl->targets, ctx->allocator, 16);
-    nu_vec_init(&gl->passes, ctx->allocator, 16);
-    nu_vec_init(&gl->passes_order, ctx->allocator, 16);
+    nu_vec_init(16, &gl->cameras);
+    nu_vec_init(16, &gl->meshes);
+    nu_vec_init(16, &gl->textures);
+    nu_vec_init(16, &gl->cubemaps);
+    nu_vec_init(16, &gl->materials);
+    nu_vec_init(16, &gl->targets);
+    nu_vec_init(16, &gl->passes);
+    nu_vec_init(16, &gl->passes_order);
 
     // Initialize GL functions
     if (!gladLoadGL(glfwGetProcAddress))
     {
-        NU_ERROR(ctx->logger, "failed to load GL functions");
+        NU_ERROR("failed to load GL functions");
         return NU_ERROR_BACKEND;
     }
 
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, ctx);
+    glDebugMessageCallback(MessageCallback, NU_NULL);
 
     // Compile programs
     error = nugl__compile_shader(
-        ctx, nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
+        nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
-        ctx, nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
+        nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
     NU_ERROR_CHECK(error, return error);
 
-    error = nugl__compile_shader(ctx,
-                                 nugl__shader_skybox_vert,
+    error = nugl__compile_shader(nugl__shader_skybox_vert,
                                  nugl__shader_skybox_frag,
                                  &gl->skybox_program);
     NU_ERROR_CHECK(error, return error);
@@ -239,8 +218,7 @@ nugl__init (nu__renderer_t *ctx, nu_uvec2_t size)
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
-    error = nugl__compile_shader(ctx,
-                                 nugl__shader_canvas_blit_vert,
+    error = nugl__compile_shader(nugl__shader_canvas_blit_vert,
                                  nugl__shader_canvas_blit_frag,
                                  &gl->canvas_blit_program);
     NU_ERROR_CHECK(error, return error);
@@ -255,17 +233,14 @@ nugl__init (nu__renderer_t *ctx, nu_uvec2_t size)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__free (nu__renderer_t *ctx)
+nugl__free (void)
 {
-    nu_free(ctx->allocator, ctx->backend, sizeof(nugl__context_t));
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__render (nu__renderer_t  *ctx,
-              const nu_rect_t *global_viewport,
-              const nu_rect_t *viewport)
+nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
@@ -403,7 +378,7 @@ nugl__render (nu__renderer_t  *ctx,
             break;
             case NU_RENDERPASS_CANVAS: {
                 // Update buffers
-                nugl__write_canvas_buffers(gl, &pass->canvas);
+                nugl__write_canvas_buffers(&pass->canvas);
                 glUseProgram(gl->canvas_blit_program);
 
                 glDisable(GL_DEPTH_TEST);
@@ -445,7 +420,7 @@ nugl__render (nu__renderer_t  *ctx,
         // Reset pass
         if (pass->reset_after_submit)
         {
-            nugl__reset_renderpass_typed(gl, pass);
+            nugl__reset_renderpass_typed(pass);
         }
     }
 
@@ -470,11 +445,11 @@ nugl__render (nu__renderer_t  *ctx,
     return NU_ERROR_NONE;
 }
 static nu_texture_t
-nugl__create_surface_color (nu__renderer_t *ctx, nu_uvec2_t size)
+nugl__create_surface_color (nu_uvec2_t size)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    nugl__texture_t *ptex   = nu_vec_push(&gl->textures, ctx->allocator);
+    nugl__texture_t *ptex   = nu_vec_push(&gl->textures);
     gl->surface_color_index = gl->textures.size - 1;
     ptex->size              = size;
 
@@ -500,11 +475,9 @@ nugl__create_surface_color (nu__renderer_t *ctx, nu_uvec2_t size)
 }
 
 static nu_error_t
-nugl__update_camera (nu__renderer_t         *ctx,
-                     nu_camera_t             camera,
-                     const nu_camera_info_t *info)
+nugl__update_camera (nu_camera_t camera, const nu_camera_info_t *info)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
     nugl__texture_t *surface_color
         = gl->textures.data + gl->surface_color_index;
@@ -522,34 +495,30 @@ nugl__update_camera (nu__renderer_t         *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_camera (nu__renderer_t         *ctx,
-                     const nu_camera_info_t *info,
-                     nu_camera_t            *camera)
+nugl__create_camera (const nu_camera_info_t *info, nu_camera_t *camera)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    (void)nu_vec_push(&gl->cameras, ctx->allocator);
+    (void)nu_vec_push(&gl->cameras);
     camera->_index = gl->cameras.size - 1;
 
-    nu_error_t error = nugl__update_camera(ctx, *camera, info);
+    nu_error_t error = nugl__update_camera(*camera, info);
     NU_ERROR_CHECK(error, return error);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_camera (nu__renderer_t *ctx, nu_camera_t camera)
+nugl__delete_camera (nu_camera_t camera)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_mesh (nu__renderer_t       *ctx,
-                   const nu_mesh_info_t *info,
-                   nu_mesh_t            *mesh)
+nugl__create_mesh (const nu_mesh_info_t *info, nu_mesh_t *mesh)
 {
     NU_ASSERT(info->positions);
 
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    nugl__mesh_t *pmesh = nu_vec_push(&gl->meshes, ctx->allocator);
+    nugl__mesh_t *pmesh = nu_vec_push(&gl->meshes);
     mesh->_index        = gl->meshes.size - 1;
 
     pmesh->vertex_count = info->count;
@@ -618,21 +587,20 @@ nugl__create_mesh (nu__renderer_t       *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_mesh (nu__renderer_t *ctx, nu_mesh_t mesh)
+nugl__delete_mesh (nu_mesh_t mesh)
 {
-    nugl__mesh_t *pmesh = nugl__ctx(ctx)->meshes.data + mesh._index;
+    nu__gl_t     *gl    = &_ctx.gl;
+    nugl__mesh_t *pmesh = gl->meshes.data + mesh._index;
     glDeleteVertexArrays(1, &pmesh->vao);
     glDeleteBuffers(1, &pmesh->vbo);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_texture (nu__renderer_t          *ctx,
-                      const nu_texture_info_t *info,
-                      nu_texture_t            *texture)
+nugl__create_texture (const nu_texture_info_t *info, nu_texture_t *texture)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    nugl__texture_t *ptex = nu_vec_push(&gl->textures, ctx->allocator);
+    nugl__texture_t *ptex = nu_vec_push(&gl->textures);
     texture->_index       = gl->textures.size - 1;
 
     ptex->size = info->size;
@@ -674,20 +642,19 @@ nugl__create_texture (nu__renderer_t          *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_texture (nu__renderer_t *ctx, nu_texture_t texture)
+nugl__delete_texture (nu_texture_t texture)
 {
-    nugl__texture_t *ptex = nugl__ctx(ctx)->textures.data + texture._index;
+    nu__gl_t        *gl   = &_ctx.gl;
+    nugl__texture_t *ptex = gl->textures.data + texture._index;
     glDeleteTextures(1, &ptex->texture);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_cubemap (nu__renderer_t          *ctx,
-                      const nu_cubemap_info_t *info,
-                      nu_cubemap_t            *cubemap)
+nugl__create_cubemap (const nu_cubemap_info_t *info, nu_cubemap_t *cubemap)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps, ctx->allocator);
+    nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps);
     cubemap->_index        = gl->cubemaps.size - 1;
 
     glGenTextures(1, &pcube->texture);
@@ -719,16 +686,14 @@ nugl__create_cubemap (nu__renderer_t          *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_cubemap (nu__renderer_t *ctx, nu_cubemap_t cubemap)
+nugl__delete_cubemap (nu_cubemap_t cubemap)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__update_material (nu__renderer_t           *ctx,
-                       nu_material_t             material,
-                       const nu_material_info_t *info)
+nugl__update_material (nu_material_t material, const nu_material_info_t *info)
 {
-    nugl__context_t  *gl  = nugl__ctx(ctx);
+    nu__gl_t         *gl  = &_ctx.gl;
     nugl__material_t *mat = gl->materials.data + material._index;
     NU_ASSERT(info->type == mat->type);
     NU_ASSERT(material._index < gl->materials.size);
@@ -761,39 +726,35 @@ nugl__update_material (nu__renderer_t           *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_material (nu__renderer_t           *ctx,
-                       const nu_material_info_t *info,
-                       nu_material_t            *material)
+nugl__create_material (const nu_material_info_t *info, nu_material_t *material)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    (void)nu_vec_push(&gl->materials, ctx->allocator);
+    (void)nu_vec_push(&gl->materials);
     material->_index = gl->materials.size - 1;
 
     // Keep material type
     (gl->materials.data + material->_index)->type = info->type;
 
-    nugl__update_material(ctx, *material, info);
+    nugl__update_material(*material, info);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_material (nu__renderer_t *ctx, nu_material_t material)
+nugl__delete_material (nu_material_t material)
 {
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_flat_renderpass (nu__renderer_t          *ctx,
-                              nugl__renderpass_flat_t *pass)
+nugl__create_flat_renderpass (nugl__renderpass_flat_t *pass)
 {
-    nu_vec_init(&pass->cmds, ctx->allocator, 128);
+    nu_vec_init(128, &pass->cmds);
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_canvas_renderpass (nu__renderer_t            *ctx,
-                                nugl__renderpass_canvas_t *pass)
+nugl__create_canvas_renderpass (nugl__renderpass_canvas_t *pass)
 {
-    nu_vec_init(&pass->cmds, ctx->allocator, 128);
-    nu_vec_init(&pass->blit_transfer, ctx->allocator, 32);
+    nu_vec_init(128, &pass->cmds);
+    nu_vec_init(32, &pass->blit_transfer);
 
     // Create VAO
     GLuint vao;
@@ -850,14 +811,13 @@ nugl__create_canvas_renderpass (nu__renderer_t            *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__create_renderpass (nu__renderer_t             *ctx,
-                         const nu_renderpass_info_t *info,
+nugl__create_renderpass (const nu_renderpass_info_t *info,
                          nu_renderpass_t            *pass)
 {
-    nu_error_t       error;
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu_error_t error;
+    nu__gl_t  *gl = &_ctx.gl;
 
-    nugl__renderpass_t *data  = nu_vec_push(&gl->passes, ctx->allocator);
+    nugl__renderpass_t *data  = nu_vec_push(&gl->passes);
     nu_u32_t            index = gl->passes.size - 1;
     data->type                = info->type;
     data->reset_after_submit  = info->reset_after_submit;
@@ -868,7 +828,7 @@ nugl__create_renderpass (nu__renderer_t             *ctx,
         case NU_RENDERPASS_UNLIT:
             break;
         case NU_RENDERPASS_FLAT: {
-            error = nugl__create_flat_renderpass(ctx, &data->flat);
+            error = nugl__create_flat_renderpass(&data->flat);
             NU_ERROR_CHECK(error, return error);
         }
         break;
@@ -879,7 +839,7 @@ nugl__create_renderpass (nu__renderer_t             *ctx,
         case NU_RENDERPASS_SKYBOX:
             break;
         case NU_RENDERPASS_CANVAS: {
-            error = nugl__create_canvas_renderpass(ctx, &data->canvas);
+            error = nugl__create_canvas_renderpass(&data->canvas);
             NU_ERROR_CHECK(error, return error);
         }
         break;
@@ -890,7 +850,7 @@ nugl__create_renderpass (nu__renderer_t             *ctx,
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__delete_renderpass (nu__renderer_t *ctx, nu_renderpass_t pass)
+nugl__delete_renderpass (nu_renderpass_t pass)
 {
     return NU_ERROR_NONE;
 }
@@ -899,13 +859,12 @@ nugl__delete_renderpass (nu__renderer_t *ctx, nu_renderpass_t pass)
 #define NUGL__MAX_DEPTH       1000.0
 #define NUGL__DEPTH_INCREMENT 0.05
 static void
-nugl__canvas_add_blit (nu__renderer_t            *ctx,
-                       nugl__renderpass_canvas_t *pass,
+nugl__canvas_add_blit (nugl__renderpass_canvas_t *pass,
                        nu_ivec2_t                 pos,
                        nu_uvec2_t                 tex,
                        nu_uvec2_t                 size)
 {
-    nugl__gpu_blit_t *blit = nu_vec_push(&pass->blit_transfer, ctx->allocator);
+    nugl__gpu_blit_t *blit = nu_vec_push(&pass->blit_transfer);
     blit->pos              = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
     blit->tex              = (tex.y << 16) | tex.x;
     blit->size             = (size.y << 16) | size.x;
@@ -913,8 +872,7 @@ nugl__canvas_add_blit (nu__renderer_t            *ctx,
         = (pass->depth - NUGL__MIN_DEPTH) / (NUGL__MAX_DEPTH - NUGL__MIN_DEPTH);
 }
 static void
-nugl__canvas_blit_rect (nu__renderer_t            *ctx,
-                        nugl__renderpass_canvas_t *pass,
+nugl__canvas_blit_rect (nugl__renderpass_canvas_t *pass,
                         GLuint                     texture,
                         nu_rect_t                  extent,
                         nu_rect_t                  tex_extent,
@@ -924,8 +882,7 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
     switch (wrap_mode)
     {
         case NU_TEXTURE_WRAP_CLAMP: {
-            nugl__canvas_add_blit(ctx,
-                                  pass,
+            nugl__canvas_add_blit(pass,
                                   extent.p,
                                   nu_uvec2(tex_extent.p.x, tex_extent.p.y),
                                   nu_uvec2_min(extent.s, tex_extent.s));
@@ -946,7 +903,6 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
                     nu_i32_t pos_x = extent.p.x + (x * tex_extent.s.x);
                     nu_i32_t pos_y = extent.p.y + (y * tex_extent.s.y);
                     nugl__canvas_add_blit(
-                        ctx,
                         pass,
                         nu_ivec2(pos_x, pos_y),
                         nu_uvec2(tex_extent.p.x, tex_extent.p.y),
@@ -968,7 +924,6 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
                     nu_uvec2_t size
                         = nu_uvec2(partial_hblit_size, tex_extent.s.y);
                     nugl__canvas_add_blit(
-                        ctx,
                         pass,
                         nu_ivec2(pos_x, pos_y),
                         nu_uvec2(tex_extent.p.x, tex_extent.p.y),
@@ -986,7 +941,6 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
                     nu_uvec2_t size
                         = nu_uvec2(tex_extent.s.x, partial_vblit_size);
                     nugl__canvas_add_blit(
-                        ctx,
                         pass,
                         nu_ivec2(pos_x, pos_y),
                         nu_uvec2(tex_extent.p.x, tex_extent.p.y),
@@ -1002,8 +956,7 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
                     = extent.p.y + (full_vblit_count * tex_extent.s.y);
                 nu_uvec2_t size
                     = nu_uvec2(partial_hblit_size, partial_vblit_size);
-                nugl__canvas_add_blit(ctx,
-                                      pass,
+                nugl__canvas_add_blit(pass,
                                       nu_ivec2(pos_x, pos_y),
                                       nu_uvec2(tex_extent.p.x, tex_extent.p.y),
                                       size);
@@ -1024,7 +977,7 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
     }
     else
     {
-        last                      = nu_vec_push(&pass->cmds, ctx->allocator);
+        last                      = nu_vec_push(&pass->cmds);
         last->type                = NUGL__CANVAS_BLIT;
         last->blit.texture        = texture;
         last->blit.instance_start = pass->blit_transfer.size - blit_count;
@@ -1033,11 +986,9 @@ nugl__canvas_blit_rect (nu__renderer_t            *ctx,
 }
 
 static GLuint
-nugl__find_or_create_framebuffer (nu__renderer_t *ctx,
-                                  GLuint          color,
-                                  GLuint          depth)
+nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
     for (nu_size_t i = 0; i < gl->targets.size; ++i)
     {
         const nugl__rendertarget_t *target = gl->targets.data + i;
@@ -1047,12 +998,9 @@ nugl__find_or_create_framebuffer (nu__renderer_t *ctx,
         }
     }
 
-    NU_INFO(ctx->logger,
-            "new framebuffer created for color: %d depth: %d",
-            color,
-            depth);
+    NU_INFO("new framebuffer created for color: %d depth: %d", color, depth);
 
-    nugl__rendertarget_t *target = nu_vec_push(&gl->targets, ctx->allocator);
+    nugl__rendertarget_t *target = nu_vec_push(&gl->targets);
     target->color                = color;
     target->depth                = depth;
 
@@ -1081,8 +1029,7 @@ nugl__find_or_create_framebuffer (nu__renderer_t *ctx,
     return target->fbo;
 }
 static void
-nugl__prepare_color_depth (nu__renderer_t        *ctx,
-                           nugl__renderpass_t    *pass,
+nugl__prepare_color_depth (nugl__renderpass_t    *pass,
                            const nugl__texture_t *color_target,
                            const nugl__texture_t *depth_target)
 {
@@ -1090,8 +1037,8 @@ nugl__prepare_color_depth (nu__renderer_t        *ctx,
     pass->depth_target = depth_target ? depth_target->texture : 0;
     if (color_target || depth_target)
     {
-        pass->fbo = nugl__find_or_create_framebuffer(
-            ctx, pass->color_target, pass->depth_target);
+        pass->fbo = nugl__find_or_create_framebuffer(pass->color_target,
+                                                     pass->depth_target);
         pass->fbo_size
             = pass->color_target ? color_target->size : depth_target->size;
     }
@@ -1102,13 +1049,12 @@ nugl__prepare_color_depth (nu__renderer_t        *ctx,
     }
 }
 static void
-nugl__submit_renderpass (nu__renderer_t               *ctx,
-                         nu_renderpass_t               pass,
+nugl__submit_renderpass (nu_renderpass_t               pass,
                          const nu_renderpass_submit_t *info)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
-    *nu_vec_push(&gl->passes_order, ctx->allocator) = pass._index;
+    *nu_vec_push(&gl->passes_order) = pass._index;
 
     nugl__renderpass_t *ppass = gl->passes.data + pass._index;
     switch (ppass->type)
@@ -1134,7 +1080,7 @@ nugl__submit_renderpass (nu__renderer_t               *ctx,
             }
 
             ppass->flat.camera = info->flat.camera._index;
-            nugl__prepare_color_depth(ctx, ppass, color_target, depth_target);
+            nugl__prepare_color_depth(ppass, color_target, depth_target);
         }
         break;
         case NU_RENDERPASS_SKYBOX: {
@@ -1148,7 +1094,7 @@ nugl__submit_renderpass (nu__renderer_t               *ctx,
                       : NU_NULL;
 
             ppass->skybox.camera = info->skybox.camera._index;
-            nugl__prepare_color_depth(ctx, ppass, color_target, depth_target);
+            nugl__prepare_color_depth(ppass, color_target, depth_target);
 
             ppass->skybox.cubemap
                 = gl->cubemaps.data[info->skybox.cubemap._index].texture;
@@ -1160,7 +1106,7 @@ nugl__submit_renderpass (nu__renderer_t               *ctx,
                 = info->canvas.color_target
                       ? gl->textures.data + info->canvas.color_target->_index
                       : NU_NULL;
-            nugl__prepare_color_depth(ctx, ppass, color_target, NU_NULL);
+            nugl__prepare_color_depth(ppass, color_target, NU_NULL);
         }
         break;
         default:
@@ -1168,20 +1114,19 @@ nugl__submit_renderpass (nu__renderer_t               *ctx,
     }
 }
 static void
-nugl__reset_renderpass (nu__renderer_t *ctx, nu_renderpass_t pass)
+nugl__reset_renderpass (nu_renderpass_t pass)
 {
-    nugl__context_t    *gl    = nugl__ctx(ctx);
+    nu__gl_t           *gl    = &_ctx.gl;
     nugl__renderpass_t *ppass = gl->passes.data + pass._index;
-    nugl__reset_renderpass_typed(gl, ppass);
+    nugl__reset_renderpass_typed(ppass);
 }
 static void
-nugl__draw_mesh (nu__renderer_t *ctx,
-                 nu_renderpass_t pass,
+nugl__draw_mesh (nu_renderpass_t pass,
                  nu_material_t   material,
                  nu_mesh_t       mesh,
                  nu_mat4_t       transform)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
     NU_ASSERT(material._index < gl->materials.size);
     nugl__renderpass_t *ppass = gl->passes.data + pass._index;
@@ -1192,16 +1137,15 @@ nugl__draw_mesh (nu__renderer_t *ctx,
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT: {
-            nugl__mesh_command_t *cmd
-                = nu_vec_push(&ppass->flat.cmds, ctx->allocator);
-            cmd->type         = NUGL__DRAW;
-            cmd->transform    = transform;
-            cmd->vao          = pmesh->vao;
-            cmd->vbo          = pmesh->vbo;
-            cmd->vcount       = pmesh->vertex_count;
-            cmd->texture0     = pmat->mesh.texture0;
-            cmd->texture1     = pmat->mesh.texture1;
-            cmd->uv_transform = pmat->mesh.uv_transform;
+            nugl__mesh_command_t *cmd = nu_vec_push(&ppass->flat.cmds);
+            cmd->type                 = NUGL__DRAW;
+            cmd->transform            = transform;
+            cmd->vao                  = pmesh->vao;
+            cmd->vbo                  = pmesh->vbo;
+            cmd->vcount               = pmesh->vertex_count;
+            cmd->texture0             = pmat->mesh.texture0;
+            cmd->texture1             = pmat->mesh.texture1;
+            cmd->uv_transform         = pmat->mesh.uv_transform;
         }
         break;
         default:
@@ -1209,13 +1153,12 @@ nugl__draw_mesh (nu__renderer_t *ctx,
     }
 }
 static void
-nugl__draw_blit (nu__renderer_t *ctx,
-                 nu_renderpass_t pass,
+nugl__draw_blit (nu_renderpass_t pass,
                  nu_material_t   material,
                  nu_rect_t       extent,
                  nu_rect_t       tex_extent)
 {
-    nugl__context_t *gl = nugl__ctx(ctx);
+    nu__gl_t *gl = &_ctx.gl;
 
     nugl__renderpass_t *ppass = gl->passes.data + pass._index;
     nugl__material_t   *pmat  = gl->materials.data + material._index;
@@ -1224,8 +1167,7 @@ nugl__draw_blit (nu__renderer_t *ctx,
     switch (ppass->type)
     {
         case NU_RENDERPASS_CANVAS: {
-            nugl__canvas_blit_rect(ctx,
-                                   &ppass->canvas,
+            nugl__canvas_blit_rect(&ppass->canvas,
                                    pmat->canvas.texture0,
                                    extent,
                                    tex_extent,
@@ -1235,6 +1177,35 @@ nugl__draw_blit (nu__renderer_t *ctx,
         default:
             break;
     }
+}
+
+static void
+nugl__setup_api (nu_renderer_api_t *api)
+{
+    api->init                 = nugl__init;
+    api->free                 = nugl__free;
+    api->render               = nugl__render;
+    api->create_surface_color = nugl__create_surface_color;
+
+    api->create_camera     = nugl__create_camera;
+    api->delete_camera     = nugl__delete_camera;
+    api->update_camera     = nugl__update_camera;
+    api->create_mesh       = nugl__create_mesh;
+    api->delete_mesh       = nugl__delete_mesh;
+    api->create_texture    = nugl__create_texture;
+    api->delete_texture    = nugl__delete_texture;
+    api->create_cubemap    = nugl__create_cubemap;
+    api->delete_cubemap    = nugl__delete_cubemap;
+    api->create_material   = nugl__create_material;
+    api->delete_material   = nugl__delete_material;
+    api->update_material   = nugl__update_material;
+    api->create_renderpass = nugl__create_renderpass;
+    api->delete_renderpass = nugl__delete_renderpass;
+
+    api->submit_renderpass = nugl__submit_renderpass;
+    api->reset_renderpass  = nugl__reset_renderpass;
+    api->draw_mesh         = nugl__draw_mesh;
+    api->draw_blit         = nugl__draw_blit;
 }
 
 #endif
