@@ -87,7 +87,7 @@ nuglfw__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
     while (current != NUGLFW_ID_NONE)
     {
         const nuglfw__binding_t *binding
-            = &_ctx.input.glfw.bindings.data[current];
+            = &_ctx.platform.input.glfw.bindings.data[current];
 
         float value = NU_INPUT_RELEASED;
         if (pressed)
@@ -95,7 +95,8 @@ nuglfw__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
             value = binding->button.pressed;
         }
 
-        _ctx.input.entries.data[binding->input_index].state.value = value;
+        _ctx.platform.input.entries.data[binding->input_index].state.value
+            = value;
         current = binding->next;
     }
 }
@@ -106,8 +107,8 @@ nuglfw__dispatch_binding_axis (nu_u32_t binding, float value)
     while (current != NUGLFW_ID_NONE)
     {
         const nuglfw__binding_t *binding
-            = &_ctx.input.glfw.bindings.data[current];
-        _ctx.input.entries.data[binding->input_index].state.value
+            = &_ctx.platform.input.glfw.bindings.data[current];
+        _ctx.platform.input.entries.data[binding->input_index].state.value
             = value * binding->axis.scale;
         current = binding->next;
     }
@@ -118,11 +119,12 @@ nuglfw__find_binding (nu_u32_t binding, nu_input_t input)
     nu_u32_t current = binding;
     while (current != NUGLFW_ID_NONE)
     {
-        if (_ctx.input.glfw.bindings.data[current].input_index == input._index)
+        if (_ctx.platform.input.glfw.bindings.data[current].input_index
+            == input._index)
         {
             return NU_TRUE;
         }
-        current = _ctx.input.glfw.bindings.data[current].next;
+        current = _ctx.platform.input.glfw.bindings.data[current].next;
     }
     return NU_FALSE;
 }
@@ -192,21 +194,22 @@ nuglfw__key_callback (
         if (action == GLFW_PRESS)
         {
             nuglfw__dispatch_binding_button(
-                _ctx.input.glfw.key_to_first_binding[key], NU_TRUE);
+                _ctx.platform.input.glfw.key_to_first_binding[key], NU_TRUE);
 
             if (key == NUGLFW_FULLSCREEN_KEY)
             {
-                _ctx.surface.glfw.switch_fullscreen = NU_TRUE;
+                _ctx.platform.surface.glfw.switch_fullscreen = NU_TRUE;
             }
-            else if (key == GLFW_KEY_ESCAPE && _ctx.surface.glfw.capture_mouse)
+            else if (key == GLFW_KEY_ESCAPE
+                     && _ctx.platform.surface.glfw.capture_mouse)
             {
-                _ctx.surface.glfw.switch_capture_mouse = NU_TRUE;
+                _ctx.platform.surface.glfw.switch_capture_mouse = NU_TRUE;
             }
         }
         else if (action == GLFW_RELEASE)
         {
             nuglfw__dispatch_binding_button(
-                _ctx.input.glfw.key_to_first_binding[key], NU_FALSE);
+                _ctx.platform.input.glfw.key_to_first_binding[key], NU_FALSE);
         }
     }
 }
@@ -219,27 +222,31 @@ nuglfw__mouse_button_callback (GLFWwindow *window,
     if (action == GLFW_PRESS)
     {
         nuglfw__dispatch_binding_button(
-            _ctx.input.glfw.mouse_button_to_first_binding[button], NU_TRUE);
+            _ctx.platform.input.glfw.mouse_button_to_first_binding[button],
+            NU_TRUE);
 
-        if (button == GLFW_MOUSE_BUTTON_1 && !_ctx.surface.glfw.capture_mouse)
+        if (button == GLFW_MOUSE_BUTTON_1
+            && !_ctx.platform.surface.glfw.capture_mouse)
         {
-            if (nu_timer_elapsed(&_ctx.surface.glfw.last_mouse_click) < 500.0)
+            if (nu_timer_elapsed(&_ctx.platform.surface.glfw.last_mouse_click)
+                < 500.0)
             {
-                _ctx.surface.glfw.switch_capture_mouse = NU_TRUE;
+                _ctx.platform.surface.glfw.switch_capture_mouse = NU_TRUE;
             }
-            nu_timer_reset(&_ctx.surface.glfw.last_mouse_click);
+            nu_timer_reset(&_ctx.platform.surface.glfw.last_mouse_click);
         }
     }
     else if (action == GLFW_RELEASE)
     {
         nuglfw__dispatch_binding_button(
-            _ctx.input.glfw.mouse_button_to_first_binding[button], NU_FALSE);
+            _ctx.platform.input.glfw.mouse_button_to_first_binding[button],
+            NU_FALSE);
     }
 }
 static void
 nuglfw__cursor_position_callback (GLFWwindow *window, double xpos, double ypos)
 {
-    _ctx.input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
+    _ctx.platform.input.glfw.mouse_position = nu_vec2((float)xpos, (float)ypos);
 }
 static void
 nuglfw__character_callback (GLFWwindow *window, int codepoint)
@@ -252,22 +259,23 @@ nuglfw__mouse_scroll_callback (GLFWwindow *window,
                                double      xoffset,
                                double      yoffset)
 {
-    _ctx.input.glfw.mouse_scroll = nu_vec2((float)xoffset, (float)yoffset);
+    _ctx.platform.input.glfw.mouse_scroll
+        = nu_vec2((float)xoffset, (float)yoffset);
 }
 static void
 nuglfw__window_size_callback (GLFWwindow *window, int width, int height)
 {
-    _ctx.surface.glfw.viewport.extent.s.x = width;
-    _ctx.surface.glfw.viewport.extent.s.y = height;
-    nuglfw__update_viewport(&_ctx.surface.glfw.viewport);
+    _ctx.platform.surface.glfw.viewport.extent.s.x = width;
+    _ctx.platform.surface.glfw.viewport.extent.s.y = height;
+    nuglfw__update_viewport(&_ctx.platform.surface.glfw.viewport);
 }
 
 static nu_error_t
 nuglfw__init (void)
 {
-    nuglfw__surface_t *surface = &_ctx.surface.glfw;
-    nuglfw__input_t   *input   = &_ctx.input.glfw;
-    nu_uvec2_t         size    = _ctx.surface.size;
+    nuglfw__surface_t *surface = &_ctx.platform.surface.glfw;
+    nuglfw__input_t   *input   = &_ctx.platform.input.glfw;
+    nu_uvec2_t         size    = _ctx.platform.surface.size;
 
     const nu_int_t width  = NUGLFW_WINDOW_WIDTH;
     const nu_int_t height = NUGLFW_WINDOW_HEIGHT;
@@ -346,7 +354,7 @@ nuglfw__init (void)
 static nu_error_t
 nuglfw__free (void)
 {
-    nu_pool_free(&_ctx.input.glfw.bindings);
+    nu_pool_free(&_ctx.platform.input.glfw.bindings);
     glfwTerminate();
     return NU_ERROR_NONE;
 }
@@ -354,71 +362,75 @@ nuglfw__free (void)
 static nu_error_t
 nuglfw__poll_events (void)
 {
-    if (_ctx.surface.glfw.win)
+    if (_ctx.platform.surface.glfw.win)
     {
         // Update input states
-        for (nu_size_t i = 0; i < _ctx.input.entries.capacity; ++i)
+        for (nu_size_t i = 0; i < _ctx.platform.input.entries.capacity; ++i)
         {
-            if (_ctx.input.entries.data[i].used)
+            if (_ctx.platform.input.entries.data[i].used)
             {
-                _ctx.input.entries.data[i].state.previous
-                    = _ctx.input.entries.data[i].state.value;
+                _ctx.platform.input.entries.data[i].state.previous
+                    = _ctx.platform.input.entries.data[i].state.value;
             }
         }
 
         // Reset mouse scroll
-        _ctx.input.glfw.mouse_scroll = NU_VEC2_ZERO;
+        _ctx.platform.input.glfw.mouse_scroll = NU_VEC2_ZERO;
 
         // Poll events
         glfwPollEvents();
 
         // Check close requested
         _ctx.platform.close_requested
-            = glfwWindowShouldClose(_ctx.surface.glfw.win);
+            = glfwWindowShouldClose(_ctx.platform.surface.glfw.win);
 
         // Check capture mode
-        if (_ctx.surface.glfw.switch_capture_mouse)
+        if (_ctx.platform.surface.glfw.switch_capture_mouse)
         {
-            _ctx.surface.glfw.capture_mouse = !_ctx.surface.glfw.capture_mouse;
-            if (_ctx.surface.glfw.capture_mouse)
+            _ctx.platform.surface.glfw.capture_mouse
+                = !_ctx.platform.surface.glfw.capture_mouse;
+            if (_ctx.platform.surface.glfw.capture_mouse)
             {
-                glfwSetInputMode(
-                    _ctx.surface.glfw.win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                glfwSetInputMode(_ctx.platform.surface.glfw.win,
+                                 GLFW_CURSOR,
+                                 GLFW_CURSOR_DISABLED);
             }
             else
             {
-                glfwSetInputMode(
-                    _ctx.surface.glfw.win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                glfwSetInputMode(_ctx.platform.surface.glfw.win,
+                                 GLFW_CURSOR,
+                                 GLFW_CURSOR_HIDDEN);
             }
-            _ctx.surface.glfw.switch_capture_mouse = NU_FALSE;
+            _ctx.platform.surface.glfw.switch_capture_mouse = NU_FALSE;
         }
 
         // Check fullscreen button
-        if (_ctx.surface.glfw.switch_fullscreen)
+        if (_ctx.platform.surface.glfw.switch_fullscreen)
         {
-            if (_ctx.surface.glfw.fullscreen)
+            if (_ctx.platform.surface.glfw.fullscreen)
             {
                 const GLFWvidmode *mode
                     = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                glfwSetWindowMonitor(_ctx.surface.glfw.win,
-                                     NU_NULL,
-                                     _ctx.surface.glfw.previous_position.x,
-                                     _ctx.surface.glfw.previous_position.y,
-                                     _ctx.surface.glfw.previous_size.x,
-                                     _ctx.surface.glfw.previous_size.y,
-                                     GLFW_DONT_CARE);
+                glfwSetWindowMonitor(
+                    _ctx.platform.surface.glfw.win,
+                    NU_NULL,
+                    _ctx.platform.surface.glfw.previous_position.x,
+                    _ctx.platform.surface.glfw.previous_position.y,
+                    _ctx.platform.surface.glfw.previous_size.x,
+                    _ctx.platform.surface.glfw.previous_size.y,
+                    GLFW_DONT_CARE);
             }
             else
             {
                 int x, y;
-                glfwGetWindowSize(_ctx.surface.glfw.win, &x, &y);
-                _ctx.surface.glfw.previous_size = nu_uvec2(x, y);
-                glfwGetWindowPos(_ctx.surface.glfw.win, &x, &y);
-                _ctx.surface.glfw.previous_position = nu_uvec2(x, y);
+                glfwGetWindowSize(_ctx.platform.surface.glfw.win, &x, &y);
+                _ctx.platform.surface.glfw.previous_size = nu_uvec2(x, y);
+                glfwGetWindowPos(_ctx.platform.surface.glfw.win, &x, &y);
+                _ctx.platform.surface.glfw.previous_position = nu_uvec2(x, y);
 
                 const GLFWvidmode *mode
                     = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                glfwSetWindowMonitor(_ctx.surface.glfw.win,
+                glfwSetWindowMonitor(_ctx.platform.surface.glfw.win,
                                      glfwGetPrimaryMonitor(),
                                      0,
                                      0,
@@ -426,18 +438,19 @@ nuglfw__poll_events (void)
                                      mode->height,
                                      GLFW_DONT_CARE);
             }
-            _ctx.surface.glfw.switch_fullscreen = NU_FALSE;
-            _ctx.surface.glfw.fullscreen        = !_ctx.surface.glfw.fullscreen;
+            _ctx.platform.surface.glfw.switch_fullscreen = NU_FALSE;
+            _ctx.platform.surface.glfw.fullscreen
+                = !_ctx.platform.surface.glfw.fullscreen;
         }
 
         // Update mouse motion
-        if (NU_TRUE || _ctx.surface.glfw.capture_mouse)
+        if (NU_TRUE || _ctx.platform.surface.glfw.capture_mouse)
         {
             nu_vec2_t mouse_motion
-                = nu_vec2_sub(_ctx.input.glfw.mouse_position,
-                              _ctx.input.glfw.mouse_old_position);
+                = nu_vec2_sub(_ctx.platform.input.glfw.mouse_position,
+                              _ctx.platform.input.glfw.mouse_old_position);
             mouse_motion = nu_vec2_divs(mouse_motion, 1000);
-            if (mouse_motion.x != _ctx.input.glfw.mouse_motion.x)
+            if (mouse_motion.x != _ctx.platform.input.glfw.mouse_motion.x)
             {
                 float pos_x = 0;
                 float neg_x = 0;
@@ -450,11 +463,13 @@ nuglfw__poll_events (void)
                     neg_x = nu_fabs(mouse_motion.x);
                 }
                 nuglfw__dispatch_binding_axis(
-                    _ctx.input.glfw.mouse_motion_x_pos_first_binding, pos_x);
+                    _ctx.platform.input.glfw.mouse_motion_x_pos_first_binding,
+                    pos_x);
                 nuglfw__dispatch_binding_axis(
-                    _ctx.input.glfw.mouse_motion_x_neg_first_binding, neg_x);
+                    _ctx.platform.input.glfw.mouse_motion_x_neg_first_binding,
+                    neg_x);
             }
-            if (mouse_motion.y != _ctx.input.glfw.mouse_motion.y)
+            if (mouse_motion.y != _ctx.platform.input.glfw.mouse_motion.y)
             {
                 float pos_y = 0;
                 float neg_y = 0;
@@ -467,31 +482,37 @@ nuglfw__poll_events (void)
                     neg_y = nu_fabs(mouse_motion.y);
                 }
                 nuglfw__dispatch_binding_axis(
-                    _ctx.input.glfw.mouse_motion_y_pos_first_binding, pos_y);
+                    _ctx.platform.input.glfw.mouse_motion_y_pos_first_binding,
+                    pos_y);
                 nuglfw__dispatch_binding_axis(
-                    _ctx.input.glfw.mouse_motion_y_neg_first_binding, neg_y);
+                    _ctx.platform.input.glfw.mouse_motion_y_neg_first_binding,
+                    neg_y);
             }
-            _ctx.input.glfw.mouse_motion = mouse_motion;
+            _ctx.platform.input.glfw.mouse_motion = mouse_motion;
 
             // Update mouse position
-            if (_ctx.input.glfw.mouse_position.x
-                    != _ctx.input.glfw.mouse_old_position.x
-                || _ctx.input.glfw.mouse_position.y
-                       != _ctx.input.glfw.mouse_old_position.y)
+            if (_ctx.platform.input.glfw.mouse_position.x
+                    != _ctx.platform.input.glfw.mouse_old_position.x
+                || _ctx.platform.input.glfw.mouse_position.y
+                       != _ctx.platform.input.glfw.mouse_old_position.y)
             {
-                if (nu_rect_contains(_ctx.surface.glfw.viewport.viewport,
-                                     _ctx.input.glfw.mouse_position))
+                if (nu_rect_contains(
+                        _ctx.platform.surface.glfw.viewport.viewport,
+                        _ctx.platform.input.glfw.mouse_position))
                 {
-                    nu_vec2_t relpos
-                        = nu_rect_normalize(_ctx.surface.glfw.viewport.viewport,
-                                            _ctx.input.glfw.mouse_position);
+                    nu_vec2_t relpos = nu_rect_normalize(
+                        _ctx.platform.surface.glfw.viewport.viewport,
+                        _ctx.platform.input.glfw.mouse_position);
                     nuglfw__dispatch_binding_axis(
-                        _ctx.input.glfw.mouse_x_first_binding, relpos.x);
+                        _ctx.platform.input.glfw.mouse_x_first_binding,
+                        relpos.x);
                     nuglfw__dispatch_binding_axis(
-                        _ctx.input.glfw.mouse_y_first_binding, relpos.y);
+                        _ctx.platform.input.glfw.mouse_y_first_binding,
+                        relpos.y);
                 }
             }
-            _ctx.input.glfw.mouse_old_position = _ctx.input.glfw.mouse_position;
+            _ctx.platform.input.glfw.mouse_old_position
+                = _ctx.platform.input.glfw.mouse_position;
         }
     }
 
@@ -501,9 +522,9 @@ nuglfw__poll_events (void)
 static nu_error_t
 nuglfw__swap_buffers (void)
 {
-    if (_ctx.surface.glfw.win)
+    if (_ctx.platform.surface.glfw.win)
     {
-        glfwSwapBuffers(_ctx.surface.glfw.win);
+        glfwSwapBuffers(_ctx.platform.surface.glfw.win);
     }
     return NU_ERROR_NONE;
 }
@@ -514,12 +535,12 @@ nuglfw__first_binding_from_button (nuext_button_t button)
     if (NUGLFW_BUTTON_IS_KEY(button))
     {
         nu_u32_t key = NUGLFW_BUTTON_TO_KEY(button);
-        return &_ctx.input.glfw.key_to_first_binding[key];
+        return &_ctx.platform.input.glfw.key_to_first_binding[key];
     }
     else if (NUGLFW_BUTTON_IS_MOUSE(button))
     {
         nu_u32_t mbutton = NUGLFW_BUTTON_TO_MOUSE(button);
-        return &_ctx.input.glfw.mouse_button_to_first_binding[mbutton];
+        return &_ctx.platform.input.glfw.mouse_button_to_first_binding[mbutton];
     }
     return NU_NULL;
 }
@@ -529,17 +550,17 @@ nuglfw__first_binding_from_axis (nuext_axis_t axis)
     switch (axis)
     {
         case NUEXT_AXIS_MOUSE_X:
-            return &_ctx.input.glfw.mouse_x_first_binding;
+            return &_ctx.platform.input.glfw.mouse_x_first_binding;
         case NUEXT_AXIS_MOUSE_Y:
-            return &_ctx.input.glfw.mouse_y_first_binding;
+            return &_ctx.platform.input.glfw.mouse_y_first_binding;
         case NUEXT_AXIS_MOUSE_MOTION_X_POS:
-            return &_ctx.input.glfw.mouse_motion_x_pos_first_binding;
+            return &_ctx.platform.input.glfw.mouse_motion_x_pos_first_binding;
         case NUEXT_AXIS_MOUSE_MOTION_X_NEG:
-            return &_ctx.input.glfw.mouse_motion_x_neg_first_binding;
+            return &_ctx.platform.input.glfw.mouse_motion_x_neg_first_binding;
         case NUEXT_AXIS_MOUSE_MOTION_Y_POS:
-            return &_ctx.input.glfw.mouse_motion_y_pos_first_binding;
+            return &_ctx.platform.input.glfw.mouse_motion_y_pos_first_binding;
         case NUEXT_AXIS_MOUSE_MOTION_Y_NEG:
-            return &_ctx.input.glfw.mouse_motion_y_neg_first_binding;
+            return &_ctx.platform.input.glfw.mouse_motion_y_neg_first_binding;
     }
     return NU_NULL;
 }
@@ -547,10 +568,11 @@ static nuglfw__binding_t *
 nuglfw__add_binding (nu_u32_t *first_binding, nu_input_t input)
 {
     nu_size_t          index;
-    nuglfw__binding_t *binding = nu_pool_add(&_ctx.input.glfw.bindings, &index);
-    binding->input_index       = input._index;
-    binding->next              = *first_binding;
-    *first_binding             = index;
+    nuglfw__binding_t *binding
+        = nu_pool_add(&_ctx.platform.input.glfw.bindings, &index);
+    binding->input_index = input._index;
+    binding->next        = *first_binding;
+    *first_binding       = index;
     return binding;
 }
 static nu_error_t

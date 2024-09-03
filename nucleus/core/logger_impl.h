@@ -22,7 +22,7 @@ nu_vlog (nu_log_level_t   level,
          const nu_char_t *format,
          va_list          args)
 {
-    if (_ctx.logger.level < level)
+    if (_ctx.core.logger.level < level)
     {
         return;
     }

@@ -141,7 +141,9 @@ typedef struct
 
 typedef struct
 {
-    nu_bool_t close_requested;
+    nu_bool_t     close_requested;
+    nu__input_t   input;
+    nu__surface_t surface;
 } nu__platform_t;
 
 static nu_error_t nu__platform_init(const nu_platform_info_t *info);

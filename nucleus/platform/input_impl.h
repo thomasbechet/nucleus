@@ -6,48 +6,55 @@
 nu_error_t
 nu_input_create (nu_input_t *input)
 {
-    nu__input_entry_t *entry = nu_pool_add(&_ctx.input.entries, &input->_index);
-    entry->state.value       = NU_INPUT_RELEASED;
-    entry->state.previous    = NU_INPUT_RELEASED;
-    entry->used              = NU_TRUE;
+    nu__input_entry_t *entry
+        = nu_pool_add(&_ctx.platform.input.entries, &input->_index);
+    entry->state.value    = NU_INPUT_RELEASED;
+    entry->state.previous = NU_INPUT_RELEASED;
+    entry->used           = NU_TRUE;
     return NU_ERROR_NONE;
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return state->value != state->previous;
 }
 nu_bool_t
 nu_input_pressed (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_pressed (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return NU_INPUT_IS_PRESSED(state->value)
            && !NU_INPUT_IS_PRESSED(state->previous);
 }
 nu_bool_t
 nu_input_released (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return !NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_released (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return !NU_INPUT_IS_PRESSED(state->value)
            && NU_INPUT_IS_PRESSED(state->previous);
 }
 float
 nu_input_value (nu_input_t input)
 {
-    nu__input_state_t *state = &_ctx.input.entries.data[input._index].state;
+    nu__input_state_t *state
+        = &_ctx.platform.input.entries.data[input._index].state;
     return state->value;
 }
 
@@ -78,8 +85,8 @@ nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
 {
     float cx = nu_input_value(cursor_x);
     float cy = nu_input_value(cursor_y);
-    return nu_ivec2((nu_i32_t)(cx * (float)_ctx.surface.size.x),
-                    (nu_i32_t)(cy * (float)_ctx.surface.size.y));
+    return nu_ivec2((nu_i32_t)(cx * (float)_ctx.platform.surface.size.x),
+                    (nu_i32_t)(cy * (float)_ctx.platform.surface.size.y));
 }
 
 nu_error_t

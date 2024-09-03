@@ -7,8 +7,8 @@ nu_error_t
 nu_initialize (void)
 {
     memset(&_ctx, 0, sizeof(_ctx));
-    _ctx.allocator    = nu__allocator_stdlib();
-    _ctx.logger.level = NU_LOG_DEBUG;
+    _ctx.core.allocator    = nu__allocator_stdlib();
+    _ctx.core.logger.level = NU_LOG_DEBUG;
 
 #ifdef NU_BUILD_PLATFORM
     nu_platform_info_t info;

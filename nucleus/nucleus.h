@@ -5,9 +5,9 @@
 #ifdef NU_BUILD_PLATFORM
 #include <nucleus/platform.h>
 #endif
-#ifdef NU_BUILD_GRAPHICS
-#include <nucleus/graphics.h>
-#endif
+// #ifdef NU_BUILD_GRAPHICS
+// #include <nucleus/graphics.h>
+// #endif
 // #include <nucleus/asset.h>
 // #include <nucleus/utils.h>
 
@@ -31,12 +31,12 @@
 #endif
 #endif
 
-#ifdef NU_BUILD_GRAPHICS
-#include <nucleus/graphics/renderer_impl.h>
-#include <nucleus/graphics/model_impl.h>
-#include <nucleus/graphics/font_impl.h>
-#include <nucleus/graphics/image_impl.h>
-#endif
+// #ifdef NU_BUILD_GRAPHICS
+// #include <nucleus/graphics/renderer_impl.h>
+// #include <nucleus/graphics/model_impl.h>
+// #include <nucleus/graphics/font_impl.h>
+// #include <nucleus/graphics/image_impl.h>
+// #endif
 
 #endif
 

@@ -42,7 +42,7 @@ nu__allocator_stdlib (void)
 nu_allocator_t *
 nu_allocator_core (void)
 {
-    return &_ctx.allocator;
+    return &_ctx.core.allocator;
 }
 
 void *
@@ -68,17 +68,17 @@ nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
 void *
 nu_alloc (nu_size_t s)
 {
-    return nu_alloc_a(&_ctx.allocator, s);
+    return nu_alloc_a(&_ctx.core.allocator, s);
 }
 void *
 nu_realloc (void *p, nu_size_t s, nu_size_t n)
 {
-    return nu_realloc_a(&_ctx.allocator, p, s, n);
+    return nu_realloc_a(&_ctx.core.allocator, p, s, n);
 }
 void
 nu_free (void *p, nu_size_t s)
 {
-    nu_free_a(&_ctx.allocator, p, s);
+    nu_free_a(&_ctx.core.allocator, p, s);
 }
 
 void *
