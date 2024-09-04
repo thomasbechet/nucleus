@@ -23,15 +23,12 @@ NU_API void       nu_gltf_loader_free(nu_gltf_loader_t *loader);
 
 NU_API nu_error_t nuext_model_load_gltf_filename(nu_gltf_loader_t *loader,
                                                  const nu_char_t  *filename,
-                                                 nu_allocator_t    alloc,
                                                  nu_model_t       *model);
 
 NU_API nu_error_t nuext_image_load_filename(const nu_char_t *filename,
-                                            nu_allocator_t   allocator,
                                             nu_image_t      *image);
 NU_API nu_error_t nu_image_load_memory(const nu_byte_t *data,
                                        nu_size_t        data_size,
-                                       nu_allocator_t   allocator,
                                        nu_image_t      *image);
 
 #endif

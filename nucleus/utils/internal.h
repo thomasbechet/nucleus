@@ -42,8 +42,6 @@ typedef struct
     nu_renderpass_t    active_renderpass;
     nu_ui_controller_t controllers[NU_UI_MAX_CONTROLLER];
 
-    nu_allocator_t allocator;
-
     nu__ui_pass_vec_t passes;
 
     nu__ui_style_vec_t styles;
@@ -57,6 +55,8 @@ typedef struct
     nu_u32_t active_controller;
     nu_u32_t hot_controller;
 } nu__ui_t;
+
+typedef nu_pool(nu__ui_t) nu__ui_pool_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Camera Controller                      //////
@@ -75,20 +75,10 @@ typedef struct
     float fov;
     float speed;
 
-    nu_input_t view_pitch_neg;
-    nu_input_t view_pitch_pos;
-    nu_input_t view_yaw_neg;
-    nu_input_t view_yaw_pos;
-    nu_input_t view_roll_neg;
-    nu_input_t view_roll_pos;
-    nu_input_t move_up;
-    nu_input_t move_down;
-    nu_input_t move_left;
-    nu_input_t move_right;
-    nu_input_t move_forward;
-    nu_input_t move_backward;
-    nu_input_t switch_mode;
+    nu_camera_controller_info_t info;
 } nu__camera_controller_t;
+
+typedef nu_pool(nu__camera_controller_t) nu__camera_controller_pool_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Module                              //////
@@ -96,7 +86,11 @@ typedef struct
 
 typedef struct
 {
-    int todo;
+    nu__ui_pool_t                uis;
+    nu__camera_controller_pool_t controllers;
 } nu__utils_t;
+
+static nu_error_t nu__utils_init(void);
+static nu_error_t nu__utils_free(void);
 
 #endif

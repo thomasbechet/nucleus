@@ -1,46 +1,55 @@
 #ifndef NU_CONTROLLER_IMPL_H
 #define NU_CONTROLLER_IMPL_H
 
-#include <nucleus/utils/controller.h>
+#include <nucleus/internal.h>
 
 void
-nu_camera_controller_init (nu_camera_controller_t *controller)
+nu_camera_controller_create (const nu_camera_controller_info_t *info,
+                             nu_camera_controller_t            *controller)
 {
-    controller->_pos       = NU_VEC3_ZERO;
-    controller->_vel       = NU_VEC3_ZERO;
-    controller->_acc       = NU_VEC3_ZERO;
-    controller->_rot       = nu_quat_identity();
-    controller->_free_mode = NU_FALSE;
-    controller->_pitch     = 0;
-    controller->_yaw       = 0;
 
-    controller->fov   = 90;
-    controller->speed = 5;
+    nu__camera_controller_t *ctrl
+        = nu_pool_add(&_ctx.utils.controllers, &controller->_index);
+
+    ctrl->pos       = NU_VEC3_ZERO;
+    ctrl->vel       = NU_VEC3_ZERO;
+    ctrl->acc       = NU_VEC3_ZERO;
+    ctrl->rot       = nu_quat_identity();
+    ctrl->free_mode = NU_FALSE;
+    ctrl->pitch     = 0;
+    ctrl->yaw       = 0;
+
+    ctrl->fov   = 90;
+    ctrl->speed = 5;
+
+    ctrl->info = *info;
 }
 void
-nu_camera_controller_update (nu_camera_controller_t *controller,
-                             float                   dt,
-                             nu_camera_info_t       *info)
+nu_camera_controller_update (nu_camera_controller_t controller,
+                             float                  dt,
+                             nu_camera_info_t      *info)
 {
-    nu_vec3_t look = nu_input_axis3d(controller->view_yaw_neg,
-                                     controller->view_yaw_pos,
-                                     controller->view_pitch_pos,
-                                     controller->view_pitch_neg,
-                                     controller->view_roll_pos,
-                                     controller->view_roll_neg,
+    nu__camera_controller_t *ctrl
+        = &_ctx.utils.controllers.data[controller._index];
+    nu_vec3_t look = nu_input_axis3d(ctrl->info.view_yaw_neg,
+                                     ctrl->info.view_yaw_pos,
+                                     ctrl->info.view_pitch_pos,
+                                     ctrl->info.view_pitch_neg,
+                                     ctrl->info.view_roll_pos,
+                                     ctrl->info.view_roll_neg,
                                      NU_FALSE);
-    nu_vec3_t move = nu_input_axis3d(controller->move_left,
-                                     controller->move_right,
-                                     controller->move_up,
-                                     controller->move_down,
-                                     controller->move_forward,
-                                     controller->move_backward,
+    nu_vec3_t move = nu_input_axis3d(ctrl->info.move_left,
+                                     ctrl->info.move_right,
+                                     ctrl->info.move_up,
+                                     ctrl->info.move_down,
+                                     ctrl->info.move_forward,
+                                     ctrl->info.move_backward,
                                      NU_TRUE);
 
     // Switch mode
-    if (nu_input_just_pressed(controller->switch_mode))
+    if (nu_input_just_pressed(ctrl->info.switch_mode))
     {
-        controller->_free_mode = !controller->_free_mode;
+        ctrl->free_mode = !ctrl->free_mode;
     }
 
     // Translation
@@ -48,15 +57,15 @@ nu_camera_controller_update (nu_camera_controller_t *controller,
 
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->_rot, NU_VEC3_FORWARD), move.z));
+        nu_vec3_muls(nu_quat_mulv3(ctrl->rot, NU_VEC3_FORWARD), move.z));
     direction = nu_vec3_add(
         direction,
-        nu_vec3_muls(nu_quat_mulv3(controller->_rot, NU_VEC3_RIGHT), move.x));
-    if (controller->_free_mode)
+        nu_vec3_muls(nu_quat_mulv3(ctrl->rot, NU_VEC3_RIGHT), move.x));
+    if (ctrl->free_mode)
     {
         direction = nu_vec3_add(
             direction,
-            nu_vec3_muls(nu_quat_mulv3(controller->_rot, NU_VEC3_UP), move.y));
+            nu_vec3_muls(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP), move.y));
     }
     else
     {
@@ -66,40 +75,38 @@ nu_camera_controller_update (nu_camera_controller_t *controller,
     direction = nu_vec3_normalize(direction);
 
     // Rotation
-    if (controller->_free_mode)
+    if (ctrl->free_mode)
     {
         if (look.x != 0)
         {
-            controller->_rot = nu_quat_mul_axis(
-                controller->_rot, NU_VEC3_UP, -nu_radian(look.x) * dt);
+            ctrl->rot = nu_quat_mul_axis(
+                ctrl->rot, NU_VEC3_UP, -nu_radian(look.x) * dt);
         }
         if (look.y != 0)
         {
-            controller->_rot = nu_quat_mul_axis(
-                controller->_rot, NU_VEC3_RIGHT, -nu_radian(look.y) * dt);
+            ctrl->rot = nu_quat_mul_axis(
+                ctrl->rot, NU_VEC3_RIGHT, -nu_radian(look.y) * dt);
         }
         if (look.z != 0)
         {
-            controller->_rot = nu_quat_mul_axis(
-                controller->_rot, NU_VEC3_FORWARD, -nu_radian(look.z) * dt);
+            ctrl->rot = nu_quat_mul_axis(
+                ctrl->rot, NU_VEC3_FORWARD, -nu_radian(look.z) * dt);
         }
     }
     else
     {
         if (look.x != 0)
         {
-            controller->_yaw += look.x * dt;
+            ctrl->yaw += look.x * dt;
         }
         if (look.y != 0)
         {
-            controller->_pitch += look.y * dt;
+            ctrl->pitch += look.y * dt;
         }
-        controller->_pitch = NU_CLAMP(controller->_pitch, -90.0, 90.0);
-        controller->_rot
-            = nu_quat_axis(NU_VEC3_UP, -nu_radian(controller->_yaw));
-        controller->_rot = nu_quat_mul(
-            controller->_rot,
-            nu_quat_axis(NU_VEC3_RIGHT, -nu_radian(controller->_pitch)));
+        ctrl->pitch = NU_CLAMP(ctrl->pitch, -90.0, 90.0);
+        ctrl->rot   = nu_quat_axis(NU_VEC3_UP, -nu_radian(ctrl->yaw));
+        ctrl->rot   = nu_quat_mul(
+            ctrl->rot, nu_quat_axis(NU_VEC3_RIGHT, -nu_radian(ctrl->pitch)));
     }
 
     dt = dt * 0.001;
@@ -111,27 +118,25 @@ nu_camera_controller_update (nu_camera_controller_t *controller,
     {
         force = nu_vec3_add(force, nu_vec3_muls(direction, 3));
     }
-    force = nu_vec3_add(force, nu_vec3_muls(controller->_vel, -0.5));
+    force = nu_vec3_add(force, nu_vec3_muls(ctrl->vel, -0.5));
 
     // Integrate
-    controller->_pos = nu_vec3_add(
-        controller->_pos,
-        nu_vec3_add(nu_vec3_muls(controller->_vel, dt),
-                    nu_vec3_muls(controller->_acc, 0.5 * dt * dt)));
+    ctrl->pos
+        = nu_vec3_add(ctrl->pos,
+                      nu_vec3_add(nu_vec3_muls(ctrl->vel, dt),
+                                  nu_vec3_muls(ctrl->acc, 0.5 * dt * dt)));
     nu_vec3_t new_acc = nu_vec3_muls(force, mass);
-    nu_vec3_t new_vel = nu_vec3_add(
-        controller->_vel,
-        nu_vec3_muls(nu_vec3_add(controller->_acc, new_acc), 0.5 * dt));
-    controller->_acc = new_acc;
-    controller->_vel = new_vel;
+    nu_vec3_t newvel  = nu_vec3_add(
+        ctrl->vel, nu_vec3_muls(nu_vec3_add(ctrl->acc, new_acc), 0.5 * dt));
+    ctrl->acc = new_acc;
+    ctrl->vel = newvel;
 
-    nu_vec3_t forward = nu_quat_mulv3(controller->_rot, NU_VEC3_FORWARD);
-    nu_vec3_t up
-        = nu_vec3_normalize(nu_quat_mulv3(controller->_rot, NU_VEC3_UP));
-    info->eye    = controller->_pos;
-    info->up     = up;
-    info->center = nu_vec3_add(controller->_pos, forward);
-    info->fov    = controller->fov;
+    nu_vec3_t forward = nu_quat_mulv3(ctrl->rot, NU_VEC3_FORWARD);
+    nu_vec3_t up      = nu_vec3_normalize(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP));
+    info->eye         = ctrl->pos;
+    info->up          = up;
+    info->center      = nu_vec3_add(ctrl->pos, forward);
+    info->fov         = ctrl->fov;
 }
 
 #endif

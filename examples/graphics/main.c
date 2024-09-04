@@ -18,6 +18,8 @@ main (void)
     nu_error_t error;
     NU_UNUSED(error);
 
+    nu_initialize();
+
     // Renderpass
     {
         nu_renderpass_info_t info;
@@ -77,11 +79,9 @@ main (void)
     }
 
     // Exit input
-    {
-        error = nu_input_create(&exit_input);
-        NU_ERROR_ASSERT(error);
-        nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
-    }
+    error = nu_input_create(&exit_input);
+    NU_ERROR_ASSERT(error);
+    nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 
     nu_timer_t timer;
     nu_timer_reset(&timer);
@@ -114,6 +114,8 @@ main (void)
         nu_renderer_render();
         nu_swap_buffers();
     }
+
+    nu_terminate();
 
     return 0;
 }
