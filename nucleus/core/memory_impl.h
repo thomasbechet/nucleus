@@ -4,7 +4,6 @@
 #include <nucleus/internal.h>
 
 #ifdef NU_STDLIB
-#include <stdlib.h>
 
 static void *
 nu__stdlib_alloctor_callback (
@@ -46,9 +45,9 @@ nu_allocator_core (void)
 }
 
 void *
-nu_alloc_a (nu_allocator_t *a, nu_size_t s)
+nu_alloc_a (nu_allocator_t *a, nu_size_t n)
 {
-    return a->callback(NU_NULL, 0, s, NU_DEFAULT_ALIGN, a->userdata);
+    return a->callback(NU_NULL, 0, n, NU_DEFAULT_ALIGN, a->userdata);
 }
 void *
 nu_realloc_a (nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n)
@@ -66,9 +65,9 @@ nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
 }
 
 void *
-nu_alloc (nu_size_t s)
+nu_alloc (nu_size_t n)
 {
-    return nu_alloc_a(&_ctx.core.allocator, s);
+    return nu_alloc_a(&_ctx.core.allocator, n);
 }
 void *
 nu_realloc (void *p, nu_size_t s, nu_size_t n)

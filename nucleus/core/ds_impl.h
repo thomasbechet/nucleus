@@ -33,13 +33,13 @@ nu__vec_pop (nu_size_t *size)
 }
 
 inline void *
-nu__pool_add (nu_allocator_t *alloc,
-              nu_size_t       tsize,
-              void           *data,
-              nu_size_t      *capacity,
-              nu_size_vec_t  *freelist,
-              nu_size_t      *pindex)
+nu__pool_add (nu_size_t      tsize,
+              void          *data,
+              nu_size_t     *capacity,
+              nu_size_vec_t *freelist,
+              nu_size_t     *pindex)
 {
+    NU_ASSERT(data && capacity && freelist && pindex);
     if (freelist->size)
     {
         *pindex = *nu_vec_pop(freelist);
@@ -47,12 +47,13 @@ nu__pool_add (nu_allocator_t *alloc,
     }
 
     nu_size_t new_capacity = (*capacity) * 2;
-    data = nu_realloc_a(alloc, data, tsize * (*capacity), tsize * new_capacity);
+    data                   = nu_realloc_a(
+        freelist->allocator, data, tsize * (*capacity), tsize * new_capacity);
     nu_memset((void *)((nu_size_t)data + tsize * (*capacity)),
               0,
               (new_capacity - (*capacity)) * tsize);
 
-    for (nu_size_t i = (*capacity) + 1; i < new_capacity; ++i)
+    for (nu_size_t i = 0; i < (new_capacity - *capacity - 1); ++i)
     {
         *nu_vec_push(freelist) = new_capacity - i - 1;
     }

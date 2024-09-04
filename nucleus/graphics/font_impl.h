@@ -100,7 +100,7 @@ nu_draw_text (nu_renderpass_t  pass,
               nu_size_t        n,
               nu_ivec2_t       pos)
 {
-    nu__font_t *font = handle._ptr;
+    nu__font_t *font = &_ctx.graphics.fonts.data[handle._index];
     nu_rect_t   extent
         = nu_rect(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)

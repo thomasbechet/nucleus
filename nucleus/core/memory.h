@@ -17,11 +17,11 @@ typedef struct
 
 NU_API nu_allocator_t *nu_allocator_core(void);
 
-NU_API void *nu_alloc_a(nu_allocator_t *a, nu_size_t s);
+NU_API void *nu_alloc_a(nu_allocator_t *a, nu_size_t n);
 NU_API void *nu_realloc_a(nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n);
 NU_API void  nu_free_a(nu_allocator_t *a, void *p, nu_size_t s);
 
-NU_API void *nu_alloc(nu_size_t s);
+NU_API void *nu_alloc(nu_size_t n);
 NU_API void *nu_realloc(void *p, nu_size_t s, nu_size_t n);
 NU_API void  nu_free(void *p, nu_size_t s);
 

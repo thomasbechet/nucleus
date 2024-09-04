@@ -2,19 +2,30 @@
 #define NU_CONFIG_H
 
 //////////////////////////////////////////////////////////////////////////
-//////                       Platform Detection                     //////
+//////                       Module Configuration                   //////
 //////////////////////////////////////////////////////////////////////////
 
 #define NU_BUILD_PLATFORM
+#define NU_BUILD_GLFW
 #define NU_BUILD_GRAPHICS
 #define NU_BUILD_GL
 #define NU_BUILD_UTILS
-#ifdef NU_NO_PLATFORM
+
+#if defined(NU_NO_PLATFORM)
 #undef NU_BUILD_PLATFORM
+#undef NU_BUILD_GLFW
+#endif
+
+#if defined(NU_NO_GRAPHICS) || !defined(NU_BUILD_PLATFORM)
 #undef NU_BUILD_GRAPHICS
 #endif
-#ifdef NU_NO_GRAPHICS
-#undef NU_BUILD_GRAPHICS
+
+#if defined(NU_NO_GL) || !defined(NU_BUILD_GRAPHICS)
+#undef NU_BUILD_GL
+#endif
+
+#if defined(NU_NO_UTILS) || !defined(NU_BUILD_GRAPHICS)
+#undef NU_BUILD_UTILS
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,6 +53,7 @@
 
 #define NU_STDLIB
 #ifdef NU_STDLIB
+#include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
@@ -129,25 +141,6 @@
 #define NU_API NU_API_EXPORT
 
 //////////////////////////////////////////////////////////////////////////
-//////                     Backends Selection                       //////
-//////////////////////////////////////////////////////////////////////////
-
-#if !defined(NU_NO_GLFW)
-#if defined(NU_PLATFORM_WINDOWS) || defined(NU_PLATFORM_UNIX) \
-    || defined(NU_PLATFORM_APPLE)
-#ifndef NU_BUILD_GLFW
-#define NU_BUILD_GLFW
-#endif
-#endif
-#endif
-
-#ifdef NU_BUILD_GLFW
-#ifndef NU_BUILD_GL
-#define NU_BUILD_GL
-#endif
-#endif
-
-//////////////////////////////////////////////////////////////////////////
 //////                          Error Types                         //////
 //////////////////////////////////////////////////////////////////////////
 
@@ -198,8 +191,6 @@ typedef int           nu_word_t;
 #define NU_DEFINE_HANDLE(type) \
     typedef union              \
     {                          \
-        void     *_ptr;        \
-        nu_u32_t  _id;         \
         nu_size_t _index;      \
     } type
 
