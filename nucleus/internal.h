@@ -14,6 +14,9 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/internal.h>
 #endif
+#ifdef NU_BUILD_ASSET
+#include <nucleus/asset/internal.h>
+#endif
 
 static struct nu__context
 {
@@ -29,6 +32,9 @@ static struct nu__context
 #endif
 #ifdef NU_BUILD_UTILS
     nu__utils_t utils;
+#endif
+#ifdef NU_BUILD_ASSET
+    nu__asset_t asset;
 #endif
 } _ctx;
 

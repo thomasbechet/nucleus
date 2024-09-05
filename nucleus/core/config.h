@@ -10,6 +10,7 @@
 #define NU_BUILD_GRAPHICS
 #define NU_BUILD_GL
 #define NU_BUILD_UTILS
+#define NU_BUILD_ASSET
 
 #if defined(NU_NO_PLATFORM)
 #undef NU_BUILD_PLATFORM
@@ -26,6 +27,10 @@
 
 #if defined(NU_NO_UTILS) || !defined(NU_BUILD_GRAPHICS)
 #undef NU_BUILD_UTILS
+#endif
+
+#if defined(NU_NO_ASSET) || !defined(NU_BUILD_UTILS)
+#undef NU_BUILD_ASSET
 #endif
 
 //////////////////////////////////////////////////////////////////////////

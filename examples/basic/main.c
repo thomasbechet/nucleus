@@ -411,10 +411,6 @@ main (void)
         nu_swap_buffers();
     }
 
-    // Free cube
-    nu_mesh_delete(cube_mesh);
-    nu_renderpass_delete(main_pass);
-
     nu_terminate();
 
     return 0;

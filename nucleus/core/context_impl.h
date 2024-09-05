@@ -33,11 +33,19 @@ nu_initialize (void)
     NU_ERROR_CHECK(error, return error);
 #endif
 
+#ifdef NU_BUILD_ASSET
+    error = nu__asset_init();
+    NU_ERROR_CHECK(error, return error);
+#endif
+
     return NU_ERROR_NONE;
 }
 nu_error_t
 nu_terminate (void)
 {
+#ifdef NU_BUILD_ASSET
+    nu__asset_free();
+#endif
 #ifdef NU_BUILD_UTILS
     nu__utils_free();
 #endif
