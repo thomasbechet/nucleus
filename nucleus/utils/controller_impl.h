@@ -3,13 +3,12 @@
 
 #include <nucleus/internal.h>
 
-void
-nu_camera_controller_create (const nu_camera_controller_info_t *info,
-                             nu_camera_controller_t            *controller)
+nu_camera_controller_t
+nu_camera_controller_create (const nu_camera_controller_info_t *info)
 {
-
+    nu_camera_controller_t   handle;
     nu__camera_controller_t *ctrl
-        = nu_pool_add(&_ctx.utils.controllers, &controller->_index);
+        = nu_pool_add(&_ctx.utils.controllers, &handle._index);
 
     ctrl->pos       = NU_VEC3_ZERO;
     ctrl->vel       = NU_VEC3_ZERO;
@@ -23,6 +22,8 @@ nu_camera_controller_create (const nu_camera_controller_info_t *info,
     ctrl->speed = 5;
 
     ctrl->info = *info;
+
+    return handle;
 }
 void
 nu_camera_controller_update (nu_camera_controller_t controller,

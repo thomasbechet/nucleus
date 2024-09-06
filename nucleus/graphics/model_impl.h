@@ -3,12 +3,14 @@
 
 #include <nucleus/internal.h>
 
-void
-nu_model_create (nu_model_t *model)
+nu_model_t
+nu_model_create (void)
 {
-    nu__model_t *m = nu_pool_add(&_ctx.graphics.models, &model->_index);
+    nu_model_t   handle;
+    nu__model_t *m = nu_pool_add(&_ctx.graphics.models, &handle._index);
     nu_vec_init(1, &m->assets);
     nu_vec_init(1, &m->nodes);
+    return handle;
 }
 void
 nu_model_delete (nu_model_t model)

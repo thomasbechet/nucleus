@@ -32,28 +32,27 @@ main (void)
 
     // Configure inputs
     nu_camera_controller_info_t cinfo;
-    nu_input_create(&draw);
-    nu_input_create(&main_button);
-    nu_input_create(&quit);
-    nu_input_create(&cursor_x);
-    nu_input_create(&cursor_y);
-    nu_input_create(&cinfo.move_forward);
-    nu_input_create(&cinfo.move_backward);
-    nu_input_create(&cinfo.move_left);
-    nu_input_create(&cinfo.move_right);
-    nu_input_create(&cinfo.move_up);
-    nu_input_create(&cinfo.move_down);
-    nu_input_create(&cinfo.view_pitch_neg);
-    nu_input_create(&cinfo.view_pitch_pos);
-    nu_input_create(&cinfo.view_yaw_neg);
-    nu_input_create(&cinfo.view_yaw_pos);
-    nu_input_create(&cinfo.view_roll_neg);
-    nu_input_create(&cinfo.view_roll_pos);
-    nu_input_create(&cinfo.switch_mode);
+    draw                 = nu_input_create();
+    main_button          = nu_input_create();
+    quit                 = nu_input_create();
+    cursor_x             = nu_input_create();
+    cursor_y             = nu_input_create();
+    cinfo.move_forward   = nu_input_create();
+    cinfo.move_backward  = nu_input_create();
+    cinfo.move_left      = nu_input_create();
+    cinfo.move_right     = nu_input_create();
+    cinfo.move_up        = nu_input_create();
+    cinfo.move_down      = nu_input_create();
+    cinfo.view_pitch_neg = nu_input_create();
+    cinfo.view_pitch_pos = nu_input_create();
+    cinfo.view_yaw_neg   = nu_input_create();
+    cinfo.view_yaw_pos   = nu_input_create();
+    cinfo.view_roll_neg  = nu_input_create();
+    cinfo.view_roll_pos  = nu_input_create();
+    cinfo.switch_mode    = nu_input_create();
 
     // Create camera controller
-    nu_camera_controller_t controller;
-    nu_camera_controller_create(&cinfo, &controller);
+    nu_camera_controller_t controller = nu_camera_controller_create(&cinfo);
 
     // Bind inputs
 
@@ -80,15 +79,13 @@ main (void)
     nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t      depth_buffer;
     nu_texture_info_t depth_buffer_info;
-    depth_buffer_info.usage  = NU_TEXTURE_USAGE_TARGET,
-    depth_buffer_info.format = NU_TEXTURE_FORMAT_DEPTH,
-    depth_buffer_info.size   = nu_uvec2(WIDTH, HEIGHT),
-    nu_texture_create(&depth_buffer_info, &depth_buffer);
+    depth_buffer_info.usage   = NU_TEXTURE_USAGE_TARGET;
+    depth_buffer_info.format  = NU_TEXTURE_FORMAT_DEPTH;
+    depth_buffer_info.size    = nu_uvec2(WIDTH, HEIGHT);
+    nu_texture_t depth_buffer = nu_texture_create(&depth_buffer_info);
 
     // Create cube
-    nu_mesh_t cube_mesh;
     nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
     nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
     nu_vec3_t cube_normals[NU_CUBE_MESH_VERTEX_COUNT];
@@ -97,48 +94,39 @@ main (void)
     cube_mesh_info.positions = cube_positions, cube_mesh_info.uvs = cube_uvs,
     cube_mesh_info.normals = cube_normals,
     cube_mesh_info.count   = NU_CUBE_MESH_VERTEX_COUNT;
-    nu_mesh_create(&cube_mesh_info, &cube_mesh);
+    nu_mesh_t cube_mesh    = nu_mesh_create(&cube_mesh_info);
 
     // Load resources
     nu_texture_t texture;
-    nu_texture_t texture_white;
     nu_texture_t texture_gui;
     {
-        nu_image_t image;
-        nuext_image_load_filename(
-            "../../../assets/brick_building_front_lowres.png", &image);
-        nu_texture_create_image(image, &texture);
+        nu_image_t image = nuext_image_load_filename(
+            "../../../assets/brick_building_front_lowres.png");
+        texture = nu_texture_create_image(image);
         nu_image_delete(image);
 
-        nu_texture_create_color(NU_COLOR_WHITE, &texture_white);
-
-        nuext_image_load_filename("../../../assets/GUI.png", &image);
-        nu_texture_create_image(image, &texture_gui);
+        image       = nuext_image_load_filename("../../../assets/GUI.png");
+        texture_gui = nu_texture_create_image(image);
         nu_image_delete(image);
     }
 
     // Create material
     nu_material_t material;
-    nu_material_t material_white;
     nu_material_t material_gui;
     nu_material_t material_gui_repeat;
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
-        nu_material_create(&info, &material);
-
-        info             = nu_material_info_default(NU_MATERIAL_MESH);
-        info.mesh.color0 = &texture_white;
-        nu_material_create(&info, &material_white);
+        material                = nu_material_create(&info);
 
         info               = nu_material_info_default(NU_MATERIAL_CANVAS);
         info.canvas.color0 = &texture_gui;
-        nu_material_create(&info, &material_gui);
+        material_gui       = nu_material_create(&info);
 
         info                  = nu_material_info_default(NU_MATERIAL_CANVAS);
         info.canvas.color0    = &texture_gui;
         info.canvas.wrap_mode = NU_TEXTURE_WRAP_REPEAT;
-        nu_material_create(&info, &material_gui_repeat);
+        material_gui_repeat   = nu_material_create(&info);
     }
 
     // Load temple
@@ -146,11 +134,11 @@ main (void)
         nu_gltf_loader_t loader;
         nu_gltf_loader_init(&loader);
 
-        nuext_model_load_gltf_filename(
-            &loader, "../../../assets/temple_of_time.glb", &temple_model);
+        temple_model = nuext_model_load_gltf_filename(
+            &loader, "../../../assets/temple_of_time.glb");
 
-        nuext_model_load_gltf_filename(
-            &loader, "../../../assets/ariane6.glb", &ariane_model);
+        ariane_model = nuext_model_load_gltf_filename(
+            &loader, "../../../assets/ariane6.glb");
 
         nu_gltf_loader_free(&loader);
     }
@@ -169,7 +157,7 @@ main (void)
         nu_image_t images[6];
         for (nu_size_t i = 0; i < 6; ++i)
         {
-            nuext_image_load_filename(filenames[i], &images[i]);
+            images[i] = nuext_image_load_filename(filenames[i]);
         }
         nu_cubemap_info_t info;
         info.size        = nu_image_size(images[0]).x;
@@ -180,7 +168,7 @@ main (void)
         info.colors_negy = nu_image_colors(images[1]);
         info.colors_posz = nu_image_colors(images[4]);
         info.colors_negz = nu_image_colors(images[5]);
-        nu_cubemap_create(&info, &skybox);
+        skybox           = nu_cubemap_create(&info);
         for (nu_size_t i = 0; i < 6; ++i)
         {
             nu_image_delete(images[i]);
@@ -192,32 +180,27 @@ main (void)
     nu_font_create_default(&font);
 
     // Create camera
-    nu_camera_t      camera;
     nu_camera_info_t camera_info = nu_camera_info();
-    nu_camera_create(&camera_info, &camera);
+    nu_camera_t      camera      = nu_camera_create(&camera_info);
 
     // Create renderpasses
-    nu_renderpass_t      main_pass;
     nu_renderpass_info_t main_pass_info;
     main_pass_info.type               = NU_RENDERPASS_FLAT;
     main_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_create(&main_pass_info, &main_pass);
+    nu_renderpass_t main_pass         = nu_renderpass_create(&main_pass_info);
 
-    nu_renderpass_t      skybox_pass;
     nu_renderpass_info_t skybox_pass_info;
     skybox_pass_info.type               = NU_RENDERPASS_SKYBOX;
     skybox_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_create(&skybox_pass_info, &skybox_pass);
+    nu_renderpass_t skybox_pass = nu_renderpass_create(&skybox_pass_info);
 
-    nu_renderpass_t      gui_pass;
     nu_renderpass_info_t gui_pass_info;
     gui_pass_info.type               = NU_RENDERPASS_CANVAS;
     gui_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_create(&gui_pass_info, &gui_pass);
+    nu_renderpass_t gui_pass         = nu_renderpass_create(&gui_pass_info);
 
     // Create UI
-    nu_ui_t ui;
-    nu_ui_create(&ui);
+    nu_ui_t ui = nu_ui_create();
 
     nu_ui_style_t button_style;
     button_style.type                     = NU_UI_BUTTON;

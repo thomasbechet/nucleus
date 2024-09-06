@@ -13,10 +13,9 @@ main (void)
     // nu_input_create(&exit_input);
     // nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 
-    nu_input_t q, w, e, r;
-    nu_input_create(&q);
+    nu_input_t q = nu_input_create();
     nuext_input_bind_axis(q, NUEXT_AXIS_MOUSE_X);
-    nu_input_create(&w);
+    nu_input_t w = nu_input_create();
     nuext_input_bind_axis(w, NUEXT_AXIS_MOUSE_Y);
 
     while (!nu_exit_requested())

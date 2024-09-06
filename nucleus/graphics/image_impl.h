@@ -3,13 +3,14 @@
 
 #include <nucleus/internal.h>
 
-nu_error_t
-nu_image_create (nu_uvec2_t size, nu_image_t *image)
+nu_image_t
+nu_image_create (nu_uvec2_t size)
 {
-    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &image->_index);
+    nu_image_t   handle;
+    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &handle._index);
     im->size        = size;
     im->colors = (nu_color_t *)nu_alloc(sizeof(nu_color_t) * size.x * size.y);
-    return NU_ERROR_NONE;
+    return handle;
 }
 void
 nu_image_delete (nu_image_t ima)

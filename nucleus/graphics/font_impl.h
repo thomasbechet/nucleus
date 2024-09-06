@@ -34,9 +34,7 @@ nu_font_create_default (nu_font_t *handle)
     // Load default font data into image
     nu_uvec2_t image_size
         = nu_uvec2(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
-    nu_image_t image;
-    error = nu_image_create(image_size, &image);
-    NU_ERROR_CHECK(error, return error);
+    nu_image_t  image      = nu_image_create(image_size);
     nu_color_t *image_data = nu_image_colors(image);
 
     nu_rect_t extent = nu_rect(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
@@ -67,8 +65,7 @@ nu_font_create_default (nu_font_t *handle)
     }
 
     // Create renderer image
-    error = nu_texture_create_image(image, &font->texture);
-    NU_ERROR_CHECK(error, return error);
+    font->texture = nu_texture_create_image(image);
 
     // Create material
     {
@@ -76,8 +73,7 @@ nu_font_create_default (nu_font_t *handle)
         info.type             = NU_MATERIAL_CANVAS;
         info.canvas.color0    = &font->texture;
         info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
-        error                 = nu_material_create(&info, &font->material);
-        NU_ERROR_CHECK(error, return error);
+        font->material        = nu_material_create(&info);
     }
 
     // Free resources

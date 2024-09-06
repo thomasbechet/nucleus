@@ -65,8 +65,8 @@ NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_rect_t       tex_extent,
                            nu_ui_margin_t  margin);
 
-NU_API nu_error_t nu_ui_create(nu_ui_t *ui);
-NU_API void       nu_ui_delete(nu_ui_t ui);
+NU_API nu_ui_t nu_ui_create(void);
+NU_API void    nu_ui_delete(nu_ui_t ui);
 
 NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_ivec2_t pos);
 NU_API void nu_ui_set_pressed(nu_ui_t   ui,

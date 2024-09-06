@@ -79,31 +79,26 @@ typedef struct
     nu_texture_t (*create_surface_color)(nu_uvec2_t size);
 
     // Resources API
-    nu_error_t (*create_camera)(const nu_camera_info_t *info,
-                                nu_camera_t            *camera);
+    nu_camera_t (*create_camera)(const nu_camera_info_t *info);
     nu_error_t (*delete_camera)(nu_camera_t camera);
     nu_error_t (*update_camera)(nu_camera_t             camera,
                                 const nu_camera_info_t *info);
 
-    nu_error_t (*create_mesh)(const nu_mesh_info_t *info, nu_mesh_t *mesh);
+    nu_mesh_t (*create_mesh)(const nu_mesh_info_t *info);
     nu_error_t (*delete_mesh)(nu_mesh_t mesh);
 
-    nu_error_t (*create_texture)(const nu_texture_info_t *info,
-                                 nu_texture_t            *texture);
+    nu_texture_t (*create_texture)(const nu_texture_info_t *info);
     nu_error_t (*delete_texture)(nu_texture_t texture);
 
-    nu_error_t (*create_cubemap)(const nu_cubemap_info_t *info,
-                                 nu_cubemap_t            *cubemap);
+    nu_cubemap_t (*create_cubemap)(const nu_cubemap_info_t *info);
     nu_error_t (*delete_cubemap)(nu_cubemap_t cubemap);
 
-    nu_error_t (*create_material)(const nu_material_info_t *info,
-                                  nu_material_t            *material);
+    nu_material_t (*create_material)(const nu_material_info_t *info);
     nu_error_t (*delete_material)(nu_material_t material);
     nu_error_t (*update_material)(nu_material_t             material,
                                   const nu_material_info_t *info);
 
-    nu_error_t (*create_renderpass)(const nu_renderpass_info_t *info,
-                                    nu_renderpass_t            *pass);
+    nu_renderpass_t (*create_renderpass)(const nu_renderpass_info_t *info);
     nu_error_t (*delete_renderpass)(nu_renderpass_t pass);
 
     // Commands API
@@ -123,7 +118,7 @@ typedef struct
 typedef struct
 {
     nu_renderer_api_t api;
-    void             *backend;
+    nu_bool_t         null_api;
     nu_texture_t      surface_color;
 } nu__renderer_t;
 

@@ -25,7 +25,7 @@ main (void)
         nu_renderpass_info_t info;
         info.type               = NU_RENDERPASS_FLAT;
         info.reset_after_submit = NU_TRUE;
-        error                   = nu_renderpass_create(&info, &renderpass);
+        renderpass              = nu_renderpass_create(&info);
         NU_ERROR_ASSERT(error);
     }
 
@@ -40,13 +40,13 @@ main (void)
         info.uvs       = uvs;
         info.normals   = normals;
         info.count     = NU_CUBE_MESH_VERTEX_COUNT;
-        error          = nu_mesh_create(&info, &mesh);
+        mesh           = nu_mesh_create(&info);
         NU_ERROR_ASSERT(error);
     }
 
     // Texture
     {
-        error = nu_texture_create_color(NU_COLOR_WHITE, &texture);
+        texture = nu_texture_create_color(NU_COLOR_WHITE);
         NU_ERROR_ASSERT(error);
     }
 
@@ -54,7 +54,7 @@ main (void)
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
-        error                   = nu_material_create(&info, &material);
+        material                = nu_material_create(&info);
         NU_ERROR_ASSERT(error);
     }
 
@@ -64,22 +64,22 @@ main (void)
         info.fov              = 60;
         info.eye              = nu_vec3(2, 1, 2);
         info.center           = NU_VEC3_ZERO;
-        error                 = nu_camera_create(&info, &camera);
+        camera                = nu_camera_create(&info);
         NU_ERROR_ASSERT(error);
     }
 
     // Depth buffer
     {
         nu_texture_info_t info;
-        info.size   = nu_uvec2(WIDTH, HEIGHT);
-        info.usage  = NU_TEXTURE_USAGE_TARGET;
-        info.format = NU_TEXTURE_FORMAT_DEPTH;
-        error       = nu_texture_create(&info, &depth_buffer);
+        info.size    = nu_uvec2(WIDTH, HEIGHT);
+        info.usage   = NU_TEXTURE_USAGE_TARGET;
+        info.format  = NU_TEXTURE_FORMAT_DEPTH;
+        depth_buffer = nu_texture_create(&info);
         NU_ERROR_ASSERT(error);
     }
 
     // Exit input
-    error = nu_input_create(&exit_input);
+    exit_input = nu_input_create();
     NU_ERROR_ASSERT(error);
     nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 

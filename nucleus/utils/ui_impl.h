@@ -155,10 +155,11 @@ nu__draw_image (nu__ui_t                  *ui,
                     style->margin);
 }
 
-nu_error_t
-nu_ui_create (nu_ui_t *handle)
+nu_ui_t
+nu_ui_create (void)
 {
-    nu__ui_t *ui = nu_pool_add(&_ctx.utils.uis, &handle->_index);
+    nu_ui_t   handle;
+    nu__ui_t *ui = nu_pool_add(&_ctx.utils.uis, &handle._index);
 
     nu_vec_init(10, &ui->styles);
     ui->button_style   = NU_NULL;
@@ -174,11 +175,10 @@ nu_ui_create (nu_ui_t *handle)
 
     // Create main renderpass
     nu_renderpass_info_t pinfo;
-    pinfo.type       = NU_RENDERPASS_CANVAS;
-    nu_error_t error = nu_renderpass_create(&pinfo, &ui->active_renderpass);
-    NU_ERROR_CHECK(error, return error);
-    nu__ui_pass_t *pass = nu_vec_push(&ui->passes);
-    pass->renderpass    = ui->active_renderpass;
+    pinfo.type            = NU_RENDERPASS_CANVAS;
+    ui->active_renderpass = nu_renderpass_create(&pinfo);
+    nu__ui_pass_t *pass   = nu_vec_push(&ui->passes);
+    pass->renderpass      = ui->active_renderpass;
 
     // Initialize controllers
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
@@ -191,7 +191,7 @@ nu_ui_create (nu_ui_t *handle)
 
     ui->controllers[0].active = NU_TRUE;
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 void
 nu_ui_delete (nu_ui_t handle)

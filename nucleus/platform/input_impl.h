@@ -3,15 +3,16 @@
 
 #include <nucleus/internal.h>
 
-nu_error_t
-nu_input_create (nu_input_t *input)
+nu_input_t
+nu_input_create (void)
 {
+    nu_input_t         handle;
     nu__input_entry_t *entry
-        = nu_pool_add(&_ctx.platform.input.entries, &input->_index);
+        = nu_pool_add(&_ctx.platform.input.entries, &handle._index);
     entry->state.value    = NU_INPUT_RELEASED;
     entry->state.previous = NU_INPUT_RELEASED;
     entry->used           = NU_TRUE;
-    return NU_ERROR_NONE;
+    return handle;
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)

@@ -114,6 +114,8 @@
 
 #define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
 
+#define NU_HANDLE_ASSET(handle) NU_ASSERT(handle._index == (nu_size_t) - 1)
+
 //////////////////////////////////////////////////////////////////////////
 //////                     Import/Export Macros                     //////
 //////////////////////////////////////////////////////////////////////////
@@ -198,5 +200,6 @@ typedef int           nu_word_t;
     {                          \
         nu_size_t _index;      \
     } type
+#define NU_INVALID_HANDLE(type) ((type) { ._index = (nu_size_t) - 1 })
 
 #endif

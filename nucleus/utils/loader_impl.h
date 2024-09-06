@@ -130,20 +130,17 @@ nu__load_mesh (nu_gltf_loader_t *loader,
             }
 
             // Create mesh
-            nu_mesh_t      handle;
             nu_mesh_info_t info;
-            info.positions = buf_positions;
-            info.uvs       = buf_uvs;
-            info.normals   = buf_normals;
-            info.count     = indice_count;
-            error          = nu_mesh_create(&info, &handle);
-            NU_ERROR_CHECK(error, return error);
+            info.positions   = buf_positions;
+            info.uvs         = buf_uvs;
+            info.normals     = buf_normals;
+            info.count       = indice_count;
+            nu_mesh_t handle = nu_mesh_create(&info);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
             nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
             nu_free(buf_normals, sizeof(*buf_normals) * indice_count);
-            NU_ERROR_CHECK(error, return error);
 
             // Append asset
             nu__model_asset_t *asset      = nu_vec_push(&model->assets);
@@ -165,17 +162,11 @@ nu__load_texture (nu_gltf_loader_t    *loader,
 
     cgltf_buffer_view *tview = texture->image->buffer_view;
 
-    nu_image_t image;
-    nu_error_t error = nu_image_load_memory(
-        (const nu_byte_t *)tview->buffer->data + tview->offset,
-        tview->size,
-        &image);
-    NU_ERROR_CHECK(error, return error);
+    nu_image_t image = nu_image_load_memory(
+        (const nu_byte_t *)tview->buffer->data + tview->offset, tview->size);
 
     // Create texture
-    nu_texture_t handle;
-    error = nu_texture_create_image(image, &handle);
-    NU_ERROR_ASSERT(error);
+    nu_texture_t handle = nu_texture_create_image(image);
     nu_image_delete(image);
 
     // Append asset
@@ -185,7 +176,7 @@ nu__load_texture (nu_gltf_loader_t    *loader,
     cache->ptr                    = texture;
     cache->index                  = model->assets.size - 1;
 
-    return error;
+    return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__load_material (nu_gltf_loader_t     *loader,
@@ -215,11 +206,9 @@ nu__load_material (nu_gltf_loader_t     *loader,
     }
 
     // Create material
-    nu_material_t      handle;
     nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
     info.mesh.color0        = &model->assets.data[index].texture;
-    nu_error_t error        = nu_material_create(&info, &handle);
-    NU_ERROR_ASSERT(error);
+    nu_material_t handle    = nu_material_create(&info);
 
     // Append asset
     nu__model_asset_t *asset      = nu_vec_push(&model->assets);
@@ -237,14 +226,12 @@ nu__load_material_default (nu_gltf_loader_t *loader, nu__model_t *model)
     {
         NU_DEBUG("loading default material");
 
-        nu_texture_t texture;
-        nu_texture_create_color(NU_COLOR_RED, &texture);
+        nu_texture_t texture = nu_texture_create_color(NU_COLOR_RED);
         nu_vec_push(&model->assets)->texture = texture;
 
-        nu_material_t      material;
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
-        nu_material_create(&info, &material);
+        nu_material_t material  = nu_material_create(&info);
         nu_vec_push(&model->assets)->material = material;
 
         loader->_default_material     = model->assets.size - 1;
@@ -264,10 +251,9 @@ nu_gltf_loader_free (nu_gltf_loader_t *loader)
 {
     nu_vec_free(&loader->_cache);
 }
-nu_error_t
+nu_model_t
 nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
-                                const nu_char_t  *filename,
-                                nu_model_t       *model)
+                                const nu_char_t  *filename)
 {
     cgltf_options options;
     nu_memset(&options, 0, sizeof(options));
@@ -284,28 +270,28 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
     result = cgltf_parse_file(&options, filename, &data);
     if (result != cgltf_result_success)
     {
-        return NU_ERROR_RESOURCE_LOADING;
+        return NU_INVALID_HANDLE(nu_model_t);
     }
     result = cgltf_load_buffers(&options, data, filename);
     if (result != cgltf_result_success)
     {
-        return NU_ERROR_RESOURCE_LOADING;
+        return NU_INVALID_HANDLE(nu_model_t);
     }
 
     // Create model
-    nu_model_create(model);
-    nu__model_t *m = &_ctx.graphics.models.data[model->_index];
+    nu_model_t   handle = nu_model_create();
+    nu__model_t *m      = &_ctx.graphics.models.data[handle._index];
 
     // Load resources
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i, m);
-        NU_ERROR_CHECK(error, return error);
+        NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i, m);
-        NU_ERROR_CHECK(error, return error);
+        NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -314,7 +300,7 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat, m);
-            NU_ERROR_CHECK(error, return error);
+            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
         }
     }
 
@@ -391,7 +377,7 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
                     }
                     if (!found)
                     {
-                        return NU_ERROR_RESOURCE_LOADING;
+                        return NU_INVALID_HANDLE(nu_model_t);
                     }
                 }
 
@@ -405,7 +391,7 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
     }
 
     cgltf_free(data);
-    return NU_ERROR_NONE;
+    return handle;
 }
 
 static void
@@ -432,32 +418,30 @@ nu__parse_colors (const nu_byte_t *src,
         }
     }
 }
-nu_error_t
-nuext_image_load_filename (const nu_char_t *filename, nu_image_t *image)
+nu_image_t
+nuext_image_load_filename (const nu_char_t *filename)
 {
     int        w, h, n;
     nu_byte_t *img = stbi_load(filename, &w, &h, &n, STBI_default);
-    NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
-    nu_uvec2_t size = nu_uvec2(w, h);
-    nu_image_create(size, image);
-    nu__parse_colors(img, nu_image_colors(*image), size, n);
+    NU_CHECK(img, return NU_INVALID_HANDLE(nu_image_t));
+    nu_uvec2_t size   = nu_uvec2(w, h);
+    nu_image_t handle = nu_image_create(size);
+    nu__parse_colors(img, nu_image_colors(handle), size, n);
     stbi_image_free(img);
-    return NU_ERROR_NONE;
+    return handle;
 }
-nu_error_t
-nu_image_load_memory (const nu_byte_t *data,
-                      nu_size_t        data_size,
-                      nu_image_t      *image)
+nu_image_t
+nu_image_load_memory (const nu_byte_t *data, nu_size_t data_size)
 {
     int        w, h, n;
     nu_byte_t *img
         = stbi_load_from_memory(data, data_size, &w, &h, &n, STBI_default);
-    NU_CHECK(img, return NU_ERROR_RESOURCE_LOADING);
-    nu_uvec2_t size = nu_uvec2(w, h);
-    nu_image_create(size, image);
-    nu__parse_colors(img, nu_image_colors(*image), size, n);
+    NU_CHECK(img, return NU_INVALID_HANDLE(nu_image_t));
+    nu_uvec2_t size   = nu_uvec2(w, h);
+    nu_image_t handle = nu_image_create(size);
+    nu__parse_colors(img, nu_image_colors(handle), size, n);
     stbi_image_free(img);
-    return NU_ERROR_NONE;
+    return handle;
 }
 
 #endif

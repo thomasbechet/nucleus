@@ -9,7 +9,7 @@
 
 NU_DEFINE_HANDLE(nu_input_t);
 
-NU_API nu_error_t nu_input_create(nu_input_t *input);
+NU_API nu_input_t nu_input_create(void);
 NU_API nu_bool_t  nu_input_changed(nu_input_t input);
 NU_API nu_bool_t  nu_input_pressed(nu_input_t input);
 NU_API nu_bool_t  nu_input_just_pressed(nu_input_t input);

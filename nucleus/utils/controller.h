@@ -23,8 +23,8 @@ typedef struct
 
 NU_DEFINE_HANDLE(nu_camera_controller_t);
 
-NU_API void nu_camera_controller_create(const nu_camera_controller_info_t *info,
-                                        nu_camera_controller_t *controller);
+NU_API nu_camera_controller_t
+nu_camera_controller_create(const nu_camera_controller_info_t *info);
 NU_API void nu_camera_controller_delete(nu_camera_controller_t controller);
 NU_API void nu_camera_controller_update(nu_camera_controller_t controller,
                                         float                  dt,

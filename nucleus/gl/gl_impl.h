@@ -494,32 +494,34 @@ nugl__update_camera (nu_camera_t camera, const nu_camera_info_t *info)
 
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_camera (const nu_camera_info_t *info, nu_camera_t *camera)
+static nu_camera_t
+nugl__create_camera (const nu_camera_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
+    nu_camera_t handle;
     (void)nu_vec_push(&gl->cameras);
-    camera->_index = gl->cameras.size - 1;
+    handle._index = gl->cameras.size - 1;
 
-    nu_error_t error = nugl__update_camera(*camera, info);
-    NU_ERROR_CHECK(error, return error);
-    return NU_ERROR_NONE;
+    nu_error_t error = nugl__update_camera(handle, info);
+    NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_camera_t));
+    return handle;
 }
 static nu_error_t
 nugl__delete_camera (nu_camera_t camera)
 {
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_mesh (const nu_mesh_info_t *info, nu_mesh_t *mesh)
+static nu_mesh_t
+nugl__create_mesh (const nu_mesh_info_t *info)
 {
     NU_ASSERT(info->positions);
 
     nu__gl_t *gl = &_ctx.gl;
 
+    nu_mesh_t     handle;
     nugl__mesh_t *pmesh = nu_vec_push(&gl->meshes);
-    mesh->_index        = gl->meshes.size - 1;
+    handle._index       = gl->meshes.size - 1;
 
     pmesh->vertex_count = info->count;
 
@@ -584,7 +586,7 @@ nugl__create_mesh (const nu_mesh_info_t *info, nu_mesh_t *mesh)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 static nu_error_t
 nugl__delete_mesh (nu_mesh_t mesh)
@@ -595,13 +597,14 @@ nugl__delete_mesh (nu_mesh_t mesh)
     glDeleteBuffers(1, &pmesh->vbo);
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_texture (const nu_texture_info_t *info, nu_texture_t *texture)
+static nu_texture_t
+nugl__create_texture (const nu_texture_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
+    nu_texture_t     handle;
     nugl__texture_t *ptex = nu_vec_push(&gl->textures);
-    texture->_index       = gl->textures.size - 1;
+    handle._index         = gl->textures.size - 1;
 
     ptex->size = info->size;
 
@@ -639,7 +642,7 @@ nugl__create_texture (const nu_texture_info_t *info, nu_texture_t *texture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 static nu_error_t
 nugl__delete_texture (nu_texture_t texture)
@@ -649,13 +652,14 @@ nugl__delete_texture (nu_texture_t texture)
     glDeleteTextures(1, &ptex->texture);
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_cubemap (const nu_cubemap_info_t *info, nu_cubemap_t *cubemap)
+static nu_cubemap_t
+nugl__create_cubemap (const nu_cubemap_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
+    nu_cubemap_t     handle;
     nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps);
-    cubemap->_index        = gl->cubemaps.size - 1;
+    handle._index          = gl->cubemaps.size - 1;
 
     glGenTextures(1, &pcube->texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, pcube->texture);
@@ -683,7 +687,7 @@ nugl__create_cubemap (const nu_cubemap_info_t *info, nu_cubemap_t *cubemap)
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 static nu_error_t
 nugl__delete_cubemap (nu_cubemap_t cubemap)
@@ -725,19 +729,20 @@ nugl__update_material (nu_material_t material, const nu_material_info_t *info)
     }
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_material (const nu_material_info_t *info, nu_material_t *material)
+static nu_material_t
+nugl__create_material (const nu_material_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
+    nu_material_t handle;
     (void)nu_vec_push(&gl->materials);
-    material->_index = gl->materials.size - 1;
+    handle._index = gl->materials.size - 1;
 
     // Keep material type
-    (gl->materials.data + material->_index)->type = info->type;
+    (gl->materials.data + handle._index)->type = info->type;
 
-    nugl__update_material(*material, info);
-    return NU_ERROR_NONE;
+    nugl__update_material(handle, info);
+    return handle;
 }
 static nu_error_t
 nugl__delete_material (nu_material_t material)
@@ -810,9 +815,8 @@ nugl__create_canvas_renderpass (nugl__renderpass_canvas_t *pass)
 
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nugl__create_renderpass (const nu_renderpass_info_t *info,
-                         nu_renderpass_t            *pass)
+static nu_renderpass_t
+nugl__create_renderpass (const nu_renderpass_info_t *info)
 {
     nu_error_t error;
     nu__gl_t  *gl = &_ctx.gl;
@@ -829,7 +833,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info,
             break;
         case NU_RENDERPASS_FLAT: {
             error = nugl__create_flat_renderpass(&data->flat);
-            NU_ERROR_CHECK(error, return error);
+            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_renderpass_t));
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
@@ -840,14 +844,15 @@ nugl__create_renderpass (const nu_renderpass_info_t *info,
             break;
         case NU_RENDERPASS_CANVAS: {
             error = nugl__create_canvas_renderpass(&data->canvas);
-            NU_ERROR_CHECK(error, return error);
+            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_renderpass_t));
         }
         break;
     }
 
-    pass->_index = index;
+    nu_renderpass_t handle;
+    handle._index = index;
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 static nu_error_t
 nugl__delete_renderpass (nu_renderpass_t pass)
