@@ -10,6 +10,9 @@
 #define NU_BUILD_GRAPHICS
 #define NU_BUILD_GL
 #define NU_BUILD_UTILS
+#define NU_BUILD_IMPORTER
+#define NU_BUILD_STBIMAGE
+#define NU_BUILD_CGLTF
 #define NU_BUILD_ASSET
 
 #if defined(NU_NO_PLATFORM)
@@ -27,6 +30,20 @@
 
 #if defined(NU_NO_UTILS) || !defined(NU_BUILD_GRAPHICS)
 #undef NU_BUILD_UTILS
+#endif
+
+#if defined(NU_NO_IMPORTER)
+#undef NU_BUILD_IMPORTER
+#undef NU_BUILD_STBIMAGE
+#undef NU_BUILD_CGLTF
+#endif
+
+#if defined(NU_NO_STBIMAGE)
+#undef NU_BUILD_STBIMAGE
+#endif
+
+#if defined(NU_NO_CGLTF)
+#undef NU_BUILD_CGLTF
 #endif
 
 #if defined(NU_NO_ASSET) || !defined(NU_BUILD_UTILS)

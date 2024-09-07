@@ -32,9 +32,9 @@ typedef union
 NU_API nu_asset_t nu_asset_add(nu_asset_type_t type, nu_uid_t uid);
 NU_API nu_asset_t nu_asset_find(nu_asset_type_t type, nu_uid_t uid);
 
-NU_API nu_asset_data_t *nu_asset_data(nu_asset_t handle);
-NU_API nu_asset_type_t  nu_asset_type(nu_asset_t handle);
-NU_API nu_bundle_t      nu_asset_bundle(nu_asset_t handle);
+NU_API nu_asset_data_t nu_asset_data(nu_asset_t handle);
+NU_API nu_asset_type_t nu_asset_type(nu_asset_t handle);
+NU_API nu_bundle_t     nu_asset_bundle(nu_asset_t handle);
 
 NU_API nu_asset_t nuext_asset_load_filename(nu_asset_type_t  type,
                                             nu_uid_t         uid,

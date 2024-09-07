@@ -131,16 +131,9 @@ main (void)
 
     // Load temple
     {
-        nu_gltf_loader_t loader;
-        nu_gltf_loader_init(&loader);
-
-        temple_model = nuext_model_load_gltf_filename(
-            &loader, "../../../assets/temple_of_time.glb");
-
-        ariane_model = nuext_model_load_gltf_filename(
-            &loader, "../../../assets/ariane6.glb");
-
-        nu_gltf_loader_free(&loader);
+        temple_model
+            = nuext_model_load_filename("../../../assets/temple_of_time.glb");
+        ariane_model = nuext_model_load_filename("../../../assets/ariane6.glb");
     }
 
     // Load cubemap

@@ -14,6 +14,12 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils.h>
 #endif
+#ifdef NU_BUILD_IMPORTER
+#include <nucleus/importer/importer.h>
+#endif
+#ifdef NU_BUILD_ASSET
+#include <nucleus/asset/asset.h>
+#endif
 
 #ifdef NU_IMPLEMENTATION
 
@@ -29,6 +35,9 @@
 #endif
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils_impl.h>
+#endif
+#ifdef NU_BUILD_IMPORTER
+#include <nucleus/importer/importer_impl.h>
 #endif
 #ifdef NU_BUILD_ASSET
 #include <nucleus/asset/asset_impl.h>

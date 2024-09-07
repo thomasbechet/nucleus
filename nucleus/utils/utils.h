@@ -2,7 +2,6 @@
 #define NU_UTILS_H
 
 #include <nucleus/utils/geometry.h>
-#include <nucleus/utils/loader.h>
 #include <nucleus/utils/controller.h>
 #include <nucleus/utils/ui.h>
 

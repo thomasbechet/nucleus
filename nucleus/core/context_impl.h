@@ -33,6 +33,10 @@ nu_initialize (void)
     NU_ERROR_CHECK(error, return error);
 #endif
 
+#ifdef NU_BUILD_IMPORTER
+    nu__importer_init();
+#endif
+
 #ifdef NU_BUILD_ASSET
     error = nu__asset_init();
     NU_ERROR_CHECK(error, return error);
@@ -45,6 +49,9 @@ nu_terminate (void)
 {
 #ifdef NU_BUILD_ASSET
     nu__asset_free();
+#endif
+#ifdef NU_BUILD_IMPORTER
+    nu__importer_free();
 #endif
 #ifdef NU_BUILD_UTILS
     nu__utils_free();
