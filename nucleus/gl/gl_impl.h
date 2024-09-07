@@ -56,7 +56,7 @@ nugl__compile_shader (const nu_char_t *vert,
     GLuint vertex_shader, fragment_shader;
     GLint  success;
 
-    NU_ASSERT(vert && frag);
+    nu_assert(vert && frag);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vert, NULL);
@@ -68,7 +68,7 @@ nugl__compile_shader (const nu_char_t *vert,
         glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
-        NU_ERROR("%s", log);
+        nu_error("%s", log);
 
         glDeleteShader(vertex_shader);
         return NU_ERROR_SHADER_COMPILATION;
@@ -84,7 +84,7 @@ nugl__compile_shader (const nu_char_t *vert,
         glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
-        NU_ERROR("%s", log);
+        nu_error("%s", log);
 
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
@@ -147,22 +147,22 @@ MessageCallback (GLenum        source,
     switch (severity)
     {
         case GL_DEBUG_SEVERITY_HIGH:
-            NU_ERROR("GL: %s, message = %s",
+            nu_error("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            NU_ERROR("GL: %s, message = %s",
+            nu_error("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            NU_WARNING("GL: %s, message = %s",
+            nu_warning("GL: %s, message = %s",
                        nugl__message_type_string(type),
                        message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            NU_INFO("GL: %s, message = %s",
+            nu_info("GL: %s, message = %s",
                     nugl__message_type_string(type),
                     message);
             break;
@@ -189,7 +189,7 @@ nugl__init (void)
     // Initialize GL functions
     if (!gladLoadGL(glfwGetProcAddress))
     {
-        NU_ERROR("failed to load GL functions");
+        nu_error("failed to load GL functions");
         return NU_ERROR_BACKEND;
     }
 
@@ -200,19 +200,19 @@ nugl__init (void)
     // Compile programs
     error = nugl__compile_shader(
         nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
-    NU_ERROR_CHECK(error, return error);
+    nu_error_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
         nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
-    NU_ERROR_CHECK(error, return error);
+    nu_error_CHECK(error, return error);
 
     error = nugl__compile_shader(nugl__shader_skybox_vert,
                                  nugl__shader_skybox_frag,
                                  &gl->skybox_program);
-    NU_ERROR_CHECK(error, return error);
+    nu_error_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -221,7 +221,7 @@ nugl__init (void)
     error = nugl__compile_shader(nugl__shader_canvas_blit_vert,
                                  nugl__shader_canvas_blit_frag,
                                  &gl->canvas_blit_program);
-    NU_ERROR_CHECK(error, return error);
+    nu_error_CHECK(error, return error);
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
@@ -504,7 +504,7 @@ nugl__create_camera (const nu_camera_info_t *info)
     handle.id = gl->cameras.size - 1;
 
     nu_error_t error = nugl__update_camera(handle, info);
-    NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_camera_t));
+    nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_camera_t));
     return handle;
 }
 static nu_error_t
@@ -515,7 +515,7 @@ nugl__delete_camera (nu_camera_t camera)
 static nu_mesh_t
 nugl__create_mesh (const nu_mesh_info_t *info)
 {
-    NU_ASSERT(info->positions);
+    nu_assert(info->positions);
 
     nu__gl_t *gl = &_ctx.gl;
 
@@ -539,7 +539,7 @@ nugl__create_mesh (const nu_mesh_info_t *info)
                  NU_NULL,
                  GL_STATIC_DRAW);
     float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    NU_ASSERT(ptr);
+    nu_assert(ptr);
     for (nu_size_t i = 0; i < info->count; ++i)
     {
         ptr[i * NUGL__VERTEX_SIZE + 0] = info->positions[i].x;
@@ -699,8 +699,8 @@ nugl__update_material (nu_material_t material, const nu_material_info_t *info)
 {
     nu__gl_t         *gl  = &_ctx.gl;
     nugl__material_t *mat = gl->materials.data + material.id;
-    NU_ASSERT(info->type == mat->type);
-    NU_ASSERT(material.id < gl->materials.size);
+    nu_assert(info->type == mat->type);
+    nu_assert(material.id < gl->materials.size);
     switch (mat->type)
     {
         case NU_MATERIAL_MESH: {
@@ -833,7 +833,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_FLAT: {
             error = nugl__create_flat_renderpass(&data->flat);
-            NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_renderpass_t));
+            nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_renderpass_t));
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
@@ -844,7 +844,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_CANVAS: {
             error = nugl__create_canvas_renderpass(&data->canvas);
-            NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_renderpass_t));
+            nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_renderpass_t));
         }
         break;
     }
@@ -1003,7 +1003,7 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
         }
     }
 
-    NU_INFO("new framebuffer created for color: %d depth: %d", color, depth);
+    nu_info("new framebuffer created for color: %d depth: %d", color, depth);
 
     nugl__rendertarget_t *target = nu_vec_push(&gl->targets);
     target->color                = color;
@@ -1027,7 +1027,7 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
                                target->depth,
                                0);
     }
-    NU_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER)
+    nu_assert(glCheckFramebufferStatus(GL_FRAMEBUFFER)
               == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -1133,11 +1133,11 @@ nugl__draw_mesh (nu_renderpass_t pass,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    NU_ASSERT(material.id < gl->materials.size);
+    nu_assert(material.id < gl->materials.size);
     nugl__renderpass_t *ppass = gl->passes.data + pass.id;
     nugl__mesh_t       *pmesh = gl->meshes.data + mesh.id;
     nugl__material_t   *pmat  = gl->materials.data + material.id;
-    NU_ASSERT(pmat->type == NU_MATERIAL_MESH);
+    nu_assert(pmat->type == NU_MATERIAL_MESH);
     // TODO: check command validity
     switch (ppass->type)
     {
@@ -1167,7 +1167,7 @@ nugl__draw_blit (nu_renderpass_t pass,
 
     nugl__renderpass_t *ppass = gl->passes.data + pass.id;
     nugl__material_t   *pmat  = gl->materials.data + material.id;
-    NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
+    nu_assert(pmat->type == NU_MATERIAL_CANVAS);
 
     switch (ppass->type)
     {

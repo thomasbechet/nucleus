@@ -7,7 +7,7 @@ int
 main (int argc, char *argv[])
 {
     nu_initialize();
-    NU_INFO("Hello World");
+    nu_info("Hello World");
     nu_terminate();
     return 0;
 }

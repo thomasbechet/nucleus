@@ -31,11 +31,11 @@ nu__graphics_init (const nu_renderer_info_t *info)
     }
 
     // Initialize backend
-    NU_INFO("initialize renderer context");
+    nu_info("initialize renderer context");
     if (!renderer->null_api)
     {
         nu_error_t error = renderer->api.init();
-        NU_ERROR_CHECK(error, return error);
+        nu_error_CHECK(error, return error);
     }
 
     // Create surface texture
@@ -51,7 +51,7 @@ static nu_error_t
 nu__graphics_free (void)
 {
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
-    NU_INFO("terminate renderer context");
+    nu_info("terminate renderer context");
     if (!renderer->null_api)
     {
         renderer->api.free();

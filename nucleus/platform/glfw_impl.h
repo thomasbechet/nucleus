@@ -85,7 +85,7 @@ nuglfw__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
     {
         const nuglfw__binding_t *binding
             = &_ctx.platform.input.glfw.bindings.data[current];
-        NU_ASSERT(binding->input_index < _ctx.platform.input.entries.capacity);
+        nu_assert(binding->input_index < _ctx.platform.input.entries.capacity);
 
         float value = NU_INPUT_RELEASED;
         if (pressed)
@@ -106,7 +106,7 @@ nuglfw__dispatch_binding_axis (nu_u32_t binding, float value)
     {
         const nuglfw__binding_t *binding
             = &_ctx.platform.input.glfw.bindings.data[current];
-        NU_ASSERT(binding->input_index < _ctx.platform.input.entries.capacity);
+        nu_assert(binding->input_index < _ctx.platform.input.entries.capacity);
         _ctx.platform.input.entries.data[binding->input_index].state.value
             = value * binding->axis.scale;
         current = binding->next;
@@ -569,7 +569,7 @@ nuglfw__add_binding (nu_u32_t *first_binding, nu_input_t input)
     nu_size_t          index;
     nuglfw__binding_t *binding
         = nu_pool_add(&_ctx.platform.input.glfw.bindings, &index);
-    NU_ASSERT(input.id < _ctx.platform.input.entries.capacity);
+    nu_assert(input.id < _ctx.platform.input.entries.capacity);
     binding->input_index = input.id;
     binding->next        = *first_binding;
     *first_binding       = index;
@@ -582,7 +582,7 @@ nuglfw__bind_button_value (nu_input_t     input,
 {
     // Check duplicated binding
     nu_u32_t *first_binding = nuglfw__first_binding_from_button(button);
-    NU_ASSERT(first_binding);
+    nu_assert(first_binding);
     if (nuglfw__find_binding(*first_binding, input))
     {
         return NU_ERROR_DUPLICATED;
@@ -604,7 +604,7 @@ nuglfw__bind_axis (nu_input_t input, nuext_axis_t axis)
 {
     // Check duplicated
     nu_u32_t *first_binding = nuglfw__first_binding_from_axis(axis);
-    NU_ASSERT(first_binding);
+    nu_assert(first_binding);
     if (nuglfw__find_binding(*first_binding, input))
     {
         return NU_ERROR_DUPLICATED;

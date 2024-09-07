@@ -53,6 +53,12 @@ nu_strcmp (const nu_char_t *s1, const nu_char_t *s2)
     }
     return *(nu_char_t *)s1 - *(nu_char_t *)s2;
 }
+void
+nu_strncpy (nu_char_t *dst, const nu_char_t *src, nu_size_t n)
+{
+    while (n-- && (*dst++ = *src++))
+        ;
+}
 
 nu_u32_t
 nu_hash (const nu_char_t *s)
@@ -73,6 +79,30 @@ nu_hashn (const nu_char_t *s, nu_size_t n)
         ++i;
     }
     return hash;
+}
+
+nu_filename_ext_t
+nu_filename_ext (const nu_char_t *filename)
+{
+    const char *dot = strrchr(filename, '.');
+    if (!dot || dot == filename)
+    {
+        return NU_FILENAME_EXT_UNKNOWN;
+    }
+    const nu_char_t *ext = dot + 1;
+    if (NU_MATCH(ext, "gltf"))
+    {
+        return NU_FILENAME_EXT_GLTF;
+    }
+    else if (NU_MATCH(ext, "png"))
+    {
+        return NU_FILENAME_EXT_PNG;
+    }
+    else if (NU_MATCH(ext, "jpeg"))
+    {
+        return NU_FILENAME_EXT_JPEG;
+    }
+    return NU_FILENAME_EXT_UNKNOWN;
 }
 
 #endif

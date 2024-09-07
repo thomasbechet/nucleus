@@ -8,7 +8,7 @@ typedef struct
 {
     nu_bool_t       used;
     nu_asset_type_t type;
-    nu_uid_t        uid;
+    nu_u32_t        hash;
     nu_asset_data_t data;
     nu_bundle_t     bundle;
     nu_size_t       refcount;

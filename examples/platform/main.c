@@ -20,8 +20,8 @@ main (void)
 
     while (!nu_exit_requested())
     {
-        NU_INFO("%lf", nu_input_value(q));
-        NU_INFO("%lf", nu_input_value(w));
+        nu_info("%lf", nu_input_value(q));
+        nu_info("%lf", nu_input_value(w));
         // if (nu_input_just_pressed(exit_input))
         // {
         //     break;

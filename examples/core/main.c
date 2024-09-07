@@ -15,7 +15,7 @@ main (void)
     {
         nu_size_t index;
         nu_pool_add(&pool, &index);
-        NU_INFO("%d", index);
+        nu_info("%d", index);
     }
     nu_pool_free(&pool);
 

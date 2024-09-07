@@ -30,6 +30,17 @@ main (void)
 {
     nu_initialize();
 
+    nuext_asset_load_filename(
+        NU_ASSET_MODEL, "temple", "../../../assets/temple_of_time.glb");
+    nuext_asset_load_filename(
+        NU_ASSET_MODEL, "ariane", "../../../assets/ariane6.glb");
+    nuext_asset_load_filename(
+        NU_ASSET_TEXTURE, "GUI", "../../../assets/GUI.png");
+    nuext_asset_load_filename(
+        NU_ASSET_TEXTURE,
+        "brick",
+        "../../../assets/brick_building_front_lowres.png");
+
     // Configure inputs
     nu_camera_controller_info_t cinfo;
     draw                 = nu_input_create();
@@ -97,18 +108,8 @@ main (void)
     nu_mesh_t cube_mesh    = nu_mesh_create(&cube_mesh_info);
 
     // Load resources
-    nu_texture_t texture;
-    nu_texture_t texture_gui;
-    {
-        nu_image_t image = nuext_image_load_filename(
-            "../../../assets/brick_building_front_lowres.png");
-        texture = nu_texture_create_image(image);
-        nu_image_delete(image);
-
-        image       = nuext_image_load_filename("../../../assets/GUI.png");
-        texture_gui = nu_texture_create_image(image);
-        nu_image_delete(image);
-    }
+    nu_texture_t texture     = nu_asset_texture("brick");
+    nu_texture_t texture_gui = nu_asset_texture("GUI");
 
     // Create material
     nu_material_t material;
@@ -130,11 +131,8 @@ main (void)
     }
 
     // Load temple
-    {
-        temple_model
-            = nuext_model_load_filename("../../../assets/temple_of_time.glb");
-        ariane_model = nuext_model_load_filename("../../../assets/ariane6.glb");
-    }
+    temple_model = nu_asset_model("temple");
+    ariane_model = nu_asset_model("ariane");
 
     // Load cubemap
     nu_cubemap_t skybox;
@@ -327,11 +325,11 @@ main (void)
         nu_ui_begin(ui);
         if (nu_ui_button(ui, nu_rect(300, 100, 60, 20)))
         {
-            NU_INFO("button pressed !");
+            nu_info("button pressed !");
         }
         if (nu_ui_checkbox(ui, nu_rect(300, 300, 14, 14), &bool_state))
         {
-            NU_INFO("checkbox changed %d", bool_state);
+            nu_info("checkbox changed %d", bool_state);
         }
         nu_ui_end(ui);
 

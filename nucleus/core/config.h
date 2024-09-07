@@ -38,11 +38,11 @@
 #undef NU_BUILD_CGLTF
 #endif
 
-#if defined(NU_NO_STBIMAGE)
+#if defined(NU_NO_STBIMAGE) || !defined(NU_BUILD_GRAPHICS)
 #undef NU_BUILD_STBIMAGE
 #endif
 
-#if defined(NU_NO_CGLTF)
+#if defined(NU_NO_CGLTF) || !defined(NU_BUILD_GRAPHICS)
 #undef NU_BUILD_CGLTF
 #endif
 
@@ -169,50 +169,50 @@ typedef int           nu_word_t;
     {                          \
         nu_size_t id;          \
     } type
-#define NU_HANDLE_ERROR_ID    ((nu_size_t) - 1)
-#define NU_HANDLE_ERROR(type) ((type) { .id = NU_HANDLE_ERROR_ID })
-#define NU_HANDLE_NULL(type)  ((type) { .id = 0 })
+#define NU_HANDLE_INVALID_ID    ((nu_size_t) - 1)
+#define NU_HANDLE_INVALID(type) ((type) { .id = NU_HANDLE_INVALID_ID })
+#define NU_HANDLE_NULL(type)    ((type) { .id = 0 })
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
-#define NU_ASSERT(x) assert(x)
+#define nu_assert(x) assert(x)
 #else
-#define NU_ASSERT(x) (void)(x)
+#define nu_assert(x) (void)(x)
 #endif
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
-#define NU_ASSERT(x) assert(x)
+#define nu_assert(x) assert(x)
 #else
-#define NU_ASSERT(x) (void)(x)
+#define nu_assert(x) (void)(x)
 #endif
 
 #define _NU_S(x)      #x
 #define _NU_S_(x)     _NU_S(x)
 #define _NU_S__LINE__ _NU_S_(__LINE__)
 
-#ifndef NU_NDEBUG
-#define _NU_CHECK(check, action, file, line) \
-    if (!(check))                            \
-    {                                        \
-        action;                              \
+#define __SOURCE__ __FILE_NAME__ ":" _NU_S__LINE__
+
+#ifdef NU_DEBUG
+#define _nu_check(check, action, source) \
+    if (!(check))                        \
+    {                                    \
+        action;                          \
     }
 #else
-#define _NU_CHECK(check, action, file, line) \
-    if (!(check))                            \
-    {                                        \
-        action;                              \
+#define _nu_check(check, action, source) \
+    if (!(check))                        \
+    {                                    \
+        action;                          \
     }
 #endif
 
-#define NU_CHECK(check, action) \
-    _NU_CHECK(check, action, __FILE__, _NU_S__LINE__)
+#define nu_check(check, action) _nu_check(check, action, __SOURCE__)
 
-#define NU_ERROR_CHECK(error, action) \
-    _NU_CHECK(error == NU_ERROR_NONE, action, __FILE__, _NU_S__LINE__)
-#define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
+#define nu_error_CHECK(error, action) \
+    _nu_check(error == NU_ERROR_NONE, action, __SOURCE__)
+#define nu_error_ASSERT(error) nu_assert(error == NU_ERROR_NONE)
 
-#define NU_HANDLE_CHECK(handle, action) \
-    _NU_CHECK(                          \
-        (handle).id != NU_HANDLE_ERROR_ID, action, __FILE__, _NU_S__LINE__)
-#define NU_HANDLE_ASSERT(handle) NU_ASSERT((handle).id != NU_HANDLE_ERROR_ID)
+#define nu_handle_check(handle, action) \
+    _nu_check((handle).id != NU_HANDLE_INVALID_ID, action, __SOURCE__)
+#define nu_handle_assert(handle) nu_assert((handle).id != NU_HANDLE_INVALID_ID)
 
 #endif

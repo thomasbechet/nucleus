@@ -15,9 +15,6 @@ typedef struct
     nu_bool_t                  _has_default_material;
     nu_u32_t                   _default_material;
 } nu__model_gltf_loader_t;
-
-static void nu__model_gltf_loader_init(void);
-static void nu__model_gltf_loader_free(void);
 #endif
 
 typedef struct
@@ -25,6 +22,7 @@ typedef struct
 #ifdef NU_BUILD_CGLTF
     nu__model_gltf_loader_t model_gltf_loader;
 #endif
+    int dummy;
 } nu__importer_t;
 
 static void nu__importer_init(void);

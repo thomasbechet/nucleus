@@ -26,12 +26,12 @@ main (void)
     }
     for (nu_size_t i = 0; i < 100; ++i)
     {
-        NU_ASSERT(v.data[i].val == i);
+        nu_assert(v.data[i].val == i);
     }
-    NU_ASSERT(nu_vec_last(&v)->val == 99);
-    NU_ASSERT(nu_vec_pop(&v)->val == 99);
-    NU_ASSERT(nu_vec_last(&v)->val == 98);
-    NU_ASSERT(v.size == 99);
+    nu_assert(nu_vec_last(&v)->val == 99);
+    nu_assert(nu_vec_pop(&v)->val == 99);
+    nu_assert(nu_vec_last(&v)->val == 98);
+    nu_assert(v.size == 99);
 
     return 0;
 }

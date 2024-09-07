@@ -231,14 +231,14 @@ nu_ui_begin (nu_ui_t handle)
     ui->next_id = 1;
     ui->hot_id  = 0;
 
-    NU_ASSERT(ui->button_style);
-    NU_ASSERT(ui->checkbox_style);
+    nu_assert(ui->button_style);
+    nu_assert(ui->checkbox_style);
 }
 void
 nu_ui_end (nu_ui_t handle)
 {
     nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
-    NU_ASSERT(ui->cursor_style);
+    nu_assert(ui->cursor_style);
 
     // Draw cursor
     nu_ivec2_t cursor = ui->controllers[0].cursor;
@@ -384,7 +384,7 @@ nu_bool_t
 nu_ui_checkbox (nu_ui_t handle, nu_rect_t extent, nu_bool_t *state)
 {
     nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
-    NU_ASSERT(state);
+    nu_assert(state);
 
     nu_bool_t result = NU_FALSE;
     nu_u32_t  id     = ui->next_id++;

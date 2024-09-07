@@ -19,12 +19,12 @@ nu__platform_init (const nu_platform_info_t *info)
     _ctx.platform.surface.size    = nu_uvec2(info->width, info->height);
     _ctx.platform.close_requested = NU_FALSE;
 
-    NU_INFO("initialize platform context (%dx%d)", info->width, info->height);
+    nu_info("initialize platform context (%dx%d)", info->width, info->height);
 
     // Initialize surface (and inputs)
 #ifdef NU_BUILD_GLFW
     error = nuglfw__init();
-    NU_ERROR_CHECK(error, return error);
+    nu_error_CHECK(error, return error);
 #endif
 
     return NU_ERROR_NONE;
@@ -34,7 +34,7 @@ nu__platform_free (void)
 {
     nu_error_t error;
 
-    NU_INFO("terminate platform context");
+    nu_info("terminate platform context");
 
     // Terminate surface (and inputs)
 #ifdef NU_BUILD_GLFW

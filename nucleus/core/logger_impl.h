@@ -5,20 +5,18 @@
 
 void
 nu_log (nu_log_level_t   level,
-        const nu_char_t *filename,
-        nu_size_t        fileline,
+        const nu_char_t *source,
         const nu_char_t *format,
         ...)
 {
     va_list args;
     va_start(args, format);
-    nu_vlog(level, filename, fileline, format, args);
+    nu_vlog(level, source, format, args);
     va_end(args);
 }
 void
 nu_vlog (nu_log_level_t   level,
-         const nu_char_t *filename,
-         nu_size_t        fileline,
+         const nu_char_t *source,
          const nu_char_t *format,
          va_list          args)
 {
@@ -43,16 +41,16 @@ nu_vlog (nu_log_level_t   level,
 #if defined(NU_PLATFORM_WINDOWS)
     switch (severity)
     {
-        case NU_INFO:
+        case nu_info:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 3);
             break;
-        case NU_WARNING:
+        case nu_warning:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
             break;
-        case NU_ERROR:
+        case nu_error:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
             break;
-        case NU_FATAL:
+        case nu_fatal:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
             break;
     }
@@ -80,7 +78,7 @@ nu_vlog (nu_log_level_t   level,
             fprintf(stdout, "\x1B[31mFATAL\x1B[0m ");
             break;
     }
-    fprintf(stdout, "\x1B[90m%s:%ld:\x1B[0m ", filename, fileline);
+    fprintf(stdout, "\x1B[90m%s:\x1B[0m ", source);
     vfprintf(stdout, format, args);
     fprintf(stdout, "\n");
 #endif

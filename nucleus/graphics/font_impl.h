@@ -28,9 +28,9 @@ nu_font_create_default (void)
     font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
         = (nu_rect_t *)nu_alloc(sizeof(nu_rect_t) * font->glyphs_count);
-    NU_CHECK(font->glyphs, return NU_HANDLE_ERROR(nu_font_t));
+    nu_check(font->glyphs, return NU_HANDLE_INVALID(nu_font_t));
 
-    NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
+    nu_assert(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
     // Load default font data into image
     nu_uvec2_t image_size
@@ -44,7 +44,7 @@ nu_font_create_default (void)
         for (nu_size_t p = 0; p < pixel_per_glyph; ++p)
         {
             nu_size_t bit_offset = ci * pixel_per_glyph + p;
-            NU_ASSERT((bit_offset / 8) < sizeof(nu__font_data));
+            nu_assert((bit_offset / 8) < sizeof(nu__font_data));
             nu_byte_t byte    = nu__font_data[bit_offset / 8];
             nu_byte_t bit_set = (byte & (1 << (7 - (p % 8)))) != 0;
 
@@ -53,14 +53,14 @@ nu_font_create_default (void)
             nu_size_t pi = py * image_size.x + px;
 
             nu_byte_t color = bit_set ? 0xFF : 0x00;
-            NU_ASSERT(pi < (image_size.x * image_size.y));
+            nu_assert(pi < (image_size.x * image_size.y));
             image_data[pi].r = color;
             image_data[pi].g = color;
             image_data[pi].b = color;
             image_data[pi].a = color;
         }
         nu_size_t gi = nu__font_data_chars[ci] - font->min_char;
-        NU_ASSERT(gi < font->glyphs_count);
+        nu_assert(gi < font->glyphs_count);
         font->glyphs[gi] = extent;
         extent.p.x += NU__FONT_DATA_WIDTH;
     }
