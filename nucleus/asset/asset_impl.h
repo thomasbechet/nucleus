@@ -24,7 +24,7 @@ nu_asset_t
 nu_asset_add (nu_asset_type_t type, nu_uid_t uid)
 {
     nu_asset_t         handle;
-    nu__asset_entry_t *entry = nu_pool_add(&_ctx.asset.entries, &handle._index);
+    nu__asset_entry_t *entry = nu_pool_add(&_ctx.asset.entries, &handle.id);
     entry->used              = NU_TRUE;
     entry->type              = type;
     entry->uid               = uid;
@@ -41,26 +41,29 @@ nu_asset_find (nu_asset_type_t type, nu_uid_t uid)
         nu__asset_entry_t *entry = _ctx.asset.entries.data + i;
         if (entry->used && entry->type == type && entry->uid == uid)
         {
-            return (nu_asset_t) { ._index = i };
+            return (nu_asset_t) { .id = i };
         }
     }
-    return NU_INVALID_HANDLE(nu_asset_t);
+    return NU_HANDLE_ERROR(nu_asset_t);
 }
 
 nu_asset_data_t *
 nu_asset_data (nu_asset_t handle)
 {
-    return &_ctx.asset.entries.data[handle._index].data;
+    NU_HANDLE_ASSERT(handle);
+    return &_ctx.asset.entries.data[handle.id].data;
 }
 nu_asset_type_t
 nu_asset_type (nu_asset_t handle)
 {
-    return _ctx.asset.entries.data[handle._index].type;
+    NU_HANDLE_ASSERT(handle);
+    return _ctx.asset.entries.data[handle.id].type;
 }
 nu_bundle_t
 nu_asset_bundle (nu_asset_t handle)
 {
-    return _ctx.asset.entries.data[handle._index].bundle;
+    NU_HANDLE_ASSERT(handle);
+    return _ctx.asset.entries.data[handle.id].bundle;
 }
 
 nu_asset_t

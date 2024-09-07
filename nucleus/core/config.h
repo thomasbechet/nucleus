@@ -73,8 +73,88 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////
-//////                         Error Macros                         //////
+//////                     Import/Export Macros                     //////
 //////////////////////////////////////////////////////////////////////////
+
+#if defined(NU_PLATFORM_WINDOWS)
+
+#define NU_API_EXPORT __declspec(dllexport)
+#define NU_API_IMPORT __declspec(dllimport)
+#if defined(_MSC_VER)
+#define NU_ALIGN(X) __declspec(align(X))
+#else
+#define NU_ALIGN(X) __attribute((aligned(X)))
+#endif
+
+#elif defined(NU_PLATFORM_UNIX)
+
+#define NU_API_EXPORT __attribute__((visibility("default")))
+#define NU_API_IMPORT
+#define NU_ALIGN(X) __attribute((aligned(X)))
+
+#else
+
+#define NU_API_EXPORT
+#define NU_API_IMPORT
+#define NU_ALIGN(X)
+#pragma warning Unknown linkage directive import / export semantics.
+
+#endif
+
+#define NU_API NU_API_EXPORT
+
+//////////////////////////////////////////////////////////////////////////
+//////                          Basic Types                         //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    NU_ERROR_NONE = 0,
+    NU_ERROR_ALLOCATION,
+    NU_ERROR_UNSUPPORTED_API,
+    NU_ERROR_BACKEND,
+    NU_ERROR_DUPLICATED,
+    NU_ERROR_OUT_OF_RESOURCE,
+    NU_ERROR_RESOURCE_LOADING,
+    NU_ERROR_SHADER_COMPILATION,
+} nu_error_t;
+
+// TODO: use stdint types
+typedef unsigned char  nu_u8_t;
+typedef signed char    nu_i8_t;
+typedef unsigned short nu_u16_t;
+typedef signed short   nu_i16_t;
+typedef unsigned int   nu_u32_t;
+typedef signed int     nu_i32_t;
+typedef unsigned long  nu_u64_t;
+typedef signed long    nu_i64_t;
+
+typedef char          nu_char_t;
+typedef int           nu_bool_t;
+typedef nu_i32_t      nu_int_t;
+typedef unsigned long nu_size_t;
+typedef unsigned char nu_byte_t;
+typedef int           nu_word_t;
+
+#define NU_TRUE  1
+#define NU_FALSE 0
+#define NU_NULL  0
+#define NU_NOOP
+
+//////////////////////////////////////////////////////////////////////////
+//////                            Macros                            //////
+//////////////////////////////////////////////////////////////////////////
+
+#define NU_UNUSED(x) (void)x
+
+#define NU_DEFINE_HANDLE(type) \
+    typedef union              \
+    {                          \
+        nu_size_t id;          \
+    } type
+#define NU_HANDLE_ERROR_ID    ((nu_size_t) - 1)
+#define NU_HANDLE_ERROR(type) ((type) { .id = NU_HANDLE_ERROR_ID })
+#define NU_HANDLE_NULL(type)  ((type) { .id = 0 })
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
@@ -111,95 +191,11 @@
 
 #define NU_ERROR_CHECK(error, action) \
     _NU_CHECK(error == NU_ERROR_NONE, action, __FILE__, _NU_S__LINE__)
-
 #define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
 
-#define NU_HANDLE_ASSET(handle) NU_ASSERT(handle._index == (nu_size_t) - 1)
-
-//////////////////////////////////////////////////////////////////////////
-//////                     Import/Export Macros                     //////
-//////////////////////////////////////////////////////////////////////////
-
-#if defined(NU_PLATFORM_WINDOWS)
-
-#define NU_API_EXPORT __declspec(dllexport)
-#define NU_API_IMPORT __declspec(dllimport)
-#if defined(_MSC_VER)
-#define NU_ALIGN(X) __declspec(align(X))
-#else
-#define NU_ALIGN(X) __attribute((aligned(X)))
-#endif
-
-#elif defined(NU_PLATFORM_UNIX)
-
-#define NU_API_EXPORT __attribute__((visibility("default")))
-#define NU_API_IMPORT
-#define NU_ALIGN(X) __attribute((aligned(X)))
-
-#else
-
-#define NU_API_EXPORT
-#define NU_API_IMPORT
-#define NU_ALIGN(X)
-#pragma warning Unknown linkage directive import / export semantics.
-
-#endif
-
-#define NU_API NU_API_EXPORT
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Error Types                         //////
-//////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-    NU_ERROR_NONE = 0,
-    NU_ERROR_ALLOCATION,
-    NU_ERROR_UNSUPPORTED_API,
-    NU_ERROR_BACKEND,
-    NU_ERROR_DUPLICATED,
-    NU_ERROR_OUT_OF_RESOURCE,
-    NU_ERROR_RESOURCE_LOADING,
-    NU_ERROR_SHADER_COMPILATION,
-} nu_error_t;
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Basic Types                         //////
-//////////////////////////////////////////////////////////////////////////
-
-// TODO: use stdint types
-typedef unsigned char  nu_u8_t;
-typedef signed char    nu_i8_t;
-typedef unsigned short nu_u16_t;
-typedef signed short   nu_i16_t;
-typedef unsigned int   nu_u32_t;
-typedef signed int     nu_i32_t;
-typedef unsigned long  nu_u64_t;
-typedef signed long    nu_i64_t;
-
-typedef char          nu_char_t;
-typedef int           nu_bool_t;
-typedef nu_i32_t      nu_int_t;
-typedef unsigned long nu_size_t;
-typedef unsigned char nu_byte_t;
-typedef int           nu_word_t;
-
-#define NU_TRUE  1
-#define NU_FALSE 0
-#define NU_NULL  0
-#define NU_NOOP
-
-//////////////////////////////////////////////////////////////////////////
-//////                      Additional Macros                       //////
-//////////////////////////////////////////////////////////////////////////
-
-#define NU_UNUSED(x) (void)x
-
-#define NU_DEFINE_HANDLE(type) \
-    typedef union              \
-    {                          \
-        nu_size_t _index;      \
-    } type
-#define NU_INVALID_HANDLE(type) ((type) { ._index = (nu_size_t) - 1 })
+#define NU_HANDLE_CHECK(handle, action) \
+    _NU_CHECK(                          \
+        (handle).id != NU_HANDLE_ERROR_ID, action, __FILE__, _NU_S__LINE__)
+#define NU_HANDLE_ASSERT(handle) NU_ASSERT((handle).id != NU_HANDLE_ERROR_ID)
 
 #endif

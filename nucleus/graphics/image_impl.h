@@ -7,7 +7,7 @@ nu_image_t
 nu_image_create (nu_uvec2_t size)
 {
     nu_image_t   handle;
-    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &handle._index);
+    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &handle.id);
     im->size        = size;
     im->colors = (nu_color_t *)nu_alloc(sizeof(nu_color_t) * size.x * size.y);
     return handle;
@@ -15,18 +15,18 @@ nu_image_create (nu_uvec2_t size)
 void
 nu_image_delete (nu_image_t ima)
 {
-    nu__image_t *im = &_ctx.graphics.images.data[ima._index];
+    nu__image_t *im = &_ctx.graphics.images.data[ima.id];
     nu_free(im->colors, sizeof(nu_color_t) * im->size.x * im->size.y);
 }
 nu_color_t *
 nu_image_colors (nu_image_t image)
 {
-    return _ctx.graphics.images.data[image._index].colors;
+    return _ctx.graphics.images.data[image.id].colors;
 }
 nu_uvec2_t
 nu_image_size (nu_image_t image)
 {
-    return _ctx.graphics.images.data[image._index].size;
+    return _ctx.graphics.images.data[image.id].size;
 }
 nu_texture_info_t
 nu_image_texture_info (nu_image_t image)

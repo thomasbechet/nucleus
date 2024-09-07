@@ -270,28 +270,28 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
     result = cgltf_parse_file(&options, filename, &data);
     if (result != cgltf_result_success)
     {
-        return NU_INVALID_HANDLE(nu_model_t);
+        return NU_HANDLE_ERROR(nu_model_t);
     }
     result = cgltf_load_buffers(&options, data, filename);
     if (result != cgltf_result_success)
     {
-        return NU_INVALID_HANDLE(nu_model_t);
+        return NU_HANDLE_ERROR(nu_model_t);
     }
 
     // Create model
     nu_model_t   handle = nu_model_create();
-    nu__model_t *m      = &_ctx.graphics.models.data[handle._index];
+    nu__model_t *m      = &_ctx.graphics.models.data[handle.id];
 
     // Load resources
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i, m);
-        NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
+        NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i, m);
-        NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
+        NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -300,7 +300,7 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat, m);
-            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_model_t));
+            NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_model_t));
         }
     }
 
@@ -377,7 +377,7 @@ nuext_model_load_gltf_filename (nu_gltf_loader_t *loader,
                     }
                     if (!found)
                     {
-                        return NU_INVALID_HANDLE(nu_model_t);
+                        return NU_HANDLE_ERROR(nu_model_t);
                     }
                 }
 
@@ -423,7 +423,7 @@ nuext_image_load_filename (const nu_char_t *filename)
 {
     int        w, h, n;
     nu_byte_t *img = stbi_load(filename, &w, &h, &n, STBI_default);
-    NU_CHECK(img, return NU_INVALID_HANDLE(nu_image_t));
+    NU_CHECK(img, return NU_HANDLE_ERROR(nu_image_t));
     nu_uvec2_t size   = nu_uvec2(w, h);
     nu_image_t handle = nu_image_create(size);
     nu__parse_colors(img, nu_image_colors(handle), size, n);
@@ -436,7 +436,7 @@ nu_image_load_memory (const nu_byte_t *data, nu_size_t data_size)
     int        w, h, n;
     nu_byte_t *img
         = stbi_load_from_memory(data, data_size, &w, &h, &n, STBI_default);
-    NU_CHECK(img, return NU_INVALID_HANDLE(nu_image_t));
+    NU_CHECK(img, return NU_HANDLE_ERROR(nu_image_t));
     nu_uvec2_t size   = nu_uvec2(w, h);
     nu_image_t handle = nu_image_create(size);
     nu__parse_colors(img, nu_image_colors(handle), size, n);

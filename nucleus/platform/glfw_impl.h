@@ -119,7 +119,7 @@ nuglfw__find_binding (nu_u32_t binding, nu_input_t input)
     while (current != NUGLFW_ID_NONE)
     {
         if (_ctx.platform.input.glfw.bindings.data[current].input_index
-            == input._index)
+            == input.id)
         {
             return NU_TRUE;
         }
@@ -569,8 +569,8 @@ nuglfw__add_binding (nu_u32_t *first_binding, nu_input_t input)
     nu_size_t          index;
     nuglfw__binding_t *binding
         = nu_pool_add(&_ctx.platform.input.glfw.bindings, &index);
-    NU_ASSERT(input._index < _ctx.platform.input.entries.capacity);
-    binding->input_index = input._index;
+    NU_ASSERT(input.id < _ctx.platform.input.entries.capacity);
+    binding->input_index = input.id;
     binding->next        = *first_binding;
     *first_binding       = index;
     return binding;

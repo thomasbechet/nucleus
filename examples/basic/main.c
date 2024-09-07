@@ -176,8 +176,7 @@ main (void)
     }
 
     // Create font
-    nu_font_t font;
-    nu_font_create_default(&font);
+    nu_font_t font = nu_font_create_default();
 
     // Create camera
     nu_camera_info_t camera_info = nu_camera_info();

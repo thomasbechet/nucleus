@@ -6,7 +6,7 @@
 #define CHECK_NULL_API_HANDLE(type)      \
     if (_ctx.graphics.renderer.null_api) \
     {                                    \
-        return NU_INVALID_HANDLE(type);  \
+        return NU_HANDLE_NULL(type);     \
     }
 #define CHECK_NULL_API_ERROR             \
     if (_ctx.graphics.renderer.null_api) \

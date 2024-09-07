@@ -470,7 +470,7 @@ nugl__create_surface_color (nu_uvec2_t size)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     nu_texture_t handle;
-    handle._index = gl->surface_color_index;
+    handle.id = gl->surface_color_index;
     return handle;
 }
 
@@ -482,7 +482,7 @@ nugl__update_camera (nu_camera_t camera, const nu_camera_info_t *info)
     nugl__texture_t *surface_color
         = gl->textures.data + gl->surface_color_index;
 
-    nugl__camera_t *pcam = gl->cameras.data + camera._index;
+    nugl__camera_t *pcam = gl->cameras.data + camera.id;
     nu_mat4_t       view = nu_lookat(info->eye, info->center, info->up);
     float aspect = (float)surface_color->size.x / (float)surface_color->size.y;
     nu_mat4_t projection
@@ -501,10 +501,10 @@ nugl__create_camera (const nu_camera_info_t *info)
 
     nu_camera_t handle;
     (void)nu_vec_push(&gl->cameras);
-    handle._index = gl->cameras.size - 1;
+    handle.id = gl->cameras.size - 1;
 
     nu_error_t error = nugl__update_camera(handle, info);
-    NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_camera_t));
+    NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_camera_t));
     return handle;
 }
 static nu_error_t
@@ -521,7 +521,7 @@ nugl__create_mesh (const nu_mesh_info_t *info)
 
     nu_mesh_t     handle;
     nugl__mesh_t *pmesh = nu_vec_push(&gl->meshes);
-    handle._index       = gl->meshes.size - 1;
+    handle.id           = gl->meshes.size - 1;
 
     pmesh->vertex_count = info->count;
 
@@ -592,7 +592,7 @@ static nu_error_t
 nugl__delete_mesh (nu_mesh_t mesh)
 {
     nu__gl_t     *gl    = &_ctx.gl;
-    nugl__mesh_t *pmesh = gl->meshes.data + mesh._index;
+    nugl__mesh_t *pmesh = gl->meshes.data + mesh.id;
     glDeleteVertexArrays(1, &pmesh->vao);
     glDeleteBuffers(1, &pmesh->vbo);
     return NU_ERROR_NONE;
@@ -604,7 +604,7 @@ nugl__create_texture (const nu_texture_info_t *info)
 
     nu_texture_t     handle;
     nugl__texture_t *ptex = nu_vec_push(&gl->textures);
-    handle._index         = gl->textures.size - 1;
+    handle.id             = gl->textures.size - 1;
 
     ptex->size = info->size;
 
@@ -648,7 +648,7 @@ static nu_error_t
 nugl__delete_texture (nu_texture_t texture)
 {
     nu__gl_t        *gl   = &_ctx.gl;
-    nugl__texture_t *ptex = gl->textures.data + texture._index;
+    nugl__texture_t *ptex = gl->textures.data + texture.id;
     glDeleteTextures(1, &ptex->texture);
     return NU_ERROR_NONE;
 }
@@ -659,7 +659,7 @@ nugl__create_cubemap (const nu_cubemap_info_t *info)
 
     nu_cubemap_t     handle;
     nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps);
-    handle._index          = gl->cubemaps.size - 1;
+    handle.id              = gl->cubemaps.size - 1;
 
     glGenTextures(1, &pcube->texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, pcube->texture);
@@ -698,21 +698,21 @@ static nu_error_t
 nugl__update_material (nu_material_t material, const nu_material_info_t *info)
 {
     nu__gl_t         *gl  = &_ctx.gl;
-    nugl__material_t *mat = gl->materials.data + material._index;
+    nugl__material_t *mat = gl->materials.data + material.id;
     NU_ASSERT(info->type == mat->type);
-    NU_ASSERT(material._index < gl->materials.size);
+    NU_ASSERT(material.id < gl->materials.size);
     switch (mat->type)
     {
         case NU_MATERIAL_MESH: {
             if (info->mesh.color0)
             {
                 mat->mesh.texture0
-                    = gl->textures.data[info->mesh.color0->_index].texture;
+                    = gl->textures.data[info->mesh.color0->id].texture;
             }
             if (info->mesh.color1)
             {
                 mat->mesh.texture1
-                    = gl->textures.data[info->mesh.color1->_index].texture;
+                    = gl->textures.data[info->mesh.color1->id].texture;
             }
             mat->mesh.uv_transform = info->mesh.uv_transform;
         }
@@ -721,7 +721,7 @@ nugl__update_material (nu_material_t material, const nu_material_info_t *info)
             if (info->canvas.color0)
             {
                 mat->canvas.texture0
-                    = gl->textures.data[info->canvas.color0->_index].texture;
+                    = gl->textures.data[info->canvas.color0->id].texture;
             }
             mat->canvas.wrap_mode = info->canvas.wrap_mode;
         }
@@ -736,10 +736,10 @@ nugl__create_material (const nu_material_info_t *info)
 
     nu_material_t handle;
     (void)nu_vec_push(&gl->materials);
-    handle._index = gl->materials.size - 1;
+    handle.id = gl->materials.size - 1;
 
     // Keep material type
-    (gl->materials.data + handle._index)->type = info->type;
+    (gl->materials.data + handle.id)->type = info->type;
 
     nugl__update_material(handle, info);
     return handle;
@@ -833,7 +833,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_FLAT: {
             error = nugl__create_flat_renderpass(&data->flat);
-            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_renderpass_t));
+            NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_renderpass_t));
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
@@ -844,13 +844,13 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_CANVAS: {
             error = nugl__create_canvas_renderpass(&data->canvas);
-            NU_ERROR_CHECK(error, return NU_INVALID_HANDLE(nu_renderpass_t));
+            NU_ERROR_CHECK(error, return NU_HANDLE_ERROR(nu_renderpass_t));
         }
         break;
     }
 
     nu_renderpass_t handle;
-    handle._index = index;
+    handle.id = index;
 
     return handle;
 }
@@ -1059,19 +1059,19 @@ nugl__submit_renderpass (nu_renderpass_t               pass,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    *nu_vec_push(&gl->passes_order) = pass._index;
+    *nu_vec_push(&gl->passes_order) = pass.id;
 
-    nugl__renderpass_t *ppass = gl->passes.data + pass._index;
+    nugl__renderpass_t *ppass = gl->passes.data + pass.id;
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT: {
             const nugl__texture_t *color_target
                 = info->flat.color_target
-                      ? gl->textures.data + info->flat.color_target->_index
+                      ? gl->textures.data + info->flat.color_target->id
                       : NU_NULL;
             const nugl__texture_t *depth_target
                 = info->flat.depth_target
-                      ? gl->textures.data + info->flat.depth_target->_index
+                      ? gl->textures.data + info->flat.depth_target->id
                       : NU_NULL;
 
             if (info->flat.clear_color)
@@ -1084,32 +1084,32 @@ nugl__submit_renderpass (nu_renderpass_t               pass,
                 ppass->flat.has_clear_color = NU_FALSE;
             }
 
-            ppass->flat.camera = info->flat.camera._index;
+            ppass->flat.camera = info->flat.camera.id;
             nugl__prepare_color_depth(ppass, color_target, depth_target);
         }
         break;
         case NU_RENDERPASS_SKYBOX: {
             const nugl__texture_t *color_target
                 = info->skybox.color_target
-                      ? gl->textures.data + info->skybox.color_target->_index
+                      ? gl->textures.data + info->skybox.color_target->id
                       : NU_NULL;
             const nugl__texture_t *depth_target
                 = info->skybox.depth_target
-                      ? gl->textures.data + info->skybox.depth_target->_index
+                      ? gl->textures.data + info->skybox.depth_target->id
                       : NU_NULL;
 
-            ppass->skybox.camera = info->skybox.camera._index;
+            ppass->skybox.camera = info->skybox.camera.id;
             nugl__prepare_color_depth(ppass, color_target, depth_target);
 
             ppass->skybox.cubemap
-                = gl->cubemaps.data[info->skybox.cubemap._index].texture;
+                = gl->cubemaps.data[info->skybox.cubemap.id].texture;
             ppass->skybox.rotation = nu_quat_mat3(info->skybox.rotation);
         }
         break;
         case NU_RENDERPASS_CANVAS: {
             const nugl__texture_t *color_target
                 = info->canvas.color_target
-                      ? gl->textures.data + info->canvas.color_target->_index
+                      ? gl->textures.data + info->canvas.color_target->id
                       : NU_NULL;
             nugl__prepare_color_depth(ppass, color_target, NU_NULL);
         }
@@ -1122,7 +1122,7 @@ static void
 nugl__reset_renderpass (nu_renderpass_t pass)
 {
     nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + pass._index;
+    nugl__renderpass_t *ppass = gl->passes.data + pass.id;
     nugl__reset_renderpass_typed(ppass);
 }
 static void
@@ -1133,10 +1133,10 @@ nugl__draw_mesh (nu_renderpass_t pass,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    NU_ASSERT(material._index < gl->materials.size);
-    nugl__renderpass_t *ppass = gl->passes.data + pass._index;
-    nugl__mesh_t       *pmesh = gl->meshes.data + mesh._index;
-    nugl__material_t   *pmat  = gl->materials.data + material._index;
+    NU_ASSERT(material.id < gl->materials.size);
+    nugl__renderpass_t *ppass = gl->passes.data + pass.id;
+    nugl__mesh_t       *pmesh = gl->meshes.data + mesh.id;
+    nugl__material_t   *pmat  = gl->materials.data + material.id;
     NU_ASSERT(pmat->type == NU_MATERIAL_MESH);
     // TODO: check command validity
     switch (ppass->type)
@@ -1165,8 +1165,8 @@ nugl__draw_blit (nu_renderpass_t pass,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__renderpass_t *ppass = gl->passes.data + pass._index;
-    nugl__material_t   *pmat  = gl->materials.data + material._index;
+    nugl__renderpass_t *ppass = gl->passes.data + pass.id;
+    nugl__material_t   *pmat  = gl->materials.data + material.id;
     NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
 
     switch (ppass->type)

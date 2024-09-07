@@ -8,7 +8,7 @@ nu_camera_controller_create (const nu_camera_controller_info_t *info)
 {
     nu_camera_controller_t   handle;
     nu__camera_controller_t *ctrl
-        = nu_pool_add(&_ctx.utils.controllers, &handle._index);
+        = nu_pool_add(&_ctx.utils.controllers, &handle.id);
 
     ctrl->pos       = NU_VEC3_ZERO;
     ctrl->vel       = NU_VEC3_ZERO;
@@ -30,16 +30,15 @@ nu_camera_controller_update (nu_camera_controller_t controller,
                              float                  dt,
                              nu_camera_info_t      *info)
 {
-    nu__camera_controller_t *ctrl
-        = &_ctx.utils.controllers.data[controller._index];
-    nu_vec3_t look = nu_input_axis3d(ctrl->info.view_yaw_neg,
+    nu__camera_controller_t *ctrl = &_ctx.utils.controllers.data[controller.id];
+    nu_vec3_t                look = nu_input_axis3d(ctrl->info.view_yaw_neg,
                                      ctrl->info.view_yaw_pos,
                                      ctrl->info.view_pitch_pos,
                                      ctrl->info.view_pitch_neg,
                                      ctrl->info.view_roll_pos,
                                      ctrl->info.view_roll_neg,
                                      NU_FALSE);
-    nu_vec3_t move = nu_input_axis3d(ctrl->info.move_left,
+    nu_vec3_t                move = nu_input_axis3d(ctrl->info.move_left,
                                      ctrl->info.move_right,
                                      ctrl->info.move_up,
                                      ctrl->info.move_down,

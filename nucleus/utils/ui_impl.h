@@ -159,7 +159,7 @@ nu_ui_t
 nu_ui_create (void)
 {
     nu_ui_t   handle;
-    nu__ui_t *ui = nu_pool_add(&_ctx.utils.uis, &handle._index);
+    nu__ui_t *ui = nu_pool_add(&_ctx.utils.uis, &handle.id);
 
     nu_vec_init(10, &ui->styles);
     ui->button_style   = NU_NULL;
@@ -196,7 +196,7 @@ nu_ui_create (void)
 void
 nu_ui_delete (nu_ui_t handle)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     for (nu_size_t i = 0; i < ui->passes.size; ++i)
     {
         nu_renderpass_reset(ui->passes.data[i].renderpass);
@@ -208,20 +208,20 @@ nu_ui_delete (nu_ui_t handle)
 void
 nu_ui_set_cursor (nu_ui_t handle, nu_u32_t controller, nu_ivec2_t pos)
 {
-    nu__ui_t *ui                       = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui                       = &_ctx.utils.uis.data[handle.id];
     ui->controllers[controller].cursor = pos;
 }
 void
 nu_ui_set_pressed (nu_ui_t handle, nu_u32_t controller, nu_bool_t pressed)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui                             = &_ctx.utils.uis.data[handle.id];
     ui->controllers[controller].main_pressed = pressed;
 }
 
 void
 nu_ui_begin (nu_ui_t handle)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     // Reset renderpass
     for (nu_size_t i = 0; i < ui->passes.size; ++i)
     {
@@ -237,7 +237,7 @@ nu_ui_begin (nu_ui_t handle)
 void
 nu_ui_end (nu_ui_t handle)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     NU_ASSERT(ui->cursor_style);
 
     // Draw cursor
@@ -249,7 +249,7 @@ nu_ui_end (nu_ui_t handle)
 void
 nu_ui_submit_renderpasses (nu_ui_t handle, const nu_renderpass_submit_t *info)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     for (nu_size_t i = ui->passes.size; i > 0; --i)
     {
         nu_renderpass_submit(ui->passes.data[i - 1].renderpass, info);
@@ -259,7 +259,7 @@ nu_ui_submit_renderpasses (nu_ui_t handle, const nu_renderpass_submit_t *info)
 void
 nu_ui_push_style (nu_ui_t handle, nu_ui_style_t *style)
 {
-    nu__ui_t       *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t       *ui = &_ctx.utils.uis.data[handle.id];
     nu__ui_style_t *s  = nu_vec_push(&ui->styles);
 
     s->data = style;
@@ -282,7 +282,7 @@ nu_ui_push_style (nu_ui_t handle, nu_ui_style_t *style)
 void
 nu_ui_pop_style (nu_ui_t handle)
 {
-    nu__ui_t       *ui   = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t       *ui   = &_ctx.utils.uis.data[handle.id];
     nu__ui_style_t *last = nu_vec_last(&ui->styles);
     if (last)
     {
@@ -305,7 +305,7 @@ nu_ui_pop_style (nu_ui_t handle)
 nu_u32_t
 nu_ui_controller (nu_ui_t handle)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     return ui->active_controller;
 }
 
@@ -326,7 +326,7 @@ nu__ui_hit (nu__ui_t *ui, nu_rect_t extent, nu_u32_t *controller)
 nu_bool_t
 nu_ui_button (nu_ui_t handle, nu_rect_t extent)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     nu_u32_t  id = ui->next_id++;
     nu_u32_t  controller;
     nu_bool_t result  = NU_FALSE;
@@ -383,7 +383,7 @@ nu_ui_button (nu_ui_t handle, nu_rect_t extent)
 nu_bool_t
 nu_ui_checkbox (nu_ui_t handle, nu_rect_t extent, nu_bool_t *state)
 {
-    nu__ui_t *ui = &_ctx.utils.uis.data[handle._index];
+    nu__ui_t *ui = &_ctx.utils.uis.data[handle.id];
     NU_ASSERT(state);
 
     nu_bool_t result = NU_FALSE;
