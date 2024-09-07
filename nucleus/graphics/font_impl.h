@@ -3,12 +3,13 @@
 
 #include <nucleus/internal.h>
 
-nu_error_t
-nu_font_create_default (nu_font_t *handle)
+nu_font_t
+nu_font_create_default (void)
 {
     nu_error_t error;
 
-    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &handle->_index);
+    nu_font_t   handle;
+    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &handle._index);
 
     // Find min/max characters
     font->min_char             = (nu_char_t)127;
@@ -27,7 +28,7 @@ nu_font_create_default (nu_font_t *handle)
     font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
         = (nu_rect_t *)nu_alloc(sizeof(nu_rect_t) * font->glyphs_count);
-    NU_CHECK(font->glyphs, return NU_ERROR_ALLOCATION);
+    NU_CHECK(font->glyphs, return NU_INVALID_HANDLE(nu_font_t));
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
@@ -79,7 +80,7 @@ nu_font_create_default (nu_font_t *handle)
     // Free resources
     nu_image_delete(image);
 
-    return NU_ERROR_NONE;
+    return handle;
 }
 void
 nu_font_delete (nu_font_t handle)

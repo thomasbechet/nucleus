@@ -1,11 +1,11 @@
 #ifndef NU_ASSET_H
 #define NU_ASSET_H
 
-#include <nucleus/asset/texture.h>
-#include <nucleus/asset/model.h>
+#include <nucleus/graphics/graphics.h>
+#include <nucleus/platform/platform.h>
 
-NU_DEFINE_HANDLE(nu_asset_handle_t);
-NU_DEFINE_HANDLE(nu_asset_bundle_t);
+NU_DEFINE_HANDLE(nu_asset_t);
+NU_DEFINE_HANDLE(nu_bundle_t);
 
 typedef enum
 {
@@ -15,34 +15,29 @@ typedef enum
     NU_ASSET_MODEL,
     NU_ASSET_FONT,
     NU_ASSET_INPUT,
-    NU_ASSET_TYPE_MAX,
+    NU_ASSET_CUSTOM,
 } nu_asset_type_t;
 
-typedef struct
+typedef union
 {
-    const nu_char_t *filename;
-} nu_asset_load_info_t;
+    nu_texture_t  texture;
+    nu_material_t material;
+    nu_mesh_t     mesh;
+    nu_model_t    model;
+    nu_font_t     font;
+    nu_input_t    input;
+    void         *custom;
+} nu_asset_data_t;
 
-NU_API void      *nu_asset_add(nu_asset_type_t    type,
-                               nu_uid_t           uid,
-                               nu_asset_handle_t *handle);
-NU_API void      *nu_asset_get(nu_asset_handle_t handle);
-NU_API void      *nu_asset_find(nu_asset_type_t    type,
-                                nu_uid_t           uid,
-                                nu_asset_handle_t *handle);
-NU_API nu_bool_t  nu_asset_find_handle(nu_asset_type_t    type,
-                                       nu_uid_t           uid,
-                                       nu_asset_handle_t *handle);
-NU_API nu_error_t nuext_asset_load_filename(nu_asset_type_t    type,
-                                            const nu_char_t   *filename,
-                                            const nu_char_t   *name,
-                                            nu_asset_handle_t *handle);
+NU_API nu_asset_t nu_asset_add(nu_asset_type_t type, nu_uid_t uid);
+NU_API nu_asset_t nu_asset_find(nu_asset_type_t type, nu_uid_t uid);
 
-#define nu_asset_find_texture(name) \
-    ((nu_texture_t *)nu_asset_find(NU_ASSET_TEXTURE, NU_UID(name), NU_NULL))
-#define nu_asset_find_material(name) \
-    ((nu_material_t *)nu_asset_find(NU_ASSET_MATERIAL, NU_UID(name), NU_NULL))
-#define nu_asset_find_model(name) \
-    ((nu_model_t *)nu_asset_find(NU_ASSET_MODEL, NU_UID(name), NU_NULL))
+NU_API nu_asset_data_t *nu_asset_data(nu_asset_t handle);
+NU_API nu_asset_type_t  nu_asset_type(nu_asset_t handle);
+NU_API nu_bundle_t      nu_asset_bundle(nu_asset_t handle);
+
+NU_API nu_asset_t nuext_asset_load_filename(nu_asset_type_t  type,
+                                            nu_uid_t         uid,
+                                            const nu_char_t *filename);
 
 #endif
