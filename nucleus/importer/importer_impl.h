@@ -2,6 +2,7 @@
 #define NU_IMPORTER_IMPL_H
 
 #include <nucleus/internal.h>
+#include <nucleus/importer/importer.h>
 
 #ifdef NU_BUILD_GRAPHICS
 
@@ -494,28 +495,101 @@ nuext_model_load_filename (const nu_char_t *filename)
     return NU_HANDLE_INVALID(nu_model_t);
 }
 
+static int
+nu__jsoneq (const nu_char_t *json, jsmntok_t *tok, const nu_char_t *s)
+{
+    if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start
+        && strncmp(json + tok->start, s, tok->end - tok->start) == 0)
+    {
+        return 0;
+    }
+    return -1;
+}
+
 nu_cubemap_t
 nuext_cubemap_load_filename (const nu_char_t *filename)
 {
 #if defined(NU_BUILD_JSMN) && defined(NU_STDLIB)
     nu_size_t  size;
-    nu_byte_t *bytes = nuext_bytes_load_filename(filename, &size);
-    if (!bytes)
+    nu_char_t *json = (nu_char_t *)nuext_bytes_load_filename(filename, &size);
+    if (!json)
     {
         return NU_HANDLE_INVALID(nu_cubemap_t);
     }
+    nu_image_t   images[6];
+    nu_cubemap_t cubemap;
+    nu_array_fill(images, 6, NU_HANDLE_INVALID(nu_image_t));
+    nu_size_t   image_count = 0;
     jsmntok_t   toks[256];
     jsmn_parser parser;
     jsmn_init(&parser);
-    int r = jsmn_parse(&parser, (const char *)bytes, size, toks, 256);
-    nu_assert(r >= 1);
-    nu_assert(toks[0].type == JSMN_OBJECT);
+    int r = jsmn_parse(&parser, json, size, toks, 256);
+    nu_check(r >= 1, goto cleanup0);
+    nu_check(toks[0].type == JSMN_OBJECT, goto cleanup0);
+    static const nu_char_t *faces[]
+        = { "posx", "negx", "posy", "negy", "posz", "negz" };
     for (int i = 1; i < r; ++i)
     {
-        nu_assert(toks[i].type == JSMN_STRING);
+        nu_check(toks[i].type == JSMN_STRING, goto cleanup1);
+        for (nu_size_t f = 0; f < nu_array_size(faces); ++f)
+        {
+            if (nu__jsoneq(json, &toks[i], faces[f]) == 0)
+            {
+                ++i;
+                nu_check(toks[i].type == JSMN_STRING, goto cleanup1);
+                if (nu_handle_is_invalid(images[f]))
+                {
+                    nu_char_t path[256];
+                    nu_memset(path, 0, sizeof(path));
+                    nu_strncpy(path,
+                               json + toks[i].start,
+                               nu_min(toks[i].end - toks[i].start, 256));
+                    images[f] = nuext_image_load_filename(path);
+                    if (nu_handle_is_invalid(images[f]))
+                    {
+                        nu_error("cuebmap face loading error '%s'", path);
+                        goto cleanup1;
+                    }
+                }
+                break;
+            }
+        }
     }
-    nu_free(bytes, size);
+    nu_free(json, size);
+    for (nu_size_t i = 0; i < nu_array_size(images); ++i)
+    {
+        if (nu_handle_is_invalid(images[i]))
+        {
+            nu_error("missing cubemap face '%s'", faces[i]);
+            goto cleanup1;
+        }
+    }
+    nu_cubemap_info_t info;
+    info.size        = nu_image_size(images[0]).x;
+    info.usage       = NU_TEXTURE_USAGE_SAMPLE;
+    info.colors_posx = nu_image_colors(images[0]);
+    info.colors_negx = nu_image_colors(images[1]);
+    info.colors_posy = nu_image_colors(images[2]);
+    info.colors_negy = nu_image_colors(images[3]);
+    info.colors_posz = nu_image_colors(images[4]);
+    info.colors_negz = nu_image_colors(images[5]);
+    cubemap          = nu_cubemap_create(&info);
+    for (nu_size_t i = 0; i < nu_array_size(images); ++i)
+    {
+        nu_image_delete(images[i]);
+    }
+    return cubemap;
 #endif
+cleanup1:
+    for (nu_size_t i = 0; i < nu_array_size(images); ++i)
+    {
+        if (!nu_handle_is_invalid(images[i]))
+        {
+            nu_image_delete(images[i]);
+        }
+    }
+cleanup0:
+    nu_free(json, size);
     return NU_HANDLE_INVALID(nu_cubemap_t);
 }
 
@@ -529,7 +603,7 @@ nuext_bytes_load_filename (const nu_char_t *filename, nu_size_t *size)
     fseek(f, 0, SEEK_END);
     nu_size_t fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
-    nu_byte_t *bytes = nu_alloc(fsize);
+    nu_byte_t *bytes = (nu_byte_t *)nu_alloc(fsize);
     fread(bytes, fsize, 1, f);
     *size = fsize;
     return bytes;

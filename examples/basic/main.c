@@ -134,39 +134,9 @@ main (void)
     temple_model = nu_asset_model("temple");
     ariane_model = nu_asset_model("ariane");
 
-    (void)nuext_cubemap_load_filename("../../../assets/skyboxes/skybox.json");
-
     // Load cubemap
-    nu_cubemap_t skybox;
-    {
-        const nu_char_t *filenames[] = {
-            "../../../assets/skyboxes/vz_clear_ocean_up.png",
-            "../../../assets/skyboxes/vz_clear_ocean_down.png",
-            "../../../assets/skyboxes/vz_clear_ocean_left.png",
-            "../../../assets/skyboxes/vz_clear_ocean_right.png",
-            "../../../assets/skyboxes/vz_clear_ocean_front.png",
-            "../../../assets/skyboxes/vz_clear_ocean_back.png",
-        };
-        nu_image_t images[6];
-        for (nu_size_t i = 0; i < 6; ++i)
-        {
-            images[i] = nuext_image_load_filename(filenames[i]);
-        }
-        nu_cubemap_info_t info;
-        info.size        = nu_image_size(images[0]).x;
-        info.usage       = NU_TEXTURE_USAGE_SAMPLE;
-        info.colors_posx = nu_image_colors(images[3]);
-        info.colors_negx = nu_image_colors(images[2]);
-        info.colors_posy = nu_image_colors(images[0]);
-        info.colors_negy = nu_image_colors(images[1]);
-        info.colors_posz = nu_image_colors(images[4]);
-        info.colors_negz = nu_image_colors(images[5]);
-        skybox           = nu_cubemap_create(&info);
-        for (nu_size_t i = 0; i < 6; ++i)
-        {
-            nu_image_delete(images[i]);
-        }
-    }
+    nu_cubemap_t skybox
+        = nuext_cubemap_load_filename("../../../assets/skyboxes/skybox.json");
 
     // Create font
     nu_font_t font = nu_font_create_default();

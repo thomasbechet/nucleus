@@ -13,9 +13,7 @@ typedef enum
 {
     NU_ASSET_TEXTURE,
     NU_ASSET_MATERIAL,
-    NU_ASSET_MESH,
     NU_ASSET_MODEL,
-    NU_ASSET_FONT,
     NU_ASSET_INPUT,
     NU_ASSET_TABLE,
 } nu_asset_type_t;

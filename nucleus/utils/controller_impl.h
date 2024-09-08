@@ -103,7 +103,7 @@ nu_camera_controller_update (nu_camera_controller_t controller,
         {
             ctrl->pitch += look.y * dt;
         }
-        ctrl->pitch = NU_CLAMP(ctrl->pitch, -90.0, 90.0);
+        ctrl->pitch = nu_clamp(ctrl->pitch, -90.0, 90.0);
         ctrl->rot   = nu_quat_axis(NU_VEC3_UP, -nu_radian(ctrl->yaw));
         ctrl->rot   = nu_quat_mul(
             ctrl->rot, nu_quat_axis(NU_VEC3_RIGHT, -nu_radian(ctrl->pitch)));

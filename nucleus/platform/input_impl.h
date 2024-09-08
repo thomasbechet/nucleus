@@ -70,9 +70,9 @@ nu_input_axis3d (nu_input_t pos_x,
 {
     nu_vec3_t ax;
 
-    ax.x = NU_CLAMP(nu_input_value(neg_x) - nu_input_value(pos_x), -1, 1);
-    ax.y = NU_CLAMP(nu_input_value(pos_y) - nu_input_value(neg_y), -1, 1);
-    ax.z = NU_CLAMP(nu_input_value(pos_z) - nu_input_value(neg_z), -1, 1);
+    ax.x = nu_clamp(nu_input_value(neg_x) - nu_input_value(pos_x), -1, 1);
+    ax.y = nu_clamp(nu_input_value(pos_y) - nu_input_value(neg_y), -1, 1);
+    ax.z = nu_clamp(nu_input_value(pos_z) - nu_input_value(neg_z), -1, 1);
     if (normalize)
     {
         ax = nu_vec3_normalize(ax);

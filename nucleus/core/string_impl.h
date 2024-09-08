@@ -53,11 +53,28 @@ nu_strcmp (const nu_char_t *s1, const nu_char_t *s2)
     }
     return *(nu_char_t *)s1 - *(nu_char_t *)s2;
 }
-void
+nu_char_t *
 nu_strncpy (nu_char_t *dst, const nu_char_t *src, nu_size_t n)
 {
-    while (n-- && (*dst++ = *src++))
-        ;
+    if (n != 0)
+    {
+        char       *d = dst;
+        const char *s = src;
+
+        do
+        {
+            if ((*d++ = *s++) == 0)
+            {
+                /* NUL pad the remaining n-1 bytes */
+                while (--n != 0)
+                {
+                    *d++ = 0;
+                }
+                break;
+            }
+        } while (--n != 0);
+    }
+    return dst;
 }
 
 nu_u32_t

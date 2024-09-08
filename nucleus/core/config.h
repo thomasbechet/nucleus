@@ -169,16 +169,23 @@ typedef int           nu_word_t;
 //////                            Macros                            //////
 //////////////////////////////////////////////////////////////////////////
 
-#define NU_UNUSED(x) (void)x
+#define NU_UNUSED(x)       (void)x
+#define nu_array_size(arr) (sizeof(arr) / sizeof(arr[0]))
+#define nu_array_fill(arr, size, value)  \
+    for (nu_size_t i = 0; i < size; ++i) \
+    {                                    \
+        (arr)[i] = (value);              \
+    }
 
 #define NU_DEFINE_HANDLE(type) \
     typedef union              \
     {                          \
         nu_size_t id;          \
     } type
-#define NU_HANDLE_INVALID_ID    ((nu_size_t) - 1)
-#define NU_HANDLE_INVALID(type) ((type) { .id = NU_HANDLE_INVALID_ID })
-#define NU_HANDLE_NULL(type)    ((type) { .id = 0 })
+#define NU_HANDLE_INVALID(type)      ((type) { .id = (nu_size_t) - 1 })
+#define NU_HANDLE_NULL(type)         ((type) { .id = 0 })
+#define nu_handle_is_invalid(handle) ((handle).id == (nu_size_t) - 1)
+#define nu_handle_is_valid(handle)   (!nu_handle_is_invalid(handle))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define nu_assert(x) assert(x)
@@ -219,7 +226,7 @@ typedef int           nu_word_t;
 #define nu_error_ASSERT(error) nu_assert(error == NU_ERROR_NONE)
 
 #define nu_handle_check(handle, action) \
-    _nu_check((handle).id != NU_HANDLE_INVALID_ID, action, __SOURCE__)
-#define nu_handle_assert(handle) nu_assert((handle).id != NU_HANDLE_INVALID_ID)
+    _nu_check(nu_handle_is_valid(handle), action, __SOURCE__)
+#define nu_handle_assert(handle) nu_assert(nu_handle_is_valid(handle))
 
 #endif

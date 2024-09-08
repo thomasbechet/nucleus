@@ -298,7 +298,7 @@ nu_uvec2 (nu_u32_t x, nu_u32_t y)
 nu_uvec2_t
 nu_uvec2_min (nu_uvec2_t a, nu_uvec2_t b)
 {
-    return nu_uvec2(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
+    return nu_uvec2(nu_min(a.x, b.x), nu_min(a.y, b.y));
 }
 
 nu_uvec4_t

@@ -5,10 +5,10 @@
 
 #define NU_PI 3.14159265359
 
-#define NU_MIN(a, b)          (((a) < (b)) ? (a) : (b))
-#define NU_MAX(a, b)          (((a) > (b)) ? (a) : (b))
-#define NU_CLAMP(x, min, max) (NU_MAX(min, NU_MIN(max, x)))
-#define NU_CLAMP01(x)         (NU_CLAMP(x, 0, 1))
+#define nu_min(a, b)          (((a) < (b)) ? (a) : (b))
+#define nu_max(a, b)          (((a) > (b)) ? (a) : (b))
+#define nu_clamp(x, min, max) (nu_max(min, nu_min(max, x)))
+#define nu_clamp01(x)         (nu_clamp(x, 0, 1))
 
 #define NU_VEC2_SIZE 2
 #define NU_VEC3_SIZE 3

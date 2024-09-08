@@ -4,5 +4,5 @@
   "posy": "../../../assets/skyboxes/vz_clear_ocean_up.png",
   "negy": "../../../assets/skyboxes/vz_clear_ocean_down.png",
   "posz": "../../../assets/skyboxes/vz_clear_ocean_front.png",
-  "posz": "../../../assets/skyboxes/vz_clear_ocean_back.png"
+  "negz": "../../../assets/skyboxes/vz_clear_ocean_back.png"
 }

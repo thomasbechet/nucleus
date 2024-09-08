@@ -147,7 +147,7 @@ nuglfw__update_viewport (nuglfw__viewport_t *v)
         case NUEXT_VIEWPORT_FIXED_BEST_FIT: {
             float w_factor = global_size.x / (float)v->screen.x;
             float h_factor = global_size.y / (float)v->screen.y;
-            float min      = NU_MAX(1.0f, nu_floor(NU_MIN(w_factor, h_factor)));
+            float min      = nu_max(1.0f, nu_floor(nu_min(w_factor, h_factor)));
             size.x         = v->screen.x * min;
             size.y         = v->screen.y * min;
         }
