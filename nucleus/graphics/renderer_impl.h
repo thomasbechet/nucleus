@@ -19,14 +19,6 @@
         return;                          \
     }
 
-nu_error_t
-nu_renderer_render (void)
-{
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.render(
-        &_ctx.platform.surface.glfw.viewport.extent,
-        &_ctx.platform.surface.glfw.viewport.viewport);
-}
 nu_texture_t
 nu_surface_color_target (void)
 {

@@ -1,16 +1,10 @@
-[x] Fixed loop
-[x] Logger
-[x] Camera controller
-[x] Renderpass depth buffer
-[x] Logger per system
-[x] Reorganize in modules
-[x] Fullscreen window glfw
+Current:
+[ ] base shapes generator
+[ ] package json importer
 [ ] fix gltf loader
-[x] Mouse locked glfw (double click lock)
-[x] GUI renderpass
-[x] Cubemap resource
-[x] Skybox renderpass
-[x] Input axis 3D
-[ ] Flat renderpass with lights
-[ ] Volumetric renderpass
-[ ] Mass aggregate physics
+[ ] proper flat renderpass
+
+Later:
+[ ] use rgfw
+[ ] volumetric renderpass
+[ ] mass aggregate physics

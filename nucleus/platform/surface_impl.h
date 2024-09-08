@@ -6,6 +6,9 @@
 nu_error_t
 nu_swap_buffers (void)
 {
+#ifdef NU_BUILD_GRAPHICS
+    nu__graphics_render();
+#endif
 #ifdef NU_BUILD_GLFW
     nuglfw__swap_buffers();
 #endif

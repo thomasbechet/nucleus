@@ -62,5 +62,17 @@ nu__graphics_free (void)
     nu_pool_free(&_ctx.graphics.fonts);
     return NU_ERROR_NONE;
 }
+static nu_error_t
+nu__graphics_render (void)
+{
+    nu__renderer_t *renderer = &_ctx.graphics.renderer;
+    if (!renderer->null_api)
+    {
+        return _ctx.graphics.renderer.api.render(
+            &_ctx.platform.surface.glfw.viewport.extent,
+            &_ctx.platform.surface.glfw.viewport.viewport);
+    }
+    return NU_ERROR_NONE;
+}
 
 #endif

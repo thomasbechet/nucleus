@@ -136,5 +136,6 @@ typedef struct
 
 static nu_error_t nu__graphics_init(const nu_renderer_info_t *info);
 static nu_error_t nu__graphics_free(void);
+static nu_error_t nu__graphics_render(void);
 
 #endif

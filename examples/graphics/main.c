@@ -111,7 +111,6 @@ main (void)
         submit.flat.depth_target = &depth_buffer;
         nu_renderpass_submit(renderpass, &submit);
 
-        nu_renderer_render();
         nu_swap_buffers();
     }
 

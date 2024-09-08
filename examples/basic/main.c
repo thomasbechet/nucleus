@@ -350,9 +350,6 @@ main (void)
         submit.canvas.color_target = &surface_tex;
         nu_ui_submit_renderpasses(ui, &submit);
 
-        // Render
-        nu_renderer_render();
-
         // Refresh surface
         nu_swap_buffers();
     }
