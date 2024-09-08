@@ -11,26 +11,26 @@ nu_initialize (void)
     memset(&_ctx, 0, sizeof(_ctx));
 
     error = nu__core_init();
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 
 #ifdef NU_BUILD_PLATFORM
     nu_platform_info_t pinfo;
     pinfo.width  = 640;
     pinfo.height = 400;
     error        = nu__platform_init(&pinfo);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 #endif
 
 #ifdef NU_BUILD_GRAPHICS
     nu_renderer_info_t rinfo;
     rinfo.api = NU_RENDERER_GL;
     error     = nu__graphics_init(&rinfo);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 #endif
 
 #ifdef NU_BUILD_UTILS
     error = nu__utils_init();
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 #endif
 
 #ifdef NU_BUILD_IMPORTER
@@ -39,7 +39,7 @@ nu_initialize (void)
 
 #ifdef NU_BUILD_ASSET
     error = nu__asset_init();
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 #endif
 
     return NU_ERROR_NONE;

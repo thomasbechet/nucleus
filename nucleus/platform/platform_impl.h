@@ -24,7 +24,7 @@ nu__platform_init (const nu_platform_info_t *info)
     // Initialize surface (and inputs)
 #ifdef NU_BUILD_GLFW
     error = nuglfw__init();
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 #endif
 
     return NU_ERROR_NONE;

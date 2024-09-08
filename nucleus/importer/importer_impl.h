@@ -359,12 +359,12 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i, m);
-        nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_model_t));
+        nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i, m);
-        nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_model_t));
+        nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -373,7 +373,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat, m);
-            nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_model_t));
+            nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
         }
     }
 

@@ -200,19 +200,19 @@ nugl__init (void)
     // Compile programs
     error = nugl__compile_shader(
         nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
         nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 
     error = nugl__compile_shader(nugl__shader_skybox_vert,
                                  nugl__shader_skybox_frag,
                                  &gl->skybox_program);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -221,7 +221,7 @@ nugl__init (void)
     error = nugl__compile_shader(nugl__shader_canvas_blit_vert,
                                  nugl__shader_canvas_blit_frag,
                                  &gl->canvas_blit_program);
-    nu_error_CHECK(error, return error);
+    nu_error_check(error, return error);
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
@@ -504,7 +504,7 @@ nugl__create_camera (const nu_camera_info_t *info)
     handle.id = gl->cameras.size - 1;
 
     nu_error_t error = nugl__update_camera(handle, info);
-    nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_camera_t));
+    nu_error_check(error, return NU_HANDLE_INVALID(nu_camera_t));
     return handle;
 }
 static nu_error_t
@@ -833,7 +833,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_FLAT: {
             error = nugl__create_flat_renderpass(&data->flat);
-            nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_renderpass_t));
+            nu_error_check(error, return NU_HANDLE_INVALID(nu_renderpass_t));
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
@@ -844,7 +844,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
             break;
         case NU_RENDERPASS_CANVAS: {
             error = nugl__create_canvas_renderpass(&data->canvas);
-            nu_error_CHECK(error, return NU_HANDLE_INVALID(nu_renderpass_t));
+            nu_error_check(error, return NU_HANDLE_INVALID(nu_renderpass_t));
         }
         break;
     }

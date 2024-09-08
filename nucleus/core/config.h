@@ -221,9 +221,9 @@ typedef int           nu_word_t;
 
 #define nu_check(check, action) _nu_check(check, action, __SOURCE__)
 
-#define nu_error_CHECK(error, action) \
+#define nu_error_check(error, action) \
     _nu_check(error == NU_ERROR_NONE, action, __SOURCE__)
-#define nu_error_ASSERT(error) nu_assert(error == NU_ERROR_NONE)
+#define nu_error_assert(error) nu_assert(error == NU_ERROR_NONE)
 
 #define nu_handle_check(handle, action) \
     _nu_check(nu_handle_is_valid(handle), action, __SOURCE__)
