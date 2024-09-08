@@ -13,6 +13,7 @@
 #define NU_BUILD_IMPORTER
 #define NU_BUILD_STBIMAGE
 #define NU_BUILD_CGLTF
+#define NU_BUILD_JSMN
 #define NU_BUILD_ASSET
 
 #if defined(NU_NO_PLATFORM)
@@ -36,6 +37,7 @@
 #undef NU_BUILD_IMPORTER
 #undef NU_BUILD_STBIMAGE
 #undef NU_BUILD_CGLTF
+#undef NU_BUILD_JSMN
 #endif
 
 #if defined(NU_NO_STBIMAGE) || !defined(NU_BUILD_GRAPHICS)
@@ -43,6 +45,11 @@
 #endif
 
 #if defined(NU_NO_CGLTF) || !defined(NU_BUILD_GRAPHICS)
+#undef NU_BUILD_CGLTF
+#endif
+
+#if defined(NU_NO_JSMN)
+#undef NU_BUILD_JSMN
 #undef NU_BUILD_CGLTF
 #endif
 

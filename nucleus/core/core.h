@@ -9,6 +9,7 @@
 #include <nucleus/core/time.h>
 #include <nucleus/core/string.h>
 #include <nucleus/core/ds.h>
+#include <nucleus/core/table.h>
 #include <nucleus/core/context.h>
 
 #endif

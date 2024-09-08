@@ -17,7 +17,7 @@ typedef enum
     NU_ASSET_MODEL,
     NU_ASSET_FONT,
     NU_ASSET_INPUT,
-    NU_ASSET_CUSTOM,
+    NU_ASSET_TABLE,
 } nu_asset_type_t;
 
 typedef union
@@ -28,7 +28,7 @@ typedef union
     nu_model_t    model;
     nu_font_t     font;
     nu_input_t    input;
-    void         *custom;
+    nu_table_t    table;
 } nu_asset_data_t;
 
 typedef struct
@@ -40,6 +40,7 @@ typedef struct
 
 NU_API nu_asset_t nu_asset_add(nu_asset_type_t type, const nu_char_t *name);
 NU_API nu_asset_t nu_asset_find(nu_asset_type_t type, const nu_char_t *name);
+NU_API nu_bool_t  nu_asset_exists(nu_asset_type_t type, const nu_char_t *name);
 NU_API nu_asset_data_t nu_asset_data(nu_asset_t handle);
 NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
 
@@ -47,6 +48,8 @@ NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
     (nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)).texture)
 #define nu_asset_model(name) \
     (nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)).model)
+#define nu_asset_table(name) \
+    (nu_asset_data(nu_asset_find(NU_ASSET_TABLE, name)).table)
 
 NU_API nu_asset_t nuext_asset_load_filename(nu_asset_type_t  type,
                                             const nu_char_t *name,

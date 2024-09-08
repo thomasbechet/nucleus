@@ -10,6 +10,7 @@ typedef struct
     nu_asset_type_t type;
     nu_u32_t        hash;
     nu_asset_data_t data;
+    nu_char_t       name[NU_ASSET_NAME_SIZE];
     nu_bundle_t     bundle;
     nu_size_t       refcount;
 } nu__asset_entry_t;

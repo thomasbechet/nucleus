@@ -74,9 +74,6 @@ nu_vlog (nu_log_level_t   level,
         case NU_LOG_ERROR:
             fprintf(stdout, "\x1B[31mERROR\x1B[0m ");
             break;
-        case NU_LOG_FATAL:
-            fprintf(stdout, "\x1B[31mFATAL\x1B[0m ");
-            break;
     }
     fprintf(stdout, "\x1B[90m%s:\x1B[0m ", source);
     vfprintf(stdout, format, args);

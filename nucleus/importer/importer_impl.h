@@ -10,6 +10,13 @@
 #include <nucleus/external/stb/stb_image.h>
 #endif
 
+#ifdef NU_BUILD_JSMN
+#define JSMN_PARENT_LINKS
+#define JSMN_STRICT
+#define JSMN_STATIC
+#include <nucleus/external/jsmn/jsmn.h>
+#endif
+
 #ifdef NU_BUILD_CGLTF
 #define CGLTF_IMPLEMENTATION
 #include <nucleus/external/cgltf/cgltf.h>
@@ -487,6 +494,46 @@ nuext_model_load_filename (const nu_char_t *filename)
     return NU_HANDLE_INVALID(nu_model_t);
 }
 
+nu_cubemap_t
+nuext_cubemap_load_filename (const nu_char_t *filename)
+{
+#if defined(NU_BUILD_JSMN) && defined(NU_STDLIB)
+    nu_size_t  size;
+    nu_byte_t *bytes = nuext_bytes_load_filename(filename, &size);
+    if (!bytes)
+    {
+        return NU_HANDLE_INVALID(nu_cubemap_t);
+    }
+    jsmntok_t   toks[256];
+    jsmn_parser parser;
+    jsmn_init(&parser);
+    int r = jsmn_parse(&parser, (const char *)bytes, size, toks, 256);
+    nu_assert(r >= 1);
+    nu_assert(toks[0].type == JSMN_OBJECT);
+    for (int i = 1; i < r; ++i)
+    {
+        nu_assert(toks[i].type == JSMN_STRING);
+    }
+    nu_free(bytes, size);
+#endif
+    return NU_HANDLE_INVALID(nu_cubemap_t);
+}
+
+#endif
+
+#ifdef NU_STDLIB
+nu_byte_t *
+nuext_bytes_load_filename (const nu_char_t *filename, nu_size_t *size)
+{
+    FILE *f = fopen(filename, "rb");
+    fseek(f, 0, SEEK_END);
+    nu_size_t fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    nu_byte_t *bytes = nu_alloc(fsize);
+    fread(bytes, fsize, 1, f);
+    *size = fsize;
+    return bytes;
+}
 #endif
 
 static void

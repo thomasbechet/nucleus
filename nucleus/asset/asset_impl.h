@@ -5,6 +5,9 @@
 #include <nucleus/graphics/graphics.h>
 #include <nucleus/importer/importer.h>
 
+static const nu_char_t *nu__asset_type_names[]
+    = { "texture", "material", "mesh", "model", "font", "input", "table" };
+
 static nu_error_t
 nu__asset_init (void)
 {
@@ -43,8 +46,8 @@ nu__asset_data_invalid (nu_asset_type_t type)
         case NU_ASSET_INPUT:
             data.input = NU_HANDLE_INVALID(nu_input_t);
             break;
-        case NU_ASSET_CUSTOM:
-            data.custom = NU_NULL;
+        case NU_ASSET_TABLE:
+            data.table = NU_HANDLE_INVALID(nu_table_t);
             break;
     }
     return data;
@@ -53,8 +56,11 @@ nu__asset_data_invalid (nu_asset_type_t type)
 nu_asset_t
 nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
 {
-    if (nu_asset_find(type, name).id != NU_HANDLE_INVALID_ID)
+    if (nu_asset_exists(type, name))
     {
+        nu_error("asset '%s' of type '%s' already exists",
+                 name,
+                 nu__asset_type_names[type]);
         return NU_HANDLE_INVALID(nu_asset_t);
     }
 
@@ -66,6 +72,7 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
     entry->bundle            = _ctx.asset.active_bundle;
     entry->refcount          = 0;
     entry->data              = nu__asset_data_invalid(type);
+    nu_strncpy(entry->name, name, NU_ASSET_NAME_SIZE);
 
     return handle;
 }
@@ -81,7 +88,23 @@ nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
             return (nu_asset_t) { .id = i };
         }
     }
+    nu_error(
+        "asset '%s' of type '%s' not found", name, nu__asset_type_names[type]);
     return NU_HANDLE_INVALID(nu_asset_t);
+}
+nu_bool_t
+nu_asset_exists (nu_asset_type_t type, const nu_char_t *name)
+{
+    nu_u32_t hash = nu_hash(name);
+    for (nu_size_t i = 0; i < _ctx.asset.entries.capacity; ++i)
+    {
+        nu__asset_entry_t *entry = _ctx.asset.entries.data + i;
+        if (entry->used && entry->type == type && entry->hash == hash)
+        {
+            return NU_TRUE;
+        }
+    }
+    return NU_FALSE;
 }
 nu_asset_data_t
 nu_asset_data (nu_asset_t handle)
@@ -122,7 +145,7 @@ nuext_asset_load_filename (nu_asset_type_t  type,
             break;
         case NU_ASSET_FONT:
         case NU_ASSET_INPUT:
-        case NU_ASSET_CUSTOM:
+        case NU_ASSET_TABLE:
             break;
     }
 

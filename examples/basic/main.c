@@ -134,6 +134,8 @@ main (void)
     temple_model = nu_asset_model("temple");
     ariane_model = nu_asset_model("ariane");
 
+    (void)nuext_cubemap_load_filename("../../../assets/skyboxes/skybox.json");
+
     // Load cubemap
     nu_cubemap_t skybox;
     {
