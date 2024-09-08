@@ -40,6 +40,8 @@ main (void)
         NU_ASSET_TEXTURE,
         "brick",
         "../../../assets/brick_building_front_lowres.png");
+    nuext_asset_load_filename(
+        NU_ASSET_CUBEMAP, "skybox", "../../../assets/skyboxes/skybox.json");
 
     // Configure inputs
     nu_camera_controller_info_t cinfo;
@@ -135,8 +137,7 @@ main (void)
     ariane_model = nu_asset_model("ariane");
 
     // Load cubemap
-    nu_cubemap_t skybox
-        = nuext_cubemap_load_filename("../../../assets/skyboxes/skybox.json");
+    nu_cubemap_t skybox = nu_asset_cubemap("skybox");
 
     // Create font
     nu_font_t font = nu_font_create_default();

@@ -6,7 +6,7 @@
 #include <nucleus/importer/importer.h>
 
 static const nu_char_t *nu__asset_type_names[]
-    = { "texture", "material", "model", "input", "table" };
+    = { "texture", "cubemap", "material", "model", "input", "table" };
 
 static nu_error_t
 nu__asset_init (void)
@@ -30,6 +30,9 @@ nu__asset_data_invalid (nu_asset_type_t type)
     {
         case NU_ASSET_TEXTURE:
             data.texture = NU_HANDLE_INVALID(nu_texture_t);
+            break;
+        case NU_ASSET_CUBEMAP:
+            data.cubemap = NU_HANDLE_INVALID(nu_cubemap_t);
             break;
         case NU_ASSET_MATERIAL:
             data.material = NU_HANDLE_INVALID(nu_material_t);
@@ -132,9 +135,16 @@ nuext_asset_load_filename (nu_asset_type_t  type,
             nu_image_delete(image);
         }
         break;
+        case NU_ASSET_CUBEMAP: {
+            data->cubemap = nuext_cubemap_load_filename(filename);
+            nu_handle_check(data->cubemap,
+                            return NU_HANDLE_INVALID(nu_asset_t));
+        }
+        break;
         case NU_ASSET_MATERIAL:
         case NU_ASSET_MODEL:
             data->model = nuext_model_load_filename(filename);
+            nu_handle_check(data->model, return NU_HANDLE_INVALID(nu_asset_t));
             break;
         case NU_ASSET_INPUT:
         case NU_ASSET_TABLE:

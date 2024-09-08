@@ -12,6 +12,7 @@ NU_DEFINE_HANDLE(nu_bundle_t);
 typedef enum
 {
     NU_ASSET_TEXTURE,
+    NU_ASSET_CUBEMAP,
     NU_ASSET_MATERIAL,
     NU_ASSET_MODEL,
     NU_ASSET_INPUT,
@@ -21,10 +22,9 @@ typedef enum
 typedef union
 {
     nu_texture_t  texture;
+    nu_cubemap_t  cubemap;
     nu_material_t material;
-    nu_mesh_t     mesh;
     nu_model_t    model;
-    nu_font_t     font;
     nu_input_t    input;
     nu_table_t    table;
 } nu_asset_data_t;
@@ -44,6 +44,8 @@ NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
 
 #define nu_asset_texture(name) \
     (nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)).texture)
+#define nu_asset_cubemap(name) \
+    (nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)).cubemap)
 #define nu_asset_model(name) \
     (nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)).model)
 #define nu_asset_table(name) \
