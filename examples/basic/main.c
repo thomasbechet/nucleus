@@ -44,7 +44,7 @@ main (void)
         NU_ASSET_CUBEMAP, "skybox", "../../../assets/skyboxes/skybox.json");
 
     // Configure inputs
-    nu_camera_controller_info_t cinfo;
+    nu_controller_info_t cinfo;
     draw                 = nu_input_create();
     main_button          = nu_input_create();
     quit                 = nu_input_create();
@@ -65,7 +65,7 @@ main (void)
     cinfo.switch_mode    = nu_input_create();
 
     // Create camera controller
-    nu_camera_controller_t controller = nu_camera_controller_create(&cinfo);
+    nu_controller_t controller = nu_controller_create(&cinfo);
 
     // Bind inputs
 
@@ -253,7 +253,7 @@ main (void)
         }
 
         // Update camera controller
-        nu_camera_controller_update(controller, delta, &camera_info);
+        nu_controller_update(controller, delta, &camera_info);
         nu_camera_update(camera, &camera_info);
 
         // Render loop

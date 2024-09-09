@@ -69,12 +69,14 @@ typedef struct
     nu_quat_t rot;
     float     yaw;
     float     pitch;
-    nu_bool_t free_mode;
 
-    float fov;
-    float speed;
+    nu_controller_mode_t mode;
 
-    nu_camera_controller_info_t info;
+    float     fov;
+    float     speed;
+    nu_bool_t on_ground;
+
+    nu_controller_info_t info;
 } nu__camera_controller_t;
 
 typedef nu_pool(nu__camera_controller_t) nu__camera_controller_pool_t;

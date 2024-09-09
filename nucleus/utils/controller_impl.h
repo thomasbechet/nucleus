@@ -3,32 +3,34 @@
 
 #include <nucleus/internal.h>
 
-nu_camera_controller_t
-nu_camera_controller_create (const nu_camera_controller_info_t *info)
+nu_controller_t
+nu_controller_create (const nu_controller_info_t *info)
 {
-    nu_camera_controller_t   handle;
+    nu_controller_t          handle;
     nu__camera_controller_t *ctrl
         = nu_pool_add(&_ctx.utils.controllers, &handle.id);
 
-    ctrl->pos       = NU_VEC3_ZERO;
-    ctrl->vel       = NU_VEC3_ZERO;
-    ctrl->acc       = NU_VEC3_ZERO;
-    ctrl->rot       = nu_quat_identity();
-    ctrl->free_mode = NU_FALSE;
-    ctrl->pitch     = 0;
-    ctrl->yaw       = 0;
+    ctrl->pos   = NU_VEC3_ZERO;
+    ctrl->vel   = NU_VEC3_ZERO;
+    ctrl->acc   = NU_VEC3_ZERO;
+    ctrl->rot   = nu_quat_identity();
+    ctrl->pitch = 0;
+    ctrl->yaw   = 0;
 
-    ctrl->fov   = 90;
-    ctrl->speed = 5;
+    ctrl->mode = NU_CONTROLLER_FREEFLY_ALIGNED;
+
+    ctrl->fov       = 90;
+    ctrl->speed     = 10;
+    ctrl->on_ground = NU_FALSE;
 
     ctrl->info = *info;
 
     return handle;
 }
 void
-nu_camera_controller_update (nu_camera_controller_t controller,
-                             float                  dt,
-                             nu_camera_info_t      *info)
+nu_controller_update (nu_controller_t   controller,
+                      float             dt,
+                      nu_camera_info_t *info)
 {
     nu__camera_controller_t *ctrl = &_ctx.utils.controllers.data[controller.id];
     nu_vec3_t                look = nu_input_axis3d(ctrl->info.view_yaw_neg,
@@ -49,7 +51,18 @@ nu_camera_controller_update (nu_camera_controller_t controller,
     // Switch mode
     if (nu_input_just_pressed(ctrl->info.switch_mode))
     {
-        ctrl->free_mode = !ctrl->free_mode;
+        switch (ctrl->mode)
+        {
+            case NU_CONTROLLER_FREEFLY_ALIGNED:
+                ctrl->mode = NU_CONTROLLER_FREEFLY;
+                break;
+            case NU_CONTROLLER_FREEFLY:
+                ctrl->mode = NU_CONTROLLER_CHARACTER;
+                break;
+            case NU_CONTROLLER_CHARACTER:
+                ctrl->mode = NU_CONTROLLER_FREEFLY_ALIGNED;
+                break;
+        }
     }
 
     // Translation
@@ -61,21 +74,25 @@ nu_camera_controller_update (nu_camera_controller_t controller,
     direction = nu_vec3_add(
         direction,
         nu_vec3_muls(nu_quat_mulv3(ctrl->rot, NU_VEC3_RIGHT), move.x));
-    if (ctrl->free_mode)
+    if (ctrl->mode == NU_CONTROLLER_FREEFLY)
     {
         direction = nu_vec3_add(
             direction,
             nu_vec3_muls(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP), move.y));
     }
-    else
+    else if (ctrl->mode == NU_CONTROLLER_FREEFLY_ALIGNED)
     {
         direction = nu_vec3_add(direction, nu_vec3_muls(NU_VEC3_UP, move.y));
+    }
+    else
+    {
+        // No vertical movement in character mode
     }
 
     direction = nu_vec3_normalize(direction);
 
     // Rotation
-    if (ctrl->free_mode)
+    if (ctrl->mode == NU_CONTROLLER_FREEFLY)
     {
         if (look.x != 0)
         {
@@ -111,14 +128,43 @@ nu_camera_controller_update (nu_camera_controller_t controller,
 
     dt = dt * 0.001;
 
-    // Compute acceleration
+    // Compute sum of forces
     const float mass  = 10.0;
     nu_vec3_t   force = NU_VEC3_ZERO;
+
+    // Apply movement
     if (nu_vec3_norm(direction) > 0.001)
     {
-        force = nu_vec3_add(force, nu_vec3_muls(direction, 3));
+        force = nu_vec3_add(force, nu_vec3_muls(direction, 6));
     }
-    force = nu_vec3_add(force, nu_vec3_muls(ctrl->vel, -0.5));
+
+    // Apply gravity
+    if (ctrl->mode == NU_CONTROLLER_CHARACTER)
+    {
+        force = nu_vec3_add(force, nu_vec3_muls(NU_VEC3_DOWN, 5));
+    }
+
+    // Apply jump
+    if (ctrl->mode == NU_CONTROLLER_CHARACTER)
+    {
+        if (ctrl->on_ground && nu_input_just_pressed(ctrl->info.move_up))
+        {
+            ctrl->on_ground = NU_FALSE;
+            ctrl->vel       = nu_vec3_muls(NU_VEC3_UP, 15);
+        }
+    }
+
+    // Apply drag
+    if (ctrl->mode == NU_CONTROLLER_CHARACTER)
+    {
+        // Allow infinite vertical fall
+        force = nu_vec3_add(
+            force, nu_vec3_muls(nu_vec3(ctrl->vel.x, 0, ctrl->vel.z), -0.5));
+    }
+    else
+    {
+        force = nu_vec3_add(force, nu_vec3_muls(ctrl->vel, -0.5));
+    }
 
     // Integrate
     ctrl->pos
@@ -130,6 +176,17 @@ nu_camera_controller_update (nu_camera_controller_t controller,
         ctrl->vel, nu_vec3_muls(nu_vec3_add(ctrl->acc, new_acc), 0.5 * dt));
     ctrl->acc = new_acc;
     ctrl->vel = newvel;
+
+    // Collision detection and resolution
+    if (ctrl->mode == NU_CONTROLLER_CHARACTER)
+    {
+        const float height = 1;
+        if (ctrl->pos.y - height <= 0)
+        {
+            ctrl->pos.y     = height;
+            ctrl->on_ground = NU_TRUE;
+        }
+    }
 
     nu_vec3_t forward = nu_quat_mulv3(ctrl->rot, NU_VEC3_FORWARD);
     nu_vec3_t up      = nu_vec3_normalize(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP));
