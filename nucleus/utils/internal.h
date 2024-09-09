@@ -80,6 +80,19 @@ typedef struct
 typedef nu_pool(nu__camera_controller_t) nu__camera_controller_pool_t;
 
 //////////////////////////////////////////////////////////////////////////
+//////                           Geometry                           //////
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_vec3_vec_t positions;
+    nu_vec2_vec_t uvs;
+    nu_vec3_vec_t normals;
+} nu__geometry_t;
+
+typedef nu_pool(nu__geometry_t) nu__geometry_pool_t;
+
+//////////////////////////////////////////////////////////////////////////
 //////                          Module                              //////
 //////////////////////////////////////////////////////////////////////////
 
@@ -87,6 +100,7 @@ typedef struct
 {
     nu__ui_pool_t                uis;
     nu__camera_controller_pool_t controllers;
+    nu__geometry_pool_t          geometries;
 } nu__utils_t;
 
 static nu_error_t nu__utils_init(void);

@@ -27,16 +27,10 @@ main (void)
 
     // Mesh
     {
-        nu_vec3_t positions[NU_CUBE_MESH_VERTEX_COUNT];
-        nu_vec2_t uvs[NU_CUBE_MESH_VERTEX_COUNT];
-        nu_vec3_t normals[NU_CUBE_MESH_VERTEX_COUNT];
-        nu_generate_cube_mesh(1, positions, uvs, normals);
-        nu_mesh_info_t info;
-        info.positions = positions;
-        info.uvs       = uvs;
-        info.normals   = normals;
-        info.count     = NU_CUBE_MESH_VERTEX_COUNT;
-        mesh           = nu_mesh_create(&info);
+        nu_geometry_t g = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
+        nu_geometry_cube(g, 1);
+        mesh = nu_mesh_create_geometry(g);
+        nu_geometry_delete(g);
     }
 
     // Texture

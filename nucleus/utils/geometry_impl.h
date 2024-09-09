@@ -3,23 +3,76 @@
 
 #include <nucleus/internal.h>
 
-void
-nu_generate_cube_mesh (float     side_length,
-                       nu_vec3_t positions[NU_CUBE_MESH_VERTEX_COUNT],
-                       nu_vec2_t uvs[NU_CUBE_MESH_VERTEX_COUNT],
-                       nu_vec3_t normals[NU_CUBE_MESH_VERTEX_COUNT])
+static void
+nu__generate_grid_mesh (nu_u32_t   width,
+                        nu_u32_t   height,
+                        float      unit,
+                        float      uv_scale,
+                        nu_vec3_t *positions,
+                        nu_vec2_t *uvs,
+                        nu_vec3_t *normals)
 {
-    float half_side = side_length / 2.0f;
-
+    for (nu_u32_t h = 0; h < height; ++h)
+    {
+        for (nu_u32_t w = 0; w < width; ++w)
+        {
+            nu_size_t index = (h * (width) + w) * 6;
+            nu_vec3_t vertex_positions[4]
+                = { nu_vec3(w * unit, 0, h * unit),
+                    nu_vec3((w + 1) * unit, 0, h * unit),
+                    nu_vec3((w + 1) * unit, 0, (h + 1) * unit),
+                    nu_vec3(w * unit, 0, (h + 1) * unit) };
+            nu_vec2_t vertex_uvs[4] = {
+                nu_vec2((float)w / (float)width, (float)h / (float)height),
+                nu_vec2((float)(w + 1) / (float)width,
+                        (float)h / (float)height),
+                nu_vec2((float)(w + 1) / (float)width,
+                        (float)(h + 1) / (float)height),
+                nu_vec2((float)w / (float)width,
+                        (float)(h + 1) / (float)height),
+            };
+            nu_u32_t indices[6] = { 0, 3, 2, 2, 1, 0 };
+            for (nu_size_t i = 0; i < 6; ++i)
+            {
+                positions[index + i] = vertex_positions[indices[i]];
+                uvs[index + i] = nu_vec2_muls(vertex_uvs[indices[i]], uv_scale);
+                normals[index + i] = NU_VEC3_UP;
+            }
+        }
+    }
+}
+static void
+nu__generate_plane_mesh (float     width,
+                         float     height,
+                         nu_vec3_t positions[NU_PLANE_VERTEX_COUNT],
+                         nu_vec2_t uvs[NU_PLANE_VERTEX_COUNT],
+                         nu_vec3_t normals[NU_PLANE_VERTEX_COUNT])
+{
+    nu_vec3_t vertex_positions[4] = { nu_vec3(0, 0, 0),
+                                      nu_vec3(width, 0, 0),
+                                      nu_vec3(width, 0, height),
+                                      nu_vec3(0, 0, height) };
+    nu_vec2_t vertex_uvs[4]
+        = { nu_vec2(0, 0), nu_vec2(1, 0), nu_vec2(1, 1), nu_vec2(0, 1) };
+    nu_u32_t indices[6] = { 0, 3, 2, 2, 1, 0 };
+    for (nu_size_t i = 0; i < 6; ++i)
+    {
+        positions[i] = vertex_positions[indices[i]];
+        uvs[i]       = vertex_uvs[indices[i]];
+        normals[i]   = NU_VEC3_UP;
+    }
+}
+static void
+nu__generate_cube_mesh (float     unit,
+                        nu_vec3_t positions[NU_CUBE_VERTEX_COUNT],
+                        nu_vec2_t uvs[NU_CUBE_VERTEX_COUNT],
+                        nu_vec3_t normals[NU_CUBE_VERTEX_COUNT])
+{
     nu_vec3_t vertex_positions[8] = {
-        nu_vec3(-half_side, -half_side, half_side),
-        nu_vec3(half_side, -half_side, half_side),
-        nu_vec3(half_side, -half_side, -half_side),
-        nu_vec3(-half_side, -half_side, -half_side),
-        nu_vec3(-half_side, half_side, half_side),
-        nu_vec3(half_side, half_side, half_side),
-        nu_vec3(half_side, half_side, -half_side),
-        nu_vec3(-half_side, half_side, -half_side),
+        nu_vec3(0, 0, unit),    nu_vec3(unit, 0, unit),
+        nu_vec3(unit, 0, 0),    nu_vec3(0, 0, 0),
+        nu_vec3(0, unit, unit), nu_vec3(unit, unit, unit),
+        nu_vec3(unit, unit, 0), nu_vec3(0, unit, 0),
     };
     int faces_positions[12][3] = { // Front face
                                    { 2, 3, 7 },
@@ -41,7 +94,7 @@ nu_generate_cube_mesh (float     side_length,
                                    { 1, 0, 3 }
     };
 
-    nu_vec2_t vertex_uvs[8]
+    nu_vec2_t vertex_uvs[4]
         = { nu_vec2(0, 0), nu_vec2(1, 0), nu_vec2(1, 1), nu_vec2(0, 1) };
     int faces_uvs[12][3] = {
         // Front face
@@ -107,6 +160,109 @@ nu_generate_cube_mesh (float     side_length,
             ++index;
         }
     }
+}
+
+nu_geometry_t
+nu_geometry_create (nu_size_t capacity)
+{
+    nu_geometry_t   handle;
+    nu__geometry_t *g = nu_pool_add(&_ctx.utils.geometries, &handle.id);
+    nu_vec_init(capacity, &g->positions);
+    nu_vec_init(capacity, &g->uvs);
+    nu_vec_init(capacity, &g->normals);
+    return handle;
+}
+void
+nu_geometry_delete (nu_geometry_t geometry)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu_vec_free(&g->positions);
+    nu_vec_free(&g->uvs);
+    nu_vec_free(&g->normals);
+}
+
+void
+nu_geometry_cube (nu_geometry_t geometry, float side_length)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu_vec_resize(&g->positions, NU_CUBE_VERTEX_COUNT);
+    nu_vec_resize(&g->uvs, NU_CUBE_VERTEX_COUNT);
+    nu_vec_resize(&g->normals, NU_CUBE_VERTEX_COUNT);
+    nu__generate_cube_mesh(
+        side_length, g->positions.data, g->uvs.data, g->normals.data);
+}
+void
+nu_geometry_plane (nu_geometry_t geometry, float width, float height)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu_vec_resize(&g->positions, NU_PLANE_VERTEX_COUNT);
+    nu_vec_resize(&g->uvs, NU_PLANE_VERTEX_COUNT);
+    nu_vec_resize(&g->normals, NU_PLANE_VERTEX_COUNT);
+    nu__generate_plane_mesh(
+        width, height, g->positions.data, g->uvs.data, g->normals.data);
+}
+void
+nu_geometry_grid (nu_geometry_t geometry,
+                  nu_u32_t      width,
+                  nu_u32_t      height,
+                  float         unit,
+                  float         uv_scale)
+{
+    nu__geometry_t *g            = &_ctx.utils.geometries.data[geometry.id];
+    nu_size_t       vertex_count = width * height * 2 * 3;
+    nu_vec_resize(&g->positions, vertex_count);
+    nu_vec_resize(&g->uvs, vertex_count);
+    nu_vec_resize(&g->normals, vertex_count);
+    nu__generate_grid_mesh(width,
+                           height,
+                           unit,
+                           uv_scale,
+                           g->positions.data,
+                           g->uvs.data,
+                           g->normals.data);
+}
+void
+nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    for (nu_size_t i = 0; i < g->positions.size; ++i)
+    {
+        g->positions.data[i] = nu_mat4_mulv3(m, g->positions.data[i]);
+    }
+}
+void
+nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
+{
+    nu__geometry_t *g0 = &_ctx.utils.geometries.data[src.id];
+    nu__geometry_t *g1 = &_ctx.utils.geometries.data[dst.id];
+    nu_assert(g0 != g1);
+    nu_size_t dst_size = g1->positions.size;
+    nu_size_t src_size = g0->positions.size;
+    nu_size_t new_size = src_size + dst_size;
+    nu_vec_resize(&g1->positions, new_size);
+    nu_vec_resize(&g1->uvs, new_size);
+    nu_vec_resize(&g1->normals, new_size);
+    nu_memcpy(g1->positions.data + dst_size,
+              g0->positions.data,
+              sizeof(*g1->positions.data) * src_size);
+    nu_memcpy(g1->uvs.data + dst_size,
+              g0->uvs.data,
+              sizeof(*g1->uvs.data) * src_size);
+    nu_memcpy(g1->normals.data + dst_size,
+              g0->normals.data,
+              sizeof(*g1->normals.data) * src_size);
+}
+
+nu_mesh_t
+nu_mesh_create_geometry (nu_geometry_t geometry)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu_mesh_info_t  info;
+    info.positions = g->positions.data;
+    info.uvs       = g->uvs.data;
+    info.normals   = g->normals.data;
+    info.count     = g->positions.size;
+    return nu_mesh_create(&info);
 }
 
 #endif

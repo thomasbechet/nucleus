@@ -10,12 +10,14 @@ nu__utils_init (void)
 {
     nu_pool_init(1, &_ctx.utils.uis);
     nu_pool_init(1, &_ctx.utils.controllers);
+    nu_pool_init(1, &_ctx.utils.geometries);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__utils_free (void)
 {
     // TODO: free resources
+    nu_pool_free(&_ctx.utils.geometries);
     nu_pool_free(&_ctx.utils.uis);
     nu_pool_free(&_ctx.utils.controllers);
     return NU_ERROR_NONE;

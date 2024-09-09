@@ -579,6 +579,23 @@ nu_mat4_mul (nu_mat4_t a, nu_mat4_t b)
     }
     return m;
 }
+nu_vec4_t
+nu_mat4_mulv (nu_mat4_t m, nu_vec4_t v)
+{
+    nu_vec4_t ret;
+    ret.x = m.x1 * v.x + m.y1 * v.y + m.z1 * v.z + m.w1 * v.w;
+    ret.y = m.x2 * v.x + m.y2 * v.y + m.z2 * v.z + m.w2 * v.w;
+    ret.z = m.x3 * v.x + m.y3 * v.y + m.z3 * v.z + m.w3 * v.w;
+    ret.w = m.x4 * v.x + m.y4 * v.y + m.z4 * v.z + m.w4 * v.w;
+    return ret;
+}
+nu_vec3_t
+nu_mat4_mulv3 (nu_mat4_t a, nu_vec3_t v)
+{
+    nu_vec4_t v4 = nu_vec4(v.x, v.y, v.z, 1);
+    v4           = nu_mat4_mulv(a, v4);
+    return nu_vec3(v4.x, v4.y, v4.z);
+}
 
 nu_rect_t
 nu_rect (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)

@@ -234,6 +234,8 @@ NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
 NU_API nu_mat4_t nu_mat4_scale(float x, float y, float z);
 NU_API nu_mat4_t nu_mat4_rotate_y(float angle);
 NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
+NU_API nu_vec4_t nu_mat4_mulv(nu_mat4_t a, nu_vec4_t v);
+NU_API nu_vec3_t nu_mat4_mulv3(nu_mat4_t a, nu_vec3_t v);
 
 NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
 NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);

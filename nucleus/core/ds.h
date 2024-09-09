@@ -2,6 +2,7 @@
 #define NU_DS_H
 
 #include <nucleus/core/memory.h>
+#include <nucleus/core/math.h>
 
 #ifdef NU_CXX
 #define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
@@ -52,6 +53,22 @@
 #define nu_vec_pop(v) \
     (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
 
+#define nu_vec_resize(v, new_size)                               \
+    do                                                           \
+    {                                                            \
+        if ((v)->size != (new_size))                             \
+        {                                                        \
+            (v)->data = NU_VOID_CAST(                            \
+                (v)->data,                                       \
+                nu_realloc_a((v)->allocator,                     \
+                             (v)->data,                          \
+                             sizeof(*(v)->data) * (v)->capacity, \
+                             sizeof(*(v)->data) * (new_size)));  \
+            (v)->capacity = (new_size);                          \
+            (v)->size     = (new_size);                          \
+        }                                                        \
+    } while (0)
+
 #define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 NU_API void     *nu__vec_push(nu_allocator_t *alloc,
@@ -64,6 +81,8 @@ NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 typedef nu_vec(nu_bool_t) nu_bool_vec_t;
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 typedef nu_vec(nu_size_t) nu_size_vec_t;
+typedef nu_vec(nu_vec2_t) nu_vec2_vec_t;
+typedef nu_vec(nu_vec3_t) nu_vec3_vec_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                           Pool                               //////

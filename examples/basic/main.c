@@ -98,16 +98,31 @@ main (void)
     depth_buffer_info.size    = nu_uvec2(WIDTH, HEIGHT);
     nu_texture_t depth_buffer = nu_texture_create(&depth_buffer_info);
 
-    // Create cube
-    nu_vec3_t cube_positions[NU_CUBE_MESH_VERTEX_COUNT];
-    nu_vec2_t cube_uvs[NU_CUBE_MESH_VERTEX_COUNT];
-    nu_vec3_t cube_normals[NU_CUBE_MESH_VERTEX_COUNT];
-    nu_generate_cube_mesh(1.0f, cube_positions, cube_uvs, cube_normals);
-    nu_mesh_info_t cube_mesh_info;
-    cube_mesh_info.positions = cube_positions, cube_mesh_info.uvs = cube_uvs,
-    cube_mesh_info.normals = cube_normals,
-    cube_mesh_info.count   = NU_CUBE_MESH_VERTEX_COUNT;
-    nu_mesh_t cube_mesh    = nu_mesh_create(&cube_mesh_info);
+    // Create meshes
+    nu_mesh_t custom_mesh;
+    {
+        nu_geometry_t final = nu_geometry_create(1000);
+        nu_geometry_t sub   = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
+        for (nu_size_t i = 0; i < 10; ++i)
+        {
+            nu_geometry_cube(sub, 1);
+            nu_mat4_t transform
+                = nu_mat4_mul(nu_mat4_translate(i * 5, i * 5, i * 5),
+                              nu_mat4_scale(2 * i, 2 * i, 2 * i));
+            nu_geometry_transform(sub, transform);
+            nu_geometry_append(final, sub);
+        }
+        nu_geometry_plane(sub, 10, 10);
+        nu_geometry_append(final, sub);
+
+        nu_geometry_grid(sub, 200, 200, 1, 150);
+        nu_geometry_transform(sub, nu_mat4_translate(-100, -2, -100));
+        nu_geometry_append(final, sub);
+
+        custom_mesh = nu_mesh_create_geometry(final);
+        nu_geometry_delete(final);
+        nu_geometry_delete(sub);
+    }
 
     // Load resources
     nu_texture_t texture     = nu_asset_texture("brick");
@@ -242,12 +257,7 @@ main (void)
         nu_camera_update(camera, &camera_info);
 
         // Render loop
-        for (int i = 0; i < 40; ++i)
-        {
-            nu_mat4_t model = nu_mat4_translate(
-                nu_sin(time / 100 + i) * 4, nu_cos(time / 100 + i) * 10, i * 5);
-            nu_draw_mesh(main_pass, material, cube_mesh, model);
-        }
+        nu_draw_mesh(main_pass, material, custom_mesh, nu_mat4_identity());
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_scale(0.3, 0.3, 0.3);
