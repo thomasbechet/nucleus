@@ -30,7 +30,7 @@ nu_camera_info (void)
 {
     nu_camera_info_t info;
     info.projection = NU_PROJECTION_PERSPECTIVE;
-    info.fov        = 80;
+    info.fov        = 70;
     info.near       = 0.01;
     info.far        = 100;
     info.eye        = NU_VEC3_ZERO;
