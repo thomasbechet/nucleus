@@ -3,6 +3,7 @@
 
 #include <nucleus/core/core.h>
 
+NU_API void       nu_config_surface_size(nu_u32_t width, nu_u32_t height);
 NU_API nu_error_t nu_swap_buffers(void);
 
 typedef enum

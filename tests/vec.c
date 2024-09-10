@@ -1,6 +1,7 @@
 #define NU_STDLIB
+#define NU_NO_PLATFORM
 #define NU_IMPLEMENTATION
-#include <nucleus/core.h>
+#include <nucleus/nucleus.h>
 
 typedef struct
 {
@@ -13,15 +14,14 @@ typedef nu_vec(mystruct) mystruct_vec_t;
 int
 main (void)
 {
-    nu_allocator_t alloc;
-    nuext_allocator_create_stdlib(&alloc);
+    nu_init();
 
     mystruct_vec_t v;
-    nu_vec_init(&v, alloc, 1);
+    nu_vec_init(1, &v);
 
     for (nu_size_t i = 0; i < 100; ++i)
     {
-        (void)nu_vec_push(&v, alloc);
+        (void)nu_vec_push(&v);
         nu_vec_last(&v)->val = i;
     }
     for (nu_size_t i = 0; i < 100; ++i)

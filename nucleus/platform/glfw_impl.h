@@ -300,7 +300,8 @@ nuglfw__init (void)
     }
 
     // Set default mouse mode
-    glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    // glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(surface->win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Initialize viewport
     surface->viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
@@ -448,7 +449,7 @@ nuglfw__poll_events (void)
             nu_vec2_t mouse_motion
                 = nu_vec2_sub(_ctx.platform.input.glfw.mouse_position,
                               _ctx.platform.input.glfw.mouse_old_position);
-            mouse_motion = nu_vec2_divs(mouse_motion, 1000);
+            mouse_motion = nu_vec2_divs(mouse_motion, 200);
             if (mouse_motion.x != _ctx.platform.input.glfw.mouse_motion.x)
             {
                 float pos_x = 0;

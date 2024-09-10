@@ -7,7 +7,7 @@
 #include <nucleus/graphics/image_impl.h>
 
 static nu_error_t
-nu__graphics_init (const nu_renderer_info_t *info)
+nu__graphics_init (void)
 {
     nu_pool_init(10, &_ctx.graphics.fonts);
     nu_pool_init(10, &_ctx.graphics.images);
@@ -15,7 +15,7 @@ nu__graphics_init (const nu_renderer_info_t *info)
 
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
     renderer->null_api       = NU_FALSE;
-    switch (info->api)
+    switch (_ctx.config.graphics.api)
     {
         case NU_RENDERER_NULL:
             nu_memset(&renderer->api, 0, sizeof(renderer->api));

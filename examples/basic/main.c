@@ -1,15 +1,16 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-#define WIDTH  640
-#define HEIGHT 400
+// #define WIDTH  640
+// #define HEIGHT 400
+#define WIDTH  720
+#define HEIGHT 480
+// #define WIDTH  1920
+// #define HEIGHT 1080
 // #define HEIGHT 640
 // #define WIDTH  400
 // #define WIDTH  640 / 2
 // #define HEIGHT 400 / 2
-// #define HEIGHT 640 / 2
-// #define WIDTH  400 / 2
-
 // #define WIDTH  512
 // #define HEIGHT 288
 
@@ -28,7 +29,9 @@ static nu_model_t ariane_model;
 int
 main (void)
 {
-    nu_initialize();
+    nu_config_surface_size(WIDTH, HEIGHT);
+    nu_config_renderer_api(NU_RENDERER_GL);
+    nu_init();
 
     nuext_asset_load_filename(
         NU_ASSET_MODEL, "temple", "../../../assets/temple_of_time.glb");
@@ -112,11 +115,9 @@ main (void)
             nu_geometry_transform(sub, transform);
             nu_geometry_append(final, sub);
         }
-        nu_geometry_plane(sub, 10, 10);
-        nu_geometry_append(final, sub);
 
-        nu_geometry_grid(sub, 200, 200, 1, 150);
-        nu_geometry_transform(sub, nu_mat4_translate(-100, -2, -100));
+        nu_geometry_grid(sub, 200, 200, 1, 75);
+        nu_geometry_transform(sub, nu_mat4_translate(-100, 0, -100));
         nu_geometry_append(final, sub);
 
         custom_mesh = nu_mesh_create_geometry(final);
@@ -130,16 +131,11 @@ main (void)
 
     // Create material
     nu_material_t material;
-    nu_material_t material_gui;
     nu_material_t material_gui_repeat;
     {
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
         material                = nu_material_create(&info);
-
-        info               = nu_material_info_default(NU_MATERIAL_CANVAS);
-        info.canvas.color0 = &texture_gui;
-        material_gui       = nu_material_create(&info);
 
         info                  = nu_material_info_default(NU_MATERIAL_CANVAS);
         info.canvas.color0    = &texture_gui;
@@ -219,7 +215,6 @@ main (void)
     nu_timer_t timer;
     nu_timer_reset(&timer);
     float     delta      = 0.0f;
-    float     time       = 0;
     nu_bool_t bool_state = NU_TRUE;
 
     while (!nu_exit_requested() && running)
@@ -241,7 +236,6 @@ main (void)
 
         delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
-        time += delta;
 
         // Poll events
         nu_poll_events();
@@ -260,60 +254,25 @@ main (void)
         nu_draw_mesh(main_pass, material, custom_mesh, nu_mat4_identity());
 
         // Render custom mesh
-        nu_mat4_t transform = nu_mat4_scale(0.3, 0.3, 0.3);
+        nu_mat4_t transform = nu_mat4_identity();
         nu_draw_model(main_pass, ariane_model, transform);
 
-        transform = nu_mat4_translate(10, 0, 0);
+        transform = nu_mat4_scale(4, 4, 4);
+        transform = nu_mat4_mul(nu_mat4_translate(10, -3.97, 0), transform);
         nu_draw_model(main_pass, temple_model, transform);
-        transform = nu_mat4_translate(20, 0, 0);
-        nu_draw_model(main_pass, temple_model, transform);
-        transform = nu_mat4_translate(30, 0, 0);
-        nu_draw_model(main_pass, temple_model, transform);
-        transform = nu_mat4_translate(40, 0, 0);
-        nu_draw_model(main_pass, temple_model, transform);
-
-        // Draw GUI
-        for (nu_size_t i = 0; i < 30; ++i)
-        {
-            int x = i % 20;
-            int y = i / 20;
-            nu_draw_blit(gui_pass,
-                         material_gui,
-                         nu_rect(10 + x * 15, 30 + y * 15, 14, 14),
-                         nu_rect(81, 257, 14, 14));
-        }
-
-        nu_draw_blit(gui_pass,
-                     material_gui_repeat,
-                     nu_rect(400, 10, 105, 105),
-                     nu_rect(81, 257, 14, 14));
-
-        const nu_char_t *s
-            = "Lorem Ipsum is simply dummy text of the printing and\n"
-              "typesetting industry. Lorem Ipsum has been the industry's\n"
-              "standard dummy text ever since the 1500s, when an unknown\n"
-              "printer took a galley of type and scrambled it to make a\n"
-              "type specimen book. It has survived not only five\n"
-              "centuries, but also the leap into electronic typesetting,\n"
-              "remaining essentially unchanged. It was popularised in the\n"
-              "1960s with the release of Letraset sheets containing Lorem\n"
-              "Ipsum passages, and more recently with desktop publishing\n"
-              "software like Aldus PageMaker including versions of Lorem\n"
-              "Ipsum.";
-        nu_draw_text(gui_pass, font, s, nu_strlen(s), nu_ivec2(10, HEIGHT / 2));
 
         // GUI
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui);
-        if (nu_ui_button(ui, nu_rect(300, 100, 60, 20)))
-        {
-            nu_info("button pressed !");
-        }
-        if (nu_ui_checkbox(ui, nu_rect(300, 300, 14, 14), &bool_state))
-        {
-            nu_info("checkbox changed %d", bool_state);
-        }
+        // if (nu_ui_button(ui, nu_rect(300, 100, 60, 20)))
+        // {
+        //     nu_info("button pressed !");
+        // }
+        // if (nu_ui_checkbox(ui, nu_rect(300, 300, 14, 14), &bool_state))
+        // {
+        //     nu_info("checkbox changed %d", bool_state);
+        // }
         nu_ui_end(ui);
 
         // Print FPS
@@ -332,8 +291,10 @@ main (void)
         frame_avg /= AVG_SIZE;
 
         nu_char_t string[256];
-        nu_size_t n = snprintf(string, 256, "FPS: %d", (nu_u32_t)frame_avg);
+        nu_size_t n = nu_snprintf(string, 256, "FPS:%d", (nu_u32_t)frame_avg);
         nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 10));
+        n = nu_snprintf(string, 256, "RES:%dx%d", WIDTH, HEIGHT);
+        nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 20));
 
         // Submit renderpass
         nu_renderpass_submit_t submit;

@@ -8,7 +8,7 @@ static nu_input_t exit_input;
 int
 main (void)
 {
-    nu_initialize();
+    nu_init();
 
     // nu_input_create(&exit_input);
     // nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);

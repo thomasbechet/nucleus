@@ -7,7 +7,7 @@ typedef nu_pool(nu_u32_t) nu_u32_pool_t;
 int
 main (void)
 {
-    nu_initialize();
+    nu_init();
 
     nu_u32_pool_t pool;
     nu_pool_init(10, &pool);

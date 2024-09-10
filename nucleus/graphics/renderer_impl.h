@@ -19,6 +19,12 @@
         return;                          \
     }
 
+void
+nu_config_renderer_api (nu_renderer_api_t api)
+{
+    nu__config()->graphics.api = api;
+}
+
 nu_texture_t
 nu_surface_color_target (void)
 {

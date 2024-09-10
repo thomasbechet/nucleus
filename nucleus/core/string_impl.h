@@ -76,6 +76,17 @@ nu_strncpy (nu_char_t *dst, const nu_char_t *src, nu_size_t n)
     }
     return dst;
 }
+nu_int_t
+nu_snprintf (nu_char_t *s, nu_size_t n, const nu_char_t *format, ...)
+{
+#ifdef NU_STDLIB
+    va_list args;
+    va_start(args, format);
+    nu_int_t r = vsnprintf(s, n, format, args);
+    va_end(args);
+    return r;
+#endif
+}
 
 nu_u32_t
 nu_hash (const nu_char_t *s)

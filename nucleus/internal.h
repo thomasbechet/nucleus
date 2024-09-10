@@ -21,9 +21,23 @@
 #include <nucleus/asset/internal.h>
 #endif
 
+typedef struct
+{
+#ifdef NU_BUILD_PLATFORM
+    nu__platform_config_t platform;
+#endif
+#ifdef NU_BUILD_GRAPHICS
+    nu__graphics_config_t graphics;
+#endif
+    nu_bool_t initialized; // False by default
+} nu__config_t;
+
+static nu__config_t *nu__config(void);
+
 static struct nu__context
 {
-    nu__core_t core;
+    nu__config_t config;
+    nu__core_t   core;
 #ifdef NU_BUILD_PLATFORM
     nu__platform_t platform;
 #endif

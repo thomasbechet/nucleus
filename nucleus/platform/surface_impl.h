@@ -3,6 +3,13 @@
 
 #include <nucleus/internal.h>
 
+void
+nu_config_surface_size (nu_u32_t width, nu_u32_t height)
+{
+    nu__config_t *cfg    = nu__config();
+    cfg->platform.width  = width;
+    cfg->platform.height = height;
+}
 nu_error_t
 nu_swap_buffers (void)
 {

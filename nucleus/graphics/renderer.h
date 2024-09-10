@@ -15,12 +15,7 @@ typedef enum
     NU_RENDERER_GL,
     NU_RENDERER_DX11,
     NU_RENDERER_SOFTRAST,
-} nu_renderer_backend_t;
-
-typedef struct
-{
-    nu_renderer_backend_t api;
-} nu_renderer_info_t;
+} nu_renderer_api_t;
 
 NU_API nu_texture_t nu_surface_color_target(void);
 

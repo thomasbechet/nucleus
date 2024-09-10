@@ -189,6 +189,6 @@ typedef struct
     nu_u32_vec_t             passes_order;
 } nu__gl_t;
 
-static void nugl__setup_api(nu_renderer_api_t *api);
+static void nugl__setup_api(nu__renderer_api_t *api);
 
 #endif

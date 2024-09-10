@@ -3,28 +3,42 @@
 
 #include <nucleus/internal.h>
 
+static nu__config_t *
+nu__config (void)
+{
+    nu__config_t *cfg = &_ctx.config;
+    if (!cfg->initialized)
+    {
+#ifdef NU_BUILD_PLATFORM
+        cfg->platform.width  = 640;
+        cfg->platform.height = 400;
+#endif
+#ifdef NU_BUILD_GRAPHICS
+        cfg->graphics.api = NU_RENDERER_GL;
+#endif
+        cfg->initialized = NU_TRUE;
+    }
+    return cfg;
+}
+
 nu_error_t
-nu_initialize (void)
+nu_init (void)
 {
     nu_error_t error;
 
-    memset(&_ctx, 0, sizeof(_ctx));
+    // Ensure configuration has been initialized
+    (void)nu__config();
 
     error = nu__core_init();
     nu_error_check(error, return error);
 
 #ifdef NU_BUILD_PLATFORM
-    nu_platform_info_t pinfo;
-    pinfo.width  = 640;
-    pinfo.height = 400;
-    error        = nu__platform_init(&pinfo);
+    error = nu__platform_init();
     nu_error_check(error, return error);
 #endif
 
 #ifdef NU_BUILD_GRAPHICS
-    nu_renderer_info_t rinfo;
-    rinfo.api = NU_RENDERER_GL;
-    error     = nu__graphics_init(&rinfo);
+    error = nu__graphics_init();
     nu_error_check(error, return error);
 #endif
 

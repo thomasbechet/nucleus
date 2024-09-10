@@ -113,18 +113,23 @@ typedef struct
                       nu_material_t   material,
                       nu_rect_t       extent,
                       nu_rect_t       tex_extent);
-} nu_renderer_api_t;
+} nu__renderer_api_t;
 
 typedef struct
 {
-    nu_renderer_api_t api;
-    nu_bool_t         null_api;
-    nu_texture_t      surface_color;
+    nu__renderer_api_t api;
+    nu_bool_t          null_api;
+    nu_texture_t       surface_color;
 } nu__renderer_t;
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Module                              //////
 //////////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    nu_renderer_api_t api;
+} nu__graphics_config_t;
 
 typedef struct
 {
@@ -134,7 +139,7 @@ typedef struct
     nu__model_pool_t models;
 } nu__graphics_t;
 
-static nu_error_t nu__graphics_init(const nu_renderer_info_t *info);
+static nu_error_t nu__graphics_init(void);
 static nu_error_t nu__graphics_free(void);
 static nu_error_t nu__graphics_render(void);
 

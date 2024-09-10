@@ -180,7 +180,7 @@ nu_controller_update (nu_controller_t   controller,
     // Collision detection and resolution
     if (ctrl->mode == NU_CONTROLLER_CHARACTER)
     {
-        const float height = 1;
+        const float height = 1.75;
         if (ctrl->pos.y - height <= 0)
         {
             ctrl->pos.y     = height;

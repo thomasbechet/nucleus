@@ -29,8 +29,8 @@ void main()
 
     // Floors UVs
     uv = (uv_transform * vec3(in_uv, 1)).xy;
-    ivec2 tex_size = textureSize(texture0, 0);
-    uv = (floor(tex_size * uv) + 0.5) / tex_size;
+    // ivec2 tex_size = textureSize(texture0, 0);
+    // uv = (floor(tex_size * uv) + 0.5) / tex_size;
 
     normal = mat3(transpose(inverse(model))) * in_normal;
 }

@@ -10,16 +10,19 @@
 #endif
 
 static nu_error_t
-nu__platform_init (const nu_platform_info_t *info)
+nu__platform_init (void)
 {
     nu_error_t error;
 
     // Initialize context
     nu_pool_init(10, &_ctx.platform.input.entries);
-    _ctx.platform.surface.size    = nu_uvec2(info->width, info->height);
+    _ctx.platform.surface.size
+        = nu_uvec2(_ctx.config.platform.width, _ctx.config.platform.height);
     _ctx.platform.close_requested = NU_FALSE;
 
-    nu_info("initialize platform context (%dx%d)", info->width, info->height);
+    nu_info("initialize platform context (%dx%d)",
+            _ctx.config.platform.width,
+            _ctx.config.platform.height);
 
     // Initialize surface (and inputs)
 #ifdef NU_BUILD_GLFW

@@ -1185,7 +1185,7 @@ nugl__draw_blit (nu_renderpass_t pass,
 }
 
 static void
-nugl__setup_api (nu_renderer_api_t *api)
+nugl__setup_api (nu__renderer_api_t *api)
 {
     api->init                 = nugl__init;
     api->free                 = nugl__free;
