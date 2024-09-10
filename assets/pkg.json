@@ -1,0 +1,14 @@
+{
+    "assets": [
+        {
+            "name": "skybox",
+            "type": "cubemap",
+            "source": "skyboxes/skybox.json"
+        },
+        {
+            "name": "temple",
+            "type": "model",
+            "source": "temple_of_time.glb"
+        }
+    ]
+}
