@@ -153,5 +153,16 @@ nuext_asset_load_filename (nu_asset_type_t  type,
 
     return handle;
 }
+nu_error_t
+nuext_asset_load_package (const nu_char_t *filename)
+{
+    const nu_char_t *dir = nuext_path_dirname(filename);
+
+    nu_size_t size;
+    // nu_char_t *json = nuext_bytes_load_filename(filename, &size);
+
+    // nu_free(json);
+    return NU_ERROR_NONE;
+}
 
 #endif

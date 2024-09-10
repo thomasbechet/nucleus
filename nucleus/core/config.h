@@ -88,6 +88,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
+#include <libgen.h>
 #endif
 
 #if defined(NU_PLATFORM_WINDOWS)

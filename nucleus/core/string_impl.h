@@ -109,28 +109,49 @@ nu_hashn (const nu_char_t *s, nu_size_t n)
     return hash;
 }
 
-nu_filename_ext_t
-nu_filename_ext (const nu_char_t *filename)
+nuext_extension_t
+nuext_path_extension (const nu_char_t *filename)
 {
     const char *dot = strrchr(filename, '.');
     if (!dot || dot == filename)
     {
-        return NU_FILENAME_EXT_UNKNOWN;
+        return NUEXT_EXTENSION_UNKNOWN;
     }
     const nu_char_t *ext = dot + 1;
     if (NU_MATCH(ext, "gltf"))
     {
-        return NU_FILENAME_EXT_GLTF;
+        return NUEXT_EXTENSION_GLTF;
     }
     else if (NU_MATCH(ext, "png"))
     {
-        return NU_FILENAME_EXT_PNG;
+        return NUEXT_EXTENSION_PNG;
     }
     else if (NU_MATCH(ext, "jpeg"))
     {
-        return NU_FILENAME_EXT_JPEG;
+        return NUEXT_EXTENSION_JPEG;
     }
-    return NU_FILENAME_EXT_UNKNOWN;
+    return NUEXT_EXTENSION_UNKNOWN;
+}
+const nu_char_t *
+nuext_path_basename (const nu_char_t *path)
+{
+#ifdef NU_STDLIB
+    return basename((char *)path);
+#endif
+    return NU_NULL;
+}
+const nu_char_t *
+nuext_path_dirname (const nu_char_t *path)
+{
+#ifdef NU_STDLIB
+    return dirname((char *)path);
+#endif
+    return NU_NULL;
+}
+void
+nuext_path_concat (const nu_char_t *p1, const nu_char_t *p2, nu_char_t *path)
+{
+    nu_snprintf(path, NUEXT_PATH_MAX, "%s/%s", p1, p2);
 }
 
 #endif

@@ -516,9 +516,9 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
     {
         return NU_HANDLE_INVALID(nu_cubemap_t);
     }
-    nu_image_t   images[6];
+    nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
     nu_cubemap_t cubemap;
-    nu_array_fill(images, 6, NU_HANDLE_INVALID(nu_image_t));
+    nu_array_fill(images, NU_CUBEMAP_FACE_COUNT, NU_HANDLE_INVALID(nu_image_t));
     nu_size_t   image_count = 0;
     jsmntok_t   toks[256];
     jsmn_parser parser;
@@ -539,11 +539,12 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
                 nu_check(toks[i].type == JSMN_STRING, goto cleanup1);
                 if (nu_handle_is_invalid(images[f]))
                 {
-                    nu_char_t path[256];
+                    nu_char_t path[NUEXT_PATH_MAX];
                     nu_memset(path, 0, sizeof(path));
-                    nu_strncpy(path,
-                               json + toks[i].start,
-                               nu_min(toks[i].end - toks[i].start, 256));
+                    nu_strncpy(
+                        path,
+                        json + toks[i].start,
+                        nu_min(toks[i].end - toks[i].start, NUEXT_PATH_MAX));
                     images[f] = nuext_image_load_filename(path);
                     if (nu_handle_is_invalid(images[f]))
                     {

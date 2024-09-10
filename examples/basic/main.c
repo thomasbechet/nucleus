@@ -33,18 +33,7 @@ main (void)
     nu_config_renderer_api(NU_RENDERER_GL);
     nu_init();
 
-    nuext_asset_load_filename(
-        NU_ASSET_MODEL, "temple", "../../../assets/temple_of_time.glb");
-    nuext_asset_load_filename(
-        NU_ASSET_MODEL, "ariane", "../../../assets/ariane6.glb");
-    nuext_asset_load_filename(
-        NU_ASSET_TEXTURE, "GUI", "../../../assets/GUI.png");
-    nuext_asset_load_filename(
-        NU_ASSET_TEXTURE,
-        "brick",
-        "../../../assets/brick_building_front_lowres.png");
-    nuext_asset_load_filename(
-        NU_ASSET_CUBEMAP, "skybox", "../../../assets/skyboxes/skybox.json");
+    nuext_asset_load_package("../../../assets/pkg.json");
 
     // Configure inputs
     nu_controller_info_t cinfo;

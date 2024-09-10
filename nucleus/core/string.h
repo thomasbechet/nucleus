@@ -24,14 +24,21 @@ typedef nu_u32_t nu_uid_t;
 
 #define nu_uid(name) nu_hash(name)
 
+#define NUEXT_PATH_MAX 256
+
 typedef enum
 {
-    NU_FILENAME_EXT_GLTF,
-    NU_FILENAME_EXT_PNG,
-    NU_FILENAME_EXT_JPEG,
-    NU_FILENAME_EXT_UNKNOWN,
-} nu_filename_ext_t;
+    NUEXT_EXTENSION_GLTF,
+    NUEXT_EXTENSION_PNG,
+    NUEXT_EXTENSION_JPEG,
+    NUEXT_EXTENSION_UNKNOWN,
+} nuext_extension_t;
 
-NU_API nu_filename_ext_t nu_filename_ext(const nu_char_t *filename);
+NU_API nuext_extension_t nuext_path_extension(const nu_char_t *filename);
+NU_API const nu_char_t  *nuext_path_basename(const nu_char_t *path);
+NU_API const nu_char_t  *nuext_path_dirname(const nu_char_t *path);
+NU_API void              nuext_path_concat(const nu_char_t *p1,
+                                           const nu_char_t *p2,
+                                           nu_char_t       *path);
 
 #endif
