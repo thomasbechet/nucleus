@@ -51,9 +51,4 @@ NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
 #define nu_asset_table(name) \
     (nu_asset_data(nu_asset_find(NU_ASSET_TABLE, name)).table)
 
-NU_API nu_asset_t nuext_asset_load_filename(nu_asset_type_t  type,
-                                            const nu_char_t *name,
-                                            const nu_char_t *filename);
-NU_API nu_error_t nuext_asset_load_package(const nu_char_t *filename);
-
 #endif

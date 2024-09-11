@@ -3,7 +3,6 @@
 
 #include <nucleus/internal.h>
 #include <nucleus/graphics/graphics.h>
-#include <nucleus/importer/importer.h>
 
 static const nu_char_t *nu__asset_type_names[]
     = { "texture", "cubemap", "material", "model", "input", "table" };
@@ -115,54 +114,6 @@ nu_asset_info (nu_asset_t handle)
     nu_asset_info_t info;
     info.type = NU_ASSET_TEXTURE;
     return info;
-}
-
-nu_asset_t
-nuext_asset_load_filename (nu_asset_type_t  type,
-                           const nu_char_t *name,
-                           const nu_char_t *filename)
-{
-    nu_asset_t handle = nu_asset_add(type, name);
-    nu_handle_check(handle, return handle);
-    nu_asset_data_t *data = &_ctx.asset.entries.data[handle.id].data;
-
-    switch (type)
-    {
-        case NU_ASSET_TEXTURE: {
-            nu_image_t image = nuext_image_load_filename(filename);
-            nu_handle_check(image, return NU_HANDLE_INVALID(nu_asset_t));
-            data->texture = nu_texture_create_image(image);
-            nu_image_delete(image);
-        }
-        break;
-        case NU_ASSET_CUBEMAP: {
-            data->cubemap = nuext_cubemap_load_filename(filename);
-            nu_handle_check(data->cubemap,
-                            return NU_HANDLE_INVALID(nu_asset_t));
-        }
-        break;
-        case NU_ASSET_MATERIAL:
-        case NU_ASSET_MODEL:
-            data->model = nuext_model_load_filename(filename);
-            nu_handle_check(data->model, return NU_HANDLE_INVALID(nu_asset_t));
-            break;
-        case NU_ASSET_INPUT:
-        case NU_ASSET_TABLE:
-            break;
-    }
-
-    return handle;
-}
-nu_error_t
-nuext_asset_load_package (const nu_char_t *filename)
-{
-    const nu_char_t *dir = nuext_path_dirname(filename);
-
-    nu_size_t size;
-    // nu_char_t *json = nuext_bytes_load_filename(filename, &size);
-
-    // nu_free(json);
-    return NU_ERROR_NONE;
 }
 
 #endif
