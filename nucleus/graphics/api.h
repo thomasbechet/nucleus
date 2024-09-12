@@ -133,6 +133,7 @@ NU_API void              nu_texture_set_data(nu_texture_t     texture,
 NU_API nu_v3u_t          nu_texture_size(nu_texture_t texture);
 NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
 NU_API nu_byte_t        *nu_texture_data(nu_texture_t texture, nu_size_t layer);
+NU_API void              nu_texture_upload(nu_texture_t texture);
 NU_API nu_texture_t      nu_texture_load(nu_seria_t seria);
 NU_API void nu_texture_save(nu_texture_t texture, nu_seria_t seria);
 

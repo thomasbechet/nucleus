@@ -6,7 +6,7 @@
 #include <nucleus/importer/json_impl.h>
 #include <nucleus/importer/package_impl.h>
 #include <nucleus/importer/model_impl.h>
-#include <nucleus/importer/image_impl.h>
+#include <nucleus/importer/texture_impl.h>
 
 static void
 nu__importer_init (void)

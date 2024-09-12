@@ -184,7 +184,22 @@ nu_object_find (nu_object_type_t type, nu_uid_t uid)
         if (_ctx.core.object.uids.data[i].uid == uid)
         {
             nu_object_t obj = _ctx.core.object.uids.data[i].object;
-            return nu_object_get_type(obj) == type ? obj : NU_NULL;
+            NU_ASSERT(obj);
+            nu_object_type_t obj_type = nu_object_get_type(obj);
+            if (obj_type == type)
+            {
+                return obj;
+            }
+            else
+            {
+                NU_WARNING(
+                    "object with uid %llu was found but has wrong type (expect "
+                    "'" NU_STR_FMT "' got '" NU_STR_FMT "')",
+                    uid,
+                    nu_object_type_name(type),
+                    nu_object_type_name(obj_type));
+                return NU_NULL;
+            }
         }
     }
     return NU_NULL;

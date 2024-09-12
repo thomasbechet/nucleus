@@ -1,5 +1,5 @@
-#ifndef NU_IMPORTER_IMAGE_H
-#define NU_IMPORTER_IMAGE_H
+#ifndef NU_IMPORTER_TEXTURE_H
+#define NU_IMPORTER_TEXTURE_H
 
 #include <nucleus/internal.h>
 
@@ -42,6 +42,7 @@ nu__texture_load_file (nu_str_t filename)
     nu_v3u_t     size   = nu_v3u(w, h, 1);
     nu_texture_t handle = nu_texture_new(NU_TEXTURE_COLORMAP, size, 1);
     nu__parse_rgba(img, nu_texture_data(handle, 0), size.x * size.y, n);
+    nu_texture_upload(handle);
     stbi_image_free(img);
     return handle;
 #endif
@@ -59,6 +60,7 @@ nu__texture_load_memory (const nu_byte_t *data, nu_size_t size)
     nu_texture_t handle = nu_texture_new(NU_TEXTURE_COLORMAP, texture_size, 1);
     nu__parse_rgba(
         img, nu_texture_data(handle, 0), texture_size.x * texture_size.y, n);
+    nu_texture_upload(handle);
     stbi_image_free(img);
     return handle;
 #endif
@@ -71,7 +73,6 @@ nu__texture_load_cubemap (nu_str_t filename)
     nu_texture_t cubemap = NU_NULL;
     NU_ARRAY_FILL(textures, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
-    nu_scope_push();
     nu_size_t  json_size;
     nu_byte_t *json_buf = nu__seria_load_bytes(filename, &json_size);
     nu_str_t   json     = nu_str(json_buf, json_size);
@@ -122,13 +123,10 @@ nu__texture_load_cubemap (nu_str_t filename)
         NU_TEXTURE_CUBEMAP, nu_v3u(size.x, size.y, 1), NU_CUBEMAP_FACE_COUNT);
     for (nu_size_t i = 0; i < NU_CUBEMAP_FACE_COUNT; ++i)
     {
-        nu_memcpy(nu_texture_data(cubemap, i),
-                  nu_texture_data(textures[i], 0),
-                  4 * size.x * size.y);
+        nu_texture_set_data(cubemap, i, nu_texture_data(textures[i], 0));
     }
 
 cleanup:
-    nu_scope_pop();
     return cubemap;
 }
 

@@ -64,6 +64,7 @@ nu_font_new_default (void)
         font->glyphs[gi] = extent;
         extent = nu_b2i_translate(extent, nu_v2i(NU__FONT_DATA_WIDTH, 0));
     }
+    nu_texture_upload(font->texture);
 
     // Create material
     font->material = nu_material_new(NU_MATERIAL_CANVAS);

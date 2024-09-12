@@ -81,8 +81,11 @@ nu_texture_set_data (nu_texture_t     texture,
                      const nu_byte_t *data)
 {
     nu__texture_t *tex = (nu__texture_t *)texture;
+    nu_memcpy(nu_texture_data(texture, layer),
+              data,
+              4 * tex->size.x * tex->size.y * tex->size.z);
 #ifdef NU_BUILD_GRAPHICS_GL
-    nugl__texture_set_data(tex, layer, data);
+    nugl__texture_upload(tex, layer);
 #endif
 }
 nu_v3u_t
@@ -101,7 +104,14 @@ nu_byte_t *
 nu_texture_data (nu_texture_t texture, nu_size_t layer)
 {
     nu__texture_t *tex = (nu__texture_t *)texture;
+    NU_ASSERT(layer < tex->layer);
     return tex->data + 4 * tex->size.x * tex->size.y * tex->size.z * layer;
+}
+void
+nu_texture_upload (nu_texture_t texture)
+{
+    nu__texture_t *tex = (nu__texture_t *)texture;
+    nugl__texture_upload(tex, 0);
 }
 nu_texture_t
 nu_texture_load (nu_seria_t seria)

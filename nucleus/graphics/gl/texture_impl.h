@@ -103,11 +103,11 @@ nugl__texture_free (nu__texture_t *tex)
     glDeleteTextures(1, &tex->gl.texture);
 }
 static void
-nugl__texture_set_data (nu__texture_t   *tex,
-                        nu_size_t        layer,
-                        const nu_byte_t *data)
+nugl__texture_upload (nu__texture_t *tex, nu_size_t layer)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
+
+    void *data = nu_texture_data((nu_texture_t)tex, layer);
 
     switch (tex->type)
     {
