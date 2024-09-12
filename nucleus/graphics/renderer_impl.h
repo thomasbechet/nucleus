@@ -3,10 +3,10 @@
 
 #include <nucleus/internal.h>
 
-#define CHECK_NULL_API_HANDLE(type)      \
+#define CHECK_NULL_API_HANDLE            \
     if (_ctx.graphics.renderer.null_api) \
     {                                    \
-        return NU_HANDLE_NULL(type);     \
+        return NU_NULL;                  \
     }
 #define CHECK_NULL_API_ERROR             \
     if (_ctx.graphics.renderer.null_api) \
@@ -47,7 +47,7 @@ nu_camera_info (void)
 nu_camera_t
 nu_camera_create (const nu_camera_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_camera_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_camera(info);
 }
 nu_error_t
@@ -66,7 +66,7 @@ nu_camera_update (nu_camera_t camera, const nu_camera_info_t *info)
 nu_mesh_t
 nu_mesh_create (const nu_mesh_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_mesh_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_mesh(info);
 }
 nu_error_t
@@ -79,7 +79,7 @@ nu_mesh_delete (nu_mesh_t mesh)
 nu_texture_t
 nu_texture_create (const nu_texture_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_texture_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_texture(info);
 }
 nu_texture_t
@@ -108,7 +108,7 @@ nu_texture_delete (nu_texture_t texture)
 nu_cubemap_t
 nu_cubemap_create (const nu_cubemap_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_cubemap_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_cubemap(info);
 }
 nu_error_t
@@ -140,7 +140,7 @@ nu_material_info_default (nu_material_type_t type)
 nu_material_t
 nu_material_create (const nu_material_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_material_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_material(info);
 }
 nu_error_t
@@ -159,7 +159,7 @@ nu_material_update (nu_material_t material, const nu_material_info_t *info)
 nu_renderpass_t
 nu_renderpass_create (const nu_renderpass_info_t *info)
 {
-    CHECK_NULL_API_HANDLE(nu_renderpass_t)
+    CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_renderpass(info);
 }
 nu_error_t

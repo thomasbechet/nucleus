@@ -6,56 +6,56 @@
 nu_input_t
 nu_input_create (void)
 {
-    nu_input_t         handle;
+    nu_size_t          index;
     nu__input_entry_t *entry
-        = nu_pool_add(&_ctx.platform.input.entries, &handle.id);
+        = nu_pool_add(&_ctx.platform.input.entries, &index);
     entry->state.value    = NU_INPUT_RELEASED;
     entry->state.previous = NU_INPUT_RELEASED;
     entry->used           = NU_TRUE;
-    return handle;
+    return nu_handle_make(nu_input_t, index);
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return state->value != state->previous;
 }
 nu_bool_t
 nu_input_pressed (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_pressed (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return NU_INPUT_IS_PRESSED(state->value)
            && !NU_INPUT_IS_PRESSED(state->previous);
 }
 nu_bool_t
 nu_input_released (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return !NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_released (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return !NU_INPUT_IS_PRESSED(state->value)
            && NU_INPUT_IS_PRESSED(state->previous);
 }
 float
 nu_input_value (nu_input_t input)
 {
-    nu__input_state_t *state
-        = &_ctx.platform.input.entries.data[input.id].state;
+    nu_size_t          index = nu_handle_index(input);
+    nu__input_state_t *state = &_ctx.platform.input.entries.data[index].state;
     return state->value;
 }
 

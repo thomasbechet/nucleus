@@ -7,8 +7,8 @@ nu_cubemap_t
 nuext_cubemap_load_filename (const nu_char_t *filename)
 {
     nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
-    nu_cubemap_t cubemap = NU_HANDLE_INVALID(nu_cubemap_t);
-    nu_array_fill(images, NU_CUBEMAP_FACE_COUNT, NU_HANDLE_INVALID(nu_image_t));
+    nu_cubemap_t cubemap = NU_NULL;
+    nu_array_fill(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
     nu_size_t  json_size;
     nu_char_t *json
@@ -36,12 +36,12 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
             nu_error("invalid face path");
             goto cleanup2;
         }
-        if (nu_handle_is_invalid(images[f]))
+        if (!images[f])
         {
             nu_char_t path[NUEXT_PATH_MAX];
             nu__json_value(json, tok, path, NUEXT_PATH_MAX);
             images[f] = nuext_image_load_filename(path);
-            if (nu_handle_is_invalid(images[f]))
+            if (!images[f])
             {
                 nu_error("cubemap face loading error '%s'", path);
                 goto cleanup2;
@@ -63,7 +63,7 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
 cleanup2:
     for (nu_size_t i = 0; i < nu_array_size(images); ++i)
     {
-        if (nu_handle_is_valid(images[i]))
+        if (images[i])
         {
             nu_image_delete(images[i]);
         }

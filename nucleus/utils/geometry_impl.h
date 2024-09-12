@@ -165,17 +165,17 @@ nu__generate_cube_mesh (float     unit,
 nu_geometry_t
 nu_geometry_create (nu_size_t capacity)
 {
-    nu_geometry_t   handle;
-    nu__geometry_t *g = nu_pool_add(&_ctx.utils.geometries, &handle.id);
+    nu_size_t       index;
+    nu__geometry_t *g = nu_pool_add(&_ctx.utils.geometries, &index);
     nu_vec_init(capacity, &g->positions);
     nu_vec_init(capacity, &g->uvs);
     nu_vec_init(capacity, &g->normals);
-    return handle;
+    return nu_handle_make(nu_geometry_t, index);
 }
 void
 nu_geometry_delete (nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_vec_free(&g->positions);
     nu_vec_free(&g->uvs);
     nu_vec_free(&g->normals);
@@ -184,7 +184,7 @@ nu_geometry_delete (nu_geometry_t geometry)
 void
 nu_geometry_cube (nu_geometry_t geometry, float side_length)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_vec_resize(&g->positions, NU_CUBE_VERTEX_COUNT);
     nu_vec_resize(&g->uvs, NU_CUBE_VERTEX_COUNT);
     nu_vec_resize(&g->normals, NU_CUBE_VERTEX_COUNT);
@@ -194,7 +194,7 @@ nu_geometry_cube (nu_geometry_t geometry, float side_length)
 void
 nu_geometry_plane (nu_geometry_t geometry, float width, float height)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_vec_resize(&g->positions, NU_PLANE_VERTEX_COUNT);
     nu_vec_resize(&g->uvs, NU_PLANE_VERTEX_COUNT);
     nu_vec_resize(&g->normals, NU_PLANE_VERTEX_COUNT);
@@ -208,7 +208,7 @@ nu_geometry_grid (nu_geometry_t geometry,
                   float         unit,
                   float         uv_scale)
 {
-    nu__geometry_t *g            = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_size_t       vertex_count = width * height * 2 * 3;
     nu_vec_resize(&g->positions, vertex_count);
     nu_vec_resize(&g->uvs, vertex_count);
@@ -224,7 +224,7 @@ nu_geometry_grid (nu_geometry_t geometry,
 void
 nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     for (nu_size_t i = 0; i < g->positions.size; ++i)
     {
         g->positions.data[i] = nu_mat4_mulv3(m, g->positions.data[i]);
@@ -233,8 +233,8 @@ nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
 void
 nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
 {
-    nu__geometry_t *g0 = &_ctx.utils.geometries.data[src.id];
-    nu__geometry_t *g1 = &_ctx.utils.geometries.data[dst.id];
+    nu__geometry_t *g0 = &_ctx.utils.geometries.data[nu_handle_index(src)];
+    nu__geometry_t *g1 = &_ctx.utils.geometries.data[nu_handle_index(dst)];
     nu_assert(g0 != g1);
     nu_size_t dst_size = g1->positions.size;
     nu_size_t src_size = g0->positions.size;
@@ -256,7 +256,7 @@ nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
 nu_mesh_t
 nu_mesh_create_geometry (nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[geometry.id];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_mesh_info_t  info;
     info.positions = g->positions.data;
     info.uvs       = g->uvs.data;

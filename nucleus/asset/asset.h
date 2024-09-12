@@ -8,7 +8,7 @@ typedef struct
     nu_bool_t       used;
     nu_asset_type_t type;
     nu_u32_t        hash;
-    nu_asset_data_t data;
+    void           *data;
     nu_char_t       name[NU_ASSET_NAME_MAX];
     nu_bundle_t     bundle;
     nu_size_t       refcount;

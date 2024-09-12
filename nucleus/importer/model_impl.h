@@ -268,28 +268,28 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
     result = cgltf_parse_file(&options, filename, &data);
     if (result != cgltf_result_success)
     {
-        return NU_HANDLE_INVALID(nu_model_t);
+        return NU_NULL;
     }
     result = cgltf_load_buffers(&options, data, filename);
     if (result != cgltf_result_success)
     {
-        return NU_HANDLE_INVALID(nu_model_t);
+        return NU_NULL;
     }
 
     // Create model
     nu_model_t   handle = nu_model_create();
-    nu__model_t *m      = &_ctx.graphics.models.data[handle.id];
+    nu__model_t *m      = &_ctx.graphics.models.data[nu_handle_index(handle)];
 
     // Load resources
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i, m);
-        nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
+        nu_error_check(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i, m);
-        nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
+        nu_error_check(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -298,7 +298,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat, m);
-            nu_error_check(error, return NU_HANDLE_INVALID(nu_model_t));
+            nu_error_check(error, return NU_NULL);
         }
     }
 
@@ -375,7 +375,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
                     }
                     if (!found)
                     {
-                        return NU_HANDLE_INVALID(nu_model_t);
+                        return NU_NULL;
                     }
                 }
 
@@ -398,7 +398,7 @@ nuext_model_load_filename (const nu_char_t *filename)
 #ifdef NU_BUILD_CGLTF
     return nu__model_gltf_load(&_ctx.importer.model_gltf_loader, filename);
 #endif
-    return NU_HANDLE_INVALID(nu_model_t);
+    return NU_NULL;
 }
 
 #endif

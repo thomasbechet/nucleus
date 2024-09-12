@@ -21,37 +21,6 @@ nu__asset_free (void)
     return NU_ERROR_NONE;
 }
 
-static nu_asset_data_t
-nu__asset_data_invalid (nu_asset_type_t type)
-{
-    nu_asset_data_t data;
-    switch (type)
-    {
-        case NU_ASSET_TEXTURE:
-            data.texture = NU_HANDLE_INVALID(nu_texture_t);
-            break;
-        case NU_ASSET_CUBEMAP:
-            data.cubemap = NU_HANDLE_INVALID(nu_cubemap_t);
-            break;
-        case NU_ASSET_MATERIAL:
-            data.material = NU_HANDLE_INVALID(nu_material_t);
-            break;
-        case NU_ASSET_MODEL:
-            data.model = NU_HANDLE_INVALID(nu_model_t);
-            break;
-        case NU_ASSET_INPUT:
-            data.input = NU_HANDLE_INVALID(nu_input_t);
-            break;
-        case NU_ASSET_TABLE:
-            data.table = NU_HANDLE_INVALID(nu_table_t);
-            break;
-        case NU_ASSET_UNKNOWN:
-            data.texture = NU_HANDLE_INVALID(nu_texture_t);
-            break;
-    }
-    return data;
-}
-
 nu_asset_t
 nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
 {
@@ -60,20 +29,20 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
         nu_error("asset '%s' of type '%s' already exists",
                  name,
                  nu__asset_type_names[type]);
-        return NU_HANDLE_INVALID(nu_asset_t);
+        return NU_NULL;
     }
 
-    nu_asset_t         handle;
-    nu__asset_entry_t *entry = nu_pool_add(&_ctx.asset.entries, &handle.id);
+    nu_size_t          index;
+    nu__asset_entry_t *entry = nu_pool_add(&_ctx.asset.entries, &index);
     entry->used              = NU_TRUE;
     entry->type              = type;
     entry->hash              = nu_hash(name);
     entry->bundle            = _ctx.asset.active_bundle;
     entry->refcount          = 0;
-    entry->data              = nu__asset_data_invalid(type);
+    entry->data              = NU_NULL;
     nu_strncpy(entry->name, name, NU_ASSET_NAME_MAX);
 
-    return handle;
+    return nu_handle_make(nu_asset_t, index);
 }
 nu_asset_t
 nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
@@ -84,12 +53,12 @@ nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
         nu__asset_entry_t *entry = _ctx.asset.entries.data + i;
         if (entry->used && entry->type == type && entry->hash == hash)
         {
-            return (nu_asset_t) { .id = i };
+            return nu_handle_make(nu_asset_t, i);
         }
     }
     nu_error(
         "asset '%s' of type '%s' not found", name, nu__asset_type_names[type]);
-    return NU_HANDLE_INVALID(nu_asset_t);
+    return NU_NULL;
 }
 nu_bool_t
 nu_asset_exists (nu_asset_type_t type, const nu_char_t *name)
@@ -105,11 +74,11 @@ nu_asset_exists (nu_asset_type_t type, const nu_char_t *name)
     }
     return NU_FALSE;
 }
-nu_asset_data_t
+void *
 nu_asset_data (nu_asset_t handle)
 {
-    nu_handle_assert(handle);
-    return _ctx.asset.entries.data[handle.id].data;
+    nu_assert(handle);
+    return _ctx.asset.entries.data[nu_handle_index(handle)].data;
 }
 nu_asset_info_t
 nu_asset_info (nu_asset_t handle)

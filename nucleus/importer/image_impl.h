@@ -38,14 +38,14 @@ nu__image_load_filename (const nu_char_t *filename)
 #ifdef NU_BUILD_STBIMAGE
     int        w, h, n;
     nu_byte_t *img = stbi_load(filename, &w, &h, &n, STBI_default);
-    nu_check(img, return NU_HANDLE_INVALID(nu_image_t));
+    nu_check(img, return NU_NULL);
     nu_uvec2_t size   = nu_uvec2(w, h);
     nu_image_t handle = nu_image_create(size);
     nu__parse_colors(img, nu_image_colors(handle), size, n);
     stbi_image_free(img);
     return handle;
 #endif
-    return NU_HANDLE_INVALID(nu_image_t);
+    return NU_NULL;
 }
 static nu_image_t
 nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
@@ -54,14 +54,14 @@ nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
     int        w, h, n;
     nu_byte_t *img
         = stbi_load_from_memory(data, size, &w, &h, &n, STBI_default);
-    nu_check(img, return NU_HANDLE_INVALID(nu_image_t));
+    nu_check(img, return NU_NULL);
     nu_uvec2_t image_size = nu_uvec2(w, h);
     nu_image_t handle     = nu_image_create(image_size);
     nu__parse_colors(img, nu_image_colors(handle), image_size, n);
     stbi_image_free(img);
     return handle;
 #endif
-    return NU_HANDLE_INVALID(nu_image_t);
+    return NU_NULL;
 }
 
 nu_image_t
@@ -70,7 +70,7 @@ nuext_image_load_filename (const nu_char_t *filename)
 #ifdef NU_BUILD_STBIMAGE
     return nu__image_load_filename(filename);
 #endif
-    return NU_HANDLE_INVALID(nu_image_t);
+    return NU_NULL;
 }
 nu_image_t
 nuext_image_load_memory (const nu_byte_t *data, nu_size_t size)
@@ -78,7 +78,7 @@ nuext_image_load_memory (const nu_byte_t *data, nu_size_t size)
 #ifdef NU_BUILD_STBIMAGE
     return nu__image_load_memory(data, size);
 #endif
-    return NU_HANDLE_INVALID(nu_image_t);
+    return NU_NULL;
 }
 
 #endif

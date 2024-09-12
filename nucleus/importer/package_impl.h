@@ -9,28 +9,28 @@ nuext_import_asset (nu_asset_type_t  type,
                     const nu_char_t *filename)
 {
     nu_asset_t handle = nu_asset_add(type, name);
-    nu_handle_check(handle, return handle);
-    nu_asset_data_t *data = &_ctx.asset.entries.data[handle.id].data;
+    nu_check(handle, return handle);
+    nu__asset_entry_t *entry
+        = &_ctx.asset.entries.data[nu_handle_index(handle)];
 
     switch (type)
     {
         case NU_ASSET_TEXTURE: {
             nu_image_t image = nuext_image_load_filename(filename);
-            nu_handle_check(image, return NU_HANDLE_INVALID(nu_asset_t));
-            data->texture = nu_texture_create_image(image);
+            nu_check(image, return NU_NULL);
+            entry->data = nu_texture_create_image(image);
             nu_image_delete(image);
         }
         break;
         case NU_ASSET_CUBEMAP: {
-            data->cubemap = nuext_cubemap_load_filename(filename);
-            nu_handle_check(data->cubemap,
-                            return NU_HANDLE_INVALID(nu_asset_t));
+            entry->data = nuext_cubemap_load_filename(filename);
+            nu_check(entry->data, return NU_NULL);
         }
         break;
         case NU_ASSET_MATERIAL:
         case NU_ASSET_MODEL:
-            data->model = nuext_model_load_filename(filename);
-            nu_handle_check(data->model, return NU_HANDLE_INVALID(nu_asset_t));
+            entry->data = nuext_model_load_filename(filename);
+            nu_check(entry->data, return NU_NULL);
             break;
         case NU_ASSET_INPUT:
         case NU_ASSET_TABLE:

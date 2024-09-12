@@ -8,8 +8,8 @@ nu_font_create_default (void)
 {
     nu_error_t error;
 
-    nu_font_t   handle;
-    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &handle.id);
+    nu_size_t   index;
+    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &index);
 
     // Find min/max characters
     font->min_char             = (nu_char_t)127;
@@ -28,7 +28,7 @@ nu_font_create_default (void)
     font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
         = (nu_rect_t *)nu_alloc(sizeof(nu_rect_t) * font->glyphs_count);
-    nu_check(font->glyphs, return NU_HANDLE_INVALID(nu_font_t));
+    nu_check(font->glyphs, return NU_NULL);
 
     nu_assert(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
@@ -80,12 +80,13 @@ nu_font_create_default (void)
     // Free resources
     nu_image_delete(image);
 
-    return handle;
+    return nu_handle_make(nu_font_t, index);
 }
 void
 nu_font_delete (nu_font_t handle)
 {
-    nu__font_t *font = &_ctx.graphics.fonts.data[handle.id];
+    nu_size_t   index = nu_handle_index(handle);
+    nu__font_t *font  = &_ctx.graphics.fonts.data[index];
     nu_free(font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
     nu_texture_delete(font->texture);
     nu_material_delete(font->material);
@@ -97,7 +98,8 @@ nu_draw_text (nu_renderpass_t  pass,
               nu_size_t        n,
               nu_ivec2_t       pos)
 {
-    nu__font_t *font = &_ctx.graphics.fonts.data[handle.id];
+    nu_size_t   index = nu_handle_index(handle);
+    nu__font_t *font  = &_ctx.graphics.fonts.data[index];
     nu_rect_t   extent
         = nu_rect(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)

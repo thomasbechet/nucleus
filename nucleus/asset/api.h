@@ -19,16 +19,6 @@ typedef enum
     NU_ASSET_UNKNOWN,
 } nu_asset_type_t;
 
-typedef union
-{
-    nu_texture_t  texture;
-    nu_cubemap_t  cubemap;
-    nu_material_t material;
-    nu_model_t    model;
-    nu_input_t    input;
-    nu_table_t    table;
-} nu_asset_data_t;
-
 typedef struct
 {
     const nu_char_t *name;
@@ -39,16 +29,16 @@ typedef struct
 NU_API nu_asset_t nu_asset_add(nu_asset_type_t type, const nu_char_t *name);
 NU_API nu_asset_t nu_asset_find(nu_asset_type_t type, const nu_char_t *name);
 NU_API nu_bool_t  nu_asset_exists(nu_asset_type_t type, const nu_char_t *name);
-NU_API nu_asset_data_t nu_asset_data(nu_asset_t handle);
+NU_API void      *nu_asset_data(nu_asset_t handle);
 NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
 
 #define nu_asset_texture(name) \
-    (nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)).texture)
+    ((nu_texture_t)nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)))
 #define nu_asset_cubemap(name) \
-    (nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)).cubemap)
+    ((nu_cubemap_t)nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)))
 #define nu_asset_model(name) \
-    (nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)).model)
+    ((nu_model_t)nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)))
 #define nu_asset_table(name) \
-    (nu_asset_data(nu_asset_find(NU_ASSET_TABLE, name)).table)
+    ((nu_table_t)nu_asset_data(nu_asset_find(NU_ASSET_TABLE, name)))
 
 #endif

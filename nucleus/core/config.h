@@ -121,7 +121,7 @@
 
 typedef enum
 {
-    NU_ERROR_NONE = 0,
+    NU_ERROR_NONE = 0, // error none is required to be NULL
     NU_ERROR_ALLOCATION,
     NU_ERROR_UNSUPPORTED_API,
     NU_ERROR_BACKEND,
@@ -165,15 +165,9 @@ typedef int           nu_word_t;
         (arr)[i] = (value);              \
     }
 
-#define NU_DEFINE_HANDLE(type) \
-    typedef union              \
-    {                          \
-        nu_size_t id;          \
-    } type
-#define NU_HANDLE_INVALID(type)      ((type) { .id = (nu_size_t) - 1 })
-#define NU_HANDLE_NULL(type)         ((type) { .id = 0 })
-#define nu_handle_is_invalid(handle) ((handle).id == (nu_size_t) - 1)
-#define nu_handle_is_valid(handle)   (!nu_handle_is_invalid(handle))
+#define NU_DEFINE_HANDLE(type)      typedef struct type *type
+#define nu_handle_index(handle)     ((nu_size_t)handle - 1)
+#define nu_handle_make(type, index) ((type)(index + 1))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define nu_assert(x) assert(x)
@@ -212,9 +206,5 @@ typedef int           nu_word_t;
 #define nu_error_check(error, action) \
     _nu_check(error == NU_ERROR_NONE, action, __SOURCE__)
 #define nu_error_assert(error) nu_assert(error == NU_ERROR_NONE)
-
-#define nu_handle_check(handle, action) \
-    _nu_check(nu_handle_is_valid(handle), action, __SOURCE__)
-#define nu_handle_assert(handle) nu_assert(nu_handle_is_valid(handle))
 
 #endif
