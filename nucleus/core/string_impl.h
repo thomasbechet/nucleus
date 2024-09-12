@@ -132,21 +132,21 @@ nuext_path_extension (const nu_char_t *filename)
     }
     return NUEXT_EXTENSION_UNKNOWN;
 }
-const nu_char_t *
-nuext_path_basename (const nu_char_t *path)
+void
+nuext_path_basename (const nu_char_t *path, nu_char_t *name)
 {
+    nu_strncpy(name, path, NUEXT_PATH_MAX);
 #ifdef NU_STDLIB
-    return basename((char *)path);
+    name = basename((char *)name);
 #endif
-    return NU_NULL;
 }
-const nu_char_t *
-nuext_path_dirname (const nu_char_t *path)
+void
+nuext_path_dirname (const nu_char_t *path, nu_char_t *name)
 {
+    nu_strncpy(name, path, NUEXT_PATH_MAX);
 #ifdef NU_STDLIB
-    return dirname((char *)path);
+    name = dirname((char *)name);
 #endif
-    return NU_NULL;
 }
 void
 nuext_path_concat (const nu_char_t *p1, const nu_char_t *p2, nu_char_t *path)

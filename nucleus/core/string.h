@@ -35,10 +35,10 @@ typedef enum
 } nuext_extension_t;
 
 NU_API nuext_extension_t nuext_path_extension(const nu_char_t *filename);
-NU_API const nu_char_t  *nuext_path_basename(const nu_char_t *path);
-NU_API const nu_char_t  *nuext_path_dirname(const nu_char_t *path);
-NU_API void              nuext_path_concat(const nu_char_t *p1,
-                                           const nu_char_t *p2,
-                                           nu_char_t       *path);
+NU_API void nuext_path_basename(const nu_char_t *path, nu_char_t *name);
+NU_API void nuext_path_dirname(const nu_char_t *path, nu_char_t *name);
+NU_API void nuext_path_concat(const nu_char_t *p1,
+                              const nu_char_t *p2,
+                              nu_char_t       *path);
 
 #endif

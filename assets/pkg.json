@@ -1,29 +1,27 @@
-{
-    "assets": [
-        {
-            "name": "skybox",
-            "type": "cubemap",
-            "source": "skyboxes/skybox.json"
-        },
-        {
-            "name": "temple",
-            "type": "model",
-            "source": "temple_of_time.glb"
-        },
-        {
-            "name": "ariane",
-            "type": "model",
-            "source": "ariane6.glb"
-        },
-        {
-            "name": "GUI",
-            "type": "texture",
-            "source": "GUI.png"
-        },
-        {
-            "name": "brick",
-            "type": "texture",
-            "source": "brick_building_front_lowres.png"
-        }
-    ]
-}
+[
+    {
+        "name": "skybox",
+        "type": "cubemap",
+        "path": "skyboxes/skybox.json"
+    },
+    {
+        "name": "temple",
+        "type": "model",
+        "path": "temple_of_time.glb"
+    },
+    {
+        "name": "ariane",
+        "type": "model",
+        "path": "ariane6.glb"
+    },
+    {
+        "name": "GUI",
+        "type": "texture",
+        "path": "GUI.png"
+    },
+    {
+        "name": "brick",
+        "type": "texture",
+        "path": "brick_building_front_lowres.png"
+    }
+]

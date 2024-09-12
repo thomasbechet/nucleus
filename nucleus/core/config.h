@@ -33,28 +33,15 @@
 #undef NU_BUILD_UTILS
 #endif
 
-#if defined(NU_NO_IMPORTER)
+#if defined(NU_NO_ASSET) || !defined(NU_BUILD_UTILS)
+#undef NU_BUILD_ASSET
+#endif
+
+#if defined(NU_NO_IMPORTER) || !defined(NU_BUILD_ASSET)
 #undef NU_BUILD_IMPORTER
 #undef NU_BUILD_STBIMAGE
 #undef NU_BUILD_CGLTF
 #undef NU_BUILD_JSMN
-#endif
-
-#if defined(NU_NO_STBIMAGE) || !defined(NU_BUILD_GRAPHICS)
-#undef NU_BUILD_STBIMAGE
-#endif
-
-#if defined(NU_NO_CGLTF) || !defined(NU_BUILD_GRAPHICS)
-#undef NU_BUILD_CGLTF
-#endif
-
-#if defined(NU_NO_JSMN)
-#undef NU_BUILD_JSMN
-#undef NU_BUILD_CGLTF
-#endif
-
-#if defined(NU_NO_ASSET) || !defined(NU_BUILD_UTILS)
-#undef NU_BUILD_ASSET
 #endif
 
 //////////////////////////////////////////////////////////////////////////

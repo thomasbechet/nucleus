@@ -4,8 +4,9 @@
 #include <nucleus/internal.h>
 #include <nucleus/graphics/graphics.h>
 
-static const nu_char_t *nu__asset_type_names[]
-    = { "texture", "cubemap", "material", "model", "input", "table" };
+static const nu_char_t *nu__asset_type_names[] = {
+    "texture", "cubemap", "material", "model", "input", "table", "unknown"
+};
 
 static nu_error_t
 nu__asset_init (void)
@@ -45,6 +46,9 @@ nu__asset_data_invalid (nu_asset_type_t type)
         case NU_ASSET_TABLE:
             data.table = NU_HANDLE_INVALID(nu_table_t);
             break;
+        case NU_ASSET_UNKNOWN:
+            data.texture = NU_HANDLE_INVALID(nu_texture_t);
+            break;
     }
     return data;
 }
@@ -68,7 +72,7 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
     entry->bundle            = _ctx.asset.active_bundle;
     entry->refcount          = 0;
     entry->data              = nu__asset_data_invalid(type);
-    nu_strncpy(entry->name, name, NU_ASSET_NAME_SIZE);
+    nu_strncpy(entry->name, name, NU_ASSET_NAME_MAX);
 
     return handle;
 }

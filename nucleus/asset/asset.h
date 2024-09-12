@@ -4,7 +4,7 @@
 #include <nucleus/graphics/graphics.h>
 #include <nucleus/platform/platform.h>
 
-#define NU_ASSET_NAME_SIZE 32
+#define NU_ASSET_NAME_MAX 32
 
 NU_DEFINE_HANDLE(nu_asset_t);
 NU_DEFINE_HANDLE(nu_bundle_t);
@@ -17,6 +17,7 @@ typedef enum
     NU_ASSET_MODEL,
     NU_ASSET_INPUT,
     NU_ASSET_TABLE,
+    NU_ASSET_UNKNOWN,
 } nu_asset_type_t;
 
 typedef union

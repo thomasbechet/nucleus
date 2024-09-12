@@ -33,7 +33,7 @@ main (void)
     nu_config_renderer_api(NU_RENDERER_GL);
     nu_init();
 
-    nuext_asset_load_package("../../../assets/pkg.json");
+    nuext_import_package("../../../assets/pkg.json");
 
     // Configure inputs
     nu_controller_info_t cinfo;

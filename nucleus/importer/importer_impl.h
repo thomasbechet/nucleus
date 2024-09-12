@@ -15,41 +15,95 @@
 #include <nucleus/importer/image_impl.h>
 #include <nucleus/importer/cubemap_impl.h>
 
-static int
-nu__jsoneq (const nu_char_t *json, jsmntok_t *tok, const nu_char_t *s)
-{
-    if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start
-        && strncmp(json + tok->start, s, tok->end - tok->start) == 0)
-    {
-        return 0;
-    }
-    return -1;
-}
 static jsmntok_t *
-nu__json_load_filename (const nu_char_t *filename, nu_size_t *s)
+nu__json_parse (const nu_char_t *json,
+                nu_size_t        json_size,
+                nu_size_t       *size,
+                nu_size_t       *count)
 {
-    nu_size_t  n;
-    nu_char_t *json = (nu_char_t *)nu__bytes_load_filename(filename, &n);
-    if (!json)
-    {
-        return NU_NULL;
-    }
-    nu_size_t   size = 256;
-    jsmntok_t  *toks = (jsmntok_t *)nu_alloc(sizeof(*toks) * size);
+    nu_assert(json);
+    nu_size_t   cap  = 256;
+    jsmntok_t  *toks = (jsmntok_t *)nu_alloc(sizeof(*toks) * cap);
     jsmn_parser parser;
     jsmn_init(&parser);
-    int r = jsmn_parse(&parser, json, n, toks, size);
+    int r = jsmn_parse(&parser, json, json_size, toks, cap);
+    while (r == JSMN_ERROR_NOMEM)
+    {
+        nu_size_t old_cap = cap;
+        cap *= 2;
+        toks = (jsmntok_t *)nu_realloc(
+            toks, sizeof(*toks) * old_cap, sizeof(*toks) * cap);
+        r = jsmn_parse(&parser, json, json_size, toks, cap);
+    }
     nu_check(r >= 1, goto cleanup0);
+    *count = r;
+    *size  = sizeof(*toks) * cap;
     return toks;
 cleanup0:
-    nu_free(toks, sizeof(*toks) * size);
+    nu_free(toks, sizeof(*toks) * cap);
     return NU_NULL;
+}
+static nu_bool_t
+nu__json_eq (const nu_char_t *json, jsmntok_t *tok, const nu_char_t *s)
+{
+    return (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start
+            && strncmp(json + tok->start, s, tok->end - tok->start) == 0);
+}
+static void
+nu__json_value (const nu_char_t *json,
+                jsmntok_t       *tok,
+                nu_char_t       *s,
+                nu_size_t        n)
+{
+    nu_memset(s, 0, n);
+    nu_strncpy(s,
+               json + tok->start,
+               nu_min((nu_size_t)(tok->end - tok->start), n - 1));
+}
+static jsmntok_t *
+nu__json_skip (jsmntok_t *token)
+{
+    int pending = 1;
+    do
+    {
+        pending += token->size - 1;
+        token++;
+    } while (pending);
+    return token;
+}
+static jsmntok_t *
+nu__json_object_member (const nu_char_t *json,
+                        jsmntok_t       *object,
+                        const nu_char_t *name)
+{
+    if (!object || object->type != JSMN_OBJECT || !name)
+    {
+        return NULL;
+    }
+
+    int        members = object->size;
+    jsmntok_t *token   = object + 1;
+    while (members && !nu__json_eq(json, token, name))
+    {
+        members--;
+        token = nu__json_skip(token + 1);
+    }
+    if (!members)
+    {
+        return NULL;
+    }
+    return token + 1;
 }
 
 static nu_byte_t *
 nu__bytes_load_filename (const nu_char_t *filename, nu_size_t *size)
 {
     FILE *f = fopen(filename, "rb");
+    if (!f)
+    {
+        nu_error("failed to open file %s", filename);
+        return NU_NULL;
+    }
     fseek(f, 0, SEEK_END);
     nu_size_t fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -57,54 +111,6 @@ nu__bytes_load_filename (const nu_char_t *filename, nu_size_t *size)
     fread(bytes, fsize, 1, f);
     *size = fsize;
     return bytes;
-}
-
-nu_asset_t
-nuext_asset_load_filename (nu_asset_type_t  type,
-                           const nu_char_t *name,
-                           const nu_char_t *filename)
-{
-    nu_asset_t handle = nu_asset_add(type, name);
-    nu_handle_check(handle, return handle);
-    nu_asset_data_t *data = &_ctx.asset.entries.data[handle.id].data;
-
-    switch (type)
-    {
-        case NU_ASSET_TEXTURE: {
-            nu_image_t image = nuext_image_load_filename(filename);
-            nu_handle_check(image, return NU_HANDLE_INVALID(nu_asset_t));
-            data->texture = nu_texture_create_image(image);
-            nu_image_delete(image);
-        }
-        break;
-        case NU_ASSET_CUBEMAP: {
-            data->cubemap = nuext_cubemap_load_filename(filename);
-            nu_handle_check(data->cubemap,
-                            return NU_HANDLE_INVALID(nu_asset_t));
-        }
-        break;
-        case NU_ASSET_MATERIAL:
-        case NU_ASSET_MODEL:
-            data->model = nuext_model_load_filename(filename);
-            nu_handle_check(data->model, return NU_HANDLE_INVALID(nu_asset_t));
-            break;
-        case NU_ASSET_INPUT:
-        case NU_ASSET_TABLE:
-            break;
-    }
-
-    return handle;
-}
-nu_error_t
-nuext_asset_load_package (const nu_char_t *filename)
-{
-    const nu_char_t *dir = nuext_path_dirname(filename);
-
-    nu_size_t size;
-    // nu_char_t *json = nuext_bytes_load_filename(filename, &size);
-
-    // nu_free(json);
-    return NU_ERROR_NONE;
 }
 
 static void

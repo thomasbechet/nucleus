@@ -1,5 +1,8 @@
+extern "C"
+{
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
+}
 
 int
 main (int argc, char *argv[])
