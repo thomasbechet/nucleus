@@ -1,7 +1,7 @@
 #ifndef NU_DS_IMPL_H
 #define NU_DS_IMPL_H
 
-#include <nucleus/core/ds.h>
+#include <nucleus/internal.h>
 
 inline void *
 nu__vec_push (nu_allocator_t *alloc,

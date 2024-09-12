@@ -1,7 +1,7 @@
 #ifndef NU_MATH_IMPL_H
 #define NU_MATH_IMPL_H
 
-#include <nucleus/core/math.h>
+#include <nucleus/internal.h>
 
 #ifdef NU_STDLIB
 #include <math.h>

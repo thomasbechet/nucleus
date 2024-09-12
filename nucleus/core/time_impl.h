@@ -1,7 +1,7 @@
 #ifndef NU_TIME_IMPL_H
 #define NU_TIME_IMPL_H
 
-#include <nucleus/core/time.h>
+#include <nucleus/internal.h>
 
 #if defined(NU_PLATFORM_WINDOWS)
 

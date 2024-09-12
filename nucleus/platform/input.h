@@ -1,123 +1,85 @@
 #ifndef NU_INPUT_H
 #define NU_INPUT_H
 
-#include <nucleus/core/core.h>
+#include <nucleus/platform/api.h>
 
-#define NU_INPUT_PRESSED       1.0f
-#define NU_INPUT_RELEASED      0.0f
-#define NU_INPUT_IS_PRESSED(x) (x > 0.5f)
+#ifdef NU_BUILD_GLFW
 
-NU_DEFINE_HANDLE(nu_input_t);
+#define NUGLFW_MAX_KEY_COUNT          350 // Taken from GLFW_KEY_LAST
+#define NUGLFW_MAX_MOUSE_BUTTON_COUNT 8   // Taken from GLFW_KEY_LAST
 
-NU_API nu_input_t nu_input_create(void);
-NU_API nu_bool_t  nu_input_changed(nu_input_t input);
-NU_API nu_bool_t  nu_input_pressed(nu_input_t input);
-NU_API nu_bool_t  nu_input_just_pressed(nu_input_t input);
-NU_API nu_bool_t  nu_input_released(nu_input_t input);
-NU_API nu_bool_t  nu_input_just_released(nu_input_t input);
-NU_API float      nu_input_value(nu_input_t input);
-
-NU_API nu_vec3_t  nu_input_axis3d(nu_input_t pos_x,
-                                  nu_input_t neg_x,
-                                  nu_input_t pos_y,
-                                  nu_input_t neg_y,
-                                  nu_input_t pos_z,
-                                  nu_input_t neg_z,
-                                  nu_bool_t  normalize);
-NU_API nu_ivec2_t nu_input_cursor(nu_input_t cursor_x, nu_input_t cursor_y);
-
-typedef enum
+typedef struct
 {
-    // Keys
-    NUEXT_BUTTON_A = 0,
-    NUEXT_BUTTON_B = 1,
-    NUEXT_BUTTON_C = 2,
-    NUEXT_BUTTON_D = 3,
-    NUEXT_BUTTON_E = 4,
-    NUEXT_BUTTON_F = 5,
-    NUEXT_BUTTON_G = 6,
-    NUEXT_BUTTON_H = 7,
-    NUEXT_BUTTON_I = 8,
-    NUEXT_BUTTON_J = 9,
-    NUEXT_BUTTON_K = 10,
-    NUEXT_BUTTON_L = 11,
-    NUEXT_BUTTON_M = 12,
-    NUEXT_BUTTON_N = 13,
-    NUEXT_BUTTON_O = 14,
-    NUEXT_BUTTON_P = 15,
-    NUEXT_BUTTON_Q = 16,
-    NUEXT_BUTTON_R = 17,
-    NUEXT_BUTTON_S = 18,
-    NUEXT_BUTTON_T = 19,
-    NUEXT_BUTTON_U = 20,
-    NUEXT_BUTTON_V = 21,
-    NUEXT_BUTTON_W = 22,
-    NUEXT_BUTTON_X = 23,
-    NUEXT_BUTTON_Y = 24,
-    NUEXT_BUTTON_Z = 25,
+    float pressed;
+} nuglfw__binding_button_t;
 
-    NUEXT_BUTTON_F1  = 26,
-    NUEXT_BUTTON_F2  = 27,
-    NUEXT_BUTTON_F3  = 28,
-    NUEXT_BUTTON_F4  = 29,
-    NUEXT_BUTTON_F5  = 30,
-    NUEXT_BUTTON_F6  = 31,
-    NUEXT_BUTTON_F7  = 32,
-    NUEXT_BUTTON_F8  = 33,
-    NUEXT_BUTTON_F9  = 34,
-    NUEXT_BUTTON_F10 = 35,
-    NUEXT_BUTTON_F11 = 36,
-    NUEXT_BUTTON_F12 = 37,
-
-    NUEXT_BUTTON_0 = 38,
-    NUEXT_BUTTON_1 = 39,
-    NUEXT_BUTTON_2 = 40,
-    NUEXT_BUTTON_3 = 41,
-    NUEXT_BUTTON_4 = 42,
-    NUEXT_BUTTON_5 = 43,
-    NUEXT_BUTTON_6 = 44,
-    NUEXT_BUTTON_7 = 45,
-    NUEXT_BUTTON_8 = 46,
-    NUEXT_BUTTON_9 = 47,
-
-    NUEXT_BUTTON_ESCAPE       = 48,
-    NUEXT_BUTTON_SPACE        = 49,
-    NUEXT_BUTTON_ENTER        = 50,
-    NUEXT_BUTTON_TAB          = 51,
-    NUEXT_BUTTON_BACKSPACE    = 52,
-    NUEXT_BUTTON_LEFT_SHIFT   = 53,
-    NUEXT_BUTTON_LEFT_CONTROL = 54,
-    NUEXT_BUTTON_LEFT         = 55,
-    NUEXT_BUTTON_RIGHT        = 56,
-    NUEXT_BUTTON_UP           = 57,
-    NUEXT_BUTTON_DOWN         = 58,
-
-    // EXT Mouse
-    NUEXT_BUTTON_MOUSE_LEFT   = 59,
-    NUEXT_BUTTON_MOUSE_RIGHT  = 60,
-    NUEXT_BUTTON_MOUSE_MIDDLE = 61,
-    NUEXT_BUTTON_MOUSE_1      = 62,
-    NUEXT_BUTTON_MOUSE_2      = 63,
-    NUEXT_BUTTON_MOUSE_3      = 64,
-    NUEXT_BUTTON_MOUSE_4      = 65,
-    NUEXT_BUTTON_MOUSE_5      = 66,
-} nuext_button_t;
-
-typedef enum
+typedef struct
 {
-    NUEXT_AXIS_MOUSE_X,
-    NUEXT_AXIS_MOUSE_Y,
-    NUEXT_AXIS_MOUSE_MOTION_X_POS,
-    NUEXT_AXIS_MOUSE_MOTION_X_NEG,
-    NUEXT_AXIS_MOUSE_MOTION_Y_POS,
-    NUEXT_AXIS_MOUSE_MOTION_Y_NEG,
-} nuext_axis_t;
+    float scale;
+} nuglfw__binding_axis_t;
 
-NU_API nu_error_t nuext_input_bind_button(nu_input_t     input,
-                                          nuext_button_t button);
-NU_API nu_error_t nuext_input_bind_button_value(nu_input_t     input,
-                                                nuext_button_t button,
-                                                float          value);
-NU_API nu_error_t nuext_input_bind_axis(nu_input_t input, nuext_axis_t axis);
+typedef struct
+{
+    nu_u32_t input_index;
+    nu_u32_t next;
+    union
+    {
+        nuglfw__binding_button_t button;
+        nuglfw__binding_axis_t   axis;
+    };
+} nuglfw__binding_t;
+
+typedef nu_pool(nuglfw__binding_t) nuglfw__binding_pool_t;
+
+typedef struct
+{
+    nuglfw__binding_pool_t bindings;
+    nu_u32_t               key_to_first_binding[NUGLFW_MAX_KEY_COUNT];
+    nu_u32_t  mouse_button_to_first_binding[NUGLFW_MAX_MOUSE_BUTTON_COUNT];
+    nu_u32_t  mouse_x_first_binding;
+    nu_u32_t  mouse_y_first_binding;
+    nu_u32_t  mouse_motion_x_pos_first_binding;
+    nu_u32_t  mouse_motion_x_neg_first_binding;
+    nu_u32_t  mouse_motion_y_pos_first_binding;
+    nu_u32_t  mouse_motion_y_neg_first_binding;
+    nu_vec2_t mouse_position;
+    nu_vec2_t mouse_old_position;
+    nu_vec2_t mouse_scroll;
+    nu_vec2_t mouse_motion;
+} nuglfw__input_t;
+
+static nu_error_t nuglfw__init(void);
+static nu_error_t nuglfw__free(void);
+static nu_error_t nuglfw__poll_events(void);
+static nu_error_t nuglfw__swap_buffers(void);
+static nu_error_t nuglfw__bind_button(nu_input_t input, nuext_button_t button);
+static nu_error_t nuglfw__bind_button_value(nu_input_t     input,
+                                            nuext_button_t button,
+                                            float          pressed_value);
+static nu_error_t nuglfw__bind_axis(nu_input_t input, nuext_axis_t axis);
+
+#endif
+
+typedef struct
+{
+    float value;
+    float previous;
+} nu__input_state_t;
+
+typedef struct
+{
+    nu__input_state_t state;
+    nu_bool_t         used;
+} nu__input_entry_t;
+
+typedef nu_pool(nu__input_entry_t) nu__input_pool_t;
+
+typedef struct
+{
+#ifdef NU_BUILD_GLFW
+    nuglfw__input_t glfw;
+#endif
+    nu__input_pool_t entries;
+} nu__input_t;
 
 #endif

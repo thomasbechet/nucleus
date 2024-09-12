@@ -1,24 +1,21 @@
 #ifndef NU_NUCLEUS_H
 #define NU_NUCLEUS_H
 
-#include <nucleus/core/core.h>
+#include <nucleus/core/api.h>
 #ifdef NU_BUILD_PLATFORM
-#include <nucleus/platform/platform.h>
+#include <nucleus/platform/api.h>
 #endif
 #ifdef NU_BUILD_GRAPHICS
-#include <nucleus/graphics/graphics.h>
-#endif
-#ifdef NU_BUILD_GL
-#include <nucleus/gl/gl.h>
+#include <nucleus/graphics/api.h>
 #endif
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils.h>
 #endif
-#ifdef NU_BUILD_IMPORTER
-#include <nucleus/importer/importer.h>
-#endif
 #ifdef NU_BUILD_ASSET
-#include <nucleus/asset/asset.h>
+#include <nucleus/asset/api.h>
+#endif
+#ifdef NU_BUILD_IMPORTER
+#include <nucleus/importer/api.h>
 #endif
 
 #ifdef NU_IMPLEMENTATION
@@ -36,11 +33,11 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils_impl.h>
 #endif
-#ifdef NU_BUILD_IMPORTER
-#include <nucleus/importer/importer_impl.h>
-#endif
 #ifdef NU_BUILD_ASSET
 #include <nucleus/asset/asset_impl.h>
+#endif
+#ifdef NU_BUILD_IMPORTER
+#include <nucleus/importer/importer_impl.h>
 #endif
 
 #endif

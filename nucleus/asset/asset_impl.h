@@ -2,7 +2,6 @@
 #define NU_ASSET_IMPL_H
 
 #include <nucleus/internal.h>
-#include <nucleus/graphics/graphics.h>
 
 static const nu_char_t *nu__asset_type_names[] = {
     "texture", "cubemap", "material", "model", "input", "table", "unknown"

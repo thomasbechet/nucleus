@@ -1,8 +1,7 @@
 #ifndef NU_COLOR_IMPL_H
 #define NU_COLOR_IMPL_H
 
-#include <nucleus/core/color.h>
-#include <nucleus/core/math.h>
+#include <nucleus/internal.h>
 
 nu_color_t
 nu_color (nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a)

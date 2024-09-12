@@ -1,7 +1,7 @@
 #ifndef NU_STRING_IMPL_H
 #define NU_STRING_IMPL_H
 
-#include <nucleus/core/string.h>
+#include <nucleus/internal.h>
 
 nu_size_t
 nu_strnlen (const nu_char_t *str, nu_size_t maxlen)

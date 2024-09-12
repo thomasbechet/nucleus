@@ -1,24 +1,24 @@
 #ifndef NU_INTERNAL_H
 #define NU_INTERNAL_H
 
-#include <nucleus/core/internal.h>
+#include <nucleus/core/core.h>
 #ifdef NU_BUILD_PLATFORM
-#include <nucleus/platform/internal.h>
+#include <nucleus/platform/platform.h>
 #endif
 #ifdef NU_BUILD_GRAPHICS
-#include <nucleus/graphics/internal.h>
+#include <nucleus/graphics/graphics.h>
 #endif
 #ifdef NU_BUILD_GL
-#include <nucleus/gl/internal.h>
+#include <nucleus/gl/gl.h>
 #endif
 #ifdef NU_BUILD_UTILS
-#include <nucleus/utils/internal.h>
-#endif
-#ifdef NU_BUILD_IMPORTER
-#include <nucleus/importer/internal.h>
+#include <nucleus/utils/utils.h>
 #endif
 #ifdef NU_BUILD_ASSET
-#include <nucleus/asset/internal.h>
+#include <nucleus/asset/asset.h>
+#endif
+#ifdef NU_BUILD_IMPORTER
+#include <nucleus/importer/importer.h>
 #endif
 
 typedef struct
@@ -50,11 +50,11 @@ static struct nu__context
 #ifdef NU_BUILD_UTILS
     nu__utils_t utils;
 #endif
-#ifdef NU_BUILD_IMPORTER
-    nu__importer_t importer;
-#endif
 #ifdef NU_BUILD_ASSET
     nu__asset_t asset;
+#endif
+#ifdef NU_BUILD_IMPORTER
+    nu__importer_t importer;
 #endif
 } _ctx;
 
