@@ -594,37 +594,40 @@ nugl__delete_mesh (nu_mesh_t mesh)
     return NU_ERROR_NONE;
 }
 static nu_texture_t
-nugl__create_texture (const nu_texture_info_t *info)
+nugl__create_texture (nu_uvec2_t          size,
+                      nu_texture_format_t format,
+                      nu_texture_usage_t  usage,
+                      const nu_color_t   *colors)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     nugl__texture_t *ptex = nu_vec_push(&gl->textures);
     nu_texture_t handle   = nu_handle_make(nu_texture_t, gl->textures.size - 1);
 
-    ptex->size = info->size;
+    ptex->size = size;
 
     glGenTextures(1, &ptex->texture);
     glBindTexture(GL_TEXTURE_2D, ptex->texture);
 
-    switch (info->format)
+    switch (format)
     {
         case NU_TEXTURE_FORMAT_COLOR:
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          GL_RGBA,
-                         info->size.x,
-                         info->size.y,
+                         size.x,
+                         size.y,
                          0,
                          GL_RGBA,
                          GL_UNSIGNED_BYTE,
-                         info->colors);
+                         colors);
             break;
         case NU_TEXTURE_FORMAT_DEPTH:
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          GL_DEPTH24_STENCIL8,
-                         info->size.x,
-                         info->size.y,
+                         size.x,
+                         size.y,
                          0,
                          GL_DEPTH_STENCIL,
                          GL_UNSIGNED_INT_24_8,

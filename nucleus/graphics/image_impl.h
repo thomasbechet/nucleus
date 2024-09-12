@@ -28,15 +28,5 @@ nu_image_size (nu_image_t image)
 {
     return _ctx.graphics.images.data[nu_handle_index(image)].size;
 }
-nu_texture_info_t
-nu_image_texture_info (nu_image_t image)
-{
-    nu_texture_info_t info;
-    info.size   = nu_image_size(image);
-    info.colors = nu_image_colors(image);
-    info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-    info.format = NU_TEXTURE_FORMAT_COLOR;
-    return info;
-}
 
 #endif

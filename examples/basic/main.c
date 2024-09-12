@@ -84,11 +84,10 @@ main (void)
     nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_info_t depth_buffer_info;
-    depth_buffer_info.usage   = NU_TEXTURE_USAGE_TARGET;
-    depth_buffer_info.format  = NU_TEXTURE_FORMAT_DEPTH;
-    depth_buffer_info.size    = nu_uvec2(WIDTH, HEIGHT);
-    nu_texture_t depth_buffer = nu_texture_create(&depth_buffer_info);
+    nu_texture_t depth_buffer = nu_texture_create(nu_uvec2(WIDTH, HEIGHT),
+                                                  NU_TEXTURE_FORMAT_DEPTH,
+                                                  NU_TEXTURE_USAGE_TARGET,
+                                                  NU_NULL);
 
     // Create meshes
     nu_mesh_t custom_mesh;

@@ -77,26 +77,31 @@ nu_mesh_delete (nu_mesh_t mesh)
 }
 
 nu_texture_t
-nu_texture_create (const nu_texture_info_t *info)
+nu_texture_create (nu_uvec2_t          size,
+                   nu_texture_format_t format,
+                   nu_texture_usage_t  usage,
+                   const nu_color_t   *colors)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.create_texture(info);
+    return _ctx.graphics.renderer.api.create_texture(
+        size, format, usage, colors);
 }
 nu_texture_t
 nu_texture_create_color (nu_color_t color)
 {
-    nu_texture_info_t info;
-    info.size   = nu_uvec2(1, 1);
-    info.usage  = NU_TEXTURE_USAGE_SAMPLE;
-    info.format = NU_TEXTURE_FORMAT_COLOR;
-    info.colors = &color;
-    return nu_texture_create(&info);
+    return nu_texture_create(nu_uvec2(1, 1),
+                             NU_TEXTURE_FORMAT_COLOR,
+                             NU_TEXTURE_USAGE_SAMPLE,
+                             &color);
 }
 nu_texture_t
 nu_texture_create_image (nu_image_t image)
 {
-    nu_texture_info_t info = nu_image_texture_info(image);
-    return nu_texture_create(&info);
+    nu__image_t *ima = &_ctx.graphics.images.data[nu_handle_index(image)];
+    return nu_texture_create(ima->size,
+                             NU_TEXTURE_FORMAT_COLOR,
+                             NU_TEXTURE_USAGE_SAMPLE,
+                             ima->colors);
 }
 nu_error_t
 nu_texture_delete (nu_texture_t texture)

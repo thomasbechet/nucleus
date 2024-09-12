@@ -21,7 +21,10 @@ typedef struct
     nu_mesh_t (*create_mesh)(const nu_mesh_info_t *info);
     nu_error_t (*delete_mesh)(nu_mesh_t mesh);
 
-    nu_texture_t (*create_texture)(const nu_texture_info_t *info);
+    nu_texture_t (*create_texture)(nu_uvec2_t          size,
+                                   nu_texture_format_t format,
+                                   nu_texture_usage_t  usage,
+                                   const nu_color_t   *colors);
     nu_error_t (*delete_texture)(nu_texture_t texture);
 
     nu_cubemap_t (*create_cubemap)(const nu_cubemap_info_t *info);

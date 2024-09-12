@@ -15,6 +15,7 @@ static nu_input_t      exit_input;
 int
 main (void)
 {
+    nu_config_surface_size(WIDTH, HEIGHT);
     nu_init();
 
     // Renderpass
@@ -29,6 +30,7 @@ main (void)
     {
         nu_geometry_t g = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
         nu_geometry_cube(g, 1);
+        nu_geometry_transform(g, nu_mat4_translate(-0.5, -0.5, -0.5));
         mesh = nu_mesh_create_geometry(g);
         nu_geometry_delete(g);
     }
@@ -55,13 +57,10 @@ main (void)
     }
 
     // Depth buffer
-    {
-        nu_texture_info_t info;
-        info.size    = nu_uvec2(WIDTH, HEIGHT);
-        info.usage   = NU_TEXTURE_USAGE_TARGET;
-        info.format  = NU_TEXTURE_FORMAT_DEPTH;
-        depth_buffer = nu_texture_create(&info);
-    }
+    depth_buffer = nu_texture_create(nu_uvec2(WIDTH, HEIGHT),
+                                     NU_TEXTURE_FORMAT_DEPTH,
+                                     NU_TEXTURE_USAGE_TARGET,
+                                     NU_NULL);
 
     // Exit input
     exit_input = nu_input_create();
