@@ -13,10 +13,10 @@ typedef struct
     nu_texture_t (*create_surface_color)(nu_uvec2_t size);
 
     // Resources API
-    nu_camera_t (*create_camera)(const nu_camera_info_t *info);
-    nu_error_t (*delete_camera)(nu_camera_t camera);
-    nu_error_t (*update_camera)(nu_camera_t             camera,
-                                const nu_camera_info_t *info);
+    nu_camera_t (*create_camera)(void);
+    void (*delete_camera)(nu_camera_t camera);
+    void (*update_camera_view)(nu_camera_t camera, nu_mat4_t view);
+    void (*update_camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
     nu_mesh_t (*create_mesh)(const nu_mesh_info_t *info);
     nu_error_t (*delete_mesh)(nu_mesh_t mesh);

@@ -142,8 +142,7 @@ main (void)
     nu_font_t font = nu_font_create_default();
 
     // Create camera
-    nu_camera_info_t camera_info = nu_camera_info();
-    nu_camera_t      camera      = nu_camera_create(&camera_info);
+    nu_camera_t camera = nu_camera_create();
 
     // Create renderpasses
     nu_renderpass_info_t main_pass_info;
@@ -235,8 +234,7 @@ main (void)
         }
 
         // Update camera controller
-        nu_controller_update(controller, delta, &camera_info);
-        nu_camera_update(camera, &camera_info);
+        nu_controller_update(controller, delta, camera);
 
         // Render loop
         nu_draw_mesh(main_pass, material, custom_mesh, nu_mat4_identity());

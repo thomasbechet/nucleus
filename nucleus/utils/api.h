@@ -122,9 +122,9 @@ NU_DEFINE_HANDLE(nu_controller_t);
 
 NU_API nu_controller_t nu_controller_create(const nu_controller_info_t *info);
 NU_API void            nu_controller_delete(nu_controller_t controller);
-NU_API void            nu_controller_update(nu_controller_t   controller,
-                                            float             dt,
-                                            nu_camera_info_t *info);
+NU_API void            nu_controller_update(nu_controller_t controller,
+                                            float           dt,
+                                            nu_camera_t     camera);
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Geometry                              //////

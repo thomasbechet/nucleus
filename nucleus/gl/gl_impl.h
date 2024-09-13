@@ -472,42 +472,35 @@ nugl__create_surface_color (nu_uvec2_t size)
     return nu_handle_make(nu_texture_t, (nu_size_t)gl->surface_color_index);
 }
 
-static nu_error_t
-nugl__update_camera (nu_camera_t camera, const nu_camera_info_t *info)
-{
-    nu__gl_t *gl = &_ctx.gl;
-
-    nugl__texture_t *surface_color
-        = gl->textures.data + gl->surface_color_index;
-
-    nugl__camera_t *pcam = gl->cameras.data + nu_handle_index(camera);
-    nu_mat4_t       view = nu_lookat(info->eye, info->center, info->up);
-    float aspect = (float)surface_color->size.x / (float)surface_color->size.y;
-    nu_mat4_t projection
-        = nu_perspective(nu_radian(info->fov), aspect, info->near, info->far);
-
-    pcam->view       = view;
-    pcam->projection = projection;
-    pcam->vp         = nu_mat4_mul(projection, view);
-
-    return NU_ERROR_NONE;
-}
 static nu_camera_t
-nugl__create_camera (const nu_camera_info_t *info)
+nugl__create_camera (void)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     (void)nu_vec_push(&gl->cameras);
-    nu_camera_t handle = nu_handle_make(nu_camera_t, gl->cameras.size - 1);
-
-    nu_error_t error = nugl__update_camera(handle, info);
-    nu_error_check(error, return NU_NULL);
-    return handle;
+    return nu_handle_make(nu_camera_t, gl->cameras.size - 1);
 }
-static nu_error_t
+static void
 nugl__delete_camera (nu_camera_t camera)
 {
-    return NU_ERROR_NONE;
+}
+static void
+nugl__update_camera_projection (nu_camera_t camera, nu_mat4_t proj)
+{
+    nu__gl_t       *gl   = &_ctx.gl;
+    nugl__camera_t *pcam = gl->cameras.data + nu_handle_index(camera);
+
+    pcam->projection = proj;
+    pcam->vp         = nu_mat4_mul(proj, pcam->view);
+}
+static void
+nugl__update_camera_view (nu_camera_t camera, nu_mat4_t view)
+{
+    nu__gl_t       *gl   = &_ctx.gl;
+    nugl__camera_t *pcam = gl->cameras.data + nu_handle_index(camera);
+
+    pcam->view = view;
+    pcam->vp   = nu_mat4_mul(pcam->projection, view);
 }
 static nu_mesh_t
 nugl__create_mesh (const nu_mesh_info_t *info)
@@ -1195,20 +1188,21 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->render               = nugl__render;
     api->create_surface_color = nugl__create_surface_color;
 
-    api->create_camera     = nugl__create_camera;
-    api->delete_camera     = nugl__delete_camera;
-    api->update_camera     = nugl__update_camera;
-    api->create_mesh       = nugl__create_mesh;
-    api->delete_mesh       = nugl__delete_mesh;
-    api->create_texture    = nugl__create_texture;
-    api->delete_texture    = nugl__delete_texture;
-    api->create_cubemap    = nugl__create_cubemap;
-    api->delete_cubemap    = nugl__delete_cubemap;
-    api->create_material   = nugl__create_material;
-    api->delete_material   = nugl__delete_material;
-    api->update_material   = nugl__update_material;
-    api->create_renderpass = nugl__create_renderpass;
-    api->delete_renderpass = nugl__delete_renderpass;
+    api->create_camera      = nugl__create_camera;
+    api->delete_camera      = nugl__delete_camera;
+    api->update_camera_view = nugl__update_camera_view;
+    api->update_camera_proj = nugl__update_camera_projection;
+    api->create_mesh        = nugl__create_mesh;
+    api->delete_mesh        = nugl__delete_mesh;
+    api->create_texture     = nugl__create_texture;
+    api->delete_texture     = nugl__delete_texture;
+    api->create_cubemap     = nugl__create_cubemap;
+    api->delete_cubemap     = nugl__delete_cubemap;
+    api->create_material    = nugl__create_material;
+    api->delete_material    = nugl__delete_material;
+    api->update_material    = nugl__update_material;
+    api->create_renderpass  = nugl__create_renderpass;
+    api->delete_renderpass  = nugl__delete_renderpass;
 
     api->submit_renderpass = nugl__submit_renderpass;
     api->reset_renderpass  = nugl__reset_renderpass;

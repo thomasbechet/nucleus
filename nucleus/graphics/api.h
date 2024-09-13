@@ -18,30 +18,19 @@ NU_API nu_uvec2_t  nu_image_size(nu_image_t image);
 //////                           Camera                             //////
 //////////////////////////////////////////////////////////////////////////
 
-typedef enum
-{
-    NU_PROJECTION_PERSPECTIVE,
-    NU_PROJECTION_ORTHOGRAPHIC,
-} nu_projection_t;
-
-typedef struct
-{
-    nu_projection_t projection;
-    float           fov;
-    float           near;
-    float           far;
-    nu_vec3_t       up;
-    nu_vec3_t       center;
-    nu_vec3_t       eye;
-} nu_camera_info_t;
-
 NU_DEFINE_HANDLE(nu_camera_t);
 
-NU_API nu_camera_info_t nu_camera_info(void);
-NU_API nu_camera_t      nu_camera_create(const nu_camera_info_t *info);
-NU_API nu_error_t       nu_camera_delete(nu_camera_t camera);
-NU_API nu_error_t       nu_camera_update(nu_camera_t             camera,
-                                         const nu_camera_info_t *info);
+NU_API nu_camera_t nu_camera_create(void);
+NU_API void        nu_camera_delete(nu_camera_t camera);
+NU_API void        nu_camera_view(nu_camera_t camera,
+                                  nu_vec3_t   up,
+                                  nu_vec3_t   center,
+                                  nu_vec3_t   eye);
+NU_API void        nu_camera_perspective(nu_camera_t camera,
+                                         float       fov,
+                                         float       near,
+                                         float       far);
+NU_API void        nu_camera_ortho(nu_camera_t camera);
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Texture                             //////

@@ -28,9 +28,7 @@ nu_controller_create (const nu_controller_info_t *info)
     return nu_handle_make(nu_controller_t, index);
 }
 void
-nu_controller_update (nu_controller_t   controller,
-                      float             dt,
-                      nu_camera_info_t *info)
+nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 {
     nu__camera_controller_t *ctrl
         = &_ctx.utils.controllers.data[nu_handle_index(controller)];
@@ -191,10 +189,9 @@ nu_controller_update (nu_controller_t   controller,
 
     nu_vec3_t forward = nu_quat_mulv3(ctrl->rot, NU_VEC3_FORWARD);
     nu_vec3_t up      = nu_vec3_normalize(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP));
-    info->eye         = ctrl->pos;
-    info->up          = up;
-    info->center      = nu_vec3_add(ctrl->pos, forward);
-    info->fov         = ctrl->fov;
+
+    nu_camera_perspective(camera, ctrl->fov, 0.01, 100);
+    nu_camera_view(camera, up, nu_vec3_add(ctrl->pos, forward), ctrl->pos);
 }
 
 #endif

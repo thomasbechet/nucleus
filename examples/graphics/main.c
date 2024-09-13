@@ -48,13 +48,9 @@ main (void)
     }
 
     // Camera
-    {
-        nu_camera_info_t info = nu_camera_info();
-        info.fov              = 60;
-        info.eye              = nu_vec3(2, 1, 2);
-        info.center           = NU_VEC3_ZERO;
-        camera                = nu_camera_create(&info);
-    }
+    camera = nu_camera_create();
+    nu_camera_perspective(camera, 60, 0.01, 100);
+    nu_camera_view(camera, NU_VEC3_UP, NU_VEC3_ZERO, nu_vec3(2, 1, 2));
 
     // Depth buffer
     depth_buffer = nu_texture_create(nu_uvec2(WIDTH, HEIGHT),

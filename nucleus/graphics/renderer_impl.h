@@ -31,36 +31,44 @@ nu_surface_color_target (void)
     return _ctx.graphics.renderer.surface_color;
 }
 
-nu_camera_info_t
-nu_camera_info (void)
-{
-    nu_camera_info_t info;
-    info.projection = NU_PROJECTION_PERSPECTIVE;
-    info.fov        = 70;
-    info.near       = 0.01;
-    info.far        = 100;
-    info.eye        = NU_VEC3_ZERO;
-    info.center     = NU_VEC3_FORWARD;
-    info.up         = NU_VEC3_UP;
-    return info;
-}
 nu_camera_t
-nu_camera_create (const nu_camera_info_t *info)
+nu_camera_create (void)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.create_camera(info);
+    nu_camera_t handle = _ctx.graphics.renderer.api.create_camera();
+    nu_check(handle, return handle);
+    nu_camera_view(handle, NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZERO);
+    nu_camera_perspective(handle, 70, 0.01, 100);
+    return handle;
 }
-nu_error_t
+void
 nu_camera_delete (nu_camera_t camera)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_camera(camera);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_camera(camera);
 }
-nu_error_t
-nu_camera_update (nu_camera_t camera, const nu_camera_info_t *info)
+void
+nu_camera_view (nu_camera_t camera,
+                nu_vec3_t   up,
+                nu_vec3_t   center,
+                nu_vec3_t   eye)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.update_camera(camera, info);
+    CHECK_NULL_API_VOID
+    nu_mat4_t view = nu_lookat(eye, center, up);
+    _ctx.graphics.renderer.api.update_camera_view(camera, view);
+}
+void
+nu_camera_perspective (nu_camera_t camera, float fov, float near, float far)
+{
+    CHECK_NULL_API_VOID
+    float aspect = (float)_ctx.platform.surface.size.x
+                   / (float)_ctx.platform.surface.size.y;
+    nu_mat4_t projection = nu_perspective(nu_radian(fov), aspect, near, far);
+    _ctx.graphics.renderer.api.update_camera_proj(camera, projection);
+}
+void
+nu_camera_ortho (nu_camera_t camera)
+{
 }
 
 nu_mesh_t
