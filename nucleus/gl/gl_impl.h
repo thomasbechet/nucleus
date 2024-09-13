@@ -503,16 +503,14 @@ nugl__update_camera_view (nu_camera_t camera, nu_mat4_t view)
     pcam->vp   = nu_mat4_mul(pcam->projection, view);
 }
 static nu_mesh_t
-nugl__create_mesh (const nu_mesh_info_t *info)
+nugl__create_mesh (nu_size_t count)
 {
-    nu_assert(info->positions);
-
     nu__gl_t *gl = &_ctx.gl;
 
     nugl__mesh_t *pmesh  = nu_vec_push(&gl->meshes);
     nu_mesh_t     handle = nu_handle_make(nu_mesh_t, gl->meshes.size - 1);
 
-    pmesh->vertex_count = info->count;
+    pmesh->vertex_count = count;
 
     // Create VAO
     glGenVertexArrays(1, &pmesh->vao);
@@ -524,29 +522,9 @@ nugl__create_mesh (const nu_mesh_info_t *info)
 
     // Format vertices
     glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(float) * info->count * NUGL__VERTEX_SIZE,
+                 sizeof(float) * count * NUGL__VERTEX_SIZE,
                  NU_NULL,
                  GL_STATIC_DRAW);
-    float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    nu_assert(ptr);
-    for (nu_size_t i = 0; i < info->count; ++i)
-    {
-        ptr[i * NUGL__VERTEX_SIZE + 0] = info->positions[i].x;
-        ptr[i * NUGL__VERTEX_SIZE + 1] = info->positions[i].y;
-        ptr[i * NUGL__VERTEX_SIZE + 2] = info->positions[i].z;
-        if (info->uvs)
-        {
-            ptr[i * NUGL__VERTEX_SIZE + 3] = info->uvs[i].x;
-            ptr[i * NUGL__VERTEX_SIZE + 4] = info->uvs[i].y;
-        }
-        if (info->normals)
-        {
-            ptr[i * NUGL__VERTEX_SIZE + 5] = info->normals[i].x;
-            ptr[i * NUGL__VERTEX_SIZE + 6] = info->normals[i].y;
-            ptr[i * NUGL__VERTEX_SIZE + 7] = info->normals[i].z;
-        }
-    }
-    glUnmapBuffer(GL_ARRAY_BUFFER);
 
     // Configure VAO
     // Position
@@ -577,14 +555,46 @@ nugl__create_mesh (const nu_mesh_info_t *info)
 
     return handle;
 }
-static nu_error_t
+static void
 nugl__delete_mesh (nu_mesh_t mesh)
 {
     nu__gl_t     *gl    = &_ctx.gl;
     nugl__mesh_t *pmesh = gl->meshes.data + nu_handle_index(mesh);
     glDeleteVertexArrays(1, &pmesh->vao);
     glDeleteBuffers(1, &pmesh->vbo);
-    return NU_ERROR_NONE;
+}
+static void
+nugl__update_mesh (nu_mesh_t        mesh,
+                   const nu_vec3_t *positions,
+                   const nu_vec2_t *uvs,
+                   const nu_vec3_t *normals)
+{
+    nugl__mesh_t *pmesh = _ctx.gl.meshes.data + nu_handle_index(mesh);
+    glBindBuffer(GL_ARRAY_BUFFER, pmesh->vbo);
+    float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    nu_assert(ptr);
+    for (nu_size_t i = 0; i < pmesh->vertex_count; ++i)
+    {
+        if (positions)
+        {
+            ptr[i * NUGL__VERTEX_SIZE + 0] = positions[i].x;
+            ptr[i * NUGL__VERTEX_SIZE + 1] = positions[i].y;
+            ptr[i * NUGL__VERTEX_SIZE + 2] = positions[i].z;
+        }
+        if (uvs)
+        {
+            ptr[i * NUGL__VERTEX_SIZE + 3] = uvs[i].x;
+            ptr[i * NUGL__VERTEX_SIZE + 4] = uvs[i].y;
+        }
+        if (normals)
+        {
+            ptr[i * NUGL__VERTEX_SIZE + 5] = normals[i].x;
+            ptr[i * NUGL__VERTEX_SIZE + 6] = normals[i].y;
+            ptr[i * NUGL__VERTEX_SIZE + 7] = normals[i].z;
+        }
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 static nu_texture_t
 nugl__create_texture (nu_uvec2_t          size,
@@ -1194,6 +1204,7 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->update_camera_proj = nugl__update_camera_projection;
     api->create_mesh        = nugl__create_mesh;
     api->delete_mesh        = nugl__delete_mesh;
+    api->update_mesh        = nugl__update_mesh;
     api->create_texture     = nugl__create_texture;
     api->delete_texture     = nugl__delete_texture;
     api->create_cubemap     = nugl__create_cubemap;

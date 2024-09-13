@@ -72,16 +72,34 @@ nu_camera_ortho (nu_camera_t camera)
 }
 
 nu_mesh_t
-nu_mesh_create (const nu_mesh_info_t *info)
+nu_mesh_create (nu_size_t count)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.create_mesh(info);
+    return _ctx.graphics.renderer.api.create_mesh(count);
 }
-nu_error_t
+void
 nu_mesh_delete (nu_mesh_t mesh)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_mesh(mesh);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_mesh(mesh);
+}
+void
+nu_mesh_positions (nu_mesh_t mesh, const nu_vec3_t *positions)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.update_mesh(mesh, positions, NU_NULL, NU_NULL);
+}
+void
+nu_mesh_uvs (nu_mesh_t mesh, const nu_vec2_t *uvs)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.update_mesh(mesh, NU_NULL, uvs, NU_NULL);
+}
+void
+nu_mesh_normals (nu_mesh_t mesh, const nu_vec3_t *normals)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.update_mesh(mesh, NU_NULL, NU_NULL, normals);
 }
 
 nu_texture_t

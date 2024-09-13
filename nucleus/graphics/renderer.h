@@ -18,8 +18,12 @@ typedef struct
     void (*update_camera_view)(nu_camera_t camera, nu_mat4_t view);
     void (*update_camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
-    nu_mesh_t (*create_mesh)(const nu_mesh_info_t *info);
-    nu_error_t (*delete_mesh)(nu_mesh_t mesh);
+    nu_mesh_t (*create_mesh)(nu_size_t count);
+    void (*delete_mesh)(nu_mesh_t mesh);
+    void (*update_mesh)(nu_mesh_t        mesh,
+                        const nu_vec3_t *positions,
+                        const nu_vec2_t *uvs,
+                        const nu_vec3_t *normals);
 
     nu_texture_t (*create_texture)(nu_uvec2_t          size,
                                    nu_texture_format_t format,

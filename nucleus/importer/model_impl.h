@@ -130,12 +130,10 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             }
 
             // Create mesh
-            nu_mesh_info_t info;
-            info.positions   = buf_positions;
-            info.uvs         = buf_uvs;
-            info.normals     = buf_normals;
-            info.count       = indice_count;
-            nu_mesh_t handle = nu_mesh_create(&info);
+            nu_mesh_t handle = nu_mesh_create(indice_count);
+            nu_mesh_positions(handle, buf_positions);
+            nu_mesh_uvs(handle, buf_uvs);
+            nu_mesh_normals(handle, buf_normals);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
