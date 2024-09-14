@@ -3,10 +3,10 @@
 
 #include <nucleus/graphics/api.h>
 
-#define NU_ASSET_NAME_MAX 32
-
 NU_DEFINE_HANDLE(nu_asset_t);
 NU_DEFINE_HANDLE(nu_bundle_t);
+
+#define NU_ASSET_NAME_MAX 32
 
 typedef enum
 {

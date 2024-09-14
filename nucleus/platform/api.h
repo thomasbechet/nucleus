@@ -3,20 +3,11 @@
 
 #include <nucleus/core/api.h>
 
-//////////////////////////////////////////////////////////////////////////
-//////                          Platform                            //////
-//////////////////////////////////////////////////////////////////////////
+NU_DEFINE_HANDLE(nu_input_t);
 
-NU_API nu_error_t nu_poll_events(void);
-NU_API nu_bool_t  nu_exit_requested(void);
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Surface                             //////
-//////////////////////////////////////////////////////////////////////////
-
-NU_API void       nu_config_surface_size(nu_u32_t width, nu_u32_t height);
-NU_API nu_error_t nu_swap_buffers(void);
-NU_API float      nu_surface_aspect(void);
+#define NU_INPUT_PRESSED       1.0f
+#define NU_INPUT_RELEASED      0.0f
+#define NU_INPUT_IS_PRESSED(x) (x > 0.5f)
 
 typedef enum
 {
@@ -25,26 +16,6 @@ typedef enum
     NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT,
     NUEXT_VIEWPORT_STRETCH,
 } nuext_viewport_mode_t;
-
-NU_API nu_error_t nuext_viewport_mode(nuext_viewport_mode_t mode);
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Input                               //////
-//////////////////////////////////////////////////////////////////////////
-
-#define NU_INPUT_PRESSED       1.0f
-#define NU_INPUT_RELEASED      0.0f
-#define NU_INPUT_IS_PRESSED(x) (x > 0.5f)
-
-NU_DEFINE_HANDLE(nu_input_t);
-
-NU_API nu_input_t nu_input_create(void);
-NU_API nu_bool_t  nu_input_changed(nu_input_t input);
-NU_API nu_bool_t  nu_input_pressed(nu_input_t input);
-NU_API nu_bool_t  nu_input_just_pressed(nu_input_t input);
-NU_API nu_bool_t  nu_input_released(nu_input_t input);
-NU_API nu_bool_t  nu_input_just_released(nu_input_t input);
-NU_API float      nu_input_value(nu_input_t input);
 
 typedef enum
 {
@@ -132,6 +103,23 @@ typedef enum
     NUEXT_AXIS_MOUSE_MOTION_Y_POS,
     NUEXT_AXIS_MOUSE_MOTION_Y_NEG,
 } nuext_axis_t;
+
+NU_API nu_error_t nu_poll_events(void);
+NU_API nu_bool_t  nu_exit_requested(void);
+
+NU_API void       nu_config_surface_size(nu_u32_t width, nu_u32_t height);
+NU_API nu_error_t nu_swap_buffers(void);
+NU_API float      nu_surface_aspect(void);
+
+NU_API nu_error_t nuext_viewport_mode(nuext_viewport_mode_t mode);
+
+NU_API nu_input_t nu_input_create(void);
+NU_API nu_bool_t  nu_input_changed(nu_input_t input);
+NU_API nu_bool_t  nu_input_pressed(nu_input_t input);
+NU_API nu_bool_t  nu_input_just_pressed(nu_input_t input);
+NU_API nu_bool_t  nu_input_released(nu_input_t input);
+NU_API nu_bool_t  nu_input_just_released(nu_input_t input);
+NU_API float      nu_input_value(nu_input_t input);
 
 NU_API nu_error_t nuext_input_bind_button(nu_input_t     input,
                                           nuext_button_t button);
