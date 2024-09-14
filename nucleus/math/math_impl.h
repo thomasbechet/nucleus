@@ -707,4 +707,35 @@ nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
     return m;
 }
 
+nu_vec3_t
+nu_input_axis3d (nu_input_t pos_x,
+                 nu_input_t neg_x,
+                 nu_input_t pos_y,
+                 nu_input_t neg_y,
+                 nu_input_t pos_z,
+                 nu_input_t neg_z,
+                 nu_bool_t  normalize)
+{
+    nu_vec3_t ax;
+
+    ax.x = nu_clamp(nu_input_value(neg_x) - nu_input_value(pos_x), -1, 1);
+    ax.y = nu_clamp(nu_input_value(pos_y) - nu_input_value(neg_y), -1, 1);
+    ax.z = nu_clamp(nu_input_value(pos_z) - nu_input_value(neg_z), -1, 1);
+    if (normalize)
+    {
+        ax = nu_vec3_normalize(ax);
+    }
+
+    return ax;
+}
+
+nu_ivec2_t
+nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
+{
+    float cx = nu_input_value(cursor_x);
+    float cy = nu_input_value(cursor_y);
+    return nu_ivec2((nu_i32_t)(cx * (float)_ctx.platform.surface.size.x),
+                    (nu_i32_t)(cy * (float)_ctx.platform.surface.size.y));
+}
+
 #endif

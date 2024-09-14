@@ -9,10 +9,10 @@
 
 NU_DEFINE_HANDLE(nu_image_t);
 
-NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
+NU_API nu_image_t  nu_image_create(nu_u32_t w, nu_u32_t h);
 NU_API void        nu_image_delete(nu_image_t image);
 NU_API nu_color_t *nu_image_colors(nu_image_t image);
-NU_API nu_uvec2_t  nu_image_size(nu_image_t image);
+NU_API void        nu_image_size(nu_image_t image, nu_u32_t *w, nu_u32_t *h);
 
 //////////////////////////////////////////////////////////////////////////
 //////                           Camera                             //////
@@ -22,15 +22,8 @@ NU_DEFINE_HANDLE(nu_camera_t);
 
 NU_API nu_camera_t nu_camera_create(void);
 NU_API void        nu_camera_delete(nu_camera_t camera);
-NU_API void        nu_camera_view(nu_camera_t camera,
-                                  nu_vec3_t   up,
-                                  nu_vec3_t   center,
-                                  nu_vec3_t   eye);
-NU_API void        nu_camera_perspective(nu_camera_t camera,
-                                         float       fov,
-                                         float       near,
-                                         float       far);
-NU_API void        nu_camera_ortho(nu_camera_t camera);
+NU_API void        nu_camera_view(nu_camera_t camera, const float *view);
+NU_API void        nu_camera_proj(nu_camera_t camera, const float *proj);
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Texture                             //////
@@ -57,7 +50,8 @@ typedef enum
 
 NU_DEFINE_HANDLE(nu_texture_t);
 
-NU_API nu_texture_t nu_texture_create(nu_uvec2_t          size,
+NU_API nu_texture_t nu_texture_create(nu_u32_t            w,
+                                      nu_u32_t            h,
                                       nu_texture_format_t format,
                                       nu_texture_usage_t  usage,
                                       const nu_color_t   *colors);
@@ -214,7 +208,10 @@ typedef union
 NU_DEFINE_HANDLE(nu_renderpass_t);
 
 NU_API nu_renderpass_t nu_renderpass_create(const nu_renderpass_info_t *info);
-NU_API nu_error_t      nu_renderpass_delete(nu_renderpass_t pass);
+NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
+NU_API void            nu_renderpass_target_color(nu_renderpass_t pass,
+                                                  nu_texture_t    target);
+NU_API void nu_renderpass_skybox_rotation(nu_renderpass_t pass, nu_quat_t rot);
 
 NU_API void nu_renderpass_submit(nu_renderpass_t               pass,
                                  const nu_renderpass_submit_t *info);

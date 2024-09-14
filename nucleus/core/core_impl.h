@@ -4,7 +4,6 @@
 #include <nucleus/internal.h>
 #include <nucleus/core/color_impl.h>
 #include <nucleus/core/logger_impl.h>
-#include <nucleus/core/math_impl.h>
 #include <nucleus/core/memory_impl.h>
 #include <nucleus/core/time_impl.h>
 #include <nucleus/core/string_impl.h>
