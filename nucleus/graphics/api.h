@@ -114,9 +114,10 @@ NU_DEFINE_HANDLE(nu_mesh_t);
 
 NU_API nu_mesh_t nu_mesh_create(nu_size_t count);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
-NU_API void      nu_mesh_positions(nu_mesh_t mesh, const nu_vec3_t *positions);
-NU_API void      nu_mesh_uvs(nu_mesh_t mesh, const nu_vec2_t *uvs);
-NU_API void      nu_mesh_normals(nu_mesh_t mesh, const nu_vec3_t *normals);
+NU_API void      nu_mesh_update(nu_mesh_t        mesh,
+                                const nu_vec3_t *positions,
+                                const nu_vec2_t *uvs,
+                                const nu_vec3_t *normals);
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Material                              //////

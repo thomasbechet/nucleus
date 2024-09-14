@@ -5,5 +5,4 @@
 #include <nucleus/graphics/camera.h>
 #include <nucleus/graphics/cubemap.h>
 
-
 #endif

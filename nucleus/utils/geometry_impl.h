@@ -259,9 +259,7 @@ nu_mesh_create_geometry (nu_geometry_t geometry)
     nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
     nu_mesh_t       handle = nu_mesh_create(g->positions.size);
     nu_check(handle, return handle);
-    nu_mesh_positions(handle, g->positions.data);
-    nu_mesh_uvs(handle, g->uvs.data);
-    nu_mesh_normals(handle, g->normals.data);
+    nu_mesh_update(handle, g->positions.data, g->uvs.data, g->normals.data);
     return handle;
 }
 

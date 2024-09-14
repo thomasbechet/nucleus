@@ -84,10 +84,13 @@ nu_mesh_delete (nu_mesh_t mesh)
     _ctx.graphics.renderer.api.delete_mesh(mesh);
 }
 void
-nu_mesh_positions (nu_mesh_t mesh, const nu_vec3_t *positions)
+nu_mesh_update (nu_mesh_t        mesh,
+                const nu_vec3_t *positions,
+                const nu_vec2_t *uvs,
+                const nu_vec3_t *normals)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.update_mesh(mesh, positions, NU_NULL, NU_NULL);
+    _ctx.graphics.renderer.api.update_mesh(mesh, positions, uvs, normals);
 }
 void
 nu_mesh_uvs (nu_mesh_t mesh, const nu_vec2_t *uvs)

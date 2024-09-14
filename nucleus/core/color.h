@@ -3,5 +3,4 @@
 
 #include <nucleus/core/math.h>
 
-
 #endif
