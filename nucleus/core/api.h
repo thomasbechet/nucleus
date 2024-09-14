@@ -195,7 +195,17 @@ NU_API void nuext_path_concat(const nu_char_t *p1,
 #define NU_COLOR_RED      nu_color(255, 0, 0, 0)
 #define NU_COLOR_BLUE_SKY nu_color(52, 181, 248, 0)
 
-typedef nu_u32_t nu_color_t;
+typedef union
+{
+    struct
+    {
+        nu_u8_t r;
+        nu_u8_t g;
+        nu_u8_t b;
+        nu_u8_t a;
+    };
+    nu_u32_t rgba;
+} nu_color_t;
 
 NU_API nu_color_t nu_color(nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a);
 // NU_API nu_vec4_t  nu_color_to_vec4(nu_color_t c);

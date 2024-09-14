@@ -40,7 +40,7 @@ typedef struct
                                   const nu_material_info_t *info);
 
     nu_renderpass_t (*create_renderpass)(const nu_renderpass_info_t *info);
-    nu_error_t (*delete_renderpass)(nu_renderpass_t pass);
+    void (*delete_renderpass)(nu_renderpass_t pass);
 
     // Commands API
     void (*submit_renderpass)(nu_renderpass_t               pass,

@@ -2,6 +2,7 @@
 #define NU_GRAPHICS_API_H
 
 #include <nucleus/platform/api.h>
+#include <nucleus/math/api.h>
 
 //////////////////////////////////////////////////////////////////////////
 //////                         Image                                //////
@@ -9,10 +10,10 @@
 
 NU_DEFINE_HANDLE(nu_image_t);
 
-NU_API nu_image_t  nu_image_create(nu_u32_t w, nu_u32_t h);
+NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
 NU_API void        nu_image_delete(nu_image_t image);
 NU_API nu_color_t *nu_image_colors(nu_image_t image);
-NU_API void        nu_image_size(nu_image_t image, nu_u32_t *w, nu_u32_t *h);
+NU_API nu_uvec2_t  nu_image_size(nu_image_t image);
 
 //////////////////////////////////////////////////////////////////////////
 //////                           Camera                             //////
@@ -22,8 +23,8 @@ NU_DEFINE_HANDLE(nu_camera_t);
 
 NU_API nu_camera_t nu_camera_create(void);
 NU_API void        nu_camera_delete(nu_camera_t camera);
-NU_API void        nu_camera_view(nu_camera_t camera, const float *view);
-NU_API void        nu_camera_proj(nu_camera_t camera, const float *proj);
+NU_API void        nu_camera_view(nu_camera_t camera, nu_mat4_t view);
+NU_API void        nu_camera_proj(nu_camera_t camera, nu_mat4_t proj);
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Texture                             //////
@@ -50,8 +51,7 @@ typedef enum
 
 NU_DEFINE_HANDLE(nu_texture_t);
 
-NU_API nu_texture_t nu_texture_create(nu_u32_t            w,
-                                      nu_u32_t            h,
+NU_API nu_texture_t nu_texture_create(nu_uvec2_t          size,
                                       nu_texture_format_t format,
                                       nu_texture_usage_t  usage,
                                       const nu_color_t   *colors);

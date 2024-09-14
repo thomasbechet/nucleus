@@ -854,10 +854,9 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
 
     return nu_handle_make(nu_renderpass_t, index);
 }
-static nu_error_t
+static void
 nugl__delete_renderpass (nu_renderpass_t pass)
 {
-    return NU_ERROR_NONE;
 }
 
 #define NUGL__MIN_DEPTH       0.0

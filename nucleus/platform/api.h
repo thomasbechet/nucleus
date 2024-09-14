@@ -16,6 +16,7 @@ NU_API nu_bool_t  nu_exit_requested(void);
 
 NU_API void       nu_config_surface_size(nu_u32_t width, nu_u32_t height);
 NU_API nu_error_t nu_swap_buffers(void);
+NU_API float      nu_surface_aspect(void);
 
 typedef enum
 {

@@ -21,6 +21,11 @@ nu_swap_buffers (void)
 #endif
     return NU_ERROR_NONE;
 }
+float
+nu_surface_aspect (void)
+{
+    return _ctx.platform.surface.size.x / _ctx.platform.surface.size.y;
+}
 
 nu_error_t
 nuext_viewport_mode (nuext_viewport_mode_t mode)

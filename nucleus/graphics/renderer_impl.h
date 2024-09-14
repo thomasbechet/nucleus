@@ -37,8 +37,11 @@ nu_camera_create (void)
     CHECK_NULL_API_HANDLE
     nu_camera_t handle = _ctx.graphics.renderer.api.create_camera();
     nu_check(handle, return handle);
-    nu_camera_view(handle, NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZERO);
-    nu_camera_perspective(handle, 70, 0.01, 100);
+    nu_camera_view(handle,
+                   nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZERO));
+    float aspect = (float)_ctx.platform.surface.size.x
+                   / (float)_ctx.platform.surface.size.y;
+    nu_camera_proj(handle, nu_perspective(nu_radian(70), aspect, 0.01, 100));
     return handle;
 }
 void
@@ -48,27 +51,16 @@ nu_camera_delete (nu_camera_t camera)
     _ctx.graphics.renderer.api.delete_camera(camera);
 }
 void
-nu_camera_view (nu_camera_t camera,
-                nu_vec3_t   up,
-                nu_vec3_t   center,
-                nu_vec3_t   eye)
+nu_camera_view (nu_camera_t camera, nu_mat4_t view)
 {
     CHECK_NULL_API_VOID
-    nu_mat4_t view = nu_lookat(eye, center, up);
     _ctx.graphics.renderer.api.update_camera_view(camera, view);
 }
 void
-nu_camera_perspective (nu_camera_t camera, float fov, float near, float far)
+nu_camera_proj (nu_camera_t camera, nu_mat4_t proj)
 {
     CHECK_NULL_API_VOID
-    float aspect = (float)_ctx.platform.surface.size.x
-                   / (float)_ctx.platform.surface.size.y;
-    nu_mat4_t projection = nu_perspective(nu_radian(fov), aspect, near, far);
-    _ctx.graphics.renderer.api.update_camera_proj(camera, projection);
-}
-void
-nu_camera_ortho (nu_camera_t camera)
-{
+    _ctx.graphics.renderer.api.update_camera_proj(camera, proj);
 }
 
 nu_mesh_t
@@ -196,11 +188,11 @@ nu_renderpass_create (const nu_renderpass_info_t *info)
     CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_renderpass(info);
 }
-nu_error_t
+void
 nu_renderpass_delete (nu_renderpass_t pass)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_renderpass(pass);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_renderpass(pass);
 }
 
 void
