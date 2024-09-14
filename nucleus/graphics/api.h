@@ -57,7 +57,7 @@ NU_API nu_texture_t nu_texture_create(nu_uvec2_t          size,
                                       const nu_color_t   *colors);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API nu_texture_t nu_texture_create_image(nu_image_t image);
-NU_API nu_error_t   nu_texture_delete(nu_texture_t texture);
+NU_API void         nu_texture_delete(nu_texture_t texture);
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Cubemap                             //////
@@ -80,7 +80,7 @@ typedef struct
 NU_DEFINE_HANDLE(nu_cubemap_t);
 
 NU_API nu_cubemap_t nu_cubemap_create(const nu_cubemap_info_t *info);
-NU_API nu_error_t   nu_cubemap_delete(nu_cubemap_t cubemap);
+NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
 
 //////////////////////////////////////////////////////////////////////////
 //////                         Model                                //////
@@ -146,7 +146,7 @@ NU_DEFINE_HANDLE(nu_material_t);
 
 NU_API nu_material_info_t nu_material_info_default(nu_material_type_t type);
 NU_API nu_material_t      nu_material_create(const nu_material_info_t *info);
-NU_API nu_error_t         nu_material_delete(nu_material_t material);
+NU_API void               nu_material_delete(nu_material_t material);
 NU_API nu_error_t         nu_material_update(nu_material_t             material,
                                              const nu_material_info_t *info);
 

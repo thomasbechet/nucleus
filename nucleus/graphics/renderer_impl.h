@@ -124,11 +124,11 @@ nu_texture_create_image (nu_image_t image)
                              NU_TEXTURE_USAGE_SAMPLE,
                              ima->colors);
 }
-nu_error_t
+void
 nu_texture_delete (nu_texture_t texture)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_texture(texture);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_texture(texture);
 }
 
 nu_cubemap_t
@@ -137,11 +137,11 @@ nu_cubemap_create (const nu_cubemap_info_t *info)
     CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_cubemap(info);
 }
-nu_error_t
+void
 nu_cubemap_delete (nu_cubemap_t cubemap)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_cubemap(cubemap);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_cubemap(cubemap);
 }
 
 nu_material_info_t
@@ -169,11 +169,11 @@ nu_material_create (const nu_material_info_t *info)
     CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.create_material(info);
 }
-nu_error_t
+void
 nu_material_delete (nu_material_t material)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.delete_material(material);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.delete_material(material);
 }
 nu_error_t
 nu_material_update (nu_material_t material, const nu_material_info_t *info)

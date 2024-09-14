@@ -645,13 +645,12 @@ nugl__create_texture (nu_uvec2_t          size,
 
     return handle;
 }
-static nu_error_t
+static void
 nugl__delete_texture (nu_texture_t texture)
 {
     nu__gl_t        *gl   = &_ctx.gl;
     nugl__texture_t *ptex = gl->textures.data + nu_handle_index(texture);
     glDeleteTextures(1, &ptex->texture);
-    return NU_ERROR_NONE;
 }
 static nu_cubemap_t
 nugl__create_cubemap (const nu_cubemap_info_t *info)
@@ -689,10 +688,9 @@ nugl__create_cubemap (const nu_cubemap_info_t *info)
 
     return handle;
 }
-static nu_error_t
+static void
 nugl__delete_cubemap (nu_cubemap_t cubemap)
 {
-    return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__update_material (nu_material_t material, const nu_material_info_t *info)
@@ -747,10 +745,9 @@ nugl__create_material (const nu_material_info_t *info)
     nugl__update_material(handle, info);
     return handle;
 }
-static nu_error_t
+static void
 nugl__delete_material (nu_material_t material)
 {
-    return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_flat_renderpass (nugl__renderpass_flat_t *pass)

@@ -29,13 +29,13 @@ typedef struct
                                    nu_texture_format_t format,
                                    nu_texture_usage_t  usage,
                                    const nu_color_t   *colors);
-    nu_error_t (*delete_texture)(nu_texture_t texture);
+    void (*delete_texture)(nu_texture_t texture);
 
     nu_cubemap_t (*create_cubemap)(const nu_cubemap_info_t *info);
-    nu_error_t (*delete_cubemap)(nu_cubemap_t cubemap);
+    void (*delete_cubemap)(nu_cubemap_t cubemap);
 
     nu_material_t (*create_material)(const nu_material_info_t *info);
-    nu_error_t (*delete_material)(nu_material_t material);
+    void (*delete_material)(nu_material_t material);
     nu_error_t (*update_material)(nu_material_t             material,
                                   const nu_material_info_t *info);
 
