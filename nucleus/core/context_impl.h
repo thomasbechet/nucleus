@@ -58,7 +58,7 @@ nu_init (void)
 
     return NU_ERROR_NONE;
 }
-nu_error_t
+void
 nu_terminate (void)
 {
 #ifdef NU_BUILD_ASSET
@@ -77,7 +77,6 @@ nu_terminate (void)
     nu__platform_free();
 #endif
     nu__core_free();
-    return NU_ERROR_NONE;
 }
 
 #endif

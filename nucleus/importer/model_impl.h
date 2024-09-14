@@ -311,9 +311,9 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             nu_mat4_t transform = nu_mat4_identity();
             if (node->has_scale)
             {
-                transform = nu_mat4_mul(nu_mat4_scale(node->scale[0],
-                                                      node->scale[1],
-                                                      node->scale[2]),
+                transform = nu_mat4_mul(nu_mat4_scale(nu_vec3(node->scale[0],
+                                                              node->scale[1],
+                                                              node->scale[2])),
                                         transform);
             }
             if (node->has_rotation)
@@ -326,10 +326,11 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             }
             if (node->has_translation)
             {
-                transform = nu_mat4_mul(nu_mat4_translate(node->translation[0],
-                                                          node->translation[1],
-                                                          node->translation[2]),
-                                        transform);
+                transform = nu_mat4_mul(
+                    nu_mat4_translate(nu_vec3(node->translation[0],
+                                              node->translation[1],
+                                              node->translation[2])),
+                    transform);
             }
 
             if (node->mesh)

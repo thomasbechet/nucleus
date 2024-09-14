@@ -30,7 +30,7 @@ main (void)
     {
         nu_geometry_t g = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
         nu_geometry_cube(g, 1);
-        nu_geometry_transform(g, nu_mat4_translate(-0.5, -0.5, -0.5));
+        nu_geometry_transform(g, nu_mat4_translate(nu_vec3s(-0.5)));
         mesh = nu_mesh_create_geometry(g);
         nu_geometry_delete(g);
     }
@@ -76,8 +76,9 @@ main (void)
         }
         nu_poll_events();
 
-        nu_mat4_t model = nu_mat4_translate(0, nu_sin(time / 500) * 0.1, 0);
-        model           = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
+        nu_mat4_t model
+            = nu_mat4_translate(nu_vec3(0, nu_sin(time / 500) * 0.1, 0));
+        model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
         nu_draw_mesh(renderpass, material, mesh, model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;

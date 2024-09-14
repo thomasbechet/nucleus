@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 NU_API nu_error_t nu_init(void);
-NU_API nu_error_t nu_terminate(void);
+NU_API void       nu_terminate(void);
 
 NU_API void nu__panic(const nu_char_t *source, const nu_char_t *format, ...);
 NU_API void nu__vpanic(const nu_char_t *source,
@@ -234,7 +234,7 @@ typedef union
         float x;
         float y;
     };
-    float xy[NU_VEC2_SIZE];
+    float data[NU_VEC2_SIZE];
 } nu_vec2_t;
 
 typedef union
@@ -245,7 +245,7 @@ typedef union
         float y;
         float z;
     };
-    float xyz[NU_VEC3_SIZE];
+    float data[NU_VEC3_SIZE];
 } nu_vec3_t;
 
 typedef union
@@ -257,7 +257,7 @@ typedef union
         float z;
         float w;
     };
-    float xyzw[NU_VEC4_SIZE];
+    float data[NU_VEC4_SIZE];
 } nu_vec4_t;
 
 typedef union
@@ -267,7 +267,7 @@ typedef union
         nu_u32_t x;
         nu_u32_t y;
     };
-    nu_u32_t xy[NU_VEC2_SIZE];
+    nu_u32_t data[NU_VEC2_SIZE];
 } nu_uvec2_t;
 
 typedef union
@@ -277,7 +277,7 @@ typedef union
         nu_i32_t x;
         nu_i32_t y;
     };
-    nu_i32_t xy[NU_VEC2_SIZE];
+    nu_i32_t data[NU_VEC2_SIZE];
 } nu_ivec2_t;
 
 typedef union
@@ -289,7 +289,7 @@ typedef union
         nu_u32_t z;
         nu_u32_t w;
     };
-    nu_u32_t xyzw[NU_VEC4_SIZE];
+    nu_u32_t data[NU_VEC4_SIZE];
 } nu_uvec4_t;
 
 typedef union
@@ -301,7 +301,7 @@ typedef union
         float z;
         float w;
     };
-    float xyzw[NU_QUAT_SIZE];
+    float data[NU_QUAT_SIZE];
 } nu_quat_t;
 
 typedef union
@@ -373,6 +373,7 @@ NU_API nu_vec2_t nu_vec2_divs(nu_vec2_t a, float s);
 NU_API nu_vec2_t nu_vec2_floor(nu_vec2_t a);
 
 NU_API nu_vec3_t nu_vec3(float x, float y, float z);
+NU_API nu_vec3_t nu_vec3s(float s);
 NU_API nu_vec3_t nu_vec3_add(nu_vec3_t a, nu_vec3_t b);
 NU_API nu_vec3_t nu_vec3_sub(nu_vec3_t a, nu_vec3_t b);
 NU_API nu_vec3_t nu_vec3_mul(nu_vec3_t a, nu_vec3_t b);
@@ -411,14 +412,14 @@ NU_API nu_mat4_t nu_quat_mulm4(nu_quat_t a, nu_mat4_t m);
 
 NU_API nu_mat3_t nu_mat3_zero(void);
 NU_API nu_mat3_t nu_mat3_identity(void);
-NU_API nu_mat3_t nu_mat3_translate(float x, float y);
-NU_API nu_mat3_t nu_mat3_scale(float x, float y);
+NU_API nu_mat3_t nu_mat3_translate(nu_vec2_t v);
+NU_API nu_mat3_t nu_mat3_scale(nu_vec2_t v);
 NU_API nu_mat3_t nu_mat3_mul(nu_mat3_t a, nu_mat3_t b);
 
 NU_API nu_mat4_t nu_mat4_zero(void);
 NU_API nu_mat4_t nu_mat4_identity(void);
-NU_API nu_mat4_t nu_mat4_translate(float x, float y, float z);
-NU_API nu_mat4_t nu_mat4_scale(float x, float y, float z);
+NU_API nu_mat4_t nu_mat4_translate(nu_vec3_t v);
+NU_API nu_mat4_t nu_mat4_scale(nu_vec3_t v);
 NU_API nu_mat4_t nu_mat4_rotate_y(float angle);
 NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
 NU_API nu_vec4_t nu_mat4_mulv(nu_mat4_t a, nu_vec4_t v);

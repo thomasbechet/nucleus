@@ -98,14 +98,14 @@ main (void)
         {
             nu_geometry_cube(sub, 1);
             nu_mat4_t transform
-                = nu_mat4_mul(nu_mat4_translate(i * 5, i * 5, i * 5),
-                              nu_mat4_scale(2 * i, 2 * i, 2 * i));
+                = nu_mat4_mul(nu_mat4_translate(nu_vec3s(i * 5)),
+                              nu_mat4_scale(nu_vec3s(2 * i)));
             nu_geometry_transform(sub, transform);
             nu_geometry_append(final, sub);
         }
 
         nu_geometry_grid(sub, 200, 200, 1, 75);
-        nu_geometry_transform(sub, nu_mat4_translate(-100, 0, -100));
+        nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
         nu_geometry_append(final, sub);
 
         custom_mesh = nu_mesh_create_geometry(final);
@@ -243,8 +243,9 @@ main (void)
         nu_mat4_t transform = nu_mat4_identity();
         nu_draw_model(main_pass, ariane_model, transform);
 
-        transform = nu_mat4_scale(4, 4, 4);
-        transform = nu_mat4_mul(nu_mat4_translate(10, -3.97, 0), transform);
+        transform = nu_mat4_scale(nu_vec3(4, 4, 4));
+        transform
+            = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -3.97, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
 
         // GUI

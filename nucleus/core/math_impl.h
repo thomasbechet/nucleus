@@ -154,6 +154,11 @@ nu_vec3 (float x, float y, float z)
     return ret;
 }
 nu_vec3_t
+nu_vec3s (float s)
+{
+    return nu_vec3(s, s, s);
+}
+nu_vec3_t
 nu_vec3_add (nu_vec3_t a, nu_vec3_t b)
 {
     nu_vec3_t ret;
@@ -483,19 +488,19 @@ nu_mat3_identity (void)
     return m;
 }
 nu_mat3_t
-nu_mat3_translate (float x, float y)
+nu_mat3_translate (nu_vec2_t v)
 {
     nu_mat3_t m = nu_mat3_identity();
-    m.z1        = x;
-    m.z2        = y;
+    m.z1        = v.x;
+    m.z2        = v.y;
     return m;
 }
 nu_mat3_t
-nu_mat3_scale (float x, float y)
+nu_mat3_scale (nu_vec2_t v)
 {
     nu_mat3_t m = nu_mat3_identity();
-    m.x1        = x;
-    m.y2        = y;
+    m.x1        = v.x;
+    m.y2        = v.y;
     return m;
 }
 nu_mat3_t
@@ -536,21 +541,21 @@ nu_mat4_identity (void)
     return m;
 }
 nu_mat4_t
-nu_mat4_translate (float x, float y, float z)
+nu_mat4_translate (nu_vec3_t v)
 {
     nu_mat4_t m = nu_mat4_identity();
-    m.w1        = x;
-    m.w2        = y;
-    m.w3        = z;
+    m.w1        = v.x;
+    m.w2        = v.y;
+    m.w3        = v.z;
     return m;
 }
 nu_mat4_t
-nu_mat4_scale (float x, float y, float z)
+nu_mat4_scale (nu_vec3_t v)
 {
     nu_mat4_t m = nu_mat4_identity();
-    m.x1        = x;
-    m.y2        = y;
-    m.z3        = z;
+    m.x1        = v.x;
+    m.y2        = v.y;
+    m.z3        = v.z;
     return m;
 }
 nu_mat4_t

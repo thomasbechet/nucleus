@@ -293,7 +293,7 @@ nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
                                     glGetUniformLocation(gl->flat_program,
                                                          "viewport_size"),
                                     1,
-                                    pass->fbo_size.xy);
+                                    pass->fbo_size.data);
 
                                 glUniformMatrix4fv(
                                     glGetUniformLocation(gl->flat_program,
@@ -388,7 +388,7 @@ nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
                 glUniform2uiv(glGetUniformLocation(gl->canvas_blit_program,
                                                    "viewport_size"),
                               1,
-                              pass->fbo_size.xy);
+                              pass->fbo_size.data);
                 glBindVertexArray(pass->canvas.blit_vao);
                 for (nu_size_t c = 0; c < pass->canvas.cmds.size; ++c)
                 {
