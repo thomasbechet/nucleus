@@ -2,8 +2,6 @@
 #define NUGL_H
 
 #include <nucleus/gl/shader_data.h>
-#define GLAD_GL_IMPLEMENTATION
-#include <nucleus/external/glad/gl.h>
 
 #define NUGL__VERTEX_SIZE (3 + 2 + 3)
 

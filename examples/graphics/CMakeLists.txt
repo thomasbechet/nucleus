@@ -10,8 +10,7 @@ add_executable(
     main.c
 )
 
-# Compile GLFW (TODO: find header only library)
-target_link_libraries(${PROJECT_NAME} glfw GL)
+target_link_libraries(${PROJECT_NAME} GL m Xrandr X11 dl pthread)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -32,7 +31,7 @@ endfunction()
 enable_c_compiler_flag_if_supported("-Wall")
 enable_c_compiler_flag_if_supported("-Wextra")
 enable_c_compiler_flag_if_supported("-Werror")
-enable_c_compiler_flag_if_supported("-pedantic")
+# enable_c_compiler_flag_if_supported("-pedantic")
 enable_c_compiler_flag_if_supported("-ansi")
 # enable_c_compiler_flag_if_supported("-nostdlib")
 enable_c_compiler_flag_if_supported("-Wstrict-prototypes")

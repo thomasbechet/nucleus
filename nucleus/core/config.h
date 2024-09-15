@@ -6,7 +6,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #define NU_BUILD_PLATFORM
-#define NU_BUILD_GLFW
 #define NU_BUILD_GRAPHICS
 #define NU_BUILD_GL
 #define NU_BUILD_UTILS

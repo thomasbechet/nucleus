@@ -61,7 +61,7 @@ main (void)
 
     // Bind inputs
 
-    nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_1);
+    nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_LEFT);
     nuext_input_bind_button(quit, NUEXT_BUTTON_ESCAPE);
     nuext_input_bind_axis(cursor_x, NUEXT_AXIS_MOUSE_X);
     nuext_input_bind_axis(cursor_y, NUEXT_AXIS_MOUSE_Y);

@@ -187,7 +187,7 @@ nugl__init (void)
     NU_VEC_INIT(16, &gl->passes_order);
 
     // Initialize GL functions
-    if (!gladLoadGL(glfwGetProcAddress))
+    if (!gladLoadGL((GLADloadfunc)RGFW_getProcAddress))
     {
         NU_ERROR("failed to load GL functions");
         return NU_ERROR_BACKEND;

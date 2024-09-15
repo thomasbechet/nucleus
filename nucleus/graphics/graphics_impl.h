@@ -42,7 +42,7 @@ nu__graphics_init (void)
     if (!renderer->null_api)
     {
         renderer->surface_color
-            = renderer->api.create_surface_color(_ctx.platform.surface.size);
+            = renderer->api.create_surface_color(_ctx.platform.size);
     }
 
     return NU_ERROR_NONE;
@@ -69,8 +69,7 @@ nu__graphics_render (void)
     if (!renderer->null_api)
     {
         return _ctx.graphics.renderer.api.render(
-            &_ctx.platform.surface.glfw.viewport.extent,
-            &_ctx.platform.surface.glfw.viewport.viewport);
+            &_ctx.platform.viewport.extent, &_ctx.platform.viewport.viewport);
     }
     return NU_ERROR_NONE;
 }
