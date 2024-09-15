@@ -15,6 +15,7 @@
 #define NU_BUILD_CGLTF
 #define NU_BUILD_JSMN
 #define NU_BUILD_ASSET
+#define NU_BUILD_UI
 
 #if defined(NU_NO_PLATFORM)
 #undef NU_BUILD_PLATFORM
@@ -114,44 +115,6 @@
 #endif
 
 #define NU_API NU_API_EXPORT
-
-//////////////////////////////////////////////////////////////////////////
-//////                          Basic Types                         //////
-//////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-    NU_ERROR_NONE = 0, // error none is required to be NULL
-    NU_ERROR_ALLOCATION,
-    NU_ERROR_UNSUPPORTED_API,
-    NU_ERROR_BACKEND,
-    NU_ERROR_DUPLICATED,
-    NU_ERROR_OUT_OF_RESOURCE,
-    NU_ERROR_RESOURCE_LOADING,
-    NU_ERROR_SHADER_COMPILATION,
-} nu_error_t;
-
-// TODO: use stdint types
-typedef unsigned char  nu_u8_t;
-typedef signed char    nu_i8_t;
-typedef unsigned short nu_u16_t;
-typedef signed short   nu_i16_t;
-typedef unsigned int   nu_u32_t;
-typedef signed int     nu_i32_t;
-typedef unsigned long  nu_u64_t;
-typedef signed long    nu_i64_t;
-
-typedef char          nu_char_t;
-typedef int           nu_bool_t;
-typedef nu_i32_t      nu_int_t;
-typedef unsigned long nu_size_t;
-typedef unsigned char nu_byte_t;
-typedef int           nu_word_t;
-
-#define NU_TRUE  1
-#define NU_FALSE 0
-#define NU_NULL  0
-#define NU_NOOP
 
 //////////////////////////////////////////////////////////////////////////
 //////                            Macros                            //////

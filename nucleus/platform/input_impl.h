@@ -86,4 +86,13 @@ nuext_input_bind_axis (nu_input_t input, nuext_axis_t axis)
     return NU_ERROR_NONE;
 }
 
+nu_ivec2_t
+nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
+{
+    float cx = nu_input_value(cursor_x);
+    float cy = nu_input_value(cursor_y);
+    return nu_ivec2((nu_i32_t)(cx * (float)_ctx.platform.surface.size.x),
+                    (nu_i32_t)(cy * (float)_ctx.platform.surface.size.y));
+}
+
 #endif

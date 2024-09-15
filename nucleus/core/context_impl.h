@@ -3,6 +3,10 @@
 
 #include <nucleus/internal.h>
 
+#define NU__INIT_MODULE(name)    \
+    error = nu__##name##_init(); \
+    nu_error_check(error, return error);
+
 static nu__config_t *
 nu__config (void)
 {
@@ -56,11 +60,18 @@ nu_init (void)
     nu_error_check(error, return error);
 #endif
 
+#ifdef NU_BUILD_UI
+    nu__ui_init();
+#endif
+
     return NU_ERROR_NONE;
 }
 void
 nu_terminate (void)
 {
+#ifdef NU_BUILD_UI
+    nu__ui_free();
+#endif
 #ifdef NU_BUILD_ASSET
     nu__asset_free();
 #endif

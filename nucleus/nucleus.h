@@ -2,7 +2,6 @@
 #define NU_NUCLEUS_H
 
 #include <nucleus/core/api.h>
-#include <nucleus/math/api.h>
 #ifdef NU_BUILD_PLATFORM
 #include <nucleus/platform/api.h>
 #endif
@@ -18,11 +17,13 @@
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/api.h>
 #endif
+#ifdef NU_BUILD_UI
+#include <nucleus/ui/api.h>
+#endif
 
 #ifdef NU_IMPLEMENTATION
 
 #include <nucleus/core/core_impl.h>
-#include <nucleus/math/math_impl.h>
 #ifdef NU_BUILD_PLATFORM
 #include <nucleus/platform/platform_impl.h>
 #endif
@@ -40,6 +41,9 @@
 #endif
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/importer_impl.h>
+#endif
+#ifdef NU_BUILD_UI
+#include <nucleus/ui/ui_impl.h>
 #endif
 
 #endif

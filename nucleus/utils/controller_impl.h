@@ -1,7 +1,6 @@
 #ifndef NU_CONTROLLER_IMPL_H
 #define NU_CONTROLLER_IMPL_H
 
-#include "nucleus/math/api.h"
 #include <nucleus/internal.h>
 
 nu_controller_t
@@ -33,20 +32,20 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 {
     nu__camera_controller_t *ctrl
         = &_ctx.utils.controllers.data[nu_handle_index(controller)];
-    nu_vec3_t look = nu_input_axis3d(ctrl->info.view_yaw_neg,
-                                     ctrl->info.view_yaw_pos,
-                                     ctrl->info.view_pitch_pos,
-                                     ctrl->info.view_pitch_neg,
-                                     ctrl->info.view_roll_pos,
-                                     ctrl->info.view_roll_neg,
-                                     NU_FALSE);
-    nu_vec3_t move = nu_input_axis3d(ctrl->info.move_left,
-                                     ctrl->info.move_right,
-                                     ctrl->info.move_up,
-                                     ctrl->info.move_down,
-                                     ctrl->info.move_forward,
-                                     ctrl->info.move_backward,
-                                     NU_TRUE);
+    nu_vec3_t look = nu_axis3d(nu_input_value(ctrl->info.view_yaw_neg),
+                               nu_input_value(ctrl->info.view_yaw_pos),
+                               nu_input_value(ctrl->info.view_pitch_pos),
+                               nu_input_value(ctrl->info.view_pitch_neg),
+                               nu_input_value(ctrl->info.view_roll_pos),
+                               nu_input_value(ctrl->info.view_roll_neg),
+                               NU_FALSE);
+    nu_vec3_t move = nu_axis3d(nu_input_value(ctrl->info.move_left),
+                               nu_input_value(ctrl->info.move_right),
+                               nu_input_value(ctrl->info.move_up),
+                               nu_input_value(ctrl->info.move_down),
+                               nu_input_value(ctrl->info.move_forward),
+                               nu_input_value(ctrl->info.move_backward),
+                               NU_TRUE);
 
     // Switch mode
     if (nu_input_just_pressed(ctrl->info.switch_mode))

@@ -20,6 +20,9 @@
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/importer.h>
 #endif
+#ifdef NU_BUILD_UI
+#include <nucleus/ui/ui.h>
+#endif
 
 typedef struct
 {
@@ -29,7 +32,7 @@ typedef struct
 #ifdef NU_BUILD_GRAPHICS
     nu__graphics_config_t graphics;
 #endif
-    nu_bool_t initialized; // False by default
+    nu_bool_t initialized; // False by default (static memory)
 } nu__config_t;
 
 static nu__config_t *nu__config(void);
@@ -55,6 +58,9 @@ static struct nu__context
 #endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_t importer;
+#endif
+#ifdef NU_BUILD_UI
+    nu__ui_t ui;
 #endif
 } _ctx;
 

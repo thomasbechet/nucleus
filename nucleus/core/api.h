@@ -2,10 +2,13 @@
 #define NU_CORE_API_H
 
 #include <nucleus/core/config.h>
-#include <nucleus/core/macro.h>
+
+#define NU_TRUE  1
+#define NU_FALSE 0
+#define NU_NULL  0
+#define NU_NOOP
 
 NU_DEFINE_HANDLE(nu_table_t);
-typedef nu_u32_t nu_uid_t;
 
 #define NU_DEFAULT_ALIGN  16
 #define NU_COLOR_WHITE    nu_color(255, 255, 255, 0)
@@ -13,6 +16,189 @@ typedef nu_u32_t nu_uid_t;
 #define NU_COLOR_RED      nu_color(255, 0, 0, 0)
 #define NU_COLOR_BLUE_SKY nu_color(52, 181, 248, 0)
 #define NUEXT_PATH_MAX    256
+#define NU_PI             3.14159265359
+
+#define nu_min(a, b)          (((a) < (b)) ? (a) : (b))
+#define nu_max(a, b)          (((a) > (b)) ? (a) : (b))
+#define nu_clamp(x, min, max) (nu_max(min, nu_min(max, x)))
+#define nu_clamp01(x)         (nu_clamp(x, 0, 1))
+
+#define NU_VEC2_SIZE 2
+#define NU_VEC3_SIZE 3
+#define NU_VEC4_SIZE 4
+#define NU_QUAT_SIZE 4
+#define NU_MAT3_SIZE 9
+#define NU_MAT4_SIZE 16
+
+#define NU_VEC2_ZERO nu_vec2(0, 0)
+#define NU_VEC2_ONE  nu_vec2(1, 1)
+
+#define NU_IVEC2_ZERO nu_ivec2(0, 0)
+
+#define NU_UVEC2_ZERO nu_uvec2(0, 0)
+#define NU_UVEC2_ONE  nu_uvec2(1, 1)
+
+#define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
+#define NU_VEC3_ONE      nu_vec3(1, 1, 1)
+#define NU_VEC3_UP       nu_vec3(0, 1, 0)
+#define NU_VEC3_DOWN     nu_vec3(0, -1, 0)
+#define NU_VEC3_FORWARD  nu_vec3(0, 0, -1)
+#define NU_VEC3_BACKWARD nu_vec3(0, 0, 1)
+#define NU_VEC3_LEFT     nu_vec3(-1, 0, 0)
+#define NU_VEC3_RIGHT    nu_vec3(1, 0, 0)
+
+#define NU_VEC4_ZERO nu_vec4(0, 0, 0, 0)
+
+#define NU_VEC2_FORMAT "%lf %lf"
+#define NU_VEC3_FORMAT "%lf %lf %lf"
+#define NU_VEC4_FORMAT "%lf %lf %lf %lf"
+
+#define nu_debug(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
+#define nu_info(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
+#define nu_warning(...) nu_log(NU_LOG_WARNING, __SOURCE__, __VA_ARGS__)
+#define nu_error(...)   nu_log(NU_LOG_ERROR, __SOURCE__, __VA_ARGS__)
+
+#define nu_uid(name) nu_hash(name)
+
+#define NU_MATCH(a, b) (nu_strcmp(a, b) == 0)
+
+#ifdef NU_CXX
+#define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
+#else
+#define NU_VOID_CAST(type, expr) (expr)
+#endif
+
+#define nu_vec(type)               \
+    struct                         \
+    {                              \
+        type           *data;      \
+        nu_size_t       size;      \
+        nu_size_t       capacity;  \
+        nu_allocator_t *allocator; \
+    }
+
+#define nu_vec_init(cap, v) nu_vec_init_a(nu_allocator_core(), cap, v)
+
+#define nu_vec_init_a(alloc, cap, v)                                     \
+    do                                                                   \
+    {                                                                    \
+        (v)->data = NU_VOID_CAST(                                        \
+            (v)->data, nu_alloc_a((alloc), sizeof(*(v)->data) * (cap))); \
+        (v)->capacity  = (cap);                                          \
+        (v)->size      = 0;                                              \
+        (v)->allocator = (alloc);                                        \
+    } while (0)
+
+#define nu_vec_free(v) \
+    nu_free_a((v)->allocator, (v)->data, sizeof(*(v)->data) * (v)->capacity)
+
+#define nu_vec_clear(v) ((v)->size = 0)
+
+#define nu_vec_push(v)                                          \
+    (((v)->data = NU_VOID_CAST((v)->data,                       \
+                               nu__vec_push((v)->allocator,     \
+                                            sizeof(*(v)->data), \
+                                            (v)->data,          \
+                                            &(v)->size,         \
+                                            &(v)->capacity)))   \
+         ? (v)->data + ((v)->size - 1)                          \
+         : NU_NULL)
+
+#define nu_vec_pop(v) \
+    (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
+
+#define nu_vec_resize(v, new_size)                               \
+    do                                                           \
+    {                                                            \
+        if ((v)->size != (new_size))                             \
+        {                                                        \
+            (v)->data = NU_VOID_CAST(                            \
+                (v)->data,                                       \
+                nu_realloc_a((v)->allocator,                     \
+                             (v)->data,                          \
+                             sizeof(*(v)->data) * (v)->capacity, \
+                             sizeof(*(v)->data) * (new_size)));  \
+            (v)->capacity = (new_size);                          \
+            (v)->size     = (new_size);                          \
+        }                                                        \
+    } while (0)
+
+#define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
+
+#define nu_pool(type)            \
+    struct                       \
+    {                            \
+        type         *data;      \
+        nu_size_t     capacity;  \
+        nu_size_vec_t _freelist; \
+    }
+
+#define nu_pool_init(cap, p) nu_pool_init_a(nu_allocator_core(), cap, p)
+
+#define nu_pool_init_a(alloc, cap, p)                                    \
+    do                                                                   \
+    {                                                                    \
+        (p)->data = NU_VOID_CAST(                                        \
+            (p)->data, nu_alloc_a((alloc), sizeof(*(p)->data) * (cap))); \
+        nu_memset((p)->data, 0, sizeof(*(p)->data) * (cap));             \
+        (p)->capacity = (cap);                                           \
+        nu_vec_init_a(alloc, (cap), &(p)->_freelist);                    \
+        for (nu_size_t i = 0; i < (cap); ++i)                            \
+        {                                                                \
+            *nu_vec_push(&(p)->_freelist) = (cap) - i - 1;               \
+        }                                                                \
+    } while (0)
+
+#define nu_pool_free(p)                                \
+    do                                                 \
+    {                                                  \
+        nu_free_a((p)->_freelist.allocator,            \
+                  (p)->data,                           \
+                  sizeof(*(p)->data) * (p)->capacity); \
+        nu_vec_free(&(p)->_freelist);                  \
+    } while (0)
+
+#define nu_pool_add(p, pindex)                                  \
+    (((p)->data = NU_VOID_CAST((p)->data,                       \
+                               nu__pool_add(sizeof(*(p)->data), \
+                                            (p)->data,          \
+                                            &(p)->capacity,     \
+                                            &(p)->_freelist,    \
+                                            (pindex))))         \
+         ? (p)->data + (*(pindex))                              \
+         : NU_NULL)
+
+#define nu_pool_remove(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)
+
+// TODO: use stdint types
+typedef unsigned char  nu_u8_t;
+typedef signed char    nu_i8_t;
+typedef unsigned short nu_u16_t;
+typedef signed short   nu_i16_t;
+typedef unsigned int   nu_u32_t;
+typedef signed int     nu_i32_t;
+typedef unsigned long  nu_u64_t;
+typedef signed long    nu_i64_t;
+
+typedef char          nu_char_t;
+typedef int           nu_bool_t;
+typedef nu_i32_t      nu_int_t;
+typedef unsigned long nu_size_t;
+typedef unsigned char nu_byte_t;
+typedef int           nu_word_t;
+typedef nu_u32_t      nu_uid_t;
+
+typedef enum
+{
+    NU_ERROR_NONE = 0, // error none is required to be NULL
+    NU_ERROR_ALLOCATION,
+    NU_ERROR_UNSUPPORTED_API,
+    NU_ERROR_BACKEND,
+    NU_ERROR_DUPLICATED,
+    NU_ERROR_OUT_OF_RESOURCE,
+    NU_ERROR_RESOURCE_LOADING,
+    NU_ERROR_SHADER_COMPILATION,
+} nu_error_t;
 
 typedef enum
 {
@@ -35,13 +221,6 @@ typedef enum
     NUEXT_EXTENSION_JPEG,
     NUEXT_EXTENSION_UNKNOWN,
 } nuext_extension_t;
-
-typedef struct
-{
-    const nu_char_t **names;
-    nu_table_type_t  *types;
-    nu_size_t         size;
-} nu_table_info_t;
 
 typedef struct
 {
@@ -91,6 +270,133 @@ typedef union
     nu_u32_t rgba;
 } nu_color_t;
 
+typedef union
+{
+    struct
+    {
+        float x;
+        float y;
+    };
+    float data[NU_VEC2_SIZE];
+} nu_vec2_t;
+
+typedef union
+{
+    struct
+    {
+        float x;
+        float y;
+        float z;
+    };
+    float data[NU_VEC3_SIZE];
+} nu_vec3_t;
+
+typedef union
+{
+    struct
+    {
+        float x;
+        float y;
+        float z;
+        float w;
+    };
+    float data[NU_VEC4_SIZE];
+} nu_vec4_t;
+
+typedef union
+{
+    struct
+    {
+        nu_u32_t x;
+        nu_u32_t y;
+    };
+    nu_u32_t data[NU_VEC2_SIZE];
+} nu_uvec2_t;
+
+typedef union
+{
+    struct
+    {
+        nu_i32_t x;
+        nu_i32_t y;
+    };
+    nu_i32_t data[NU_VEC2_SIZE];
+} nu_ivec2_t;
+
+typedef union
+{
+    struct
+    {
+        nu_u32_t x;
+        nu_u32_t y;
+        nu_u32_t z;
+        nu_u32_t w;
+    };
+    nu_u32_t data[NU_VEC4_SIZE];
+} nu_uvec4_t;
+
+typedef union
+{
+    struct
+    {
+        float x;
+        float y;
+        float z;
+        float w;
+    };
+    float data[NU_QUAT_SIZE];
+} nu_quat_t;
+
+typedef union
+{
+
+    struct
+    {
+        float x1;
+        float x2;
+        float x3;
+        float y1;
+        float y2;
+        float y3;
+        float z1;
+        float z2;
+        float z3;
+    };
+    float data[NU_MAT3_SIZE];
+} nu_mat3_t;
+
+typedef union
+{
+    struct
+    {
+        float x1;
+        float x2;
+        float x3;
+        float x4;
+        float y1;
+        float y2;
+        float y3;
+        float y4;
+        float z1;
+        float z2;
+        float z3;
+        float z4;
+        float w1;
+        float w2;
+        float w3;
+        float w4;
+    };
+    float data[NU_MAT4_SIZE];
+} nu_mat4_t;
+
+typedef struct
+{
+    nu_ivec2_t p;
+    nu_uvec2_t s;
+} nu_rect_t;
+
+typedef nu_vec(nu_vec2_t) nu_vec2_vec_t;
+typedef nu_vec(nu_vec3_t) nu_vec3_vec_t;
 typedef nu_vec(nu_bool_t) nu_bool_vec_t;
 typedef nu_vec(nu_u32_t) nu_u32_vec_t;
 typedef nu_vec(nu_size_t) nu_size_vec_t;
@@ -102,12 +408,6 @@ NU_API void nu__panic(const nu_char_t *source, const nu_char_t *format, ...);
 NU_API void nu__vpanic(const nu_char_t *source,
                        const nu_char_t *format,
                        va_list          args);
-
-NU_API nu_table_t nu_table_create(const nu_table_info_t *info);
-NU_API void       nu_table_delete(nu_table_t table);
-NU_API nu_size_t  nu_table_size(nu_table_t table);
-NU_API nu_u32_t  *nu_table_int(nu_table_t table, const nu_char_t *name);
-NU_API float     *nu_table_float(nu_table_t table, const nu_char_t *name);
 
 NU_API void nu_log(nu_log_level_t   level,
                    const nu_char_t *source,
@@ -188,5 +488,97 @@ NU_API void     *nu__vec_push(nu_allocator_t *alloc,
                               nu_size_t      *size,
                               nu_size_t      *capacity);
 NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
+
+NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
+NU_API nu_size_t nu_log2(nu_size_t n);
+NU_API float     nu_fabs(float f);
+NU_API float     nu_floor(float f);
+NU_API float     nu_radian(float d);
+NU_API float     nu_sqrt(float x);
+NU_API float     nu_pow(float b, float e);
+NU_API float     nu_cos(float x);
+NU_API float     nu_sin(float x);
+NU_API float     nu_tan(float x);
+
+NU_API nu_vec2_t nu_vec2(float x, float y);
+NU_API nu_vec2_t nu_vec2_add(nu_vec2_t a, nu_vec2_t b);
+NU_API nu_vec2_t nu_vec2_sub(nu_vec2_t a, nu_vec2_t b);
+NU_API nu_vec2_t nu_vec2_mul(nu_vec2_t a, nu_vec2_t b);
+NU_API nu_vec2_t nu_vec2_muls(nu_vec2_t a, float s);
+NU_API nu_vec2_t nu_vec2_div(nu_vec2_t a, nu_vec2_t b);
+NU_API nu_vec2_t nu_vec2_divs(nu_vec2_t a, float s);
+NU_API nu_vec2_t nu_vec2_floor(nu_vec2_t a);
+
+NU_API nu_vec3_t nu_vec3(float x, float y, float z);
+NU_API nu_vec3_t nu_vec3s(float s);
+NU_API nu_vec3_t nu_vec3_add(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_sub(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_mul(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_muls(nu_vec3_t a, float s);
+NU_API nu_vec3_t nu_vec3_div(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_divs(nu_vec3_t a, float s);
+NU_API float     nu_vec3_norm(nu_vec3_t a);
+NU_API nu_vec3_t nu_vec3_normalize(nu_vec3_t a);
+NU_API nu_vec3_t nu_vec3_cross(nu_vec3_t a, nu_vec3_t b);
+NU_API float     nu_vec3_dot(nu_vec3_t a, nu_vec3_t b);
+
+NU_API nu_vec4_t nu_vec4(float x, float y, float z, float w);
+NU_API float     nu_vec4_dot(nu_vec4_t a, nu_vec4_t b);
+NU_API float     nu_vec4_norm(nu_vec4_t v);
+NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
+NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
+
+NU_API nu_ivec2_t nu_ivec2(nu_i32_t x, nu_i32_t y);
+
+NU_API nu_uvec2_t nu_uvec2(nu_u32_t x, nu_u32_t y);
+NU_API nu_uvec2_t nu_uvec2_min(nu_uvec2_t a, nu_uvec2_t b);
+
+NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
+
+NU_API nu_quat_t nu_quat(float x, float y, float z, float w);
+NU_API nu_quat_t nu_quat_identity(void);
+NU_API nu_vec4_t nu_quat_vec4(nu_quat_t a);
+NU_API float     nu_quat_norm(nu_quat_t a);
+NU_API nu_quat_t nu_quat_axis(nu_vec3_t axis, float angle);
+NU_API nu_quat_t nu_quat_mul(nu_quat_t a, nu_quat_t b);
+NU_API nu_vec3_t nu_quat_mulv3(nu_quat_t a, nu_vec3_t v);
+NU_API nu_quat_t nu_quat_mul_axis(nu_quat_t q, nu_vec3_t axis, float angle);
+NU_API nu_mat3_t nu_quat_mat3(nu_quat_t q);
+NU_API nu_mat4_t nu_quat_mat4(nu_quat_t q);
+NU_API nu_mat4_t nu_quat_mulm4(nu_quat_t a, nu_mat4_t m);
+
+NU_API nu_mat3_t nu_mat3_zero(void);
+NU_API nu_mat3_t nu_mat3_identity(void);
+NU_API nu_mat3_t nu_mat3_translate(nu_vec2_t v);
+NU_API nu_mat3_t nu_mat3_scale(nu_vec2_t v);
+NU_API nu_mat3_t nu_mat3_mul(nu_mat3_t a, nu_mat3_t b);
+
+NU_API nu_mat4_t nu_mat4_zero(void);
+NU_API nu_mat4_t nu_mat4_identity(void);
+NU_API nu_mat4_t nu_mat4_translate(nu_vec3_t v);
+NU_API nu_mat4_t nu_mat4_scale(nu_vec3_t v);
+NU_API nu_mat4_t nu_mat4_rotate_y(float angle);
+NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
+NU_API nu_vec4_t nu_mat4_mulv(nu_mat4_t a, nu_vec4_t v);
+NU_API nu_vec3_t nu_mat4_mulv3(nu_mat4_t a, nu_vec3_t v);
+
+NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
+NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);
+NU_API nu_bool_t nu_rect_containsi(nu_rect_t r, nu_ivec2_t p);
+NU_API nu_vec2_t nu_rect_normalize(nu_rect_t r, nu_vec2_t p);
+
+NU_API nu_mat4_t nu_perspective(float fov,
+                                float aspect_ratio,
+                                float z_near,
+                                float z_far);
+NU_API nu_mat4_t nu_lookat(nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up);
+
+NU_API nu_vec3_t nu_axis3d(float     pos_x,
+                           float     neg_x,
+                           float     pos_y,
+                           float     neg_y,
+                           float     pos_z,
+                           float     neg_z,
+                           nu_bool_t normalize);
 
 #endif

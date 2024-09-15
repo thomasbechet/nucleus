@@ -9,6 +9,7 @@
 #include <nucleus/core/string_impl.h>
 #include <nucleus/core/ds_impl.h>
 #include <nucleus/core/table_impl.h>
+#include <nucleus/core/math_impl.h>
 #include <nucleus/core/context_impl.h>
 
 static nu_error_t
