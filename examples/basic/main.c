@@ -114,8 +114,8 @@ main (void)
     }
 
     // Load resources
-    nu_texture_t texture     = nu_asset_texture("brick");
-    nu_texture_t texture_gui = nu_asset_texture("GUI");
+    nu_texture_t texture     = NU_ASSET_TEXTURE("brick");
+    nu_texture_t texture_gui = NU_ASSET_TEXTURE("GUI");
 
     // Create material
     nu_material_t material;
@@ -132,11 +132,11 @@ main (void)
     }
 
     // Load temple
-    temple_model = nu_asset_model("temple");
-    ariane_model = nu_asset_model("ariane");
+    temple_model = NU_ASSET_MODEL("temple");
+    ariane_model = NU_ASSET_MODEL("ariane");
 
     // Load cubemap
-    nu_cubemap_t skybox = nu_asset_cubemap("skybox");
+    nu_cubemap_t skybox = NU_ASSET_CUBEMAP("skybox");
 
     // Create font
     nu_font_t font = nu_font_create_default();

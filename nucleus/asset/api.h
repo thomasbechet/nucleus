@@ -8,6 +8,13 @@ NU_DEFINE_HANDLE(nu_bundle_t);
 
 #define NU_ASSET_NAME_MAX 32
 
+#define NU_ASSET_TEXTURE(name) \
+    ((nu_texture_t)nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)))
+#define NU_ASSET_CUBEMAP(name) \
+    ((nu_cubemap_t)nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)))
+#define NU_ASSET_MODEL(name) \
+    ((nu_model_t)nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)))
+
 typedef enum
 {
     NU_ASSET_TEXTURE,
@@ -31,14 +38,5 @@ NU_API nu_asset_t nu_asset_find(nu_asset_type_t type, const nu_char_t *name);
 NU_API nu_bool_t  nu_asset_exists(nu_asset_type_t type, const nu_char_t *name);
 NU_API void      *nu_asset_data(nu_asset_t handle);
 NU_API nu_asset_info_t nu_asset_info(nu_asset_t handle);
-
-#define nu_asset_texture(name) \
-    ((nu_texture_t)nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)))
-#define nu_asset_cubemap(name) \
-    ((nu_cubemap_t)nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)))
-#define nu_asset_model(name) \
-    ((nu_model_t)nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)))
-#define nu_asset_table(name) \
-    ((nu_table_t)nu_asset_data(nu_asset_find(NU_ASSET_TABLE, name)))
 
 #endif

@@ -11,6 +11,7 @@ NU_DEFINE_HANDLE(nu_model_t);
 NU_DEFINE_HANDLE(nu_font_t);
 NU_DEFINE_HANDLE(nu_mesh_t);
 NU_DEFINE_HANDLE(nu_material_t);
+NU_DEFINE_HANDLE(nu_renderpass_t);
 
 #define NU_CUBEMAP_FACE_COUNT 6
 
@@ -168,8 +169,6 @@ NU_API nu_material_t      nu_material_create(const nu_material_info_t *info);
 NU_API void               nu_material_delete(nu_material_t material);
 NU_API nu_error_t         nu_material_update(nu_material_t             material,
                                              const nu_material_info_t *info);
-
-NU_DEFINE_HANDLE(nu_renderpass_t);
 
 NU_API nu_renderpass_t nu_renderpass_create(const nu_renderpass_info_t *info);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
