@@ -68,7 +68,7 @@ nugl__compile_shader (const nu_char_t *vert,
         glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
-        nu_error("%s", log);
+        NU_ERROR("%s", log);
 
         glDeleteShader(vertex_shader);
         return NU_ERROR_SHADER_COMPILATION;
@@ -84,7 +84,7 @@ nugl__compile_shader (const nu_char_t *vert,
         glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
-        nu_error("%s", log);
+        NU_ERROR("%s", log);
 
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
@@ -147,12 +147,12 @@ MessageCallback (GLenum        source,
     switch (severity)
     {
         case GL_DEBUG_SEVERITY_HIGH:
-            nu_error("GL: %s, message = %s",
+            NU_ERROR("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            nu_error("GL: %s, message = %s",
+            NU_ERROR("GL: %s, message = %s",
                      nugl__message_type_string(type),
                      message);
             break;
@@ -189,7 +189,7 @@ nugl__init (void)
     // Initialize GL functions
     if (!gladLoadGL(glfwGetProcAddress))
     {
-        nu_error("failed to load GL functions");
+        NU_ERROR("failed to load GL functions");
         return NU_ERROR_BACKEND;
     }
 

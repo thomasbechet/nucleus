@@ -55,7 +55,7 @@ nuext_import_package (const nu_char_t *filename)
         = (nu_char_t *)nu__bytes_load_filename(filename, &json_size);
     if (!json)
     {
-        nu_error("failed to load json package");
+        NU_ERROR("failed to load json package");
         goto cleanup0;
     }
 
@@ -63,13 +63,13 @@ nuext_import_package (const nu_char_t *filename)
     jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
     if (!json)
     {
-        nu_error("failed to parse json package");
+        NU_ERROR("failed to parse json package");
         goto cleanup1;
     }
 
     if (toks[0].type != JSMN_ARRAY)
     {
-        nu_error("top level json must be an array for packages");
+        NU_ERROR("top level json must be an array for packages");
         goto cleanup2;
     }
     nu_size_t max_asset_count = toks[0].size;
@@ -87,7 +87,7 @@ nuext_import_package (const nu_char_t *filename)
             jsmntok_t *tname = nu__json_object_member(json, tok, "name");
             if (!tname)
             {
-                nu_error("name member not found");
+                NU_ERROR("name member not found");
                 goto cleanup2;
             }
             nu_char_t name[NU_ASSET_NAME_MAX];
@@ -98,7 +98,7 @@ nuext_import_package (const nu_char_t *filename)
             jsmntok_t *tpath = nu__json_object_member(json, tok, "path");
             if (!tpath)
             {
-                nu_error("path member not found");
+                NU_ERROR("path member not found");
                 goto cleanup2;
             }
             nu_char_t path[NUEXT_PATH_MAX];
@@ -112,7 +112,7 @@ nuext_import_package (const nu_char_t *filename)
             jsmntok_t      *ttype = nu__json_object_member(json, tok, "type");
             if (!ttype)
             {
-                nu_error("type member not found");
+                NU_ERROR("type member not found");
                 goto cleanup2;
             }
             if (nu__json_eq(json, ttype, "model"))
@@ -129,7 +129,7 @@ nuext_import_package (const nu_char_t *filename)
             }
             else
             {
-                nu_error("unknown asset type %s", json + ttype->start);
+                NU_ERROR("unknown asset type %s", json + ttype->start);
                 goto cleanup2;
             }
 

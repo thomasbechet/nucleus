@@ -28,12 +28,12 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         jsmntok_t *tok = nu__json_object_member(json, &toks[0], faces[f]);
         if (!tok)
         {
-            nu_error("cubemap face not found '%s'", faces[f]);
+            NU_ERROR("cubemap face not found '%s'", faces[f]);
             goto cleanup2;
         }
         if (tok->type != JSMN_STRING)
         {
-            nu_error("invalid face path");
+            NU_ERROR("invalid face path");
             goto cleanup2;
         }
         if (!images[f])
@@ -43,7 +43,7 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
             images[f] = nuext_image_load_filename(path);
             if (!images[f])
             {
-                nu_error("cubemap face loading error '%s'", path);
+                NU_ERROR("cubemap face loading error '%s'", path);
                 goto cleanup2;
             }
         }

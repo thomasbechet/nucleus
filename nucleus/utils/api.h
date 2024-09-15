@@ -3,7 +3,6 @@
 
 #include <nucleus/graphics/api.h>
 
-
 typedef enum
 {
     NU_CONTROLLER_FREEFLY_ALIGNED,

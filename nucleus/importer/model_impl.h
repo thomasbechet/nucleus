@@ -197,7 +197,7 @@ nu__load_material (nu__model_gltf_loader_t *loader,
 
     if (!found)
     {
-        nu_error("texture not found");
+        NU_ERROR("texture not found");
         return NU_ERROR_RESOURCE_LOADING;
     }
 

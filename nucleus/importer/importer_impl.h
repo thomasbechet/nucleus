@@ -101,7 +101,7 @@ nu__bytes_load_filename (const nu_char_t *filename, nu_size_t *size)
     FILE *f = fopen(filename, "rb");
     if (!f)
     {
-        nu_error("failed to open file %s", filename);
+        NU_ERROR("failed to open file %s", filename);
         return NU_NULL;
     }
     fseek(f, 0, SEEK_END);

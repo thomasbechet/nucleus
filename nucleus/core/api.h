@@ -56,7 +56,7 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define nu_debug(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
 #define nu_info(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
 #define nu_warning(...) nu_log(NU_LOG_WARNING, __SOURCE__, __VA_ARGS__)
-#define nu_error(...)   nu_log(NU_LOG_ERROR, __SOURCE__, __VA_ARGS__)
+#define NU_ERROR(...)   nu_log(NU_LOG_ERROR, __SOURCE__, __VA_ARGS__)
 
 #define nu_uid(name) nu_hash(name)
 

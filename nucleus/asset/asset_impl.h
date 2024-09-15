@@ -26,7 +26,7 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
 {
     if (nu_asset_exists(type, name))
     {
-        nu_error("asset '%s' of type '%s' already exists",
+        NU_ERROR("asset '%s' of type '%s' already exists",
                  name,
                  nu__asset_type_names[type]);
         return NU_NULL;
@@ -56,7 +56,7 @@ nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
             return nu_handle_make(nu_asset_t, i);
         }
     }
-    nu_error(
+    NU_ERROR(
         "asset '%s' of type '%s' not found", name, nu__asset_type_names[type]);
     return NU_NULL;
 }
