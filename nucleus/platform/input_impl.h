@@ -8,7 +8,7 @@ nu_input_create (void)
 {
     nu_size_t          index;
     nu__input_entry_t *entry
-        = nu_pool_add(&_ctx.platform.input.entries, &index);
+        = NU_POOL_ADD(&_ctx.platform.input.entries, &index);
     entry->state.value    = NU_INPUT_RELEASED;
     entry->state.previous = NU_INPUT_RELEASED;
     entry->used           = NU_TRUE;

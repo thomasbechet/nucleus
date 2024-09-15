@@ -9,7 +9,7 @@ nu_font_create_default (void)
     nu_error_t error;
 
     nu_size_t   index;
-    nu__font_t *font = nu_pool_add(&_ctx.graphics.fonts, &index);
+    nu__font_t *font = NU_POOL_ADD(&_ctx.graphics.fonts, &index);
 
     // Find min/max characters
     font->min_char             = (nu_char_t)127;
@@ -17,8 +17,8 @@ nu_font_create_default (void)
     const nu_size_t char_count = sizeof(nu__font_data_chars);
     for (nu_size_t i = 0; i < char_count; ++i)
     {
-        font->min_char = nu_min(font->min_char, nu__font_data_chars[i]);
-        font->max_char = nu_max(font->max_char, nu__font_data_chars[i]);
+        font->min_char = NU_MIN(font->min_char, nu__font_data_chars[i]);
+        font->max_char = NU_MAX(font->max_char, nu__font_data_chars[i]);
     }
 
     const nu_size_t pixel_per_glyph

@@ -59,7 +59,7 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
                nu__model_t             *model)
 {
     nu_error_t error;
-    nu_debug("loading mesh: %s", mesh->name);
+    NU_DEBUG("loading mesh: %s", mesh->name);
     for (nu_size_t p = 0; p < mesh->primitives_count; ++p)
     {
         cgltf_primitive *primitive = mesh->primitives + p;
@@ -139,9 +139,9 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_free(buf_normals, sizeof(*buf_normals) * indice_count);
 
             // Append asset
-            nu__model_asset_t *asset      = nu_vec_push(&model->assets);
+            nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
             asset->mesh                   = handle;
-            nu__model_gltf_cache_t *cache = nu_vec_push(&loader->_cache);
+            nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
             cache->ptr                    = mesh;
             cache->index                  = model->assets.size - 1;
         }
@@ -154,7 +154,7 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
                   const cgltf_texture     *texture,
                   nu__model_t             *model)
 {
-    nu_debug("loading texture: %s", texture->name);
+    NU_DEBUG("loading texture: %s", texture->name);
 
     cgltf_buffer_view *tview = texture->image->buffer_view;
 
@@ -166,9 +166,9 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
     nu_image_delete(image);
 
     // Append asset
-    nu__model_asset_t *asset      = nu_vec_push(&model->assets);
+    nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
     asset->texture                = handle;
-    nu__model_gltf_cache_t *cache = nu_vec_push(&loader->_cache);
+    nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
     cache->ptr                    = texture;
     cache->index                  = model->assets.size - 1;
 
@@ -179,7 +179,7 @@ nu__load_material (nu__model_gltf_loader_t *loader,
                    const cgltf_material    *material,
                    nu__model_t             *model)
 {
-    nu_debug("loading material: %s", material->name);
+    NU_DEBUG("loading material: %s", material->name);
 
     // Find color texture
     nu_bool_t found = NU_FALSE;
@@ -207,9 +207,9 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     nu_material_t handle    = nu_material_create(&info);
 
     // Append asset
-    nu__model_asset_t *asset      = nu_vec_push(&model->assets);
+    nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
     asset->material               = handle;
-    nu__model_gltf_cache_t *cache = nu_vec_push(&loader->_cache);
+    nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
     cache->ptr                    = material;
     cache->index                  = model->assets.size - 1;
 
@@ -220,15 +220,15 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
 {
     if (!loader->_has_default_material)
     {
-        nu_debug("loading default material");
+        NU_DEBUG("loading default material");
 
         nu_texture_t texture = nu_texture_create_color(NU_COLOR_RED);
-        nu_vec_push(&model->assets)->texture = texture;
+        NU_VEC_PUSH(&model->assets)->texture = texture;
 
         nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
         info.mesh.color0        = &texture;
         nu_material_t material  = nu_material_create(&info);
-        nu_vec_push(&model->assets)->material = material;
+        NU_VEC_PUSH(&model->assets)->material = material;
 
         loader->_default_material     = model->assets.size - 1;
         loader->_has_default_material = NU_TRUE;
@@ -239,12 +239,12 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
 static void
 nu__model_gltf_loader_init (void)
 {
-    nu_vec_init(10, &_ctx.importer.model_gltf_loader._cache);
+    NU_VEC_INIT(10, &_ctx.importer.model_gltf_loader._cache);
 }
 static void
 nu__model_gltf_loader_free (void)
 {
-    nu_vec_free(&_ctx.importer.model_gltf_loader._cache);
+    NU_VEC_FREE(&_ctx.importer.model_gltf_loader._cache);
 }
 static nu_model_t
 nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
@@ -257,7 +257,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
     nu_error_t   error;
 
     // Reset cache
-    nu_vec_clear(&loader->_cache);
+    NU_VEC_CLEAR(&loader->_cache);
     loader->_has_default_material = NU_FALSE;
 
     // Parse file and load buffers
@@ -306,7 +306,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
         for (nu_size_t n = 0; n < scene->nodes_count; ++n)
         {
             cgltf_node *node = scene->nodes[n];
-            nu_debug("loading node: %s", node->name);
+            NU_DEBUG("loading node: %s", node->name);
 
             nu_mat4_t transform = nu_mat4_identity();
             if (node->has_scale)
@@ -351,7 +351,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
                     }
                     if (!found)
                     {
-                        nu_warning("material not found, using default");
+                        NU_WARNING("material not found, using default");
                         nu__load_material_default(loader, m);
                         material_index = loader->_default_material;
                     }
@@ -377,7 +377,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
                 }
 
                 // Append node
-                nu__model_node_t *node = nu_vec_push(&m->nodes);
+                nu__model_node_t *node = NU_VEC_PUSH(&m->nodes);
                 node->mesh             = mesh_index;
                 node->material         = material_index;
                 node->transform        = transform;

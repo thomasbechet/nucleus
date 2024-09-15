@@ -11,7 +11,7 @@ typedef struct
     nu_bool_t               main_pressed;
 } nu_ui_controller_t;
 
-typedef nu_vec(nu_ui_controller_t *) nu__ui_controller_vec_t;
+typedef NU_VEC(nu_ui_controller_t *) nu__ui_controller_vec_t;
 
 typedef struct
 {
@@ -19,14 +19,14 @@ typedef struct
     nu_ui_style_t *prev;
 } nu__ui_style_t;
 
-typedef nu_vec(nu__ui_style_t) nu__ui_style_vec_t;
+typedef NU_VEC(nu__ui_style_t) nu__ui_style_vec_t;
 
 typedef struct
 {
     nu_renderpass_t renderpass;
 } nu__ui_pass_t;
 
-typedef nu_vec(nu__ui_pass_t) nu__ui_pass_vec_t;
+typedef NU_VEC(nu__ui_pass_t) nu__ui_pass_vec_t;
 
 #define NU_UI_MAX_CONTROLLER 4
 
@@ -49,7 +49,7 @@ typedef struct
     nu_u32_t hot_controller;
 } nu__ui_instance_t;
 
-typedef nu_pool(nu__ui_instance_t) nu__ui_pool_t;
+typedef NU_POOL(nu__ui_instance_t) nu__ui_pool_t;
 
 typedef struct
 {

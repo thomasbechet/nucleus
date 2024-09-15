@@ -159,9 +159,9 @@ nu_ui_t
 nu_ui_create (void)
 {
     nu_size_t          index;
-    nu__ui_instance_t *ui = nu_pool_add(&_ctx.ui.uis, &index);
+    nu__ui_instance_t *ui = NU_POOL_ADD(&_ctx.ui.uis, &index);
 
-    nu_vec_init(10, &ui->styles);
+    NU_VEC_INIT(10, &ui->styles);
     ui->button_style   = NU_NULL;
     ui->checkbox_style = NU_NULL;
     ui->cursor_style   = NU_NULL;
@@ -171,13 +171,13 @@ nu_ui_create (void)
     ui->active_controller = 0;
     ui->hot_controller    = 0;
 
-    nu_vec_init(1, &ui->passes);
+    NU_VEC_INIT(1, &ui->passes);
 
     // Create main renderpass
     nu_renderpass_info_t pinfo;
     pinfo.type            = NU_RENDERPASS_CANVAS;
     ui->active_renderpass = nu_renderpass_create(&pinfo);
-    nu__ui_pass_t *pass   = nu_vec_push(&ui->passes);
+    nu__ui_pass_t *pass   = NU_VEC_PUSH(&ui->passes);
     pass->renderpass      = ui->active_renderpass;
 
     // Initialize controllers
@@ -201,8 +201,8 @@ nu_ui_delete (nu_ui_t handle)
     {
         nu_renderpass_reset(ui->passes.data[i].renderpass);
     }
-    nu_vec_free(&ui->passes);
-    nu_vec_free(&ui->styles);
+    NU_VEC_FREE(&ui->passes);
+    NU_VEC_FREE(&ui->styles);
 }
 
 void
@@ -260,7 +260,7 @@ void
 nu_ui_push_style (nu_ui_t handle, nu_ui_style_t *style)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[nu_handle_index(handle)];
-    nu__ui_style_t    *s  = nu_vec_push(&ui->styles);
+    nu__ui_style_t    *s  = NU_VEC_PUSH(&ui->styles);
 
     s->data = style;
     switch (style->type)
@@ -283,7 +283,7 @@ void
 nu_ui_pop_style (nu_ui_t handle)
 {
     nu__ui_instance_t *ui   = &_ctx.ui.uis.data[nu_handle_index(handle)];
-    nu__ui_style_t    *last = nu_vec_last(&ui->styles);
+    nu__ui_style_t    *last = NU_VEC_LAST(&ui->styles);
     if (last)
     {
         switch (last->data->type)
@@ -298,7 +298,7 @@ nu_ui_pop_style (nu_ui_t handle)
                 ui->cursor_style = last->prev;
                 break;
         }
-        (void)nu_vec_pop(&ui->styles);
+        (void)NU_VEC_POP(&ui->styles);
     }
 }
 
@@ -427,13 +427,13 @@ nu_ui_checkbox (nu_ui_t handle, nu_rect_t extent, nu_bool_t *state)
 static nu_error_t
 nu__ui_init (void)
 {
-    nu_pool_init(1, &_ctx.ui.uis);
+    NU_POOL_INIT(1, &_ctx.ui.uis);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__ui_free (void)
 {
-    nu_pool_free(&_ctx.ui.uis);
+    NU_POOL_FREE(&_ctx.ui.uis);
     return NU_ERROR_NONE;
 }
 

@@ -18,10 +18,10 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NUEXT_PATH_MAX    256
 #define NU_PI             3.14159265359
 
-#define nu_min(a, b)          (((a) < (b)) ? (a) : (b))
-#define nu_max(a, b)          (((a) > (b)) ? (a) : (b))
-#define nu_clamp(x, min, max) (nu_max(min, nu_min(max, x)))
-#define nu_clamp01(x)         (nu_clamp(x, 0, 1))
+#define NU_MIN(a, b)          (((a) < (b)) ? (a) : (b))
+#define NU_MAX(a, b)          (((a) > (b)) ? (a) : (b))
+#define NU_CLAMP(x, min, max) (NU_MAX(min, NU_MIN(max, x)))
+#define NU_CLAMP01(x)         (NU_CLAMP(x, 0, 1))
 
 #define NU_VEC2_SIZE 2
 #define NU_VEC3_SIZE 3
@@ -53,12 +53,12 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VEC3_FORMAT "%lf %lf %lf"
 #define NU_VEC4_FORMAT "%lf %lf %lf %lf"
 
-#define nu_debug(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
-#define nu_info(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
-#define nu_warning(...) nu_log(NU_LOG_WARNING, __SOURCE__, __VA_ARGS__)
+#define NU_DEBUG(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
+#define NU_INFO(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
+#define NU_WARNING(...) nu_log(NU_LOG_WARNING, __SOURCE__, __VA_ARGS__)
 #define NU_ERROR(...)   nu_log(NU_LOG_ERROR, __SOURCE__, __VA_ARGS__)
 
-#define nu_uid(name) nu_hash(name)
+#define NU_UID(name) nu_hash(name)
 
 #define NU_MATCH(a, b) (nu_strcmp(a, b) == 0)
 
@@ -68,7 +68,7 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VOID_CAST(type, expr) (expr)
 #endif
 
-#define nu_vec(type)               \
+#define NU_VEC(type)               \
     struct                         \
     {                              \
         type           *data;      \
@@ -77,9 +77,9 @@ NU_DEFINE_HANDLE(nu_table_t);
         nu_allocator_t *allocator; \
     }
 
-#define nu_vec_init(cap, v) nu_vec_init_a(nu_allocator_core(), cap, v)
+#define NU_VEC_INIT(cap, v) NU_VEC_INIT_A(nu_allocator_core(), cap, v)
 
-#define nu_vec_init_a(alloc, cap, v)                                     \
+#define NU_VEC_INIT_A(alloc, cap, v)                                     \
     do                                                                   \
     {                                                                    \
         (v)->data = NU_VOID_CAST(                                        \
@@ -89,12 +89,12 @@ NU_DEFINE_HANDLE(nu_table_t);
         (v)->allocator = (alloc);                                        \
     } while (0)
 
-#define nu_vec_free(v) \
+#define NU_VEC_FREE(v) \
     nu_free_a((v)->allocator, (v)->data, sizeof(*(v)->data) * (v)->capacity)
 
-#define nu_vec_clear(v) ((v)->size = 0)
+#define NU_VEC_CLEAR(v) ((v)->size = 0)
 
-#define nu_vec_push(v)                                          \
+#define NU_VEC_PUSH(v)                                          \
     (((v)->data = NU_VOID_CAST((v)->data,                       \
                                nu__vec_push((v)->allocator,     \
                                             sizeof(*(v)->data), \
@@ -104,7 +104,7 @@ NU_DEFINE_HANDLE(nu_table_t);
          ? (v)->data + ((v)->size - 1)                          \
          : NU_NULL)
 
-#define nu_vec_pop(v) \
+#define NU_VEC_POP(v) \
     (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
 
 #define nu_vec_resize(v, new_size)                               \
@@ -123,9 +123,9 @@ NU_DEFINE_HANDLE(nu_table_t);
         }                                                        \
     } while (0)
 
-#define nu_vec_last(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
+#define NU_VEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
-#define nu_pool(type)            \
+#define NU_POOL(type)            \
     struct                       \
     {                            \
         type         *data;      \
@@ -133,32 +133,32 @@ NU_DEFINE_HANDLE(nu_table_t);
         nu_size_vec_t _freelist; \
     }
 
-#define nu_pool_init(cap, p) nu_pool_init_a(nu_allocator_core(), cap, p)
+#define NU_POOL_INIT(cap, p) NU_POOL_INIT_A(nu_allocator_core(), cap, p)
 
-#define nu_pool_init_a(alloc, cap, p)                                    \
+#define NU_POOL_INIT_A(alloc, cap, p)                                    \
     do                                                                   \
     {                                                                    \
         (p)->data = NU_VOID_CAST(                                        \
             (p)->data, nu_alloc_a((alloc), sizeof(*(p)->data) * (cap))); \
         nu_memset((p)->data, 0, sizeof(*(p)->data) * (cap));             \
         (p)->capacity = (cap);                                           \
-        nu_vec_init_a(alloc, (cap), &(p)->_freelist);                    \
+        NU_VEC_INIT_A(alloc, (cap), &(p)->_freelist);                    \
         for (nu_size_t i = 0; i < (cap); ++i)                            \
         {                                                                \
-            *nu_vec_push(&(p)->_freelist) = (cap) - i - 1;               \
+            *NU_VEC_PUSH(&(p)->_freelist) = (cap) - i - 1;               \
         }                                                                \
     } while (0)
 
-#define nu_pool_free(p)                                \
+#define NU_POOL_FREE(p)                                \
     do                                                 \
     {                                                  \
         nu_free_a((p)->_freelist.allocator,            \
                   (p)->data,                           \
                   sizeof(*(p)->data) * (p)->capacity); \
-        nu_vec_free(&(p)->_freelist);                  \
+        NU_VEC_FREE(&(p)->_freelist);                  \
     } while (0)
 
-#define nu_pool_add(p, pindex)                                  \
+#define NU_POOL_ADD(p, pindex)                                  \
     (((p)->data = NU_VOID_CAST((p)->data,                       \
                                nu__pool_add(sizeof(*(p)->data), \
                                             (p)->data,          \
@@ -168,7 +168,7 @@ NU_DEFINE_HANDLE(nu_table_t);
          ? (p)->data + (*(pindex))                              \
          : NU_NULL)
 
-#define nu_pool_remove(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)
+#define NU_POOL_REMOVE(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
@@ -395,11 +395,11 @@ typedef struct
     nu_uvec2_t s;
 } nu_rect_t;
 
-typedef nu_vec(nu_vec2_t) nu_vec2_vec_t;
-typedef nu_vec(nu_vec3_t) nu_vec3_vec_t;
-typedef nu_vec(nu_bool_t) nu_bool_vec_t;
-typedef nu_vec(nu_u32_t) nu_u32_vec_t;
-typedef nu_vec(nu_size_t) nu_size_vec_t;
+typedef NU_VEC(nu_vec2_t) nu_vec2_vec_t;
+typedef NU_VEC(nu_vec3_t) nu_vec3_vec_t;
+typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
+typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
+typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
 NU_API nu_error_t nu_init(void);
 NU_API void       nu_terminate(void);

@@ -48,7 +48,7 @@ nuext_import_package (const nu_char_t *filename)
     nu_char_t dir[NUEXT_PATH_MAX];
     nuext_path_dirname(filename, dir);
 
-    nu_info("loading package %s", filename);
+    NU_INFO("loading package %s", filename);
 
     nu_size_t  json_size;
     nu_char_t *json
@@ -92,7 +92,7 @@ nuext_import_package (const nu_char_t *filename)
             }
             nu_char_t name[NU_ASSET_NAME_MAX];
             nu__json_value(json, tname, name, NU_ASSET_NAME_MAX);
-            nu_info("name:%s", name);
+            NU_INFO("name:%s", name);
 
             // Parse path
             jsmntok_t *tpath = nu__json_object_member(json, tok, "path");
@@ -103,7 +103,7 @@ nuext_import_package (const nu_char_t *filename)
             }
             nu_char_t path[NUEXT_PATH_MAX];
             nu__json_value(json, tpath, path, NUEXT_PATH_MAX);
-            nu_info("path:%s", path);
+            NU_INFO("path:%s", path);
             nu_char_t final_path[NUEXT_PATH_MAX];
             nuext_path_concat(dir, path, final_path);
 
@@ -133,7 +133,7 @@ nuext_import_package (const nu_char_t *filename)
                 goto cleanup2;
             }
 
-            nu_info("'%s' asset added", name);
+            NU_INFO("'%s' asset added", name);
 
             tok++;
         }

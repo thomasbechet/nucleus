@@ -10,14 +10,14 @@ static const nu_char_t *nu__asset_type_names[] = {
 static nu_error_t
 nu__asset_init (void)
 {
-    nu_pool_init(10, &_ctx.asset.entries);
+    NU_POOL_INIT(10, &_ctx.asset.entries);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__asset_free (void)
 {
     // Free base loaders
-    nu_pool_free(&_ctx.asset.entries);
+    NU_POOL_FREE(&_ctx.asset.entries);
     return NU_ERROR_NONE;
 }
 
@@ -33,7 +33,7 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
     }
 
     nu_size_t          index;
-    nu__asset_entry_t *entry = nu_pool_add(&_ctx.asset.entries, &index);
+    nu__asset_entry_t *entry = NU_POOL_ADD(&_ctx.asset.entries, &index);
     entry->used              = NU_TRUE;
     entry->type              = type;
     entry->hash              = nu_hash(name);

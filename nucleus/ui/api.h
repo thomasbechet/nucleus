@@ -57,7 +57,7 @@ typedef struct
     };
 } nu_ui_style_t;
 
-typedef nu_vec(nu_ui_style_t) nu_ui_style_vec_t;
+typedef NU_VEC(nu_ui_style_t) nu_ui_style_vec_t;
 
 NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_material_t   handle,

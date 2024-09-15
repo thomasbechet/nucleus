@@ -10,6 +10,6 @@ typedef struct
     nu_vec3_vec_t normals;
 } nu__geometry_t;
 
-typedef nu_pool(nu__geometry_t) nu__geometry_pool_t;
+typedef NU_POOL(nu__geometry_t) nu__geometry_pool_t;
 
 #endif

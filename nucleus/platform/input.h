@@ -29,7 +29,7 @@ typedef struct
     };
 } nuglfw__binding_t;
 
-typedef nu_pool(nuglfw__binding_t) nuglfw__binding_pool_t;
+typedef NU_POOL(nuglfw__binding_t) nuglfw__binding_pool_t;
 
 typedef struct
 {
@@ -72,7 +72,7 @@ typedef struct
     nu_bool_t         used;
 } nu__input_entry_t;
 
-typedef nu_pool(nu__input_entry_t) nu__input_pool_t;
+typedef NU_POOL(nu__input_entry_t) nu__input_pool_t;
 
 typedef struct
 {

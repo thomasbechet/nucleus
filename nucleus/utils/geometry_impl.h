@@ -166,19 +166,19 @@ nu_geometry_t
 nu_geometry_create (nu_size_t capacity)
 {
     nu_size_t       index;
-    nu__geometry_t *g = nu_pool_add(&_ctx.utils.geometries, &index);
-    nu_vec_init(capacity, &g->positions);
-    nu_vec_init(capacity, &g->uvs);
-    nu_vec_init(capacity, &g->normals);
+    nu__geometry_t *g = NU_POOL_ADD(&_ctx.utils.geometries, &index);
+    NU_VEC_INIT(capacity, &g->positions);
+    NU_VEC_INIT(capacity, &g->uvs);
+    NU_VEC_INIT(capacity, &g->normals);
     return nu_handle_make(nu_geometry_t, index);
 }
 void
 nu_geometry_delete (nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
-    nu_vec_free(&g->positions);
-    nu_vec_free(&g->uvs);
-    nu_vec_free(&g->normals);
+    NU_VEC_FREE(&g->positions);
+    NU_VEC_FREE(&g->uvs);
+    NU_VEC_FREE(&g->normals);
 }
 
 void

@@ -11,7 +11,7 @@ typedef struct
     const void *ptr;
     nu_u16_t    index;
 } nu__model_gltf_cache_t;
-typedef nu_vec(nu__model_gltf_cache_t) nu__model_gltf_cache_vec_t;
+typedef NU_VEC(nu__model_gltf_cache_t) nu__model_gltf_cache_vec_t;
 
 typedef struct
 {

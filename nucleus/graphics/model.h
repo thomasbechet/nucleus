@@ -17,8 +17,8 @@ typedef union
     nu_material_t material;
 } nu__model_asset_t;
 
-typedef nu_vec(nu__model_asset_t) nu__model_asset_vec_t;
-typedef nu_vec(nu__model_node_t) nu__model_node_vec_t;
+typedef NU_VEC(nu__model_asset_t) nu__model_asset_vec_t;
+typedef NU_VEC(nu__model_node_t) nu__model_node_vec_t;
 
 typedef struct
 {
@@ -27,6 +27,6 @@ typedef struct
     nu__model_node_vec_t  nodes;
 } nu__model_t;
 
-typedef nu_pool(nu__model_t) nu__model_pool_t;
+typedef NU_POOL(nu__model_t) nu__model_pool_t;
 
 #endif

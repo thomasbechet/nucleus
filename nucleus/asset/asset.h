@@ -14,7 +14,7 @@ typedef struct
     nu_size_t       refcount;
 } nu__asset_entry_t;
 
-typedef nu_pool(nu__asset_entry_t) nu__asset_entry_pool_t;
+typedef NU_POOL(nu__asset_entry_t) nu__asset_entry_pool_t;
 
 typedef struct
 {

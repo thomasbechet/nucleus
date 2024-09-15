@@ -41,10 +41,10 @@ nu_vlog (nu_log_level_t   level,
 #if defined(NU_PLATFORM_WINDOWS)
     switch (severity)
     {
-        case nu_info:
+        case NU_INFO:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 3);
             break;
-        case nu_warning:
+        case NU_WARNING:
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
             break;
         case nu_error:

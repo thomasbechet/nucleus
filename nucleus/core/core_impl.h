@@ -17,13 +17,13 @@ nu__core_init (void)
 {
     _ctx.core.allocator    = nu__allocator_stdlib();
     _ctx.core.logger.level = NU_LOG_DEBUG;
-    nu_pool_init(10, &_ctx.core.tables);
+    NU_POOL_INIT(10, &_ctx.core.tables);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__core_free (void)
 {
-    nu_pool_free(&_ctx.core.tables);
+    NU_POOL_FREE(&_ctx.core.tables);
     return NU_ERROR_NONE;
 }
 

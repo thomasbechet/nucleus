@@ -8,7 +8,7 @@ nu_controller_create (const nu_controller_info_t *info)
 {
     nu_size_t                index;
     nu__camera_controller_t *ctrl
-        = nu_pool_add(&_ctx.utils.controllers, &index);
+        = NU_POOL_ADD(&_ctx.utils.controllers, &index);
 
     ctrl->pos   = NU_VEC3_ZERO;
     ctrl->vel   = NU_VEC3_ZERO;
@@ -119,7 +119,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
         {
             ctrl->pitch += look.y * dt;
         }
-        ctrl->pitch = nu_clamp(ctrl->pitch, -90.0, 90.0);
+        ctrl->pitch = NU_CLAMP(ctrl->pitch, -90.0, 90.0);
         ctrl->rot   = nu_quat_axis(NU_VEC3_UP, -nu_radian(ctrl->yaw));
         ctrl->rot   = nu_quat_mul(
             ctrl->rot, nu_quat_axis(NU_VEC3_RIGHT, -nu_radian(ctrl->pitch)));

@@ -9,9 +9,9 @@
 static nu_error_t
 nu__graphics_init (void)
 {
-    nu_pool_init(10, &_ctx.graphics.fonts);
-    nu_pool_init(10, &_ctx.graphics.images);
-    nu_pool_init(10, &_ctx.graphics.models);
+    NU_POOL_INIT(10, &_ctx.graphics.fonts);
+    NU_POOL_INIT(10, &_ctx.graphics.images);
+    NU_POOL_INIT(10, &_ctx.graphics.models);
 
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
     renderer->null_api       = NU_FALSE;
@@ -31,7 +31,7 @@ nu__graphics_init (void)
     }
 
     // Initialize backend
-    nu_info("initialize renderer context");
+    NU_INFO("initialize renderer context");
     if (!renderer->null_api)
     {
         nu_error_t error = renderer->api.init();
@@ -51,15 +51,15 @@ static nu_error_t
 nu__graphics_free (void)
 {
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
-    nu_info("terminate renderer context");
+    NU_INFO("terminate renderer context");
     if (!renderer->null_api)
     {
         renderer->api.free();
     }
     // TODO: free fonts and models
-    nu_pool_free(&_ctx.graphics.models);
-    nu_pool_free(&_ctx.graphics.images);
-    nu_pool_free(&_ctx.graphics.fonts);
+    NU_POOL_FREE(&_ctx.graphics.models);
+    NU_POOL_FREE(&_ctx.graphics.images);
+    NU_POOL_FREE(&_ctx.graphics.fonts);
     return NU_ERROR_NONE;
 }
 static nu_error_t

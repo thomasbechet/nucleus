@@ -58,7 +58,7 @@ nu__json_value (const nu_char_t *json,
     nu_memset(s, 0, n);
     nu_strncpy(s,
                json + tok->start,
-               nu_min((nu_size_t)(tok->end - tok->start), n - 1));
+               NU_MIN((nu_size_t)(tok->end - tok->start), n - 1));
 }
 static jsmntok_t *
 nu__json_skip (jsmntok_t *token)

@@ -303,7 +303,7 @@ nu_uvec2 (nu_u32_t x, nu_u32_t y)
 nu_uvec2_t
 nu_uvec2_min (nu_uvec2_t a, nu_uvec2_t b)
 {
-    return nu_uvec2(nu_min(a.x, b.x), nu_min(a.y, b.y));
+    return nu_uvec2(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
 }
 
 nu_uvec4_t
@@ -718,9 +718,9 @@ nu_axis3d (float     pos_x,
 {
     nu_vec3_t ax;
 
-    ax.x = nu_clamp(neg_x - pos_x, -1, 1);
-    ax.y = nu_clamp(pos_y - neg_y, -1, 1);
-    ax.z = nu_clamp(pos_z - neg_z, -1, 1);
+    ax.x = NU_CLAMP(neg_x - pos_x, -1, 1);
+    ax.y = NU_CLAMP(pos_y - neg_y, -1, 1);
+    ax.z = NU_CLAMP(pos_z - neg_z, -1, 1);
     if (normalize)
     {
         ax = nu_vec3_normalize(ax);

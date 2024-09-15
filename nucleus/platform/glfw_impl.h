@@ -147,7 +147,7 @@ nuglfw__update_viewport (nuglfw__viewport_t *v)
         case NUEXT_VIEWPORT_FIXED_BEST_FIT: {
             float w_factor = global_size.x / (float)v->screen.x;
             float h_factor = global_size.y / (float)v->screen.y;
-            float min      = nu_max(1.0f, nu_floor(nu_min(w_factor, h_factor)));
+            float min      = NU_MAX(1.0f, nu_floor(NU_MIN(w_factor, h_factor)));
             size.x         = v->screen.x * min;
             size.y         = v->screen.y * min;
         }
@@ -332,7 +332,7 @@ nuglfw__init (void)
     input->mouse_old_position = input->mouse_position;
 
     // Initialize inputs
-    nu_pool_init(10, &input->bindings);
+    NU_POOL_INIT(10, &input->bindings);
     for (nu_u32_t i = 0; i <= GLFW_KEY_LAST; ++i)
     {
         input->key_to_first_binding[i] = NUGLFW_ID_NONE;
@@ -354,7 +354,7 @@ nuglfw__init (void)
 static nu_error_t
 nuglfw__free (void)
 {
-    nu_pool_free(&_ctx.platform.input.glfw.bindings);
+    NU_POOL_FREE(&_ctx.platform.input.glfw.bindings);
     glfwTerminate();
     return NU_ERROR_NONE;
 }
@@ -569,7 +569,7 @@ nuglfw__add_binding (nu_u32_t *first_binding, nu_input_t input)
 {
     nu_size_t          index;
     nuglfw__binding_t *binding
-        = nu_pool_add(&_ctx.platform.input.glfw.bindings, &index);
+        = NU_POOL_ADD(&_ctx.platform.input.glfw.bindings, &index);
     nu_assert(nu_handle_index(input) < _ctx.platform.input.entries.capacity);
     binding->input_index = nu_handle_index(input);
     binding->next        = *first_binding;

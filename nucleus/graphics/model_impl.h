@@ -7,9 +7,9 @@ nu_model_t
 nu_model_create (void)
 {
     nu_size_t    index;
-    nu__model_t *m = nu_pool_add(&_ctx.graphics.models, &index);
-    nu_vec_init(1, &m->assets);
-    nu_vec_init(1, &m->nodes);
+    nu__model_t *m = NU_POOL_ADD(&_ctx.graphics.models, &index);
+    NU_VEC_INIT(1, &m->assets);
+    NU_VEC_INIT(1, &m->nodes);
     return nu_handle_make(nu_model_t, index);
 }
 void
@@ -17,8 +17,8 @@ nu_model_delete (nu_model_t model)
 {
     nu_size_t    index = nu_handle_index(model);
     nu__model_t *m     = &_ctx.graphics.models.data[index];
-    nu_vec_free(&m->assets);
-    nu_vec_free(&m->nodes);
+    NU_VEC_FREE(&m->assets);
+    NU_VEC_FREE(&m->nodes);
 }
 void
 nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_mat4_t transform)

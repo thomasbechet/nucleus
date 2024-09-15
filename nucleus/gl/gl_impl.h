@@ -10,18 +10,18 @@ nugl__reset_renderpass_typed (nugl__renderpass_t *pass)
     {
         case NU_RENDERPASS_UNLIT:
         case NU_RENDERPASS_FLAT: {
-            nu_vec_clear(&pass->flat.cmds);
+            NU_VEC_CLEAR(&pass->flat.cmds);
         }
         break;
         case NU_RENDERPASS_TRANSPARENT:
         case NU_RENDERPASS_WIREFRAME:
         case NU_RENDERPASS_SKYBOX: {
-            nu_vec_clear(&pass->skybox.cmds);
+            NU_VEC_CLEAR(&pass->skybox.cmds);
         }
         break;
         case NU_RENDERPASS_CANVAS: {
-            nu_vec_clear(&pass->canvas.cmds);
-            nu_vec_clear(&pass->canvas.blit_transfer);
+            NU_VEC_CLEAR(&pass->canvas.cmds);
+            NU_VEC_CLEAR(&pass->canvas.blit_transfer);
             pass->canvas.depth = 0;
         }
         break;
@@ -157,12 +157,12 @@ MessageCallback (GLenum        source,
                      message);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            nu_warning("GL: %s, message = %s",
+            NU_WARNING("GL: %s, message = %s",
                        nugl__message_type_string(type),
                        message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            nu_info("GL: %s, message = %s",
+            NU_INFO("GL: %s, message = %s",
                     nugl__message_type_string(type),
                     message);
             break;
@@ -177,14 +177,14 @@ nugl__init (void)
     nu__gl_t *gl = &_ctx.gl;
 
     // Initialize containers
-    nu_vec_init(16, &gl->cameras);
-    nu_vec_init(16, &gl->meshes);
-    nu_vec_init(16, &gl->textures);
-    nu_vec_init(16, &gl->cubemaps);
-    nu_vec_init(16, &gl->materials);
-    nu_vec_init(16, &gl->targets);
-    nu_vec_init(16, &gl->passes);
-    nu_vec_init(16, &gl->passes_order);
+    NU_VEC_INIT(16, &gl->cameras);
+    NU_VEC_INIT(16, &gl->meshes);
+    NU_VEC_INIT(16, &gl->textures);
+    NU_VEC_INIT(16, &gl->cubemaps);
+    NU_VEC_INIT(16, &gl->materials);
+    NU_VEC_INIT(16, &gl->targets);
+    NU_VEC_INIT(16, &gl->passes);
+    NU_VEC_INIT(16, &gl->passes_order);
 
     // Initialize GL functions
     if (!gladLoadGL(glfwGetProcAddress))
@@ -440,7 +440,7 @@ nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
     glUseProgram(0);
 
     // Reset for next frame
-    nu_vec_clear(&gl->passes_order);
+    NU_VEC_CLEAR(&gl->passes_order);
 
     return NU_ERROR_NONE;
 }
@@ -449,7 +449,7 @@ nugl__create_surface_color (nu_uvec2_t size)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__texture_t *ptex   = nu_vec_push(&gl->textures);
+    nugl__texture_t *ptex   = NU_VEC_PUSH(&gl->textures);
     gl->surface_color_index = gl->textures.size - 1;
     ptex->size              = size;
 
@@ -477,7 +477,7 @@ nugl__create_camera (void)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    (void)nu_vec_push(&gl->cameras);
+    (void)NU_VEC_PUSH(&gl->cameras);
     return nu_handle_make(nu_camera_t, gl->cameras.size - 1);
 }
 static void
@@ -507,7 +507,7 @@ nugl__create_mesh (nu_size_t count)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__mesh_t *pmesh  = nu_vec_push(&gl->meshes);
+    nugl__mesh_t *pmesh  = NU_VEC_PUSH(&gl->meshes);
     nu_mesh_t     handle = nu_handle_make(nu_mesh_t, gl->meshes.size - 1);
 
     pmesh->vertex_count = count;
@@ -604,7 +604,7 @@ nugl__create_texture (nu_uvec2_t          size,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__texture_t *ptex = nu_vec_push(&gl->textures);
+    nugl__texture_t *ptex = NU_VEC_PUSH(&gl->textures);
     nu_texture_t handle   = nu_handle_make(nu_texture_t, gl->textures.size - 1);
 
     ptex->size = size;
@@ -657,7 +657,7 @@ nugl__create_cubemap (const nu_cubemap_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__cubemap_t *pcube = nu_vec_push(&gl->cubemaps);
+    nugl__cubemap_t *pcube = NU_VEC_PUSH(&gl->cubemaps);
     nu_cubemap_t handle = nu_handle_make(nu_cubemap_t, gl->cubemaps.size - 1);
 
     glGenTextures(1, &pcube->texture);
@@ -735,7 +735,7 @@ nugl__create_material (const nu_material_info_t *info)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    (void)nu_vec_push(&gl->materials);
+    (void)NU_VEC_PUSH(&gl->materials);
     nu_material_t handle
         = nu_handle_make(nu_material_t, gl->materials.size - 1);
 
@@ -752,14 +752,14 @@ nugl__delete_material (nu_material_t material)
 static nu_error_t
 nugl__create_flat_renderpass (nugl__renderpass_flat_t *pass)
 {
-    nu_vec_init(128, &pass->cmds);
+    NU_VEC_INIT(128, &pass->cmds);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nugl__create_canvas_renderpass (nugl__renderpass_canvas_t *pass)
 {
-    nu_vec_init(128, &pass->cmds);
-    nu_vec_init(32, &pass->blit_transfer);
+    NU_VEC_INIT(128, &pass->cmds);
+    NU_VEC_INIT(32, &pass->blit_transfer);
 
     // Create VAO
     GLuint vao;
@@ -821,7 +821,7 @@ nugl__create_renderpass (const nu_renderpass_info_t *info)
     nu_error_t error;
     nu__gl_t  *gl = &_ctx.gl;
 
-    nugl__renderpass_t *data  = nu_vec_push(&gl->passes);
+    nugl__renderpass_t *data  = NU_VEC_PUSH(&gl->passes);
     nu_size_t           index = gl->passes.size - 1;
     data->type                = info->type;
     data->reset_after_submit  = info->reset_after_submit;
@@ -865,7 +865,7 @@ nugl__canvas_add_blit (nugl__renderpass_canvas_t *pass,
                        nu_uvec2_t                 tex,
                        nu_uvec2_t                 size)
 {
-    nugl__gpu_blit_t *blit = nu_vec_push(&pass->blit_transfer);
+    nugl__gpu_blit_t *blit = NU_VEC_PUSH(&pass->blit_transfer);
     blit->pos              = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
     blit->tex              = (tex.y << 16) | tex.x;
     blit->size             = (size.y << 16) | size.x;
@@ -970,7 +970,7 @@ nugl__canvas_blit_rect (nugl__renderpass_canvas_t *pass,
     }
     pass->depth += NUGL__DEPTH_INCREMENT;
 
-    nugl__canvas_command_t *last = nu_vec_last(&pass->cmds);
+    nugl__canvas_command_t *last = NU_VEC_LAST(&pass->cmds);
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)
     {
@@ -978,7 +978,7 @@ nugl__canvas_blit_rect (nugl__renderpass_canvas_t *pass,
     }
     else
     {
-        last                      = nu_vec_push(&pass->cmds);
+        last                      = NU_VEC_PUSH(&pass->cmds);
         last->type                = NUGL__CANVAS_BLIT;
         last->blit.texture        = texture;
         last->blit.instance_start = pass->blit_transfer.size - blit_count;
@@ -999,9 +999,9 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
         }
     }
 
-    nu_info("new framebuffer created for color: %d depth: %d", color, depth);
+    NU_INFO("new framebuffer created for color: %d depth: %d", color, depth);
 
-    nugl__rendertarget_t *target = nu_vec_push(&gl->targets);
+    nugl__rendertarget_t *target = NU_VEC_PUSH(&gl->targets);
     target->color                = color;
     target->depth                = depth;
 
@@ -1055,7 +1055,7 @@ nugl__submit_renderpass (nu_renderpass_t               pass,
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    *nu_vec_push(&gl->passes_order) = nu_handle_index(pass);
+    *NU_VEC_PUSH(&gl->passes_order) = nu_handle_index(pass);
 
     nugl__renderpass_t *ppass = gl->passes.data + nu_handle_index(pass);
     switch (ppass->type)
@@ -1144,7 +1144,7 @@ nugl__draw_mesh (nu_renderpass_t pass,
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT: {
-            nugl__mesh_command_t *cmd = nu_vec_push(&ppass->flat.cmds);
+            nugl__mesh_command_t *cmd = NU_VEC_PUSH(&ppass->flat.cmds);
             cmd->type                 = NUGL__DRAW;
             cmd->transform            = transform;
             cmd->vao                  = pmesh->vao;

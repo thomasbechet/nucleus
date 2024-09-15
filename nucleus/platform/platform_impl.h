@@ -15,12 +15,12 @@ nu__platform_init (void)
     nu_error_t error;
 
     // Initialize context
-    nu_pool_init(10, &_ctx.platform.input.entries);
+    NU_POOL_INIT(10, &_ctx.platform.input.entries);
     _ctx.platform.surface.size
         = nu_uvec2(_ctx.config.platform.width, _ctx.config.platform.height);
     _ctx.platform.close_requested = NU_FALSE;
 
-    nu_info("initialize platform context (%dx%d)",
+    NU_INFO("initialize platform context (%dx%d)",
             _ctx.config.platform.width,
             _ctx.config.platform.height);
 
@@ -37,14 +37,14 @@ nu__platform_free (void)
 {
     nu_error_t error;
 
-    nu_info("terminate platform context");
+    NU_INFO("terminate platform context");
 
     // Terminate surface (and inputs)
 #ifdef NU_BUILD_GLFW
     nuglfw__free();
 #endif
 
-    nu_pool_free(&_ctx.platform.input.entries);
+    NU_POOL_FREE(&_ctx.platform.input.entries);
 
     return NU_ERROR_NONE;
 }

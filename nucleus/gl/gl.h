@@ -75,7 +75,7 @@ typedef struct
     nu_mat3_t                 uv_transform;
 } nugl__mesh_command_t;
 
-typedef nu_vec(nugl__mesh_command_t) nugl__mesh_command_vec_t;
+typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;
 
 typedef enum
 {
@@ -98,7 +98,7 @@ typedef struct
     };
 } nugl__canvas_command_t;
 
-typedef nu_vec(nugl__canvas_command_t) nugl__canvas_command_vec_t;
+typedef NU_VEC(nugl__canvas_command_t) nugl__canvas_command_vec_t;
 
 typedef struct
 {
@@ -108,7 +108,7 @@ typedef struct
     float    depth;
 } nugl__gpu_blit_t;
 
-typedef nu_vec(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
+typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
 
 typedef struct
 {
@@ -159,13 +159,13 @@ typedef struct
     GLuint fbo;
 } nugl__rendertarget_t;
 
-typedef nu_vec(nugl__camera_t) nugl__camera_vec_t;
-typedef nu_vec(nugl__mesh_t) nugl__mesh_vec_t;
-typedef nu_vec(nugl__texture_t) nugl__texture_vec_t;
-typedef nu_vec(nugl__cubemap_t) nugl__cubemap_vec_t;
-typedef nu_vec(nugl__material_t) nugl__material_vec_t;
-typedef nu_vec(nugl__rendertarget_t) nugl__rendertarget_vec_t;
-typedef nu_vec(nugl__renderpass_t) nugl__renderpass_vec_t;
+typedef NU_VEC(nugl__camera_t) nugl__camera_vec_t;
+typedef NU_VEC(nugl__mesh_t) nugl__mesh_vec_t;
+typedef NU_VEC(nugl__texture_t) nugl__texture_vec_t;
+typedef NU_VEC(nugl__cubemap_t) nugl__cubemap_vec_t;
+typedef NU_VEC(nugl__material_t) nugl__material_vec_t;
+typedef NU_VEC(nugl__rendertarget_t) nugl__rendertarget_vec_t;
+typedef NU_VEC(nugl__renderpass_t) nugl__renderpass_vec_t;
 
 typedef struct
 {

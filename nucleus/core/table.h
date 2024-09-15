@@ -18,6 +18,6 @@ typedef struct
     nu_size_t size;
 } nu__table_t;
 
-typedef nu_pool(nu__table_t) nu__table_pool_t;
+typedef NU_POOL(nu__table_t) nu__table_pool_t;
 
 #endif

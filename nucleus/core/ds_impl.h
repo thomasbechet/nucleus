@@ -42,7 +42,7 @@ nu__pool_add (nu_size_t      tsize,
     nu_assert(data && capacity && freelist && pindex);
     if (freelist->size)
     {
-        *pindex = *nu_vec_pop(freelist);
+        *pindex = *NU_VEC_POP(freelist);
         return data;
     }
 
@@ -55,7 +55,7 @@ nu__pool_add (nu_size_t      tsize,
 
     for (nu_size_t i = 0; i < (new_capacity - *capacity - 1); ++i)
     {
-        *nu_vec_push(freelist) = new_capacity - i - 1;
+        *NU_VEC_PUSH(freelist) = new_capacity - i - 1;
     }
 
     *pindex   = *capacity;

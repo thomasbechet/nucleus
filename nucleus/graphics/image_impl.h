@@ -7,7 +7,7 @@ nu_image_t
 nu_image_create (nu_uvec2_t size)
 {
     nu_size_t    index;
-    nu__image_t *im = nu_pool_add(&_ctx.graphics.images, &index);
+    nu__image_t *im = NU_POOL_ADD(&_ctx.graphics.images, &index);
     im->size        = size;
     im->colors = (nu_color_t *)nu_alloc(sizeof(nu_color_t) * size.x * size.y);
     return nu_handle_make(nu_image_t, index);
