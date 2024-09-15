@@ -1,5 +1,4 @@
 #define NU_NO_GRAPHICS
-#define NU_NO_UTILS
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -10,22 +9,16 @@ main (void)
 {
     nu_init();
 
-    // nu_input_create(&exit_input);
-    // nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
+    exit_input = nu_input_create();
+    nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 
-    nu_input_t q = nu_input_create();
-    nuext_input_bind_axis(q, NUEXT_AXIS_MOUSE_X);
-    nu_input_t w = nu_input_create();
-    nuext_input_bind_axis(w, NUEXT_AXIS_MOUSE_Y);
-
-    while (!nu_exit_requested())
+    nu_bool_t running = NU_TRUE;
+    while (!nu_exit_requested() && running)
     {
-        nu_info("%lf", nu_input_value(q));
-        nu_info("%lf", nu_input_value(w));
-        // if (nu_input_just_pressed(exit_input))
-        // {
-        //     break;
-        // }
+        if (nu_input_just_pressed(exit_input))
+        {
+            running = NU_FALSE;
+        }
         nu_poll_events();
         nu_swap_buffers();
     }
