@@ -151,7 +151,11 @@
 #define _NU_S_(x)     _NU_S(x)
 #define _NU_S__LINE__ _NU_S_(__LINE__)
 
-#define __SOURCE__ __FILE_NAME__ ":" _NU_S__LINE__
+#ifdef __FILE_NAME__
+#define __SOURCE__ __FILE_NAME__ ":" _NU_S__LINE__ " "
+#else
+#define __SOURCE__ ""
+#endif
 
 #ifdef NU_DEBUG
 #define _NU_CHECK(check, action, source) \

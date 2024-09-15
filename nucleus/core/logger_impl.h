@@ -25,40 +25,11 @@ nu_vlog (nu_log_level_t   level,
         return;
     }
 
-    // if (s_state.log_file)
-    // {
-    //     nu_file_write_printf(
-    //         s_state.log_file, "[%s][%s] ", data->name, severity_name);
-    //     nu_file_write_vprintf(s_state.log_file, format, args);
-    //     nu_file_write_printf(s_state.log_file, "\n");
-    // }
-
     nu_time_t t    = nu_time();
     nu_u32_t  hour = nu_time_hours(&t);
     nu_u32_t  min  = nu_time_minutes(&t);
     nu_u32_t  sec  = nu_time_seconds(&t);
 
-#if defined(NU_PLATFORM_WINDOWS)
-    switch (severity)
-    {
-        case NU_INFO:
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 3);
-            break;
-        case NU_WARNING:
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
-            break;
-        case nu_error:
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
-            break;
-        case nu_fatal:
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
-            break;
-    }
-    fprintf(stdout, "[%s][%s] ", data->name, severity_name);
-    vfprintf(stdout, format, args);
-    fprintf(stdout, "\n");
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-#elif defined(NU_PLATFORM_UNIX)
     fprintf(stdout, "\x1B[90m%02d:%02d:%02d ", hour, min, sec);
     switch (level)
     {
@@ -75,10 +46,9 @@ nu_vlog (nu_log_level_t   level,
             fprintf(stdout, "\x1B[31mERROR\x1B[0m ");
             break;
     }
-    fprintf(stdout, "\x1B[90m%s:\x1B[0m ", source);
+    fprintf(stdout, "\x1B[90m%s\x1B[0m", source);
     vfprintf(stdout, format, args);
     fprintf(stdout, "\n");
-#endif
 }
 
 #endif
