@@ -107,7 +107,7 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VEC_POP(v) \
     (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
 
-#define nu_vec_resize(v, new_size)                               \
+#define NU_VEC_RESIZE(v, new_size)                               \
     do                                                           \
     {                                                            \
         if ((v)->size != (new_size))                             \

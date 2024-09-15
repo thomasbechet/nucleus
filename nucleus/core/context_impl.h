@@ -5,7 +5,7 @@
 
 #define NU__INIT_MODULE(name)    \
     error = nu__##name##_init(); \
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 
 static nu__config_t *
 nu__config (void)
@@ -34,21 +34,21 @@ nu_init (void)
     (void)nu__config();
 
     error = nu__core_init();
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 
 #ifdef NU_BUILD_PLATFORM
     error = nu__platform_init();
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 #endif
 
 #ifdef NU_BUILD_GRAPHICS
     error = nu__graphics_init();
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 #endif
 
 #ifdef NU_BUILD_UTILS
     error = nu__utils_init();
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 #endif
 
 #ifdef NU_BUILD_IMPORTER
@@ -57,7 +57,7 @@ nu_init (void)
 
 #ifdef NU_BUILD_ASSET
     error = nu__asset_init();
-    nu_error_check(error, return error);
+    NU_ERROR_CHECK(error, return error);
 #endif
 
 #ifdef NU_BUILD_UI

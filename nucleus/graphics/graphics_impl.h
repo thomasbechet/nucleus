@@ -35,7 +35,7 @@ nu__graphics_init (void)
     if (!renderer->null_api)
     {
         nu_error_t error = renderer->api.init();
-        nu_error_check(error, return error);
+        NU_ERROR_CHECK(error, return error);
     }
 
     // Create surface texture

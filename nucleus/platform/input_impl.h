@@ -126,7 +126,7 @@ nu__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
     while (current != NU__ID_NONE)
     {
         const nu__binding_t *binding = &_ctx.platform.bindings.data[current];
-        nu_assert(binding->input_index < _ctx.platform.entries.capacity);
+        NU_ASSERT(binding->input_index < _ctx.platform.entries.capacity);
 
         float value = NU_INPUT_RELEASED;
         if (pressed)
@@ -145,7 +145,7 @@ nu__dispatch_binding_axis (nu_u32_t binding, float value)
     while (current != NU__ID_NONE)
     {
         const nu__binding_t *binding = &_ctx.platform.bindings.data[current];
-        nu_assert(binding->input_index < _ctx.platform.entries.capacity);
+        NU_ASSERT(binding->input_index < _ctx.platform.entries.capacity);
         _ctx.platform.entries.data[binding->input_index].state.value
             = value * binding->axis.scale;
         current = binding->next;
@@ -158,7 +158,7 @@ nu__find_binding (nu_u32_t binding, nu_input_t input)
     while (current != NU__ID_NONE)
     {
         if (_ctx.platform.bindings.data[current].input_index
-            == nu_handle_index(input))
+            == NU_HANDLE_INDEX(input))
         {
             return NU_TRUE;
         }
@@ -280,8 +280,8 @@ nu__add_binding (nu_u32_t *first_binding, nu_input_t input)
 {
     nu_size_t      index;
     nu__binding_t *binding = NU_POOL_ADD(&_ctx.platform.bindings, &index);
-    nu_assert(nu_handle_index(input) < _ctx.platform.entries.capacity);
-    binding->input_index = nu_handle_index(input);
+    NU_ASSERT(NU_HANDLE_INDEX(input) < _ctx.platform.entries.capacity);
+    binding->input_index = NU_HANDLE_INDEX(input);
     binding->next        = *first_binding;
     *first_binding       = index;
     return binding;
@@ -295,26 +295,26 @@ nu_input_create (void)
     entry->state.value       = NU_INPUT_RELEASED;
     entry->state.previous    = NU_INPUT_RELEASED;
     entry->used              = NU_TRUE;
-    return nu_handle_make(nu_input_t, index);
+    return NU_HANDLE_MAKE(nu_input_t, index);
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return state->value != state->previous;
 }
 nu_bool_t
 nu_input_pressed (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_pressed (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return NU_INPUT_IS_PRESSED(state->value)
            && !NU_INPUT_IS_PRESSED(state->previous);
@@ -322,14 +322,14 @@ nu_input_just_pressed (nu_input_t input)
 nu_bool_t
 nu_input_released (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return !NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_released (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return !NU_INPUT_IS_PRESSED(state->value)
            && NU_INPUT_IS_PRESSED(state->previous);
@@ -337,7 +337,7 @@ nu_input_just_released (nu_input_t input)
 float
 nu_input_value (nu_input_t input)
 {
-    nu_size_t          index = nu_handle_index(input);
+    nu_size_t          index = NU_HANDLE_INDEX(input);
     nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
     return state->value;
 }
@@ -354,7 +354,7 @@ nuext_input_bind_button_value (nu_input_t     input,
 {
     // Check duplicated binding
     nu_u32_t *first_binding = nu__first_binding_from_button(button);
-    nu_assert(first_binding);
+    NU_ASSERT(first_binding);
     if (nu__find_binding(*first_binding, input))
     {
         return NU_ERROR_DUPLICATED;
@@ -371,7 +371,7 @@ nuext_input_bind_axis (nu_input_t input, nuext_axis_t axis)
 {
     // Check duplicated
     nu_u32_t *first_binding = nu__first_binding_from_axis(axis);
-    nu_assert(first_binding);
+    NU_ASSERT(first_binding);
     if (nu__find_binding(*first_binding, input))
     {
         return NU_ERROR_DUPLICATED;

@@ -10,7 +10,7 @@ nu__vec_push (nu_allocator_t *alloc,
               nu_size_t      *size,
               nu_size_t      *capacity)
 {
-    nu_assert(data && size && capacity);
+    NU_ASSERT(data && size && capacity);
     if ((*size) >= (*capacity))
     {
         nu_size_t new_capacity = (*capacity) * 2;
@@ -39,7 +39,7 @@ nu__pool_add (nu_size_t      tsize,
               nu_size_vec_t *freelist,
               nu_size_t     *pindex)
 {
-    nu_assert(data && capacity && freelist && pindex);
+    NU_ASSERT(data && capacity && freelist && pindex);
     if (freelist->size)
     {
         *pindex = *NU_VEC_POP(freelist);

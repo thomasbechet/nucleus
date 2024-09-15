@@ -25,13 +25,13 @@ nu_controller_create (const nu_controller_info_t *info)
 
     ctrl->info = *info;
 
-    return nu_handle_make(nu_controller_t, index);
+    return NU_HANDLE_MAKE(nu_controller_t, index);
 }
 void
 nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 {
     nu__camera_controller_t *ctrl
-        = &_ctx.utils.controllers.data[nu_handle_index(controller)];
+        = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
     nu_vec3_t look = nu_axis3d(nu_input_value(ctrl->info.view_yaw_neg),
                                nu_input_value(ctrl->info.view_yaw_pos),
                                nu_input_value(ctrl->info.view_pitch_pos),

@@ -110,7 +110,7 @@ nu_memcpy (void *dst, const void *src, nu_size_t n)
 void *
 nu_memalign (void *ptr, nu_size_t align)
 {
-    nu_assert(align > 0);
+    NU_ASSERT(align > 0);
     return (void *)(((nu_size_t)ptr + align - 1) & ~(align - 1));
 }
 

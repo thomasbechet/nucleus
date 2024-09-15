@@ -38,7 +38,7 @@ nu__image_load_filename (const nu_char_t *filename)
 #ifdef NU_BUILD_STBIMAGE
     int        w, h, n;
     nu_byte_t *img = stbi_load(filename, &w, &h, &n, STBI_default);
-    nu_check(img, return NU_NULL);
+    NU_CHECK(img, return NU_NULL);
     nu_uvec2_t size   = nu_uvec2(w, h);
     nu_image_t handle = nu_image_create(size);
     nu__parse_colors(img, nu_image_colors(handle), size, n);
@@ -54,7 +54,7 @@ nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
     int        w, h, n;
     nu_byte_t *img
         = stbi_load_from_memory(data, size, &w, &h, &n, STBI_default);
-    nu_check(img, return NU_NULL);
+    NU_CHECK(img, return NU_NULL);
     nu_uvec2_t image_size = nu_uvec2(w, h);
     nu_image_t handle     = nu_image_create(image_size);
     nu__parse_colors(img, nu_image_colors(handle), image_size, n);

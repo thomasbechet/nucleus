@@ -274,18 +274,18 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
 
     // Create model
     nu_model_t   handle = nu_model_create();
-    nu__model_t *m      = &_ctx.graphics.models.data[nu_handle_index(handle)];
+    nu__model_t *m      = &_ctx.graphics.models.data[NU_HANDLE_INDEX(handle)];
 
     // Load resources
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i, m);
-        nu_error_check(error, return NU_NULL);
+        NU_ERROR_CHECK(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i, m);
-        nu_error_check(error, return NU_NULL);
+        NU_ERROR_CHECK(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -294,7 +294,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat, m);
-            nu_error_check(error, return NU_NULL);
+            NU_ERROR_CHECK(error, return NU_NULL);
         }
     }
 

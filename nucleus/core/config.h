@@ -124,27 +124,27 @@
 //////////////////////////////////////////////////////////////////////////
 
 #define NU_UNUSED(x)       (void)x
-#define nu_array_size(arr) (sizeof(arr) / sizeof(arr[0]))
-#define nu_array_fill(arr, size, value)  \
+#define NU_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define NU_ARRAY_FILL(arr, size, value)  \
     for (nu_size_t i = 0; i < size; ++i) \
     {                                    \
         (arr)[i] = (value);              \
     }
 
 #define NU_DEFINE_HANDLE(type)      typedef struct type *type
-#define nu_handle_index(handle)     ((nu_size_t)handle - 1)
-#define nu_handle_make(type, index) ((type)(index + 1))
+#define NU_HANDLE_INDEX(handle)     ((nu_size_t)handle - 1)
+#define NU_HANDLE_MAKE(type, index) ((type)(index + 1))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
-#define nu_assert(x) assert(x)
+#define NU_ASSERT(x) assert(x)
 #else
-#define nu_assert(x) (void)(x)
+#define NU_ASSERT(x) (void)(x)
 #endif
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
-#define nu_assert(x) assert(x)
+#define NU_ASSERT(x) assert(x)
 #else
-#define nu_assert(x) (void)(x)
+#define NU_ASSERT(x) (void)(x)
 #endif
 
 #define _NU_S(x)      #x
@@ -154,23 +154,23 @@
 #define __SOURCE__ __FILE_NAME__ ":" _NU_S__LINE__
 
 #ifdef NU_DEBUG
-#define _nu_check(check, action, source) \
+#define _NU_CHECK(check, action, source) \
     if (!(check))                        \
     {                                    \
         action;                          \
     }
 #else
-#define _nu_check(check, action, source) \
+#define _NU_CHECK(check, action, source) \
     if (!(check))                        \
     {                                    \
         action;                          \
     }
 #endif
 
-#define nu_check(check, action) _nu_check(check, action, __SOURCE__)
+#define NU_CHECK(check, action) _NU_CHECK(check, action, __SOURCE__)
 
-#define nu_error_check(error, action) \
-    _nu_check(error == NU_ERROR_NONE, action, __SOURCE__)
-#define nu_error_assert(error) nu_assert(error == NU_ERROR_NONE)
+#define NU_ERROR_CHECK(error, action) \
+    _NU_CHECK(error == NU_ERROR_NONE, action, __SOURCE__)
+#define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
 
 #endif

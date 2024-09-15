@@ -21,7 +21,7 @@ nu__json_parse (const nu_char_t *json,
                 nu_size_t       *size,
                 nu_size_t       *count)
 {
-    nu_assert(json);
+    NU_ASSERT(json);
     nu_size_t   cap  = 256;
     jsmntok_t  *toks = (jsmntok_t *)nu_alloc(sizeof(*toks) * cap);
     jsmn_parser parser;
@@ -35,7 +35,7 @@ nu__json_parse (const nu_char_t *json,
             toks, sizeof(*toks) * old_cap, sizeof(*toks) * cap);
         r = jsmn_parse(&parser, json, json_size, toks, cap);
     }
-    nu_check(r >= 1, goto cleanup0);
+    NU_CHECK(r >= 1, goto cleanup0);
     *count = r;
     *size  = sizeof(*toks) * cap;
     return toks;

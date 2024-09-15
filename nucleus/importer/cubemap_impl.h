@@ -8,22 +8,22 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
 {
     nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
     nu_cubemap_t cubemap = NU_NULL;
-    nu_array_fill(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
+    NU_ARRAY_FILL(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
     nu_size_t  json_size;
     nu_char_t *json
         = (nu_char_t *)nu__bytes_load_filename(filename, &json_size);
-    nu_check(json, goto cleanup0);
+    NU_CHECK(json, goto cleanup0);
     nu_size_t  toks_size, toks_count;
     jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
-    nu_check(toks, goto cleanup1);
+    NU_CHECK(toks, goto cleanup1);
 
     nu_size_t image_count = 0;
-    nu_check(toks[0].type == JSMN_OBJECT, goto cleanup0);
+    NU_CHECK(toks[0].type == JSMN_OBJECT, goto cleanup0);
 
     static const nu_char_t *faces[]
         = { "posx", "negx", "posy", "negy", "posz", "negz" };
-    for (nu_size_t f = 0; f < nu_array_size(faces); ++f)
+    for (nu_size_t f = 0; f < NU_ARRAY_SIZE(faces); ++f)
     {
         jsmntok_t *tok = nu__json_object_member(json, &toks[0], faces[f]);
         if (!tok)
@@ -61,7 +61,7 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
     cubemap          = nu_cubemap_create(&info);
 
 cleanup2:
-    for (nu_size_t i = 0; i < nu_array_size(images); ++i)
+    for (nu_size_t i = 0; i < NU_ARRAY_SIZE(images); ++i)
     {
         if (images[i])
         {

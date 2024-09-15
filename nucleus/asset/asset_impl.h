@@ -42,7 +42,7 @@ nu_asset_add (nu_asset_type_t type, const nu_char_t *name)
     entry->data              = NU_NULL;
     nu_strncpy(entry->name, name, NU_ASSET_NAME_MAX);
 
-    return nu_handle_make(nu_asset_t, index);
+    return NU_HANDLE_MAKE(nu_asset_t, index);
 }
 nu_asset_t
 nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
@@ -53,7 +53,7 @@ nu_asset_find (nu_asset_type_t type, const nu_char_t *name)
         nu__asset_entry_t *entry = _ctx.asset.entries.data + i;
         if (entry->used && entry->type == type && entry->hash == hash)
         {
-            return nu_handle_make(nu_asset_t, i);
+            return NU_HANDLE_MAKE(nu_asset_t, i);
         }
     }
     NU_ERROR(
@@ -77,8 +77,8 @@ nu_asset_exists (nu_asset_type_t type, const nu_char_t *name)
 void *
 nu_asset_data (nu_asset_t handle)
 {
-    nu_assert(handle);
-    return _ctx.asset.entries.data[nu_handle_index(handle)].data;
+    NU_ASSERT(handle);
+    return _ctx.asset.entries.data[NU_HANDLE_INDEX(handle)].data;
 }
 nu_asset_info_t
 nu_asset_info (nu_asset_t handle)

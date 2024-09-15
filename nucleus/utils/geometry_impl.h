@@ -170,12 +170,12 @@ nu_geometry_create (nu_size_t capacity)
     NU_VEC_INIT(capacity, &g->positions);
     NU_VEC_INIT(capacity, &g->uvs);
     NU_VEC_INIT(capacity, &g->normals);
-    return nu_handle_make(nu_geometry_t, index);
+    return NU_HANDLE_MAKE(nu_geometry_t, index);
 }
 void
 nu_geometry_delete (nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     NU_VEC_FREE(&g->positions);
     NU_VEC_FREE(&g->uvs);
     NU_VEC_FREE(&g->normals);
@@ -184,20 +184,20 @@ nu_geometry_delete (nu_geometry_t geometry)
 void
 nu_geometry_cube (nu_geometry_t geometry, float side_length)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
-    nu_vec_resize(&g->positions, NU_CUBE_VERTEX_COUNT);
-    nu_vec_resize(&g->uvs, NU_CUBE_VERTEX_COUNT);
-    nu_vec_resize(&g->normals, NU_CUBE_VERTEX_COUNT);
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    NU_VEC_RESIZE(&g->positions, NU_CUBE_VERTEX_COUNT);
+    NU_VEC_RESIZE(&g->uvs, NU_CUBE_VERTEX_COUNT);
+    NU_VEC_RESIZE(&g->normals, NU_CUBE_VERTEX_COUNT);
     nu__generate_cube_mesh(
         side_length, g->positions.data, g->uvs.data, g->normals.data);
 }
 void
 nu_geometry_plane (nu_geometry_t geometry, float width, float height)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
-    nu_vec_resize(&g->positions, NU_PLANE_VERTEX_COUNT);
-    nu_vec_resize(&g->uvs, NU_PLANE_VERTEX_COUNT);
-    nu_vec_resize(&g->normals, NU_PLANE_VERTEX_COUNT);
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    NU_VEC_RESIZE(&g->positions, NU_PLANE_VERTEX_COUNT);
+    NU_VEC_RESIZE(&g->uvs, NU_PLANE_VERTEX_COUNT);
+    NU_VEC_RESIZE(&g->normals, NU_PLANE_VERTEX_COUNT);
     nu__generate_plane_mesh(
         width, height, g->positions.data, g->uvs.data, g->normals.data);
 }
@@ -208,11 +208,11 @@ nu_geometry_grid (nu_geometry_t geometry,
                   float         unit,
                   float         uv_scale)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_size_t       vertex_count = width * height * 2 * 3;
-    nu_vec_resize(&g->positions, vertex_count);
-    nu_vec_resize(&g->uvs, vertex_count);
-    nu_vec_resize(&g->normals, vertex_count);
+    NU_VEC_RESIZE(&g->positions, vertex_count);
+    NU_VEC_RESIZE(&g->uvs, vertex_count);
+    NU_VEC_RESIZE(&g->normals, vertex_count);
     nu__generate_grid_mesh(width,
                            height,
                            unit,
@@ -224,7 +224,7 @@ nu_geometry_grid (nu_geometry_t geometry,
 void
 nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     for (nu_size_t i = 0; i < g->positions.size; ++i)
     {
         g->positions.data[i] = nu_mat4_mulv3(m, g->positions.data[i]);
@@ -233,15 +233,15 @@ nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
 void
 nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
 {
-    nu__geometry_t *g0 = &_ctx.utils.geometries.data[nu_handle_index(src)];
-    nu__geometry_t *g1 = &_ctx.utils.geometries.data[nu_handle_index(dst)];
-    nu_assert(g0 != g1);
+    nu__geometry_t *g0 = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(src)];
+    nu__geometry_t *g1 = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(dst)];
+    NU_ASSERT(g0 != g1);
     nu_size_t dst_size = g1->positions.size;
     nu_size_t src_size = g0->positions.size;
     nu_size_t new_size = src_size + dst_size;
-    nu_vec_resize(&g1->positions, new_size);
-    nu_vec_resize(&g1->uvs, new_size);
-    nu_vec_resize(&g1->normals, new_size);
+    NU_VEC_RESIZE(&g1->positions, new_size);
+    NU_VEC_RESIZE(&g1->uvs, new_size);
+    NU_VEC_RESIZE(&g1->normals, new_size);
     nu_memcpy(g1->positions.data + dst_size,
               g0->positions.data,
               sizeof(*g1->positions.data) * src_size);
@@ -256,9 +256,9 @@ nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
 nu_mesh_t
 nu_mesh_create_geometry (nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[nu_handle_index(geometry)];
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_mesh_t       handle = nu_mesh_create(g->positions.size);
-    nu_check(handle, return handle);
+    NU_CHECK(handle, return handle);
     nu_mesh_update(handle, g->positions.data, g->uvs.data, g->normals.data);
     return handle;
 }

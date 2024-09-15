@@ -36,7 +36,7 @@ nu_camera_create (void)
 {
     CHECK_NULL_API_HANDLE
     nu_camera_t handle = _ctx.graphics.renderer.api.create_camera();
-    nu_check(handle, return handle);
+    NU_CHECK(handle, return handle);
     nu_camera_view(handle,
                    nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZERO));
     float aspect = (float)_ctx.platform.size.x / (float)_ctx.platform.size.y;
@@ -117,7 +117,7 @@ nu_texture_create_color (nu_color_t color)
 nu_texture_t
 nu_texture_create_image (nu_image_t image)
 {
-    nu__image_t *ima = &_ctx.graphics.images.data[nu_handle_index(image)];
+    nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
     return nu_texture_create(ima->size,
                              NU_TEXTURE_FORMAT_COLOR,
                              NU_TEXTURE_USAGE_SAMPLE,
