@@ -46,16 +46,14 @@ nu__platform_init (void)
 
     // Bind callbacks
     RGFW_window_makeCurrent_OpenGL(_ctx.platform.win);
-
-    RGFW_setKeyCallback(nu__key_callback);
-    RGFW_setMouseButtonCallback(nu__mouse_button_callback);
-    RGFW_setMousePosCallback(nu__mouse_position_callback);
-    RGFW_setWindowResizeCallback(nu__window_size_callback);
+    RGFW_window_makeCurrent(_ctx.platform.win);
 
     // Get initial mouse position
     RGFW_point p                 = RGFW_window_getMousePoint(_ctx.platform.win);
     _ctx.platform.mouse_position = nu_vec2((float)p.x, (float)p.y);
-    _ctx.platform.mouse_old_position = _ctx.platform.mouse_position;
+    _ctx.platform.mouse_old_position    = _ctx.platform.mouse_position;
+    _ctx.platform.mouse_motion          = NU_VEC2_ZERO;
+    _ctx.platform.mouse_motion_previous = NU_VEC2_ZERO;
 
     // Initialize inputs
     NU_POOL_INIT(10, &_ctx.platform.bindings);
@@ -107,13 +105,53 @@ nu_poll_events (void)
 
         // Reset mouse scroll
         _ctx.platform.mouse_scroll = NU_VEC2_ZERO;
-
-        // Poll events
-        RGFW_window_checkEvents(_ctx.platform.win, 0);
+        _ctx.platform.mouse_motion = NU_VEC2_ZERO;
 
         // Check close requested
         _ctx.platform.close_requested
             = RGFW_window_shouldClose(_ctx.platform.win);
+
+        // Process events
+        while (RGFW_window_checkEvent(_ctx.platform.win))
+        {
+            switch (_ctx.platform.win->event.type)
+            {
+                case RGFW_mousePosChanged:
+                    nu__mouse_position_callback(_ctx.platform.win,
+                                                _ctx.platform.win->event.point);
+                    break;
+                case RGFW_keyPressed:
+                    nu__key_callback(_ctx.platform.win,
+                                     _ctx.platform.win->event.keyCode,
+                                     _ctx.platform.win->event.keyName,
+                                     NU_FALSE,
+                                     NU_TRUE);
+                    break;
+                case RGFW_keyReleased:
+                    nu__key_callback(_ctx.platform.win,
+                                     _ctx.platform.win->event.keyCode,
+                                     _ctx.platform.win->event.keyName,
+                                     NU_FALSE,
+                                     NU_FALSE);
+                    break;
+                case RGFW_mouseButtonPressed:
+                    nu__mouse_button_callback(_ctx.platform.win,
+                                              _ctx.platform.win->event.button,
+                                              _ctx.platform.win->event.scroll,
+                                              NU_TRUE);
+                    break;
+                case RGFW_mouseButtonReleased:
+                    nu__mouse_button_callback(_ctx.platform.win,
+                                              _ctx.platform.win->event.button,
+                                              _ctx.platform.win->event.scroll,
+                                              NU_FALSE);
+                    break;
+                case RGFW_windowResized:
+                    nu__window_size_callback(_ctx.platform.win,
+                                             _ctx.platform.win->r);
+                    break;
+            }
+        }
 
         // Check capture mode
         if (_ctx.platform.switch_capture_mouse)
@@ -121,15 +159,15 @@ nu_poll_events (void)
             _ctx.platform.capture_mouse = !_ctx.platform.capture_mouse;
             if (_ctx.platform.capture_mouse)
             {
-                RGFW_window_mouseHold(_ctx.platform.win,
-                                      RGFW_AREA(_ctx.platform.size.x / 2,
-                                                _ctx.platform.size.y / 2));
                 RGFW_window_showMouse(_ctx.platform.win, RGFW_FALSE);
+                RGFW_window_mouseHold(_ctx.platform.win,
+                                      RGFW_AREA(_ctx.platform.win->r.w / 2,
+                                                _ctx.platform.win->r.h / 2));
             }
             else
             {
-                RGFW_window_mouseUnhold(_ctx.platform.win);
                 RGFW_window_showMouse(_ctx.platform.win, RGFW_TRUE);
+                RGFW_window_mouseUnhold(_ctx.platform.win);
             }
             _ctx.platform.switch_capture_mouse = NU_FALSE;
         }
@@ -174,48 +212,41 @@ nu_poll_events (void)
         }
 
         // Update mouse motion
-        if (NU_TRUE || _ctx.platform.capture_mouse)
+        if (_ctx.platform.capture_mouse)
         {
-            nu_vec2_t mouse_motion = nu_vec2_sub(
-                _ctx.platform.mouse_position, _ctx.platform.mouse_old_position);
-            mouse_motion = nu_vec2_divs(mouse_motion, 200);
-            if (mouse_motion.x != _ctx.platform.mouse_motion.x)
+            if (_ctx.platform.mouse_motion.x
+                    != _ctx.platform.mouse_motion_previous.x
+                || _ctx.platform.mouse_motion.y
+                       != _ctx.platform.mouse_motion_previous.y)
             {
-                float pos_x = 0;
-                float neg_x = 0;
-                if (mouse_motion.x > 0)
-                {
-                    pos_x = mouse_motion.x;
-                }
-                else if (mouse_motion.x < 0)
-                {
-                    neg_x = nu_fabs(mouse_motion.x);
-                }
+
+                float pos_x = _ctx.platform.mouse_motion.x > 0
+                                  ? _ctx.platform.mouse_motion.x
+                                  : 0;
+                float neg_x = _ctx.platform.mouse_motion.x < 0
+                                  ? nu_fabs(_ctx.platform.mouse_motion.x)
+                                  : 0;
+                float pos_y = _ctx.platform.mouse_motion.y > 0
+                                  ? _ctx.platform.mouse_motion.y
+                                  : 0;
+                float neg_y = _ctx.platform.mouse_motion.y < 0
+                                  ? nu_fabs(_ctx.platform.mouse_motion.y)
+                                  : 0;
                 nu__dispatch_binding_axis(
                     _ctx.platform.mouse_motion_x_pos_first_binding, pos_x);
                 nu__dispatch_binding_axis(
                     _ctx.platform.mouse_motion_x_neg_first_binding, neg_x);
-            }
-            if (mouse_motion.y != _ctx.platform.mouse_motion.y)
-            {
-                float pos_y = 0;
-                float neg_y = 0;
-                if (mouse_motion.y > 0)
-                {
-                    pos_y = mouse_motion.y;
-                }
-                else if (mouse_motion.y < 0)
-                {
-                    neg_y = nu_fabs(mouse_motion.y);
-                }
                 nu__dispatch_binding_axis(
                     _ctx.platform.mouse_motion_y_pos_first_binding, pos_y);
                 nu__dispatch_binding_axis(
                     _ctx.platform.mouse_motion_y_neg_first_binding, neg_y);
-            }
-            _ctx.platform.mouse_motion = mouse_motion;
 
-            // Update mouse position
+                _ctx.platform.mouse_motion_previous
+                    = _ctx.platform.mouse_motion;
+            }
+        }
+        else
+        {
             if (_ctx.platform.mouse_position.x
                     != _ctx.platform.mouse_old_position.x
                 || _ctx.platform.mouse_position.y

@@ -61,7 +61,7 @@ nuext_import_package (const nu_char_t *filename)
 
     nu_size_t  toks_size, toks_count;
     jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
-    if (!json)
+    if (!toks)
     {
         NU_ERROR("failed to parse json package");
         goto cleanup1;

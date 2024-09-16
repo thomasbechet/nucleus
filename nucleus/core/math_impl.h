@@ -718,9 +718,9 @@ nu_axis3d (float     pos_x,
 {
     nu_vec3_t ax;
 
-    ax.x = NU_CLAMP(neg_x - pos_x, -1, 1);
-    ax.y = NU_CLAMP(pos_y - neg_y, -1, 1);
-    ax.z = NU_CLAMP(pos_z - neg_z, -1, 1);
+    ax.x = neg_x - pos_x;
+    ax.y = pos_y - neg_y;
+    ax.z = pos_z - neg_z;
     if (normalize)
     {
         ax = nu_vec3_normalize(ax);

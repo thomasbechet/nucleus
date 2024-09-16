@@ -181,25 +181,16 @@ nu__key_callback (RGFW_window *window,
                   u8           lock_state,
                   u8           pressed)
 {
-    if (pressed)
+    if (keycode == NU__FULLSCREEN_KEY)
     {
-        nu__dispatch_binding_button(_ctx.platform.key_to_first_binding[keycode],
-                                    NU_TRUE);
-
-        if (keycode == NU__FULLSCREEN_KEY)
-        {
-            _ctx.platform.switch_fullscreen = NU_TRUE;
-        }
-        else if (keycode == RGFW_Escape && _ctx.platform.capture_mouse)
-        {
-            _ctx.platform.switch_capture_mouse = NU_TRUE;
-        }
+        _ctx.platform.switch_fullscreen = NU_TRUE;
     }
-    else
+    else if (keycode == RGFW_Escape && _ctx.platform.capture_mouse)
     {
-        nu__dispatch_binding_button(_ctx.platform.key_to_first_binding[keycode],
-                                    NU_FALSE);
+        _ctx.platform.switch_capture_mouse = NU_TRUE;
     }
+    nu__dispatch_binding_button(_ctx.platform.key_to_first_binding[keycode],
+                                pressed);
 }
 static void
 nu__mouse_button_callback (RGFW_window *window,
@@ -209,25 +200,16 @@ nu__mouse_button_callback (RGFW_window *window,
 {
     if (button < RGFW_mouseScrollUp)
     {
-        if (pressed)
+        if (button == RGFW_mouseLeft && !_ctx.platform.capture_mouse)
         {
-            nu__dispatch_binding_button(
-                _ctx.platform.mouse_button_to_first_binding[button], NU_TRUE);
-
-            if (button == RGFW_mouseLeft && !_ctx.platform.capture_mouse)
+            if (nu_timer_elapsed(&_ctx.platform.last_mouse_click) < 500.0)
             {
-                if (nu_timer_elapsed(&_ctx.platform.last_mouse_click) < 500.0)
-                {
-                    _ctx.platform.switch_capture_mouse = NU_TRUE;
-                }
-                nu_timer_reset(&_ctx.platform.last_mouse_click);
+                _ctx.platform.switch_capture_mouse = NU_TRUE;
             }
+            nu_timer_reset(&_ctx.platform.last_mouse_click);
         }
-        else
-        {
-            nu__dispatch_binding_button(
-                _ctx.platform.mouse_button_to_first_binding[button], NU_FALSE);
-        }
+        nu__dispatch_binding_button(
+            _ctx.platform.mouse_button_to_first_binding[button], pressed);
     }
     else
     {
@@ -237,7 +219,16 @@ nu__mouse_button_callback (RGFW_window *window,
 static void
 nu__mouse_position_callback (RGFW_window *window, RGFW_point point)
 {
-    _ctx.platform.mouse_position = nu_vec2((float)point.x, 0);
+    if (_ctx.platform.capture_mouse)
+    {
+        _ctx.platform.mouse_motion = nu_vec2_add(
+            _ctx.platform.mouse_motion,
+            nu_vec2_divs(nu_vec2((float)point.x, (float)point.y), 200));
+    }
+    else
+    {
+        _ctx.platform.mouse_position = nu_vec2((float)point.x, (float)point.y);
+    }
 }
 
 static nu_u32_t *

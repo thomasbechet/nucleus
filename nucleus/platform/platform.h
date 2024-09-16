@@ -88,6 +88,7 @@ typedef struct
     nu_vec2_t mouse_old_position;
     nu_vec2_t mouse_scroll;
     nu_vec2_t mouse_motion;
+    nu_vec2_t mouse_motion_previous;
 
     RGFW_window   *win;
     nu__viewport_t viewport;
