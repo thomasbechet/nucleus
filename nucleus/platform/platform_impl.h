@@ -177,35 +177,26 @@ nu_poll_events (void)
         {
             if (_ctx.platform.fullscreen)
             {
-                // const GLFWvidmode *mode
-                //     = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                // glfwSetWindowMonitor(
-                //     _ctx.platform.surface.glfw.win,
-                //     NU_NULL,
-                //     _ctx.platform.surface.glfw.previous_position.x,
-                //     _ctx.platform.surface.glfw.previous_position.y,
-                //     _ctx.platform.surface.glfw.previous_size.x,
-                //     _ctx.platform.surface.glfw.previous_size.y,
-                //     GLFW_DONT_CARE);
+                RGFW_window_resize(_ctx.platform.win,
+                                   RGFW_AREA(_ctx.platform.previous_rect.w,
+                                             _ctx.platform.previous_rect.h));
+                RGFW_window_move(_ctx.platform.win,
+                                 RGFW_POINT(_ctx.platform.previous_rect.x,
+                                            _ctx.platform.previous_rect.y));
+                RGFW_window_setBorder(_ctx.platform.win, RGFW_TRUE);
+                nu__window_size_callback(_ctx.platform.win,
+                                         _ctx.platform.win->r);
             }
             else
             {
-                // int x, y;
-                // glfwGetWindowSize(_ctx.platform.surface.glfw.win, &x, &y);
-                // _ctx.platform.surface.glfw.previous_size = nu_uvec2(x, y);
-                // glfwGetWindowPos(_ctx.platform.surface.glfw.win, &x, &y);
-                // _ctx.platform.surface.glfw.previous_position = nu_uvec2(x,
-                // y);
-                //
-                // const GLFWvidmode *mode
-                //     = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                // glfwSetWindowMonitor(_ctx.platform.surface.glfw.win,
-                //                      glfwGetPrimaryMonitor(),
-                //                      0,
-                //                      0,
-                //                      mode->width,
-                //                      mode->height,
-                //                      GLFW_DONT_CARE);
+                _ctx.platform.previous_rect = _ctx.platform.win->r;
+                RGFW_monitor mon = RGFW_window_getMonitor(_ctx.platform.win);
+                RGFW_window_moveToMonitor(_ctx.platform.win, mon);
+                RGFW_window_setBorder(_ctx.platform.win, RGFW_FALSE);
+                RGFW_window_resize(_ctx.platform.win,
+                                   RGFW_AREA(mon.rect.w, mon.rect.h));
+                RGFW_window_move(_ctx.platform.win,
+                                 RGFW_POINT(mon.rect.x, mon.rect.y));
             }
             _ctx.platform.switch_fullscreen = NU_FALSE;
             _ctx.platform.fullscreen        = !_ctx.platform.fullscreen;

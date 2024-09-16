@@ -10,7 +10,7 @@
 #define NU__DEFAULT_WINDOW_HEIGHT  720
 #define NU__MAX_KEY_COUNT          final_key
 #define NU__MAX_MOUSE_BUTTON_COUNT 8
-#define NU__FULLSCREEN_KEY         RGFW_F11
+#define NU__FULLSCREEN_KEY         RGFW_F9
 #define NU__ID_NONE                0xFFFFFFFF
 
 #define NU__BUTTON_IS_KEY(b)   b >= NUEXT_BUTTON_ESCAPE
@@ -95,8 +95,7 @@ typedef struct
     nu_bool_t      fullscreen;
     nu_bool_t      switch_fullscreen;
     nu_bool_t      capture_mouse;
-    nu_uvec2_t     previous_size;
-    nu_uvec2_t     previous_position;
+    RGFW_rect      previous_rect;
     nu_timer_t     last_mouse_click;
     nu_bool_t      switch_capture_mouse;
     nu_uvec2_t     size;

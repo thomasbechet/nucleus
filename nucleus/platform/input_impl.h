@@ -181,7 +181,7 @@ nu__key_callback (RGFW_window *window,
                   u8           lock_state,
                   u8           pressed)
 {
-    if (keycode == NU__FULLSCREEN_KEY)
+    if (keycode == NU__FULLSCREEN_KEY && !pressed)
     {
         _ctx.platform.switch_fullscreen = NU_TRUE;
     }
