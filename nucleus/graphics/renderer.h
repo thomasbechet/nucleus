@@ -29,7 +29,9 @@ typedef struct
                                    const nu_color_t   *colors);
     void (*texture_delete)(nu_texture_t texture);
 
-    nu_cubemap_t (*cubemap_create)(const nu_cubemap_info_t *info);
+    nu_cubemap_t (*cubemap_create)(nu_u32_t           size,
+                                   nu_texture_usage_t usage,
+                                   const nu_color_t **colors);
     void (*cubemap_delete)(nu_cubemap_t cubemap);
 
     nu_material_t (*material_create)(nu_material_type_t type);

@@ -58,17 +58,15 @@ typedef enum
     NU_RENDERER_SOFTRAST,
 } nu_renderer_api_t;
 
-typedef struct
+typedef enum
 {
-    nu_u32_t           size;
-    nu_texture_usage_t usage;
-    const nu_color_t  *colors_posx;
-    const nu_color_t  *colors_negx;
-    const nu_color_t  *colors_posy;
-    const nu_color_t  *colors_negy;
-    const nu_color_t  *colors_posz;
-    const nu_color_t  *colors_negz;
-} nu_cubemap_info_t;
+    NU_CUBEMAP_POSX = 0,
+    NU_CUBEMAP_NEGX = 1,
+    NU_CUBEMAP_POSY = 2,
+    NU_CUBEMAP_NEGY = 3,
+    NU_CUBEMAP_POSZ = 4,
+    NU_CUBEMAP_NEGZ = 5
+} nu_cubemap_face_t;
 
 NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
 NU_API void        nu_image_delete(nu_image_t image);
@@ -88,7 +86,9 @@ NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API nu_texture_t nu_texture_create_image(nu_image_t image);
 NU_API void         nu_texture_delete(nu_texture_t texture);
 
-NU_API nu_cubemap_t nu_cubemap_create(const nu_cubemap_info_t *info);
+NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t           size,
+                                      nu_texture_usage_t usage,
+                                      const nu_color_t **colors);
 NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
 
 NU_API nu_model_t nu_model_create(void);

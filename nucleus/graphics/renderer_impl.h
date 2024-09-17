@@ -130,11 +130,13 @@ nu_texture_delete (nu_texture_t texture)
     _ctx.graphics.renderer.api.texture_delete(texture);
 }
 
-nu_cubemap_t
-nu_cubemap_create (const nu_cubemap_info_t *info)
+NU_API nu_cubemap_t
+nu_cubemap_create (nu_u32_t           size,
+                   nu_texture_usage_t usage,
+                   const nu_color_t **colors)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.cubemap_create(info);
+    return _ctx.graphics.renderer.api.cubemap_create(size, usage, colors);
 }
 void
 nu_cubemap_delete (nu_cubemap_t cubemap)

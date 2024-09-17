@@ -49,16 +49,12 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         }
     }
 
-    nu_cubemap_info_t info;
-    info.size        = nu_image_size(images[0]).x;
-    info.usage       = NU_TEXTURE_USAGE_SAMPLE;
-    info.colors_posx = nu_image_colors(images[0]);
-    info.colors_negx = nu_image_colors(images[1]);
-    info.colors_posy = nu_image_colors(images[2]);
-    info.colors_negy = nu_image_colors(images[3]);
-    info.colors_posz = nu_image_colors(images[4]);
-    info.colors_negz = nu_image_colors(images[5]);
-    cubemap          = nu_cubemap_create(&info);
+    const nu_color_t *colors[NU_CUBEMAP_FACE_COUNT]
+        = { nu_image_colors(images[0]), nu_image_colors(images[1]),
+            nu_image_colors(images[2]), nu_image_colors(images[3]),
+            nu_image_colors(images[4]), nu_image_colors(images[5]) };
+    cubemap = nu_cubemap_create(
+        nu_image_size(images[0]).x, NU_TEXTURE_USAGE_SAMPLE, colors);
 
 cleanup2:
     for (nu_size_t i = 0; i < NU_ARRAY_SIZE(images); ++i)

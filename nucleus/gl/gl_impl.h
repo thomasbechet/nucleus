@@ -651,7 +651,9 @@ nugl__texture_delete (nu_texture_t texture)
     glDeleteTextures(1, &ptex->texture);
 }
 static nu_cubemap_t
-nugl__cubemap_create (const nu_cubemap_info_t *info)
+nugl__cubemap_create (nu_u32_t           size,
+                      nu_texture_usage_t usage,
+                      const nu_color_t **colors)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -660,17 +662,13 @@ nugl__cubemap_create (const nu_cubemap_info_t *info)
 
     glGenTextures(1, &pcube->texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, pcube->texture);
-    const nu_color_t *colors[] = {
-        info->colors_posx, info->colors_negx, info->colors_posy,
-        info->colors_negy, info->colors_posz, info->colors_negz,
-    };
     for (nu_size_t i = 0; i < 6; ++i)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                      0,
                      GL_RGBA,
-                     info->size,
-                     info->size,
+                     size,
+                     size,
                      0,
                      GL_RGBA,
                      GL_UNSIGNED_BYTE,
