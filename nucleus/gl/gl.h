@@ -3,7 +3,10 @@
 
 #include <nucleus/gl/shader_data.h>
 
-#define NUGL__VERTEX_SIZE (3 + 2 + 3)
+#define NUGL__VERTEX_SIZE     (3 + 2 + 3)
+#define NUGL__MIN_DEPTH       0.0
+#define NUGL__MAX_DEPTH       1000.0
+#define NUGL__DEPTH_INCREMENT 0.05
 
 typedef struct
 {
@@ -120,7 +123,7 @@ typedef struct
 {
     nugl__mesh_command_vec_t cmds;
     nu_u32_t                 camera;
-    GLuint                   cubemap;
+    nu_cubemap_t             cubemap;
     nu_mat3_t                rotation;
 } nugl__renderpass_skybox_t;
 
@@ -137,8 +140,8 @@ typedef struct
 typedef struct
 {
     nu_renderpass_type_t type;
-    GLuint               depth_target;
-    GLuint               color_target;
+    nu_texture_t         depth_target;
+    nu_texture_t         color_target;
     GLuint               fbo;
     nu_uvec2_t           fbo_size;
     nu_bool_t            reset_after_submit;

@@ -19,12 +19,7 @@ main (void)
     nu_init();
 
     // Renderpass
-    {
-        nu_renderpass_info_t info;
-        info.type               = NU_RENDERPASS_FLAT;
-        info.reset_after_submit = NU_TRUE;
-        renderpass              = nu_renderpass_create(&info);
-    }
+    renderpass = nu_renderpass_create(NU_RENDERPASS_FLAT, NU_TRUE);
 
     // Mesh
     {
@@ -86,12 +81,11 @@ main (void)
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();
 
-        nu_renderpass_submit_t submit;
-        submit.flat.camera       = camera;
-        submit.flat.clear_color  = &clear_color;
-        submit.flat.color_target = &surface_color;
-        submit.flat.depth_target = &depth_buffer;
-        nu_renderpass_submit(renderpass, &submit);
+        nu_renderpass_camera(renderpass, camera);
+        nu_renderpass_clear_color(renderpass, &clear_color);
+        nu_renderpass_target_color(renderpass, surface_color);
+        nu_renderpass_target_depth(renderpass, depth_buffer);
+        nu_renderpass_submit(renderpass);
 
         nu_swap_buffers();
     }

@@ -89,47 +89,6 @@ typedef struct
     };
 } nu_material_info_t;
 
-typedef struct
-{
-    nu_renderpass_type_t type;
-    nu_bool_t            reset_after_submit;
-    union
-    {
-        nu_u32_t todo;
-    };
-} nu_renderpass_info_t;
-
-typedef union
-{
-    struct
-    {
-        nu_camera_t         camera;
-        const nu_texture_t *color_target;
-        const nu_texture_t *depth_target;
-        nu_color_t         *clear_color;
-        nu_cubemap_t       *clear_skybox;
-    } unlit;
-    struct
-    {
-        nu_camera_t         camera;
-        const nu_texture_t *color_target;
-        const nu_texture_t *depth_target;
-        nu_color_t         *clear_color;
-    } flat;
-    struct
-    {
-        nu_camera_t         camera;
-        const nu_texture_t *color_target;
-        const nu_texture_t *depth_target;
-        nu_cubemap_t        cubemap;
-        nu_quat_t           rotation;
-    } skybox;
-    struct
-    {
-        const nu_texture_t *color_target;
-    } canvas;
-} nu_renderpass_submit_t;
-
 NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
 NU_API void        nu_image_delete(nu_image_t image);
 NU_API nu_color_t *nu_image_colors(nu_image_t image);
@@ -170,15 +129,19 @@ NU_API void               nu_material_delete(nu_material_t material);
 NU_API nu_error_t         nu_material_update(nu_material_t             material,
                                              const nu_material_info_t *info);
 
-NU_API nu_renderpass_t nu_renderpass_create(const nu_renderpass_info_t *info);
+NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type,
+                                            nu_bool_t reset_after_submit);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
-NU_API void            nu_renderpass_target_color(nu_renderpass_t pass,
-                                                  nu_texture_t    target);
+NU_API void nu_renderpass_clear_color(nu_renderpass_t pass, nu_color_t *color);
+NU_API void nu_renderpass_camera(nu_renderpass_t pass, nu_camera_t camera);
 NU_API void nu_renderpass_skybox_rotation(nu_renderpass_t pass, nu_quat_t rot);
-
-NU_API void nu_renderpass_submit(nu_renderpass_t               pass,
-                                 const nu_renderpass_submit_t *info);
+NU_API void nu_renderpass_target_color(nu_renderpass_t pass,
+                                       nu_texture_t    color);
+NU_API void nu_renderpass_target_depth(nu_renderpass_t pass,
+                                       nu_texture_t    depth);
 NU_API void nu_renderpass_reset(nu_renderpass_t pass);
+NU_API void nu_renderpass_submit(nu_renderpass_t pass);
+
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_material_t   material,
                          nu_mesh_t       mesh,

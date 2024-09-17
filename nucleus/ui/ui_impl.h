@@ -174,11 +174,10 @@ nu_ui_create (void)
     NU_VEC_INIT(1, &ui->passes);
 
     // Create main renderpass
-    nu_renderpass_info_t pinfo;
-    pinfo.type            = NU_RENDERPASS_CANVAS;
-    ui->active_renderpass = nu_renderpass_create(&pinfo);
-    nu__ui_pass_t *pass   = NU_VEC_PUSH(&ui->passes);
-    pass->renderpass      = ui->active_renderpass;
+    ui->active_renderpass
+        = nu_renderpass_create(NU_RENDERPASS_CANVAS, NU_FALSE);
+    nu__ui_pass_t *pass = NU_VEC_PUSH(&ui->passes);
+    pass->renderpass    = ui->active_renderpass;
 
     // Initialize controllers
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
@@ -247,12 +246,14 @@ nu_ui_end (nu_ui_t handle)
                    &ui->cursor_style->cursor.image);
 }
 void
-nu_ui_submit_renderpasses (nu_ui_t handle, const nu_renderpass_submit_t *info)
+nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     for (nu_size_t i = ui->passes.size; i > 0; --i)
     {
-        nu_renderpass_submit(ui->passes.data[i - 1].renderpass, info);
+        nu_renderpass_target_color(ui->passes.data[i - 1].renderpass,
+                                   color_target);
+        nu_renderpass_submit(ui->passes.data[i - 1].renderpass);
     }
 }
 

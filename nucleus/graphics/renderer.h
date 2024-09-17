@@ -5,47 +5,51 @@
 
 typedef struct
 {
-    // Engine API
     nu_error_t (*init)(void);
     nu_error_t (*free)(void);
     nu_error_t (*render)(const nu_rect_t *global_viewport,
                          const nu_rect_t *viewport);
     nu_texture_t (*create_surface_color)(nu_uvec2_t size);
 
-    // Resources API
-    nu_camera_t (*create_camera)(void);
-    void (*delete_camera)(nu_camera_t camera);
-    void (*update_camera_view)(nu_camera_t camera, nu_mat4_t view);
-    void (*update_camera_proj)(nu_camera_t camera, nu_mat4_t proj);
+    nu_camera_t (*camera_create)(void);
+    void (*camera_delete)(nu_camera_t camera);
+    void (*camera_view)(nu_camera_t camera, nu_mat4_t view);
+    void (*camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
-    nu_mesh_t (*create_mesh)(nu_size_t count);
-    void (*delete_mesh)(nu_mesh_t mesh);
-    void (*update_mesh)(nu_mesh_t        mesh,
+    nu_mesh_t (*mesh_create)(nu_size_t count);
+    void (*mesh_delete)(nu_mesh_t mesh);
+    void (*mesh_update)(nu_mesh_t        mesh,
                         const nu_vec3_t *positions,
                         const nu_vec2_t *uvs,
                         const nu_vec3_t *normals);
 
-    nu_texture_t (*create_texture)(nu_uvec2_t          size,
+    nu_texture_t (*texture_create)(nu_uvec2_t          size,
                                    nu_texture_format_t format,
                                    nu_texture_usage_t  usage,
                                    const nu_color_t   *colors);
-    void (*delete_texture)(nu_texture_t texture);
+    void (*texture_delete)(nu_texture_t texture);
 
-    nu_cubemap_t (*create_cubemap)(const nu_cubemap_info_t *info);
-    void (*delete_cubemap)(nu_cubemap_t cubemap);
+    nu_cubemap_t (*cubemap_create)(const nu_cubemap_info_t *info);
+    void (*cubemap_delete)(nu_cubemap_t cubemap);
 
-    nu_material_t (*create_material)(const nu_material_info_t *info);
-    void (*delete_material)(nu_material_t material);
-    nu_error_t (*update_material)(nu_material_t             material,
+    nu_material_t (*material_create)(const nu_material_info_t *info);
+    void (*material_delete)(nu_material_t material);
+    nu_error_t (*material_update)(nu_material_t             material,
                                   const nu_material_info_t *info);
 
-    nu_renderpass_t (*create_renderpass)(const nu_renderpass_info_t *info);
-    void (*delete_renderpass)(nu_renderpass_t pass);
+    nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type,
+                                         nu_bool_t reset_after_submit);
+    void (*renderpass_delete)(nu_renderpass_t pass);
+    void (*renderpass_clear_color)(nu_renderpass_t pass, nu_color_t *color);
+    void (*renderpass_camera)(nu_renderpass_t pass, nu_camera_t camera);
+    void (*renderpass_skybox_cubemap)(nu_renderpass_t pass,
+                                      nu_cubemap_t    cubemap);
+    void (*renderpass_skybox_rotation)(nu_renderpass_t pass, nu_quat_t rot);
+    void (*renderpass_target_color)(nu_renderpass_t pass, nu_texture_t color);
+    void (*renderpass_target_depth)(nu_renderpass_t pass, nu_texture_t depth);
+    void (*renderpass_reset)(nu_renderpass_t pass);
+    void (*renderpass_submit)(nu_renderpass_t pass);
 
-    // Commands API
-    void (*submit_renderpass)(nu_renderpass_t               pass,
-                              const nu_renderpass_submit_t *info);
-    void (*reset_renderpass)(nu_renderpass_t pass);
     void (*draw_mesh)(nu_renderpass_t pass,
                       nu_material_t   material,
                       nu_mesh_t       mesh,

@@ -145,20 +145,12 @@ main (void)
     nu_camera_t camera = nu_camera_create();
 
     // Create renderpasses
-    nu_renderpass_info_t main_pass_info;
-    main_pass_info.type               = NU_RENDERPASS_FLAT;
-    main_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_t main_pass         = nu_renderpass_create(&main_pass_info);
-
-    nu_renderpass_info_t skybox_pass_info;
-    skybox_pass_info.type               = NU_RENDERPASS_SKYBOX;
-    skybox_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_t skybox_pass = nu_renderpass_create(&skybox_pass_info);
-
-    nu_renderpass_info_t gui_pass_info;
-    gui_pass_info.type               = NU_RENDERPASS_CANVAS;
-    gui_pass_info.reset_after_submit = NU_TRUE;
-    nu_renderpass_t gui_pass         = nu_renderpass_create(&gui_pass_info);
+    nu_renderpass_t main_pass
+        = nu_renderpass_create(NU_RENDERPASS_FLAT, NU_TRUE);
+    nu_renderpass_t skybox_pass
+        = nu_renderpass_create(NU_RENDERPASS_SKYBOX, NU_TRUE);
+    nu_renderpass_t gui_pass
+        = nu_renderpass_create(NU_RENDERPASS_CANVAS, NU_TRUE);
 
     // Create UI
     nu_ui_t ui = nu_ui_create();
@@ -284,29 +276,26 @@ main (void)
         nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 20));
 
         // Submit renderpass
-        nu_renderpass_submit_t submit;
-
         nu_texture_t surface_tex = nu_surface_color_target();
         nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
-        submit.flat.camera       = camera;
-        submit.flat.color_target = &surface_tex;
-        submit.flat.depth_target = &depth_buffer;
-        submit.flat.clear_color  = &clear_color;
-        nu_renderpass_submit(main_pass, &submit);
+        nu_renderpass_camera(main_pass, camera);
+        nu_renderpass_target_color(main_pass, surface_tex);
+        nu_renderpass_target_depth(main_pass, depth_buffer);
+        nu_renderpass_clear_color(main_pass, &clear_color);
+        nu_renderpass_submit(main_pass);
 
-        submit.skybox.camera       = camera;
-        submit.skybox.color_target = &surface_tex;
-        submit.skybox.depth_target = &depth_buffer;
-        submit.skybox.cubemap      = skybox;
-        submit.skybox.rotation     = nu_quat_identity();
-        nu_renderpass_submit(skybox_pass, &submit);
+        nu_renderpass_camera(skybox_pass, camera);
+        nu_renderpass_target_color(skybox_pass, surface_tex);
+        nu_renderpass_target_depth(skybox_pass, depth_buffer);
+        nu_renderpass_skybox_cubemap(skybox_pass, skybox);
+        nu_renderpass_skybox_rotation(skybox_pass, nu_quat_identity());
+        nu_renderpass_submit(skybox_pass);
 
-        submit.canvas.color_target = &surface_tex;
-        nu_renderpass_submit(gui_pass, &submit);
+        nu_renderpass_target_color(gui_pass, surface_tex);
+        nu_renderpass_submit(gui_pass);
 
-        submit.canvas.color_target = &surface_tex;
-        nu_ui_submit_renderpasses(ui, &submit);
+        nu_ui_submit_renderpasses(ui, surface_tex);
 
         // Refresh surface
         nu_swap_buffers();

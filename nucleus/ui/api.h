@@ -75,8 +75,7 @@ NU_API void nu_ui_set_pressed(nu_ui_t   ui,
 
 NU_API void nu_ui_begin(nu_ui_t ui);
 NU_API void nu_ui_end(nu_ui_t ui);
-NU_API void nu_ui_submit_renderpasses(nu_ui_t                       ui,
-                                      const nu_renderpass_submit_t *info);
+NU_API void nu_ui_submit_renderpasses(nu_ui_t ui, nu_texture_t color_target);
 
 NU_API void nu_ui_push_style(nu_ui_t ui, nu_ui_style_t *style);
 NU_API void nu_ui_pop_style(nu_ui_t ui);
