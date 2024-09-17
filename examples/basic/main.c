@@ -118,18 +118,11 @@ main (void)
     nu_texture_t texture_gui = NU_ASSET_TEXTURE("GUI");
 
     // Create material
-    nu_material_t material;
-    nu_material_t material_gui_repeat;
-    {
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
-        info.mesh.color0        = &texture;
-        material                = nu_material_create(&info);
-
-        info                  = nu_material_info_default(NU_MATERIAL_CANVAS);
-        info.canvas.color0    = &texture_gui;
-        info.canvas.wrap_mode = NU_TEXTURE_WRAP_REPEAT;
-        material_gui_repeat   = nu_material_create(&info);
-    }
+    nu_material_t material = nu_material_create(NU_MATERIAL_MESH);
+    nu_material_color0(material, texture);
+    nu_material_t material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
+    nu_material_color0(material_gui_repeat, texture_gui);
+    nu_material_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
 
     // Load temple
     temple_model = NU_ASSET_MODEL("temple");

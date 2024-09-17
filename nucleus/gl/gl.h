@@ -37,25 +37,11 @@ typedef struct
 
 typedef struct
 {
-    GLuint    texture0;
-    GLuint    texture1;
-    nu_mat3_t uv_transform;
-} nugl__material_mesh_t;
-
-typedef struct
-{
-    GLuint                 texture0;
+    nu_material_type_t     type;
+    nu_texture_t           texture0;
+    nu_texture_t           texture1;
+    nu_mat3_t              uv_transform;
     nu_texture_wrap_mode_t wrap_mode;
-} nugl__material_canvas_t;
-
-typedef struct
-{
-    nu_material_type_t type;
-    union
-    {
-        nugl__material_mesh_t   mesh;
-        nugl__material_canvas_t canvas;
-    };
 } nugl__material_t;
 
 typedef enum

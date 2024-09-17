@@ -686,46 +686,32 @@ nugl__cubemap_create (const nu_cubemap_info_t *info)
 
     return handle;
 }
-static nu_error_t
-nugl__material_update (nu_material_t material, const nu_material_info_t *info)
+static void
+nugl__material_color0 (nu_material_t material, nu_texture_t color0)
 {
-    nu__gl_t         *gl  = &_ctx.gl;
-    nugl__material_t *mat = gl->materials.data + NU_HANDLE_INDEX(material);
-    NU_ASSERT(info->type == mat->type);
-    NU_ASSERT(NU_HANDLE_INDEX(material) < gl->materials.size);
-    switch (mat->type)
-    {
-        case NU_MATERIAL_MESH: {
-            if (info->mesh.color0)
-            {
-                mat->mesh.texture0
-                    = gl->textures.data[NU_HANDLE_INDEX(*info->mesh.color0)]
-                          .texture;
-            }
-            if (info->mesh.color1)
-            {
-                mat->mesh.texture1
-                    = gl->textures.data[NU_HANDLE_INDEX(*info->mesh.color1)]
-                          .texture;
-            }
-            mat->mesh.uv_transform = info->mesh.uv_transform;
-        }
-        break;
-        case NU_MATERIAL_CANVAS: {
-            if (info->canvas.color0)
-            {
-                mat->canvas.texture0
-                    = gl->textures.data[NU_HANDLE_INDEX(*info->canvas.color0)]
-                          .texture;
-            }
-            mat->canvas.wrap_mode = info->canvas.wrap_mode;
-        }
-        break;
-    }
-    return NU_ERROR_NONE;
+    nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
+    mat->texture0         = color0;
+}
+static void
+nugl__material_color1 (nu_material_t material, nu_texture_t color1)
+{
+    nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
+    mat->texture1         = color1;
+}
+static void
+nugl__material_uv_transform (nu_material_t material, nu_mat3_t transform)
+{
+    nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
+    mat->uv_transform     = transform;
+}
+static void
+nugl__material_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
+{
+    nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
+    mat->wrap_mode        = mode;
 }
 static nu_material_t
-nugl__material_create (const nu_material_info_t *info)
+nugl__material_create (nu_material_type_t type)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -734,9 +720,13 @@ nugl__material_create (const nu_material_info_t *info)
         = NU_HANDLE_MAKE(nu_material_t, gl->materials.size - 1);
 
     // Keep material type
-    (gl->materials.data + NU_HANDLE_INDEX(handle))->type = info->type;
+    nugl__material_t *p = gl->materials.data + NU_HANDLE_INDEX(handle);
+    p->type             = type;
+    p->texture0         = NU_NULL;
+    p->texture1         = NU_NULL;
+    p->uv_transform     = nu_mat3_identity();
+    p->wrap_mode        = NU_TEXTURE_WRAP_CLAMP;
 
-    nugl__material_update(handle, info);
     return handle;
 }
 static nu_error_t
@@ -1152,9 +1142,17 @@ nugl__draw_mesh (nu_renderpass_t pass,
             cmd->vao                  = pmesh->vao;
             cmd->vbo                  = pmesh->vbo;
             cmd->vcount               = pmesh->vertex_count;
-            cmd->texture0             = pmat->mesh.texture0;
-            cmd->texture1             = pmat->mesh.texture1;
-            cmd->uv_transform         = pmat->mesh.uv_transform;
+            cmd->texture0
+                = pmat->texture0
+                      ? (gl->textures.data + NU_HANDLE_INDEX(pmat->texture0))
+                            ->texture
+                      : 0;
+            cmd->texture1
+                = pmat->texture1
+                      ? (gl->textures.data + NU_HANDLE_INDEX(pmat->texture1))
+                            ->texture
+                      : 0;
+            cmd->uv_transform = pmat->uv_transform;
         }
         break;
         default:
@@ -1176,11 +1174,13 @@ nugl__draw_blit (nu_renderpass_t pass,
     switch (ppass->type)
     {
         case NU_RENDERPASS_CANVAS: {
-            nugl__canvas_blit_rect(&ppass->canvas,
-                                   pmat->canvas.texture0,
-                                   extent,
-                                   tex_extent,
-                                   pmat->canvas.wrap_mode);
+            nugl__canvas_blit_rect(
+                &ppass->canvas,
+                (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->texture0))
+                    ->texture,
+                extent,
+                tex_extent,
+                pmat->wrap_mode);
         }
         break;
         default:
@@ -1209,8 +1209,11 @@ nugl__setup_api (nu__renderer_api_t *api)
 
     api->cubemap_create = nugl__cubemap_create;
 
-    api->material_create = nugl__material_create;
-    api->material_update = nugl__material_update;
+    api->material_create       = nugl__material_create;
+    api->material_color0       = nugl__material_color0;
+    api->material_color1       = nugl__material_color1;
+    api->material_uv_transform = nugl__material_uv_transform;
+    api->material_wrap_mode    = nugl__material_wrap_mode;
 
     api->renderpass_create          = nugl__renderpass_create;
     api->renderpass_clear_color     = nugl__renderpass_clear_color;

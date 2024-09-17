@@ -69,13 +69,9 @@ nu_font_create_default (void)
     font->texture = nu_texture_create_image(image);
 
     // Create material
-    {
-        nu_material_info_t info;
-        info.type             = NU_MATERIAL_CANVAS;
-        info.canvas.color0    = &font->texture;
-        info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
-        font->material        = nu_material_create(&info);
-    }
+    font->material = nu_material_create(NU_MATERIAL_CANVAS);
+    nu_material_color0(font->material, font->texture);
+    nu_material_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
 
     // Free resources
     nu_image_delete(image);

@@ -202,9 +202,8 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     }
 
     // Create material
-    nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
-    info.mesh.color0        = &model->assets.data[index].texture;
-    nu_material_t handle    = nu_material_create(&info);
+    nu_material_t handle = nu_material_create(NU_MATERIAL_MESH);
+    nu_material_color0(handle, model->assets.data[index].texture);
 
     // Append asset
     nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
@@ -225,9 +224,8 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
         nu_texture_t texture = nu_texture_create_color(NU_COLOR_RED);
         NU_VEC_PUSH(&model->assets)->texture = texture;
 
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
-        info.mesh.color0        = &texture;
-        nu_material_t material  = nu_material_create(&info);
+        nu_material_t material = nu_material_create(NU_MATERIAL_MESH);
+        nu_material_color0(material, texture);
         NU_VEC_PUSH(&model->assets)->material = material;
 
         loader->_default_material     = model->assets.size - 1;

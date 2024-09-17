@@ -32,10 +32,13 @@ typedef struct
     nu_cubemap_t (*cubemap_create)(const nu_cubemap_info_t *info);
     void (*cubemap_delete)(nu_cubemap_t cubemap);
 
-    nu_material_t (*material_create)(const nu_material_info_t *info);
+    nu_material_t (*material_create)(nu_material_type_t type);
     void (*material_delete)(nu_material_t material);
-    nu_error_t (*material_update)(nu_material_t             material,
-                                  const nu_material_info_t *info);
+    void (*material_color0)(nu_material_t material, nu_texture_t color0);
+    void (*material_color1)(nu_material_t material, nu_texture_t color1);
+    void (*material_uv_transform)(nu_material_t material, nu_mat3_t transform);
+    void (*material_wrap_mode)(nu_material_t          material,
+                               nu_texture_wrap_mode_t mode);
 
     nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type,
                                          nu_bool_t reset_after_submit);

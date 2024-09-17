@@ -36,11 +36,8 @@ main (void)
     }
 
     // Material
-    {
-        nu_material_info_t info = nu_material_info_default(NU_MATERIAL_MESH);
-        info.mesh.color0        = &texture;
-        material                = nu_material_create(&info);
-    }
+    material = nu_material_create(NU_MATERIAL_MESH);
+    nu_material_color0(material, texture);
 
     // Camera
     camera = nu_camera_create();

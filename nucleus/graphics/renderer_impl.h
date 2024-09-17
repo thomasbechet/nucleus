@@ -143,30 +143,11 @@ nu_cubemap_delete (nu_cubemap_t cubemap)
     _ctx.graphics.renderer.api.cubemap_delete(cubemap);
 }
 
-nu_material_info_t
-nu_material_info_default (nu_material_type_t type)
-{
-    nu_material_info_t info;
-    info.type = type;
-    switch (info.type)
-    {
-        case NU_MATERIAL_MESH:
-            info.mesh.color0       = NU_NULL;
-            info.mesh.color1       = NU_NULL;
-            info.mesh.uv_transform = nu_mat3_identity();
-            break;
-        case NU_MATERIAL_CANVAS:
-            info.canvas.color0    = NU_NULL;
-            info.canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
-            break;
-    }
-    return info;
-}
 nu_material_t
-nu_material_create (const nu_material_info_t *info)
+nu_material_create (nu_material_type_t type)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.material_create(info);
+    return _ctx.graphics.renderer.api.material_create(type);
 }
 void
 nu_material_delete (nu_material_t material)
@@ -174,11 +155,29 @@ nu_material_delete (nu_material_t material)
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.material_delete(material);
 }
-nu_error_t
-nu_material_update (nu_material_t material, const nu_material_info_t *info)
+void
+nu_material_color0 (nu_material_t material, nu_texture_t color0)
 {
-    CHECK_NULL_API_ERROR
-    return _ctx.graphics.renderer.api.material_update(material, info);
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.material_color0(material, color0);
+}
+void
+nu_material_color1 (nu_material_t material, nu_texture_t color1)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.material_color0(material, color1);
+}
+void
+nu_material_uv_transform (nu_material_t material, nu_mat3_t transform)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.material_uv_transform(material, transform);
+}
+void
+nu_material_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.material_wrap_mode(material, mode);
 }
 
 nu_renderpass_t

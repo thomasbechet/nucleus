@@ -70,25 +70,6 @@ typedef struct
     const nu_color_t  *colors_negz;
 } nu_cubemap_info_t;
 
-typedef struct
-{
-    nu_material_type_t type;
-    union
-    {
-        struct
-        {
-            const nu_texture_t *color0;
-            const nu_texture_t *color1;
-            nu_mat3_t           uv_transform;
-        } mesh;
-        struct
-        {
-            const nu_texture_t    *color0;
-            nu_texture_wrap_mode_t wrap_mode;
-        } canvas;
-    };
-} nu_material_info_t;
-
 NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
 NU_API void        nu_image_delete(nu_image_t image);
 NU_API nu_color_t *nu_image_colors(nu_image_t image);
@@ -123,17 +104,22 @@ NU_API void      nu_mesh_update(nu_mesh_t        mesh,
                                 const nu_vec2_t *uvs,
                                 const nu_vec3_t *normals);
 
-NU_API nu_material_info_t nu_material_info_default(nu_material_type_t type);
-NU_API nu_material_t      nu_material_create(const nu_material_info_t *info);
-NU_API void               nu_material_delete(nu_material_t material);
-NU_API nu_error_t         nu_material_update(nu_material_t             material,
-                                             const nu_material_info_t *info);
+NU_API nu_material_t nu_material_create(nu_material_type_t type);
+NU_API void          nu_material_delete(nu_material_t material);
+NU_API void nu_material_color0(nu_material_t material, nu_texture_t color0);
+NU_API void nu_material_color1(nu_material_t material, nu_texture_t color1);
+NU_API void nu_material_uv_transform(nu_material_t material,
+                                     nu_mat3_t     transform);
+NU_API void nu_material_wrap_mode(nu_material_t          material,
+                                  nu_texture_wrap_mode_t mode);
 
 NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type,
                                             nu_bool_t reset_after_submit);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
 NU_API void nu_renderpass_clear_color(nu_renderpass_t pass, nu_color_t *color);
 NU_API void nu_renderpass_camera(nu_renderpass_t pass, nu_camera_t camera);
+NU_API void nu_renderpass_skybox_cubemap(nu_renderpass_t pass,
+                                         nu_cubemap_t    cubemap);
 NU_API void nu_renderpass_skybox_rotation(nu_renderpass_t pass, nu_quat_t rot);
 NU_API void nu_renderpass_target_color(nu_renderpass_t pass,
                                        nu_texture_t    color);
