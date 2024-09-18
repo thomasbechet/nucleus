@@ -83,6 +83,7 @@
 #endif
 
 #if defined(NU_PLATFORM_WINDOWS)
+#define OEMRESOURCE
 #include <Windows.h>
 #elif defined(NU_PLATFORM_UNIX)
 #elif defined(NU_PLATFORM_APPLE)
