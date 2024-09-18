@@ -8,13 +8,10 @@ nugl__reset_renderpass_typed (nugl__renderpass_t *pass)
 {
     switch (pass->type)
     {
-        case NU_RENDERPASS_UNLIT:
         case NU_RENDERPASS_FLAT: {
             NU_VEC_CLEAR(&pass->flat.cmds);
         }
         break;
-        case NU_RENDERPASS_TRANSPARENT:
-        case NU_RENDERPASS_WIREFRAME:
         case NU_RENDERPASS_SKYBOX: {
             NU_VEC_CLEAR(&pass->skybox.cmds);
         }
@@ -466,8 +463,6 @@ nugl__create_surface_color (nu_uvec2_t size)
                  GL_RGB,
                  GL_UNSIGNED_BYTE,
                  NU_NULL);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -478,7 +473,6 @@ static nu_camera_t
 nugl__camera_create (void)
 {
     nu__gl_t *gl = &_ctx.gl;
-
     (void)NU_VEC_PUSH(&gl->cameras);
     return NU_HANDLE_MAKE(nu_camera_t, gl->cameras.size - 1);
 }
@@ -688,42 +682,77 @@ static void
 nugl__material_color0 (nu_material_t material, nu_texture_t color0)
 {
     nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
-    mat->texture0         = color0;
+    switch (mat->type)
+    {
+        case NU_MATERIAL_MESH:
+            mat->mesh.texture0 = color0;
+            break;
+        case NU_MATERIAL_CANVAS:
+            mat->canvas.texture0 = color0;
+            break;
+    }
 }
 static void
 nugl__material_color1 (nu_material_t material, nu_texture_t color1)
 {
     nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
-    mat->texture1         = color1;
+    switch (mat->type)
+    {
+        case NU_MATERIAL_MESH:
+            mat->mesh.texture1 = color1;
+            break;
+        default:
+            break;
+    }
 }
 static void
 nugl__material_uv_transform (nu_material_t material, nu_mat3_t transform)
 {
     nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
-    mat->uv_transform     = transform;
+    switch (mat->type)
+    {
+        case NU_MATERIAL_MESH:
+            mat->mesh.uv_transform = transform;
+            break;
+        default:
+            break;
+    }
 }
 static void
 nugl__material_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
 {
     nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
-    mat->wrap_mode        = mode;
+    switch (mat->type)
+    {
+        case NU_MATERIAL_CANVAS:
+            mat->canvas.wrap_mode = mode;
+            break;
+        default:
+            break;
+    }
 }
 static nu_material_t
 nugl__material_create (nu_material_type_t type)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    (void)NU_VEC_PUSH(&gl->materials);
-    nu_material_t handle
+    nugl__material_t *p = NU_VEC_PUSH(&gl->materials);
+    nu_material_t     handle
         = NU_HANDLE_MAKE(nu_material_t, gl->materials.size - 1);
 
-    // Keep material type
-    nugl__material_t *p = gl->materials.data + NU_HANDLE_INDEX(handle);
-    p->type             = type;
-    p->texture0         = NU_NULL;
-    p->texture1         = NU_NULL;
-    p->uv_transform     = nu_mat3_identity();
-    p->wrap_mode        = NU_TEXTURE_WRAP_CLAMP;
+    p->type = type;
+    switch (p->type)
+    {
+        case NU_MATERIAL_MESH:
+            p->mesh.texture0     = NU_NULL;
+            p->mesh.texture1     = NU_NULL;
+            p->mesh.uv_transform = nu_mat3_identity();
+            break;
+        case NU_MATERIAL_CANVAS:
+            p->canvas.texture0  = NU_NULL;
+            p->canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
+            break;
+    }
 
     return handle;
 }
@@ -808,17 +837,11 @@ nugl__renderpass_create (nu_renderpass_type_t type,
     // Allocate command buffer
     switch (data->type)
     {
-        case NU_RENDERPASS_UNLIT:
-            break;
         case NU_RENDERPASS_FLAT: {
             error = nugl__renderpass_create_flat(&data->flat);
             NU_ERROR_CHECK(error, return NU_NULL);
         }
         break;
-        case NU_RENDERPASS_TRANSPARENT:
-            break;
-        case NU_RENDERPASS_WIREFRAME:
-            break;
         case NU_RENDERPASS_SKYBOX:
             break;
         case NU_RENDERPASS_CANVAS: {
@@ -1140,17 +1163,17 @@ nugl__draw_mesh (nu_renderpass_t pass,
             cmd->vao                  = pmesh->vao;
             cmd->vbo                  = pmesh->vbo;
             cmd->vcount               = pmesh->vertex_count;
-            cmd->texture0
-                = pmat->texture0
-                      ? (gl->textures.data + NU_HANDLE_INDEX(pmat->texture0))
-                            ->texture
-                      : 0;
-            cmd->texture1
-                = pmat->texture1
-                      ? (gl->textures.data + NU_HANDLE_INDEX(pmat->texture1))
-                            ->texture
-                      : 0;
-            cmd->uv_transform = pmat->uv_transform;
+            cmd->texture0             = pmat->mesh.texture0
+                                            ? (gl->textures.data
+                                   + NU_HANDLE_INDEX(pmat->mesh.texture0))
+                                      ->texture
+                                            : 0;
+            cmd->texture1             = pmat->mesh.texture1
+                                            ? (gl->textures.data
+                                   + NU_HANDLE_INDEX(pmat->mesh.texture1))
+                                      ->texture
+                                            : 0;
+            cmd->uv_transform         = pmat->mesh.uv_transform;
         }
         break;
         default:
@@ -1174,11 +1197,11 @@ nugl__draw_blit (nu_renderpass_t pass,
         case NU_RENDERPASS_CANVAS: {
             nugl__canvas_blit_rect(
                 &ppass->canvas,
-                (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->texture0))
+                (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->canvas.texture0))
                     ->texture,
                 extent,
                 tex_extent,
-                pmat->wrap_mode);
+                pmat->canvas.wrap_mode);
         }
         break;
         default:

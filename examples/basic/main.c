@@ -75,12 +75,12 @@ main (void)
     nuext_input_bind_axis(cinfo.view_pitch_pos, NUEXT_AXIS_MOUSE_MOTION_Y_POS);
     nuext_input_bind_axis(cinfo.view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
     nuext_input_bind_axis(cinfo.view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
-    nuext_input_bind_button_value(cinfo.view_pitch_neg, NUEXT_BUTTON_K, 0.08);
-    nuext_input_bind_button_value(cinfo.view_pitch_pos, NUEXT_BUTTON_J, 0.08);
-    nuext_input_bind_button_value(cinfo.view_yaw_neg, NUEXT_BUTTON_H, 0.08);
-    nuext_input_bind_button_value(cinfo.view_yaw_pos, NUEXT_BUTTON_L, 0.08);
-    nuext_input_bind_button_value(cinfo.view_roll_neg, NUEXT_BUTTON_E, 0.08);
-    nuext_input_bind_button_value(cinfo.view_roll_pos, NUEXT_BUTTON_Q, 0.08);
+    nuext_input_bind_button_value(cinfo.view_pitch_neg, NUEXT_BUTTON_K, 0.12);
+    nuext_input_bind_button_value(cinfo.view_pitch_pos, NUEXT_BUTTON_J, 0.12);
+    nuext_input_bind_button_value(cinfo.view_yaw_neg, NUEXT_BUTTON_H, 0.12);
+    nuext_input_bind_button_value(cinfo.view_yaw_pos, NUEXT_BUTTON_L, 0.12);
+    nuext_input_bind_button_value(cinfo.view_roll_neg, NUEXT_BUTTON_E, 0.12);
+    nuext_input_bind_button_value(cinfo.view_roll_pos, NUEXT_BUTTON_Q, 0.12);
     nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer

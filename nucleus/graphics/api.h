@@ -42,10 +42,7 @@ typedef enum
 
 typedef enum
 {
-    NU_RENDERPASS_UNLIT,
     NU_RENDERPASS_FLAT,
-    NU_RENDERPASS_TRANSPARENT,
-    NU_RENDERPASS_WIREFRAME,
     NU_RENDERPASS_SKYBOX,
     NU_RENDERPASS_CANVAS,
 } nu_renderpass_type_t;
@@ -54,8 +51,6 @@ typedef enum
 {
     NU_RENDERER_NULL,
     NU_RENDERER_GL,
-    NU_RENDERER_DX11,
-    NU_RENDERER_SOFTRAST,
 } nu_renderer_api_t;
 
 typedef enum

@@ -24,10 +24,6 @@ nu__graphics_init (void)
         case NU_RENDERER_GL:
             nugl__setup_api(&renderer->api);
             break;
-        case NU_RENDERER_DX11:
-            break;
-        case NU_RENDERER_SOFTRAST:
-            break;
     }
 
     // Initialize backend
