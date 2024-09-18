@@ -2,63 +2,15 @@
 #define NUGL_H
 
 #include <nucleus/graphics/graphics.h>
-#include <nucleus/external/glad/gl.h>
 #include <nucleus/gl/shader_data.h>
+#include <nucleus/gl/texture.h>
+#include <nucleus/gl/material.h>
+#include <nucleus/gl/mesh.h>
+#include <nucleus/gl/camera.h>
 
-#define NUGL__VERTEX_SIZE     (3 + 2 + 3)
 #define NUGL__MIN_DEPTH       0.0
 #define NUGL__MAX_DEPTH       1000.0
 #define NUGL__DEPTH_INCREMENT 0.05
-
-typedef struct
-{
-    GLuint    ubo;
-    nu_mat4_t view;
-    nu_mat4_t projection;
-    nu_mat4_t vp;
-    nu_mat4_t ivp;
-} nugl__camera_t;
-
-typedef struct
-{
-    GLuint    vao;
-    GLuint    vbo;
-    nu_size_t vertex_count;
-} nugl__mesh_t;
-
-typedef struct
-{
-    nu_uvec2_t size;
-    GLuint     texture;
-} nugl__texture_t;
-
-typedef struct
-{
-    GLuint texture;
-} nugl__cubemap_t;
-
-typedef struct
-{
-    nu_texture_t texture0;
-    nu_texture_t texture1;
-    nu_mat3_t    uv_transform;
-} nugl__material_mesh_t;
-
-typedef struct
-{
-    nu_texture_t           texture0;
-    nu_texture_wrap_mode_t wrap_mode;
-} nugl__material_canvas_t;
-
-typedef struct
-{
-    nu_material_type_t type;
-    union
-    {
-        nugl__material_mesh_t   mesh;
-        nugl__material_canvas_t canvas;
-    };
-} nugl__material_t;
 
 typedef enum
 {
@@ -162,11 +114,6 @@ typedef struct
     GLuint fbo;
 } nugl__rendertarget_t;
 
-typedef NU_VEC(nugl__camera_t) nugl__camera_vec_t;
-typedef NU_VEC(nugl__mesh_t) nugl__mesh_vec_t;
-typedef NU_VEC(nugl__texture_t) nugl__texture_vec_t;
-typedef NU_VEC(nugl__cubemap_t) nugl__cubemap_vec_t;
-typedef NU_VEC(nugl__material_t) nugl__material_vec_t;
 typedef NU_VEC(nugl__rendertarget_t) nugl__rendertarget_vec_t;
 typedef NU_VEC(nugl__renderpass_t) nugl__renderpass_vec_t;
 
