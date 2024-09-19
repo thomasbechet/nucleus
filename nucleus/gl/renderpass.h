@@ -65,16 +65,13 @@ typedef struct
 {
     nugl__mesh_command_vec_t cmds;
     nu_u32_t                 camera;
-    nu_color_t               clear_color;
-    nu_bool_t                has_clear_color;
 } nugl__renderpass_flat_t;
 
 typedef struct
 {
-    nugl__mesh_command_vec_t cmds;
-    nu_u32_t                 camera;
-    nu_cubemap_t             cubemap;
-    nu_mat3_t                rotation;
+    nu_u32_t     camera;
+    nu_cubemap_t cubemap;
+    nu_mat3_t    rotation;
 } nugl__renderpass_skybox_t;
 
 typedef struct
@@ -89,17 +86,28 @@ typedef struct
 
 typedef struct
 {
+    nu_u32_t                 camera;
+    nugl__mesh_command_vec_t cmds;
+    nu_polygon_mode_t        polygon_mode;
+    nu_color_t               color;
+} nugl__renderpass_wireframe_t;
+
+typedef struct
+{
     nu_renderpass_type_t type;
     nu_texture_t         depth_target;
     nu_texture_t         color_target;
+    nu_color_t           clear_color;
+    nu_bool_t            has_clear_color;
     GLuint               fbo;
     nu_uvec2_t           fbo_size;
     nu_bool_t            reset_after_submit;
     union
     {
-        nugl__renderpass_flat_t   flat;
-        nugl__renderpass_skybox_t skybox;
-        nugl__renderpass_canvas_t canvas;
+        nugl__renderpass_flat_t      flat;
+        nugl__renderpass_skybox_t    skybox;
+        nugl__renderpass_canvas_t    canvas;
+        nugl__renderpass_wireframe_t wireframe;
     };
 } nugl__renderpass_t;
 

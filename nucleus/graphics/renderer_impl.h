@@ -232,6 +232,12 @@ nu_renderpass_target_depth (nu_renderpass_t pass, nu_texture_t depth)
     _ctx.graphics.renderer.api.renderpass_target_depth(pass, depth);
 }
 void
+nu_renderpass_polygon_mode (nu_renderpass_t pass, nu_polygon_mode_t mode)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_polygon_mode(pass, mode);
+}
+void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
     CHECK_NULL_API_VOID

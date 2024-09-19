@@ -16,6 +16,7 @@ typedef struct
     GLuint blit_program;
     GLuint flat_program;
     GLuint skybox_program;
+    GLuint wireframe_program;
     GLuint canvas_blit_program;
     GLuint nearest_sampler;
 

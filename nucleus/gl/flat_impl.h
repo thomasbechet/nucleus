@@ -3,11 +3,10 @@
 
 #include <nucleus/internal.h>
 
-static nu_error_t
+static void
 nugl__flat_create (nugl__renderpass_flat_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
-    return NU_ERROR_NONE;
 }
 static void
 nugl__flat_draw_mesh (nugl__renderpass_t *pass,
@@ -33,7 +32,6 @@ nugl__flat_draw_mesh (nugl__renderpass_t *pass,
               : 0;
     cmd->uv_transform = pmat->mesh.uv_transform;
 }
-
 static void
 nugl__flat_render (nugl__renderpass_t *pass)
 {
@@ -41,79 +39,59 @@ nugl__flat_render (nugl__renderpass_t *pass)
     nugl__camera_t *cam = gl->cameras.data + pass->flat.camera;
 
     // Prepare pass
-    {
-        // Bind program
-        glUseProgram(gl->flat_program);
-
-        // Bind surface
-        glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
-        glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS);
-        glFrontFace(GL_CCW);
-        glCullFace(GL_BACK);
-    }
-
-    // Clear color
-    if (pass->flat.has_clear_color)
-    {
-        nu_vec4_t clear_color = nu_color_to_vec4(pass->flat.clear_color);
-        glClearColor(
-            clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
+    glUseProgram(gl->flat_program);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Execute commands
+    glUniform2uiv(glGetUniformLocation(gl->flat_program, "viewport_size"),
+                  1,
+                  pass->fbo_size.data);
+    const nugl__mesh_command_vec_t *cmds = &pass->flat.cmds;
+    for (nu_size_t i = 0; i < cmds->size; ++i)
     {
-        const nugl__mesh_command_vec_t *cmds = &pass->flat.cmds;
-        for (nu_size_t i = 0; i < cmds->size; ++i)
+        const nugl__mesh_command_t *cmd = &cmds->data[i];
+        switch (cmds->data[i].type)
         {
-            const nugl__mesh_command_t *cmd = &cmds->data[i];
-            switch (cmds->data[i].type)
-            {
-                case NUGL__DRAW: {
-                    glUniform2uiv(
-                        glGetUniformLocation(gl->flat_program, "viewport_size"),
-                        1,
-                        pass->fbo_size.data);
+            case NUGL__DRAW: {
 
-                    glUniformMatrix4fv(
-                        glGetUniformLocation(gl->flat_program, "model"),
-                        1,
-                        GL_FALSE,
-                        cmd->transform.data);
+                glUniformMatrix4fv(
+                    glGetUniformLocation(gl->flat_program, "model"),
+                    1,
+                    GL_FALSE,
+                    cmd->transform.data);
 
-                    glUniformMatrix4fv(glGetUniformLocation(gl->flat_program,
-                                                            "view_projection"),
-                                       1,
-                                       GL_FALSE,
-                                       cam->vp.data);
+                glUniformMatrix4fv(
+                    glGetUniformLocation(gl->flat_program, "view_projection"),
+                    1,
+                    GL_FALSE,
+                    cam->vp.data);
 
-                    glUniformMatrix3fv(
-                        glGetUniformLocation(gl->flat_program, "uv_transform"),
-                        1,
-                        GL_FALSE,
-                        cmd->uv_transform.data);
+                glUniformMatrix3fv(
+                    glGetUniformLocation(gl->flat_program, "uv_transform"),
+                    1,
+                    GL_FALSE,
+                    cmd->uv_transform.data);
 
-                    // glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, cmd->texture0);
+                // glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, cmd->texture0);
 
-                    glBindVertexArray(cmd->vao);
-                    glDrawArrays(GL_TRIANGLES, 0, cmd->vcount);
-                    glBindVertexArray(0);
-                }
-                break;
-                case NUGL__DRAW_INSTANCED: {
-                }
-                break;
+                glBindVertexArray(cmd->vao);
+                glDrawArrays(GL_TRIANGLES, 0, cmd->vcount);
+                glBindVertexArray(0);
             }
+            break;
+            case NUGL__DRAW_INSTANCED: {
+            }
+            break;
         }
     }
 
-    // Terminate pass
     glUseProgram(0);
 }
 static void

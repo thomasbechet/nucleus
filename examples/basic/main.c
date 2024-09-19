@@ -144,6 +144,9 @@ main (void)
         = nu_renderpass_create(NU_RENDERPASS_SKYBOX, NU_TRUE);
     nu_renderpass_t gui_pass
         = nu_renderpass_create(NU_RENDERPASS_CANVAS, NU_TRUE);
+    nu_renderpass_t wireframe_pass
+        = nu_renderpass_create(NU_RENDERPASS_WIREFRAME, NU_TRUE);
+    nu_renderpass_camera(wireframe_pass, camera);
 
     // Create UI
     nu_ui_t ui = nu_ui_create();
@@ -226,7 +229,7 @@ main (void)
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_identity();
-        nu_draw_model(main_pass, ariane_model, transform);
+        nu_draw_model(wireframe_pass, ariane_model, transform);
 
         transform = nu_mat4_scale(nu_vec3(4, 4, 4));
         transform
@@ -278,12 +281,15 @@ main (void)
         nu_renderpass_clear_color(main_pass, &clear_color);
         nu_renderpass_submit(main_pass);
 
-        nu_renderpass_camera(skybox_pass, camera);
         nu_renderpass_target_color(skybox_pass, surface_tex);
         nu_renderpass_target_depth(skybox_pass, depth_buffer);
         nu_renderpass_skybox_cubemap(skybox_pass, skybox);
         nu_renderpass_skybox_rotation(skybox_pass, nu_quat_identity());
         nu_renderpass_submit(skybox_pass);
+
+        nu_renderpass_target_color(wireframe_pass, surface_tex);
+        nu_renderpass_target_depth(wireframe_pass, depth_buffer);
+        nu_renderpass_submit(wireframe_pass);
 
         nu_renderpass_target_color(gui_pass, surface_tex);
         nu_renderpass_submit(gui_pass);

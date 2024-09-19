@@ -130,7 +130,7 @@ nugl__canvas_blit_rect (nugl__renderpass_canvas_t *pass,
     }
 }
 
-static nu_error_t
+static void
 nugl__canvas_create (nugl__renderpass_canvas_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
@@ -187,8 +187,6 @@ nugl__canvas_create (nugl__renderpass_canvas_t *pass)
     pass->blit_vbo_size = 0;
     pass->blit_vao      = vao;
     pass->depth         = 0;
-
-    return NU_ERROR_NONE;
 }
 
 static void
@@ -251,6 +249,9 @@ nugl__canvas_render (nugl__renderpass_t *pass)
 static void
 nugl__canvas_reset (nugl__renderpass_t *pass)
 {
+    NU_VEC_CLEAR(&pass->canvas.cmds);
+    NU_VEC_CLEAR(&pass->canvas.blit_transfer);
+    pass->canvas.depth = 0;
 }
 
 #endif

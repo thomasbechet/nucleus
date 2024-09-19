@@ -6,29 +6,35 @@
 #include <nucleus/gl/flat_impl.h>
 #include <nucleus/gl/skybox_impl.h>
 #include <nucleus/gl/canvas_impl.h>
+#include <nucleus/gl/wireframe_impl.h>
 
 static nu_renderpass_t
 nugl__renderpass_create (nu_renderpass_type_t type,
                          nu_bool_t            reset_after_submit)
 {
-    nu_error_t error;
-    nu__gl_t  *gl = &_ctx.gl;
-
-    nugl__renderpass_t *data  = NU_VEC_PUSH(&gl->passes);
-    nu_size_t           index = gl->passes.size - 1;
-    data->type                = type;
-    data->reset_after_submit  = reset_after_submit;
+    nugl__renderpass_t *pass  = NU_VEC_PUSH(&_ctx.gl.passes);
+    nu_size_t           index = _ctx.gl.passes.size - 1;
+    pass->type                = type;
+    pass->reset_after_submit  = reset_after_submit;
+    pass->has_clear_color     = NU_FALSE;
+    pass->clear_color         = NU_COLOR_BLACK;
+    pass->color_target        = NU_NULL;
+    pass->depth_target        = NU_NULL;
 
     // Allocate command buffer
-    switch (data->type)
+    switch (pass->type)
     {
         case NU_RENDERPASS_FLAT:
-            nugl__flat_create(&data->flat);
+            nugl__flat_create(&pass->flat);
             break;
         case NU_RENDERPASS_SKYBOX:
+            nugl__skybox_create(&pass->skybox);
             break;
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_create(&data->canvas);
+            nugl__canvas_create(&pass->canvas);
+            break;
+        case NU_RENDERPASS_WIREFRAME:
+            nugl__wireframe_create(&pass->wireframe);
             break;
     }
 
@@ -83,12 +89,11 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
                            nu_texture_t        color_target,
                            nu_texture_t        depth_target)
 {
-    nu__gl_t        *gl = &_ctx.gl;
     nugl__texture_t *color
-        = color_target ? gl->textures.data + NU_HANDLE_INDEX(color_target)
+        = color_target ? _ctx.gl.textures.data + NU_HANDLE_INDEX(color_target)
                        : NU_NULL;
     nugl__texture_t *depth
-        = depth_target ? gl->textures.data + NU_HANDLE_INDEX(depth_target)
+        = depth_target ? _ctx.gl.textures.data + NU_HANDLE_INDEX(depth_target)
                        : NU_NULL;
     if (color_target || depth_target)
     {
@@ -105,55 +110,68 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
 static void
 nugl__renderpass_clear_color (nu_renderpass_t pass, nu_color_t *color)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     if (color)
     {
-        ppass->flat.clear_color     = *color;
-        ppass->flat.has_clear_color = NU_TRUE;
+        ppass->clear_color     = *color;
+        ppass->has_clear_color = NU_TRUE;
     }
     else
     {
-        ppass->flat.has_clear_color = NU_FALSE;
+        ppass->has_clear_color = NU_FALSE;
     }
 }
 static void
 nugl__renderpass_camera (nu_renderpass_t pass, nu_camera_t camera)
 {
     NU_ASSERT(camera);
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
-    ppass->flat.camera        = NU_HANDLE_INDEX(camera);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
+    nu_u32_t            index = NU_HANDLE_INDEX(camera);
+    switch (ppass->type)
+    {
+        case NU_RENDERPASS_FLAT:
+            ppass->flat.camera = index;
+            break;
+        case NU_RENDERPASS_WIREFRAME:
+            ppass->wireframe.camera = index;
+            break;
+        default:
+            NU_ERROR("invalid");
+            break;
+    }
 }
 static void
 nugl__renderpass_skybox_cubemap (nu_renderpass_t pass, nu_cubemap_t cubemap)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(ppass->type == NU_RENDERPASS_SKYBOX);
     ppass->skybox.cubemap = cubemap;
 }
 static void
 nugl__renderpass_skybox_rotation (nu_renderpass_t pass, nu_quat_t rot)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(ppass->type == NU_RENDERPASS_SKYBOX);
     ppass->skybox.rotation = nu_quat_mat3(rot);
 }
 static void
 nugl__renderpass_target_color (nu_renderpass_t pass, nu_texture_t color)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     ppass->color_target       = color;
 }
 static void
 nugl__renderpass_target_depth (nu_renderpass_t pass, nu_texture_t depth)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     ppass->depth_target       = depth;
+}
+static void
+nugl__renderpass_polygon_mode (nu_renderpass_t pass, nu_polygon_mode_t mode)
+{
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
+    NU_ASSERT(ppass->type == NU_RENDERPASS_WIREFRAME);
+    ppass->wireframe.polygon_mode = mode;
 }
 static void
 nugl__reset_renderpass (nugl__renderpass_t *pass)
@@ -169,15 +187,15 @@ nugl__reset_renderpass (nugl__renderpass_t *pass)
         case NU_RENDERPASS_CANVAS:
             nugl__canvas_reset(pass);
             break;
-        default:
+        case NU_RENDERPASS_WIREFRAME:
+            nugl__wireframe_reset(pass);
             break;
     }
 }
 static void
 nugl__renderpass_reset (nu_renderpass_t pass)
 {
-    nu__gl_t           *gl    = &_ctx.gl;
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     nugl__reset_renderpass(ppass);
 }
 static void
@@ -207,8 +225,12 @@ nugl__renderpass_submit (nu_renderpass_t pass)
             nugl__prepare_color_depth(ppass, ppass->color_target, NU_NULL);
         }
         break;
-        default:
-            break;
+        case NU_RENDERPASS_WIREFRAME: {
+            NU_ASSERT(ppass->color_target && ppass->depth_target);
+            nugl__prepare_color_depth(
+                ppass, ppass->color_target, ppass->depth_target);
+        }
+        break;
     }
 }
 
@@ -230,6 +252,9 @@ nugl__draw_mesh (nu_renderpass_t pass,
     {
         case NU_RENDERPASS_FLAT:
             nugl__flat_draw_mesh(ppass, pmat, pmesh, transform);
+            break;
+        case NU_RENDERPASS_WIREFRAME:
+            nugl__wireframe_draw_mesh(ppass, pmat, pmesh, transform);
             break;
         default:
             return;
@@ -267,6 +292,20 @@ nugl__draw_blit (nu_renderpass_t pass,
 static void
 nugl__execute_renderpass (nugl__renderpass_t *pass)
 {
+    // Bind surface
+    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+
+    // Clear color
+    if (pass->has_clear_color)
+    {
+        nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
+        glClearColor(
+            clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    // Render
     switch (pass->type)
     {
         case NU_RENDERPASS_FLAT:
@@ -278,7 +317,8 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
         case NU_RENDERPASS_CANVAS:
             nugl__canvas_render(pass);
             break;
-        default:
+        case NU_RENDERPASS_WIREFRAME:
+            nugl__wireframe_render(pass);
             break;
     }
 

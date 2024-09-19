@@ -52,6 +52,8 @@ typedef struct
     void (*renderpass_skybox_rotation)(nu_renderpass_t pass, nu_quat_t rot);
     void (*renderpass_target_color)(nu_renderpass_t pass, nu_texture_t color);
     void (*renderpass_target_depth)(nu_renderpass_t pass, nu_texture_t depth);
+    void (*renderpass_polygon_mode)(nu_renderpass_t   pass,
+                                    nu_polygon_mode_t mode);
     void (*renderpass_reset)(nu_renderpass_t pass);
     void (*renderpass_submit)(nu_renderpass_t pass);
 

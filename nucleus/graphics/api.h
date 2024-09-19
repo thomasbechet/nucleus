@@ -42,9 +42,18 @@ typedef enum
 
 typedef enum
 {
+    NU_POLYGON_POINT,
+    NU_POLYGON_TRIANGLE,
+    NU_POLYGON_LINE,
+    NU_POLYGON_LINE_STRIP
+} nu_polygon_mode_t;
+
+typedef enum
+{
     NU_RENDERPASS_FLAT,
     NU_RENDERPASS_SKYBOX,
     NU_RENDERPASS_CANVAS,
+    NU_RENDERPASS_WIREFRAME
 } nu_renderpass_type_t;
 
 typedef enum
@@ -120,6 +129,8 @@ NU_API void nu_renderpass_target_color(nu_renderpass_t pass,
                                        nu_texture_t    color);
 NU_API void nu_renderpass_target_depth(nu_renderpass_t pass,
                                        nu_texture_t    depth);
+NU_API void nu_renderpass_polygon_mode(nu_renderpass_t   pass,
+                                       nu_polygon_mode_t mode);
 NU_API void nu_renderpass_reset(nu_renderpass_t pass);
 NU_API void nu_renderpass_submit(nu_renderpass_t pass);
 

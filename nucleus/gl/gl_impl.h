@@ -183,10 +183,14 @@ nugl__init (void)
                                  &gl->canvas_blit_program);
     NU_ERROR_CHECK(error, return error);
 
+    glEnableVertexAttribArray(0);
+    error = nugl__compile_shader(nugl__shader_wireframe_vert,
+                                 nugl__shader_wireframe_frag,
+                                 &gl->wireframe_program);
+    NU_ERROR_CHECK(error, return error);
+
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
-    // glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    // glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -210,15 +214,16 @@ nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
     }
 
     // Blit surface
+    glDisable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     nu_vec4_t clear
         = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
     glUseProgram(gl->blit_program);
-    glEnable(GL_FRAMEBUFFER_SRGB);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport->p.x, viewport->p.y, viewport->s.x, viewport->s.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_2D,
                   gl->textures.data[gl->surface_color_index].texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -289,6 +294,7 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->renderpass_skybox_rotation = nugl__renderpass_skybox_rotation;
     api->renderpass_target_color    = nugl__renderpass_target_color;
     api->renderpass_target_depth    = nugl__renderpass_target_depth;
+    api->renderpass_polygon_mode    = nugl__renderpass_polygon_mode;
     api->renderpass_reset           = nugl__renderpass_reset;
     api->renderpass_submit          = nugl__renderpass_submit;
 

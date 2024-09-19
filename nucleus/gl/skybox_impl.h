@@ -4,6 +4,12 @@
 #include <nucleus/internal.h>
 
 static void
+nugl__skybox_create (nugl__renderpass_skybox_t *pass)
+{
+    pass->cubemap  = NU_NULL;
+    pass->rotation = nu_mat3_identity();
+}
+static void
 nugl__skybox_render (nugl__renderpass_t *pass)
 {
     nu__gl_t        *gl  = &_ctx.gl;
@@ -13,10 +19,6 @@ nugl__skybox_render (nugl__renderpass_t *pass)
 
     // Bind program
     glUseProgram(gl->skybox_program);
-
-    // Bind surface
-    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
-    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -41,12 +43,14 @@ nugl__skybox_render (nugl__renderpass_t *pass)
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
     glUseProgram(0);
 }
 static void
 nugl__skybox_reset (nugl__renderpass_t *pass)
 {
-    NU_VEC_CLEAR(&pass->skybox.cmds);
 }
 
 #endif

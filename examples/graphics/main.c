@@ -19,7 +19,7 @@ main (void)
     nu_init();
 
     // Renderpass
-    renderpass = nu_renderpass_create(NU_RENDERPASS_FLAT, NU_TRUE);
+    renderpass = nu_renderpass_create(NU_RENDERPASS_WIREFRAME, NU_TRUE);
 
     // Mesh
     {
