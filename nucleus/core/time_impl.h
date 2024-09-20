@@ -3,29 +3,6 @@
 
 #include <nucleus/internal.h>
 
-#if defined(NU_PLATFORM_WINDOWS)
-
-void
-nu_timer_reset (nu_timer_t timer)
-{
-    nu_timer_data_t *p = (nu_timer_data_t *)timer;
-    QueryPerformanceCounter(&p->t0);
-}
-float
-nu_timer_elapsed (nu_timer_t timer)
-{
-    nu_timer_data_t *p = (nu_timer_data_t *)timer;
-
-    LARGE_INTEGER frequency, t1;
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&t1);
-
-    double delta = (t1.QuadPart - p->t0.QuadPart) * 1000.0 / frequency.QuadPart;
-    return (float)delta;
-}
-
-#elif defined(NU_PLATFORM_UNIX)
-
 nu_time_t
 nu_time (void)
 {
@@ -86,7 +63,6 @@ nu_timer_elapsed (nu_timer_t *timer)
 
     return (double)diff.tv_nsec / 1.0e6;
 }
-#endif
 
 nu_fixed_loop_t
 nu_fixed_loop (nu_u32_t id, float timestep)

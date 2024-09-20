@@ -234,20 +234,12 @@ typedef struct
 
 typedef struct
 {
-#if defined(NU_PLATFORM_WINDOWS)
-    LARGE_INTEGER value;
-#elif defined(NU_PLATFORM_UNIX)
     time_t value;
-#endif
 } nu_time_t;
 
 typedef struct
 {
-#if defined(NU_PLATFORM_WINDOWS)
-    LARGE_INTEGER t0;
-#elif defined(NU_PLATFORM_UNIX)
     struct timespec start;
-#endif
 } nu_timer_t;
 
 typedef struct
