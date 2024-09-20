@@ -75,13 +75,9 @@ nuext_import_package (const nu_char_t *filename)
     nu_size_t max_asset_count = toks[0].size;
 
     jsmntok_t *tok = &toks[1];
-    while ((nu_size_t)(tok - &toks[0]) / sizeof(*tok) < max_asset_count)
+    for (nu_size_t i = 0; i < max_asset_count; ++i)
     {
-        if (tok->type != JSMN_OBJECT)
-        {
-            tok = nu__json_skip(tok);
-        }
-        else
+        if (tok->type == JSMN_OBJECT)
         {
             // Parse name
             jsmntok_t *tname = nu__json_object_member(json, tok, "name");
@@ -134,9 +130,8 @@ nuext_import_package (const nu_char_t *filename)
             }
 
             NU_INFO("'%s' asset added", name);
-
-            tok++;
         }
+        tok = nu__json_skip(tok);
     }
 
     error = NU_ERROR_NONE;
