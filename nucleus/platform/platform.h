@@ -80,10 +80,8 @@ typedef struct
     nu_u32_t  mouse_button_to_first_binding[NU__MAX_MOUSE_BUTTON_COUNT];
     nu_u32_t  mouse_x_first_binding;
     nu_u32_t  mouse_y_first_binding;
-    nu_u32_t  mouse_motion_x_pos_first_binding;
-    nu_u32_t  mouse_motion_x_neg_first_binding;
-    nu_u32_t  mouse_motion_y_pos_first_binding;
-    nu_u32_t  mouse_motion_y_neg_first_binding;
+    nu_u32_t  mouse_motion_x_first_binding;
+    nu_u32_t  mouse_motion_y_first_binding;
     nu_vec2_t mouse_position;
     nu_vec2_t mouse_old_position;
     nu_vec2_t mouse_scroll;

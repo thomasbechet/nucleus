@@ -65,12 +65,10 @@ nu__platform_init (void)
     {
         _ctx.platform.mouse_button_to_first_binding[i] = NU__ID_NONE;
     }
-    _ctx.platform.mouse_x_first_binding            = NU__ID_NONE;
-    _ctx.platform.mouse_y_first_binding            = NU__ID_NONE;
-    _ctx.platform.mouse_motion_x_pos_first_binding = NU__ID_NONE;
-    _ctx.platform.mouse_motion_x_neg_first_binding = NU__ID_NONE;
-    _ctx.platform.mouse_motion_y_pos_first_binding = NU__ID_NONE;
-    _ctx.platform.mouse_motion_y_neg_first_binding = NU__ID_NONE;
+    _ctx.platform.mouse_x_first_binding        = NU__ID_NONE;
+    _ctx.platform.mouse_y_first_binding        = NU__ID_NONE;
+    _ctx.platform.mouse_motion_x_first_binding = NU__ID_NONE;
+    _ctx.platform.mouse_motion_y_first_binding = NU__ID_NONE;
 
     return NU_ERROR_NONE;
 }
@@ -210,27 +208,12 @@ nu_poll_events (void)
                 || _ctx.platform.mouse_motion.y
                        != _ctx.platform.mouse_motion_previous.y)
             {
-
-                float pos_x = _ctx.platform.mouse_motion.x > 0
-                                  ? _ctx.platform.mouse_motion.x
-                                  : 0;
-                float neg_x = _ctx.platform.mouse_motion.x < 0
-                                  ? nu_fabs(_ctx.platform.mouse_motion.x)
-                                  : 0;
-                float pos_y = _ctx.platform.mouse_motion.y > 0
-                                  ? _ctx.platform.mouse_motion.y
-                                  : 0;
-                float neg_y = _ctx.platform.mouse_motion.y < 0
-                                  ? nu_fabs(_ctx.platform.mouse_motion.y)
-                                  : 0;
                 nu__dispatch_binding_axis(
-                    _ctx.platform.mouse_motion_x_pos_first_binding, pos_x);
+                    _ctx.platform.mouse_motion_x_first_binding,
+                    _ctx.platform.mouse_motion.x);
                 nu__dispatch_binding_axis(
-                    _ctx.platform.mouse_motion_x_neg_first_binding, neg_x);
-                nu__dispatch_binding_axis(
-                    _ctx.platform.mouse_motion_y_pos_first_binding, pos_y);
-                nu__dispatch_binding_axis(
-                    _ctx.platform.mouse_motion_y_neg_first_binding, neg_y);
+                    _ctx.platform.mouse_motion_y_first_binding,
+                    _ctx.platform.mouse_motion.y);
 
                 _ctx.platform.mouse_motion_previous
                     = _ctx.platform.mouse_motion;

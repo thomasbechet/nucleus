@@ -255,14 +255,10 @@ nu__first_binding_from_axis (nuext_axis_t axis)
             return &_ctx.platform.mouse_x_first_binding;
         case NUEXT_AXIS_MOUSE_Y:
             return &_ctx.platform.mouse_y_first_binding;
-        case NUEXT_AXIS_MOUSE_MOTION_X_POS:
-            return &_ctx.platform.mouse_motion_x_pos_first_binding;
-        case NUEXT_AXIS_MOUSE_MOTION_X_NEG:
-            return &_ctx.platform.mouse_motion_x_neg_first_binding;
-        case NUEXT_AXIS_MOUSE_MOTION_Y_POS:
-            return &_ctx.platform.mouse_motion_y_pos_first_binding;
-        case NUEXT_AXIS_MOUSE_MOTION_Y_NEG:
-            return &_ctx.platform.mouse_motion_y_neg_first_binding;
+        case NUEXT_AXIS_MOUSE_MOTION_X:
+            return &_ctx.platform.mouse_motion_x_first_binding;
+        case NUEXT_AXIS_MOUSE_MOTION_Y:
+            return &_ctx.platform.mouse_motion_y_first_binding;
     }
     return NU_NULL;
 }

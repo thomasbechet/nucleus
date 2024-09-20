@@ -18,18 +18,12 @@ typedef enum
 
 typedef struct
 {
-    nu_input_t view_pitch_neg;
-    nu_input_t view_pitch_pos;
-    nu_input_t view_yaw_neg;
-    nu_input_t view_yaw_pos;
-    nu_input_t view_roll_neg;
-    nu_input_t view_roll_pos;
-    nu_input_t move_up;
-    nu_input_t move_down;
-    nu_input_t move_left;
-    nu_input_t move_right;
-    nu_input_t move_forward;
-    nu_input_t move_backward;
+    nu_input_t view_pitch;
+    nu_input_t view_yaw;
+    nu_input_t view_roll;
+    nu_input_t move_x;
+    nu_input_t move_y;
+    nu_input_t move_z;
     nu_input_t switch_mode;
 } nu_controller_info_t;
 

@@ -37,50 +37,41 @@ main (void)
 
     // Configure inputs
     nu_controller_info_t cinfo;
-    draw                 = nu_input_create();
-    main_button          = nu_input_create();
-    quit                 = nu_input_create();
-    cursor_x             = nu_input_create();
-    cursor_y             = nu_input_create();
-    cinfo.move_forward   = nu_input_create();
-    cinfo.move_backward  = nu_input_create();
-    cinfo.move_left      = nu_input_create();
-    cinfo.move_right     = nu_input_create();
-    cinfo.move_up        = nu_input_create();
-    cinfo.move_down      = nu_input_create();
-    cinfo.view_pitch_neg = nu_input_create();
-    cinfo.view_pitch_pos = nu_input_create();
-    cinfo.view_yaw_neg   = nu_input_create();
-    cinfo.view_yaw_pos   = nu_input_create();
-    cinfo.view_roll_neg  = nu_input_create();
-    cinfo.view_roll_pos  = nu_input_create();
-    cinfo.switch_mode    = nu_input_create();
+    draw              = nu_input_create();
+    main_button       = nu_input_create();
+    quit              = nu_input_create();
+    cursor_x          = nu_input_create();
+    cursor_y          = nu_input_create();
+    cinfo.move_x      = nu_input_create();
+    cinfo.move_y      = nu_input_create();
+    cinfo.move_z      = nu_input_create();
+    cinfo.view_yaw    = nu_input_create();
+    cinfo.view_pitch  = nu_input_create();
+    cinfo.view_roll   = nu_input_create();
+    cinfo.switch_mode = nu_input_create();
 
     // Create camera controller
     nu_controller_t controller = nu_controller_create(&cinfo);
 
     // Bind inputs
-
     nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_LEFT);
     nuext_input_bind_button(quit, NUEXT_BUTTON_ESCAPE);
     nuext_input_bind_axis(cursor_x, NUEXT_AXIS_MOUSE_X);
     nuext_input_bind_axis(cursor_y, NUEXT_AXIS_MOUSE_Y);
-    nuext_input_bind_button(cinfo.move_forward, NUEXT_BUTTON_W);
-    nuext_input_bind_button(cinfo.move_backward, NUEXT_BUTTON_S);
-    nuext_input_bind_button(cinfo.move_left, NUEXT_BUTTON_A);
-    nuext_input_bind_button(cinfo.move_right, NUEXT_BUTTON_D);
-    nuext_input_bind_button(cinfo.move_up, NUEXT_BUTTON_X);
-    nuext_input_bind_button(cinfo.move_down, NUEXT_BUTTON_Z);
-    nuext_input_bind_axis(cinfo.view_pitch_neg, NUEXT_AXIS_MOUSE_MOTION_Y_NEG);
-    nuext_input_bind_axis(cinfo.view_pitch_pos, NUEXT_AXIS_MOUSE_MOTION_Y_POS);
-    nuext_input_bind_axis(cinfo.view_yaw_neg, NUEXT_AXIS_MOUSE_MOTION_X_NEG);
-    nuext_input_bind_axis(cinfo.view_yaw_pos, NUEXT_AXIS_MOUSE_MOTION_X_POS);
-    nuext_input_bind_button_value(cinfo.view_pitch_neg, NUEXT_BUTTON_K, 0.12);
-    nuext_input_bind_button_value(cinfo.view_pitch_pos, NUEXT_BUTTON_J, 0.12);
-    nuext_input_bind_button_value(cinfo.view_yaw_neg, NUEXT_BUTTON_H, 0.12);
-    nuext_input_bind_button_value(cinfo.view_yaw_pos, NUEXT_BUTTON_L, 0.12);
-    nuext_input_bind_button_value(cinfo.view_roll_neg, NUEXT_BUTTON_E, 0.12);
-    nuext_input_bind_button_value(cinfo.view_roll_pos, NUEXT_BUTTON_Q, 0.12);
+    nuext_input_bind_button_value(cinfo.move_z, NUEXT_BUTTON_W, 1);
+    nuext_input_bind_button_value(cinfo.move_z, NUEXT_BUTTON_S, -1);
+    nuext_input_bind_button_value(cinfo.move_x, NUEXT_BUTTON_D, 1);
+    nuext_input_bind_button_value(cinfo.move_x, NUEXT_BUTTON_A, -1);
+    nuext_input_bind_button_value(cinfo.move_y, NUEXT_BUTTON_X, 1);
+    nuext_input_bind_button_value(cinfo.move_y, NUEXT_BUTTON_Z, -1);
+    nuext_input_bind_axis(cinfo.view_pitch, NUEXT_AXIS_MOUSE_MOTION_Y);
+    nuext_input_bind_axis(cinfo.view_yaw, NUEXT_AXIS_MOUSE_MOTION_X);
+    nuext_input_bind_button_value(cinfo.view_pitch, NUEXT_BUTTON_J, 0.12);
+    nuext_input_bind_button_value(cinfo.view_pitch, NUEXT_BUTTON_K, -0.12);
+    nuext_input_bind_button_value(cinfo.view_yaw, NUEXT_BUTTON_L, 0.12);
+    nuext_input_bind_button_value(cinfo.view_yaw, NUEXT_BUTTON_H, -0.12);
+    nuext_input_bind_button_value(cinfo.view_roll, NUEXT_BUTTON_Q, 0.12);
+    nuext_input_bind_button_value(cinfo.view_roll, NUEXT_BUTTON_E, -0.12);
     nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer

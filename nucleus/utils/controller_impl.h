@@ -32,20 +32,13 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 {
     nu__camera_controller_t *ctrl
         = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
-    nu_vec3_t look = nu_axis3d(nu_input_value(ctrl->info.view_yaw_neg),
-                               nu_input_value(ctrl->info.view_yaw_pos),
-                               nu_input_value(ctrl->info.view_pitch_pos),
-                               nu_input_value(ctrl->info.view_pitch_neg),
-                               nu_input_value(ctrl->info.view_roll_pos),
-                               nu_input_value(ctrl->info.view_roll_neg),
-                               NU_FALSE);
-    nu_vec3_t move = nu_axis3d(nu_input_value(ctrl->info.move_left),
-                               nu_input_value(ctrl->info.move_right),
-                               nu_input_value(ctrl->info.move_up),
-                               nu_input_value(ctrl->info.move_down),
-                               nu_input_value(ctrl->info.move_forward),
-                               nu_input_value(ctrl->info.move_backward),
-                               NU_TRUE);
+    nu_vec3_t look = nu_vec3(nu_input_value(ctrl->info.view_yaw),
+                             nu_input_value(ctrl->info.view_pitch),
+                             nu_input_value(ctrl->info.view_roll));
+    nu_vec3_t move
+        = nu_vec3_normalize(nu_vec3(nu_input_value(ctrl->info.move_x),
+                                    nu_input_value(ctrl->info.move_y),
+                                    nu_input_value(ctrl->info.move_z)));
 
     // Switch mode
     if (nu_input_just_pressed(ctrl->info.switch_mode))
@@ -146,7 +139,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     // Apply jump
     if (ctrl->mode == NU_CONTROLLER_CHARACTER)
     {
-        if (ctrl->on_ground && nu_input_just_pressed(ctrl->info.move_up))
+        if (ctrl->on_ground && nu_input_value(ctrl->info.move_y) > 0)
         {
             ctrl->on_ground = NU_FALSE;
             ctrl->vel       = nu_vec3_muls(NU_VEC3_UP, 15);
