@@ -2,18 +2,21 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(basic LANGUAGES C VERSION 0.0.1)
 
-set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_BUILD_TYPE Release)
+# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 add_executable(
     ${PROJECT_NAME}
     main.c
 )
 
-# Compile GLFW (TODO: find header only library)
-# add_subdirectory(${CMAKE_SOURCE_DIR}/nucleus/external/glfw-3.4 glfw)
-# target_link_libraries(${PROJECT_NAME} glfw GL)
-target_link_libraries(${PROJECT_NAME} GL m Xrandr X11 dl pthread)
+find_package(OpenGL REQUIRED)
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m Xrandr X11 dl pthread)
+endif (UNIX)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m)
+endif (WIN32)
 
 include_directories(${CMAKE_SOURCE_DIR})
 

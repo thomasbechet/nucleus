@@ -49,7 +49,7 @@ nu__pool_add (nu_size_t      tsize,
     nu_size_t new_capacity = (*capacity) * 2;
     data                   = nu_realloc_a(
         freelist->allocator, data, tsize * (*capacity), tsize * new_capacity);
-    nu_memset((void *)((nu_size_t)data + tsize * (*capacity)),
+    nu_memset((void *)((nu_intptr_t)data + tsize * (*capacity)),
               0,
               (new_capacity - (*capacity)) * tsize);
 

@@ -10,7 +10,13 @@ add_executable(
     main.c
 )
 
-target_link_libraries(${PROJECT_NAME} GL m Xrandr X11 dl pthread)
+find_package(OpenGL REQUIRED)
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m Xrandr X11 dl pthread)
+endif (UNIX)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m)
+endif (WIN32)
 
 include_directories(${CMAKE_SOURCE_DIR})
 

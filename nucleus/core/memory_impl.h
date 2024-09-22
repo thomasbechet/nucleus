@@ -111,7 +111,7 @@ void *
 nu_memalign (void *ptr, nu_size_t align)
 {
     NU_ASSERT(align > 0);
-    return (void *)(((nu_size_t)ptr + align - 1) & ~(align - 1));
+    return (void *)(((nu_intptr_t)ptr + align - 1) & ~(align - 1));
 }
 
 #endif

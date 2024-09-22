@@ -197,6 +197,7 @@ typedef char          nu_char_t;
 typedef int           nu_bool_t;
 typedef nu_i32_t      nu_int_t;
 typedef unsigned long nu_size_t;
+typedef intptr_t      nu_intptr_t;
 typedef unsigned char nu_byte_t;
 typedef int           nu_word_t;
 typedef nu_u32_t      nu_uid_t;

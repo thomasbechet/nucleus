@@ -85,6 +85,7 @@
 #if defined(NU_PLATFORM_WINDOWS)
 #define OEMRESOURCE
 #include <Windows.h>
+#include <errno.h>
 #elif defined(NU_PLATFORM_UNIX)
 #elif defined(NU_PLATFORM_APPLE)
 #endif
@@ -133,8 +134,8 @@
     }
 
 #define NU_DEFINE_HANDLE(type)      typedef struct type *type
-#define NU_HANDLE_INDEX(handle)     ((nu_size_t)handle - 1)
-#define NU_HANDLE_MAKE(type, index) ((type)(index + 1))
+#define NU_HANDLE_INDEX(handle)     ((nu_intptr_t)handle - 1)
+#define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
