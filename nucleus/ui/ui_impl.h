@@ -244,7 +244,7 @@ nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     for (nu_size_t i = ui->passes.size; i > 0; --i)
     {
-        nu_renderpass_target_color(ui->passes.data[i - 1].renderpass,
+        nu_renderpass_color_target(ui->passes.data[i - 1].renderpass,
                                    color_target);
         nu_renderpass_submit(ui->passes.data[i - 1].renderpass);
     }

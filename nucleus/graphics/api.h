@@ -55,8 +55,7 @@ typedef enum
     NU_PRIMITIVE_POINTS,
     NU_PRIMITIVE_TRIANGLES,
     NU_PRIMITIVE_LINES,
-    NU_PRIMITIVE_LINES_STRIP,
-    NU_PRIMITIVE_OBJECT,
+    NU_PRIMITIVE_OBJECTS,
 } nu_primitive_t;
 
 typedef enum
@@ -168,9 +167,9 @@ NU_API void nu_renderpass_camera(nu_renderpass_t pass, nu_camera_t camera);
 NU_API void nu_renderpass_skybox_cubemap(nu_renderpass_t pass,
                                          nu_cubemap_t    cubemap);
 NU_API void nu_renderpass_skybox_rotation(nu_renderpass_t pass, nu_quat_t rot);
-NU_API void nu_renderpass_target_color(nu_renderpass_t pass,
+NU_API void nu_renderpass_color_target(nu_renderpass_t pass,
                                        nu_texture_t    color);
-NU_API void nu_renderpass_target_depth(nu_renderpass_t pass,
+NU_API void nu_renderpass_depth_target(nu_renderpass_t pass,
                                        nu_texture_t    depth);
 NU_API void nu_renderpass_reset(nu_renderpass_t pass);
 NU_API void nu_renderpass_submit(nu_renderpass_t pass);

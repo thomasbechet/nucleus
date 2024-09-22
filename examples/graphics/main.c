@@ -87,8 +87,8 @@ main (void)
 
         nu_renderpass_camera(renderpass, camera);
         nu_renderpass_clear_color(renderpass, &clear_color);
-        nu_renderpass_target_color(renderpass, surface_color);
-        nu_renderpass_target_depth(renderpass, depth_buffer);
+        nu_renderpass_color_target(renderpass, surface_color);
+        nu_renderpass_depth_target(renderpass, depth_buffer);
         nu_renderpass_submit(renderpass);
 
         nu_swap_buffers();

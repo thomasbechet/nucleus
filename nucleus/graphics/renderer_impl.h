@@ -253,13 +253,13 @@ nu_renderpass_skybox_rotation (nu_renderpass_t pass, nu_quat_t rot)
     _ctx.graphics.renderer.api.renderpass_skybox_rotation(pass, rot);
 }
 void
-nu_renderpass_target_color (nu_renderpass_t pass, nu_texture_t color)
+nu_renderpass_color_target (nu_renderpass_t pass, nu_texture_t color)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.renderpass_target_color(pass, color);
 }
 void
-nu_renderpass_target_depth (nu_renderpass_t pass, nu_texture_t depth)
+nu_renderpass_depth_target (nu_renderpass_t pass, nu_texture_t depth)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.renderpass_target_depth(pass, depth);

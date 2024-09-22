@@ -191,10 +191,9 @@ nu_geometry_create (nu_primitive_t primitive, nu_size_t capacity)
         break;
         case NU_PRIMITIVE_POINTS:
         case NU_PRIMITIVE_LINES:
-        case NU_PRIMITIVE_LINES_STRIP:
             NU_VEC_INIT(capacity * 2, &g->positions);
             break;
-        case NU_PRIMITIVE_OBJECT:
+        case NU_PRIMITIVE_OBJECTS:
             break;
     }
     return NU_HANDLE_MAKE(nu_geometry_t, index);
@@ -213,10 +212,9 @@ nu_geometry_delete (nu_geometry_t geometry)
         break;
         case NU_PRIMITIVE_POINTS:
         case NU_PRIMITIVE_LINES:
-        case NU_PRIMITIVE_LINES_STRIP:
             NU_VEC_FREE(&g->positions);
             break;
-        case NU_PRIMITIVE_OBJECT:
+        case NU_PRIMITIVE_OBJECTS:
             break;
     }
 }

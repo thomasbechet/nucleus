@@ -14,8 +14,6 @@ nugl__vertex_per_primitive (nu_primitive_t primitive)
             return 3;
         case NU_PRIMITIVE_LINES:
             return 2;
-        case NU_PRIMITIVE_LINES_STRIP:
-            return 2;
         default:
             break;
     }
