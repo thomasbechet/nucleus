@@ -5,6 +5,7 @@
 #include <nucleus/gl/shader_data.h>
 #include <nucleus/gl/texture.h>
 #include <nucleus/gl/material.h>
+#include <nucleus/gl/buffer.h>
 #include <nucleus/gl/mesh.h>
 #include <nucleus/gl/camera.h>
 #include <nucleus/gl/renderpass.h>
@@ -21,6 +22,7 @@ typedef struct
     GLuint nearest_sampler;
 
     nugl__camera_vec_t       cameras;
+    nugl__buffer_vec_t       buffers;
     nugl__mesh_vec_t         meshes;
     nugl__texture_vec_t      textures;
     nugl__cubemap_vec_t      cubemaps;

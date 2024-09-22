@@ -4,39 +4,65 @@
 #include <nucleus/internal.h>
 
 static void
+nugl__flat_reset (nugl__renderpass_flat_t *pass)
+{
+    NU_VEC_CLEAR(&pass->cmds);
+    pass->material = NU_NULL;
+}
+static void
 nugl__flat_create (nugl__renderpass_flat_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
+    pass->camera = NU_NULL;
+    nugl__flat_reset(pass);
 }
 static void
-nugl__flat_draw_mesh (nugl__renderpass_t *pass,
-                      nugl__material_t   *pmat,
-                      nugl__mesh_t       *pmesh,
-                      nu_mat4_t           transform)
+nugl__flat_bind_material (nugl__renderpass_flat_t *pass, nu_material_t material)
 {
-    nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->flat.cmds);
-    cmd->type                 = NUGL__DRAW;
-    cmd->transform            = transform;
-    cmd->vao                  = pmesh->vao;
-    cmd->vbo                  = pmesh->vbo;
-    cmd->vcount               = pmesh->vertex_count;
-    cmd->texture0
-        = pmat->mesh.texture0
-              ? (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->mesh.texture0))
-                    ->texture
-              : 0;
-    cmd->texture1
-        = pmat->mesh.texture1
-              ? (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->mesh.texture1))
-                    ->texture
-              : 0;
-    cmd->uv_transform = pmat->mesh.uv_transform;
+    pass->material = material;
+}
+static void
+nugl__flat_draw_meshes (nugl__renderpass_t *pass,
+                        nugl__mesh_t       *pmesh,
+                        const nu_mat4_t    *transforms,
+                        nu_size_t           count)
+{
+    if (!pass->flat.material)
+    {
+        NU_ERROR("no material bound");
+        return;
+    }
+    const nugl__material_t *pmat
+        = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->flat.material);
+    NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_SURFACE);
+
+    // TODO: instanced rendering
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->flat.cmds);
+        cmd->type                 = NUGL__DRAW;
+        cmd->transform            = transforms[i];
+        cmd->vao                  = pmesh->vao;
+        cmd->vcount               = pmesh->count * 3;
+        cmd->texture0             = pmat->mesh.texture0
+                                        ? (_ctx.gl.textures.data
+                               + NU_HANDLE_INDEX(pmat->mesh.texture0))
+                                  ->texture
+                                        : 0;
+        cmd->texture1             = pmat->mesh.texture1
+                                        ? (_ctx.gl.textures.data
+                               + NU_HANDLE_INDEX(pmat->mesh.texture1))
+                                  ->texture
+                                        : 0;
+        cmd->uv_transform         = pmat->mesh.uv_transform;
+    }
 }
 static void
 nugl__flat_render (nugl__renderpass_t *pass)
 {
-    nu__gl_t       *gl  = &_ctx.gl;
-    nugl__camera_t *cam = gl->cameras.data + pass->flat.camera;
+    nu__gl_t *gl = &_ctx.gl;
+    NU_ASSERT(pass->flat.camera);
+    nugl__camera_t *cam = gl->cameras.data + NU_HANDLE_INDEX(pass->flat.camera);
 
     // Prepare pass
     glUseProgram(gl->flat_program);
@@ -93,11 +119,6 @@ nugl__flat_render (nugl__renderpass_t *pass)
     }
 
     glUseProgram(0);
-}
-static void
-nugl__flat_reset (nugl__renderpass_t *pass)
-{
-    NU_VEC_CLEAR(&pass->flat.cmds);
 }
 
 #endif

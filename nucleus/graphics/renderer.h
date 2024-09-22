@@ -16,12 +16,22 @@ typedef struct
     void (*camera_view)(nu_camera_t camera, nu_mat4_t view);
     void (*camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
-    nu_mesh_t (*mesh_create)(nu_size_t count);
+    nu_buffer_t (*buffer_create)(nu_buffer_type_t type,
+                                 nu_primitive_t   primitive,
+                                 nu_size_t        size);
+    void (*buffer_delete)(nu_buffer_t buffer);
+    void (*buffer_vec2)(nu_buffer_t      buffer,
+                        nu_size_t        first,
+                        nu_size_t        count,
+                        const nu_vec2_t *data);
+    void (*buffer_vec3)(nu_buffer_t      buffer,
+                        nu_size_t        first,
+                        nu_size_t        count,
+                        const nu_vec3_t *data);
+
+    nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t count);
     void (*mesh_delete)(nu_mesh_t mesh);
-    void (*mesh_update)(nu_mesh_t        mesh,
-                        const nu_vec3_t *positions,
-                        const nu_vec2_t *uvs,
-                        const nu_vec3_t *normals);
+    void (*mesh_buffer)(nu_mesh_t mesh, nu_buffer_t buffer, nu_size_t first);
 
     nu_texture_t (*texture_create)(nu_uvec2_t          size,
                                    nu_texture_format_t format,
@@ -36,10 +46,17 @@ typedef struct
 
     nu_material_t (*material_create)(nu_material_type_t type);
     void (*material_delete)(nu_material_t material);
-    void (*material_color0)(nu_material_t material, nu_texture_t color0);
-    void (*material_color1)(nu_material_t material, nu_texture_t color1);
-    void (*material_uv_transform)(nu_material_t material, nu_mat3_t transform);
+    void (*material_color)(nu_material_t          material,
+                           nu_material_property_t prop,
+                           nu_color_t             color);
+    void (*material_texture)(nu_material_t          material,
+                             nu_material_property_t prop,
+                             nu_texture_t           texture);
+    void (*material_mat3)(nu_material_t          material,
+                          nu_material_property_t prop,
+                          nu_mat3_t              mat);
     void (*material_wrap_mode)(nu_material_t          material,
+                               nu_material_property_t prop,
                                nu_texture_wrap_mode_t mode);
 
     nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type,
@@ -52,17 +69,15 @@ typedef struct
     void (*renderpass_skybox_rotation)(nu_renderpass_t pass, nu_quat_t rot);
     void (*renderpass_target_color)(nu_renderpass_t pass, nu_texture_t color);
     void (*renderpass_target_depth)(nu_renderpass_t pass, nu_texture_t depth);
-    void (*renderpass_polygon_mode)(nu_renderpass_t   pass,
-                                    nu_polygon_mode_t mode);
     void (*renderpass_reset)(nu_renderpass_t pass);
     void (*renderpass_submit)(nu_renderpass_t pass);
 
-    void (*draw_mesh)(nu_renderpass_t pass,
-                      nu_material_t   material,
-                      nu_mesh_t       mesh,
-                      nu_mat4_t       transform);
+    void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
+    void (*draw_meshes)(nu_renderpass_t  pass,
+                        nu_mesh_t        meshes,
+                        const nu_mat4_t *transforms,
+                        nu_size_t        count);
     void (*draw_blit)(nu_renderpass_t pass,
-                      nu_material_t   material,
                       nu_rect_t       extent,
                       nu_rect_t       tex_extent);
 } nu__renderer_api_t;

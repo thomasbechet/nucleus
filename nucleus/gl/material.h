@@ -5,6 +5,7 @@
 
 typedef struct
 {
+    nu_color_t   color;
     nu_texture_t texture0;
     nu_texture_t texture1;
     nu_mat3_t    uv_transform;

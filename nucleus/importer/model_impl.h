@@ -30,11 +30,11 @@ nu__emplace_vertex (const nu_vec3_t *positions,
     }
     if (normals)
     {
-        buf_normals[vertex_index] = normals[index];
+        buf_normals[vertex_index / 3] = normals[index];
     }
     else
     {
-        buf_normals[vertex_index] = NU_VEC3_ZERO;
+        buf_normals[vertex_index / 3] = NU_VEC3_ZERO;
     }
 }
 
@@ -105,8 +105,8 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             buf_positions
                 = (nu_vec3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
             buf_uvs = (nu_vec2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
-            buf_normals
-                = (nu_vec3_t *)nu_alloc(sizeof(*buf_normals) * indice_count);
+            buf_normals = (nu_vec3_t *)nu_alloc(sizeof(*buf_normals)
+                                                * (indice_count / 3));
 
             switch (accessor->component_type)
             {
@@ -130,20 +130,35 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             }
 
             // Create mesh
-            nu_mesh_t handle = nu_mesh_create(indice_count);
-            nu_mesh_update(handle, buf_positions, buf_uvs, buf_normals);
+            nu_size_t   primitive_count  = indice_count / 3;
+            nu_buffer_t handle_positions = nu_buffer_create(
+                NU_BUFFER_POSITIONS, NU_PRIMITIVE_TRIANGLES, primitive_count);
+            nu_buffer_t handle_uvs = nu_buffer_create(
+                NU_BUFFER_UVS, NU_PRIMITIVE_TRIANGLES, primitive_count);
+            nu_buffer_t handle_normals = nu_buffer_create(
+                NU_BUFFER_NORMALS, NU_PRIMITIVE_TRIANGLES, primitive_count);
+            nu_mesh_t handle_mesh
+                = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, primitive_count);
+            nu_mesh_buffer(handle_mesh, handle_positions, 0);
+            nu_mesh_buffer(handle_mesh, handle_uvs, 0);
+            nu_mesh_buffer(handle_mesh, handle_normals, 0);
+            nu_buffer_vec3(handle_positions, 0, primitive_count, buf_positions);
+            nu_buffer_vec2(handle_uvs, 0, primitive_count, buf_uvs);
+            nu_buffer_vec3(handle_normals, 0, primitive_count, buf_normals);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
             nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
-            nu_free(buf_normals, sizeof(*buf_normals) * indice_count);
+            nu_free(buf_normals, sizeof(*buf_normals) * (indice_count / 3));
 
             // Append asset
-            nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
-            asset->mesh                   = handle;
+            NU_VEC_PUSH(&model->resources)->buffer = handle_positions;
+            NU_VEC_PUSH(&model->resources)->buffer = handle_uvs;
+            NU_VEC_PUSH(&model->resources)->buffer = handle_normals;
+            NU_VEC_PUSH(&model->resources)->mesh   = handle_mesh;
             nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
             cache->ptr                    = mesh;
-            cache->index                  = model->assets.size - 1;
+            cache->index                  = model->resources.size - 1;
         }
     }
 
@@ -166,11 +181,11 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
     nu_image_delete(image);
 
     // Append asset
-    nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
+    nu__model_resource_t *asset   = NU_VEC_PUSH(&model->resources);
     asset->texture                = handle;
     nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
     cache->ptr                    = texture;
-    cache->index                  = model->assets.size - 1;
+    cache->index                  = model->resources.size - 1;
 
     return NU_ERROR_NONE;
 }
@@ -202,15 +217,16 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     }
 
     // Create material
-    nu_material_t handle = nu_material_create(NU_MATERIAL_MESH);
-    nu_material_color0(handle, model->assets.data[index].texture);
+    nu_material_t handle = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_texture(
+        handle, NU_MATERIAL_TEXTURE0, model->resources.data[index].texture);
 
     // Append asset
-    nu__model_asset_t *asset      = NU_VEC_PUSH(&model->assets);
-    asset->material               = handle;
-    nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
-    cache->ptr                    = material;
-    cache->index                  = model->assets.size - 1;
+    nu__model_resource_t *resource = NU_VEC_PUSH(&model->resources);
+    resource->material             = handle;
+    nu__model_gltf_cache_t *cache  = NU_VEC_PUSH(&loader->_cache);
+    cache->ptr                     = material;
+    cache->index                   = model->resources.size - 1;
 
     return NU_ERROR_NONE;
 }
@@ -222,13 +238,13 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
         NU_DEBUG("loading default material");
 
         nu_texture_t texture = nu_texture_create_color(NU_COLOR_RED);
-        NU_VEC_PUSH(&model->assets)->texture = texture;
+        NU_VEC_PUSH(&model->resources)->texture = texture;
 
-        nu_material_t material = nu_material_create(NU_MATERIAL_MESH);
-        nu_material_color0(material, texture);
-        NU_VEC_PUSH(&model->assets)->material = material;
+        nu_material_t material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+        nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
+        NU_VEC_PUSH(&model->resources)->material = material;
 
-        loader->_default_material     = model->assets.size - 1;
+        loader->_default_material     = model->resources.size - 1;
         loader->_has_default_material = NU_TRUE;
     }
     return NU_ERROR_NONE;

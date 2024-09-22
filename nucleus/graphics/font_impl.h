@@ -69,9 +69,10 @@ nu_font_create_default (void)
     font->texture = nu_texture_create_image(image);
 
     // Create material
-    font->material = nu_material_create(NU_MATERIAL_CANVAS);
-    nu_material_color0(font->material, font->texture);
-    nu_material_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
+    font->material = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
+    nu_material_texture(font->material, NU_MATERIAL_TEXTURE0, font->texture);
+    nu_material_wrap_mode(
+        font->material, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_CLAMP);
 
     // Free resources
     nu_image_delete(image);
@@ -87,6 +88,7 @@ nu_font_delete (nu_font_t handle)
     nu_texture_delete(font->texture);
     nu_material_delete(font->material);
 }
+
 void
 nu_draw_text (nu_renderpass_t  pass,
               nu_font_t        handle,
@@ -113,7 +115,8 @@ nu_draw_text (nu_renderpass_t  pass,
         }
         nu_size_t gi         = c - font->min_char;
         nu_rect_t tex_extent = font->glyphs[gi];
-        nu_draw_blit(pass, font->material, extent, tex_extent);
+        nu_bind_material(pass, font->material);
+        nu_draw_blit(pass, extent, tex_extent);
         extent.p.x += font->glyph_size.x;
     }
 }

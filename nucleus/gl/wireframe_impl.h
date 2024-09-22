@@ -4,51 +4,64 @@
 #include <nucleus/internal.h>
 
 static void
+nugl__wireframe_reset (nugl__renderpass_wireframe_t *pass)
+{
+    NU_VEC_CLEAR(&pass->cmds);
+    pass->material = NU_NULL;
+}
+static void
 nugl__wireframe_create (nugl__renderpass_wireframe_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
-    pass->color        = NU_COLOR_WHITE;
-    pass->polygon_mode = NU_POLYGON_TRIANGLE;
+    pass->camera = NU_NULL;
+    pass->color  = NU_COLOR_WHITE;
+    nugl__wireframe_reset(pass);
 }
 static void
-nugl__wireframe_draw_mesh (nugl__renderpass_t *pass,
-                           nugl__material_t   *pmat,
-                           nugl__mesh_t       *pmesh,
-                           nu_mat4_t           transform)
+nugl__wireframe_bind_material (nugl__renderpass_wireframe_t *pass,
+                               nu_material_t                 material)
 {
-    nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->wireframe.cmds);
-    cmd->type                 = NUGL__DRAW;
-    cmd->transform            = transform;
-    cmd->vao                  = pmesh->vao;
-    cmd->vbo                  = pmesh->vbo;
-    cmd->vcount               = pmesh->vertex_count;
+    pass->material = material;
+}
+static void
+nugl__wireframe_draw_meshes (nugl__renderpass_t *pass,
+                             nugl__mesh_t       *pmesh,
+                             const nu_mat4_t    *transforms,
+                             nu_size_t           count)
+{
+    if (!pass->wireframe.material)
+    {
+        NU_ERROR("no material bound");
+        return;
+    }
+    const nugl__material_t *pmat
+        = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->wireframe.material);
+    NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_SURFACE);
+
+    // TODO: instanced rendering
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->wireframe.cmds);
+        cmd->type                 = NUGL__DRAW;
+        cmd->transform            = transforms[i];
+        cmd->vao                  = pmesh->vao;
+        cmd->vcount               = pmesh->count * 3;
+    }
 }
 static void
 nugl__wireframe_render (nugl__renderpass_t *pass)
 {
-    nu__gl_t       *gl  = &_ctx.gl;
-    nugl__camera_t *cam = gl->cameras.data + pass->wireframe.camera;
+    nu__gl_t *gl = &_ctx.gl;
+    NU_ASSERT(pass->wireframe.camera);
+    nugl__camera_t *cam
+        = gl->cameras.data + NU_HANDLE_INDEX(pass->wireframe.camera);
 
     // Prepare pass
     glUseProgram(gl->wireframe_program);
     glEnable(GL_DEPTH_TEST);
     glFrontFace(GL_CCW);
     glDisable(GL_CULL_FACE);
-    switch (pass->wireframe.polygon_mode)
-    {
-        case NU_POLYGON_POINT:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            break;
-        case NU_POLYGON_LINE:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            break;
-        case NU_POLYGON_LINE_STRIP:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            break;
-        case NU_POLYGON_TRIANGLE:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            break;
-    }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Execute commands
     glUniform2uiv(glGetUniformLocation(gl->wireframe_program, "viewport_size"),
@@ -90,11 +103,6 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glUseProgram(0);
-}
-static void
-nugl__wireframe_reset (nugl__renderpass_t *pass)
-{
-    NU_VEC_CLEAR(&pass->wireframe.cmds);
 }
 
 #endif

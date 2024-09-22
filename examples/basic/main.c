@@ -83,8 +83,8 @@ main (void)
     // Create meshes
     nu_mesh_t custom_mesh;
     {
-        nu_geometry_t final = nu_geometry_create(1000);
-        nu_geometry_t sub   = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
+        nu_geometry_t final = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 1000);
+        nu_geometry_t sub   = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 2 * 6);
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_geometry_cube(sub, 1);
@@ -99,8 +99,16 @@ main (void)
         nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
         nu_geometry_append(final, sub);
 
-        custom_mesh = nu_mesh_create_geometry(final);
-        nu_geometry_delete(final);
+        nu_buffer_t positions
+            = nu_buffer_create_geometry(final, NU_BUFFER_POSITIONS);
+        nu_buffer_t uvs = nu_buffer_create_geometry(final, NU_BUFFER_UVS);
+        nu_buffer_t normals
+            = nu_buffer_create_geometry(final, NU_BUFFER_NORMALS);
+        nu_size_t count = nu_geometry_count(final);
+        custom_mesh     = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, count);
+        nu_mesh_buffer(custom_mesh, positions, 0);
+        nu_mesh_buffer(custom_mesh, uvs, 0);
+        nu_mesh_buffer(custom_mesh, normals, 0);
         nu_geometry_delete(sub);
     }
 
@@ -109,11 +117,13 @@ main (void)
     nu_texture_t texture_gui = NU_ASSET_TEXTURE("GUI");
 
     // Create material
-    nu_material_t material = nu_material_create(NU_MATERIAL_MESH);
-    nu_material_color0(material, texture);
-    nu_material_t material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
-    nu_material_color0(material_gui_repeat, texture_gui);
-    nu_material_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
+    nu_material_t material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
+    nu_material_t material_gui_repeat
+        = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
+    nu_material_texture(material_gui_repeat, NU_MATERIAL_TEXTURE0, texture_gui);
+    nu_material_wrap_mode(
+        material_gui_repeat, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_REPEAT);
 
     // Load temple
     temple_model = NU_ASSET_MODEL("temple");
@@ -129,15 +139,33 @@ main (void)
     nu_camera_t camera = nu_camera_create();
 
     // Create renderpasses
+    nu_texture_t surface_tex = nu_surface_color_target();
+    nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
+
     nu_renderpass_t main_pass
         = nu_renderpass_create(NU_RENDERPASS_FLAT, NU_TRUE);
+    nu_renderpass_camera(main_pass, camera);
+    nu_renderpass_target_color(main_pass, surface_tex);
+    nu_renderpass_target_depth(main_pass, depth_buffer);
+    nu_renderpass_clear_color(main_pass, &clear_color);
+
     nu_renderpass_t skybox_pass
         = nu_renderpass_create(NU_RENDERPASS_SKYBOX, NU_TRUE);
+    nu_renderpass_target_color(skybox_pass, surface_tex);
+    nu_renderpass_target_depth(skybox_pass, depth_buffer);
+    nu_renderpass_skybox_cubemap(skybox_pass, skybox);
+    nu_renderpass_skybox_rotation(skybox_pass, nu_quat_identity());
+    nu_renderpass_camera(skybox_pass, camera);
+
     nu_renderpass_t gui_pass
         = nu_renderpass_create(NU_RENDERPASS_CANVAS, NU_TRUE);
+    nu_renderpass_target_color(gui_pass, surface_tex);
+
     nu_renderpass_t wireframe_pass
         = nu_renderpass_create(NU_RENDERPASS_WIREFRAME, NU_TRUE);
     nu_renderpass_camera(wireframe_pass, camera);
+    nu_renderpass_target_color(wireframe_pass, surface_tex);
+    nu_renderpass_target_depth(wireframe_pass, depth_buffer);
 
     // Create UI
     nu_ui_t ui = nu_ui_create();
@@ -216,7 +244,8 @@ main (void)
         nu_controller_update(controller, delta, camera);
 
         // Render loop
-        nu_draw_mesh(main_pass, material, custom_mesh, nu_mat4_identity());
+        nu_bind_material(main_pass, material);
+        nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_identity();
@@ -263,28 +292,10 @@ main (void)
         nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 20));
 
         // Submit renderpass
-        nu_texture_t surface_tex = nu_surface_color_target();
-        nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
-
-        nu_renderpass_camera(main_pass, camera);
-        nu_renderpass_target_color(main_pass, surface_tex);
-        nu_renderpass_target_depth(main_pass, depth_buffer);
-        nu_renderpass_clear_color(main_pass, &clear_color);
         nu_renderpass_submit(main_pass);
-
-        nu_renderpass_target_color(skybox_pass, surface_tex);
-        nu_renderpass_target_depth(skybox_pass, depth_buffer);
-        nu_renderpass_skybox_cubemap(skybox_pass, skybox);
-        nu_renderpass_skybox_rotation(skybox_pass, nu_quat_identity());
         nu_renderpass_submit(skybox_pass);
-
-        nu_renderpass_target_color(wireframe_pass, surface_tex);
-        nu_renderpass_target_depth(wireframe_pass, depth_buffer);
         nu_renderpass_submit(wireframe_pass);
-
-        nu_renderpass_target_color(gui_pass, surface_tex);
         nu_renderpass_submit(gui_pass);
-
         nu_ui_submit_renderpasses(ui, surface_tex);
 
         // Refresh surface

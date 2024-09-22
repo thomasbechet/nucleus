@@ -123,6 +123,19 @@ NU_DEFINE_HANDLE(nu_table_t);
         }                                                        \
     } while (0)
 
+#define NU_VEC_APPEND(dst, src)                                  \
+    do                                                           \
+    {                                                            \
+        NU_ASSERT(sizeof(*(dst)->data) == sizeof(*(src)->data)); \
+        nu_size_t dst_size = (dst)->size;                        \
+        nu_size_t src_size = (src)->size;                        \
+        nu_size_t new_size = dst_size + src_size;                \
+        NU_VEC_RESIZE((dst), new_size);                          \
+        nu_memcpy((dst)->data + dst_size,                        \
+                  (src)->data,                                   \
+                  sizeof(*(src)->data) * src_size);              \
+    } while (0)
+
 #define NU_VEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 #define NU_POOL(type)            \

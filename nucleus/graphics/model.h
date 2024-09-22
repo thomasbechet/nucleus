@@ -12,19 +12,20 @@ typedef struct
 
 typedef union
 {
+    nu_buffer_t   buffer;
     nu_mesh_t     mesh;
     nu_texture_t  texture;
     nu_material_t material;
-} nu__model_asset_t;
+} nu__model_resource_t;
 
-typedef NU_VEC(nu__model_asset_t) nu__model_asset_vec_t;
+typedef NU_VEC(nu__model_resource_t) nu__model_resource_vec_t;
 typedef NU_VEC(nu__model_node_t) nu__model_node_vec_t;
 
 typedef struct
 {
-    nu_allocator_t        allocator;
-    nu__model_asset_vec_t assets;
-    nu__model_node_vec_t  nodes;
+    nu_allocator_t           allocator;
+    nu__model_resource_vec_t resources;
+    nu__model_node_vec_t     nodes;
 } nu__model_t;
 
 typedef NU_POOL(nu__model_t) nu__model_pool_t;

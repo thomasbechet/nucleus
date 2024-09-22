@@ -62,11 +62,51 @@ nu_camera_proj (nu_camera_t camera, nu_mat4_t proj)
     _ctx.graphics.renderer.api.camera_proj(camera, proj);
 }
 
-nu_mesh_t
-nu_mesh_create (nu_size_t count)
+nu_buffer_t
+nu_buffer_create (nu_buffer_type_t type,
+                  nu_primitive_t   primitive,
+                  nu_size_t        size)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.mesh_create(count);
+    return _ctx.graphics.renderer.api.buffer_create(type, primitive, size);
+}
+void
+nu_buffer_delete (nu_buffer_t buffer)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.buffer_delete(buffer);
+}
+void
+nu_buffer_vec2 (nu_buffer_t      buffer,
+                nu_size_t        first,
+                nu_size_t        count,
+                const nu_vec2_t *p)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.buffer_vec2(buffer, first, count, p);
+}
+void
+nu_buffer_vec3 (nu_buffer_t      buffer,
+                nu_size_t        first,
+                nu_size_t        count,
+                const nu_vec3_t *p)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.buffer_vec3(buffer, first, count, p);
+}
+void
+nu_buffer_mat4 (nu_buffer_t      buffer,
+                nu_size_t        first,
+                nu_size_t        count,
+                const nu_mat4_t *p)
+{
+}
+
+nu_mesh_t
+nu_mesh_create (nu_primitive_t primitive, nu_size_t count)
+{
+    CHECK_NULL_API_HANDLE
+    return _ctx.graphics.renderer.api.mesh_create(primitive, count);
 }
 void
 nu_mesh_delete (nu_mesh_t mesh)
@@ -75,25 +115,10 @@ nu_mesh_delete (nu_mesh_t mesh)
     _ctx.graphics.renderer.api.mesh_delete(mesh);
 }
 void
-nu_mesh_update (nu_mesh_t        mesh,
-                const nu_vec3_t *positions,
-                const nu_vec2_t *uvs,
-                const nu_vec3_t *normals)
+nu_mesh_buffer (nu_mesh_t mesh, nu_buffer_t buffer, nu_size_t first)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_update(mesh, positions, uvs, normals);
-}
-void
-nu_mesh_uvs (nu_mesh_t mesh, const nu_vec2_t *uvs)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_update(mesh, NU_NULL, uvs, NU_NULL);
-}
-void
-nu_mesh_normals (nu_mesh_t mesh, const nu_vec3_t *normals)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_update(mesh, NU_NULL, NU_NULL, normals);
+    _ctx.graphics.renderer.api.mesh_buffer(mesh, buffer, first);
 }
 
 nu_texture_t
@@ -158,28 +183,36 @@ nu_material_delete (nu_material_t material)
     _ctx.graphics.renderer.api.material_delete(material);
 }
 void
-nu_material_color0 (nu_material_t material, nu_texture_t color0)
+nu_material_color (nu_material_t          material,
+                   nu_material_property_t prop,
+                   nu_color_t             color)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_color0(material, color0);
+    _ctx.graphics.renderer.api.material_color(material, prop, color);
 }
 void
-nu_material_color1 (nu_material_t material, nu_texture_t color1)
+nu_material_texture (nu_material_t          material,
+                     nu_material_property_t prop,
+                     nu_texture_t           texture)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_color0(material, color1);
+    _ctx.graphics.renderer.api.material_texture(material, prop, texture);
 }
 void
-nu_material_uv_transform (nu_material_t material, nu_mat3_t transform)
+nu_material_mat3 (nu_material_t          material,
+                  nu_material_property_t prop,
+                  nu_mat3_t              mat)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_uv_transform(material, transform);
+    _ctx.graphics.renderer.api.material_mat3(material, prop, mat);
 }
 void
-nu_material_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
+nu_material_wrap_mode (nu_material_t          material,
+                       nu_material_property_t prop,
+                       nu_texture_wrap_mode_t mode)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_wrap_mode(material, mode);
+    _ctx.graphics.renderer.api.material_wrap_mode(material, prop, mode);
 }
 
 nu_renderpass_t
@@ -232,12 +265,6 @@ nu_renderpass_target_depth (nu_renderpass_t pass, nu_texture_t depth)
     _ctx.graphics.renderer.api.renderpass_target_depth(pass, depth);
 }
 void
-nu_renderpass_polygon_mode (nu_renderpass_t pass, nu_polygon_mode_t mode)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_polygon_mode(pass, mode);
-}
-void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
     CHECK_NULL_API_VOID
@@ -251,22 +278,31 @@ nu_renderpass_submit (nu_renderpass_t pass)
 }
 
 void
-nu_draw_mesh (nu_renderpass_t pass,
-              nu_material_t   material,
-              nu_mesh_t       mesh,
-              nu_mat4_t       transform)
+nu_bind_material (nu_renderpass_t pass, nu_material_t material)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.draw_mesh(pass, material, mesh, transform);
+    _ctx.graphics.renderer.api.bind_material(pass, material);
 }
 void
-nu_draw_blit (nu_renderpass_t pass,
-              nu_material_t   material,
-              nu_rect_t       extent,
-              nu_rect_t       tex_extent)
+nu_draw_meshes (nu_renderpass_t  pass,
+                nu_mesh_t        mesh,
+                const nu_mat4_t *transforms,
+                nu_size_t        count)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.draw_blit(pass, material, extent, tex_extent);
+    _ctx.graphics.renderer.api.draw_meshes(pass, mesh, transforms, count);
+}
+void
+nu_draw_blit (nu_renderpass_t pass, nu_rect_t extent, nu_rect_t tex_extent)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.draw_blit(pass, extent, tex_extent);
+}
+
+void
+nu_draw_mesh (nu_renderpass_t pass, nu_mesh_t mesh, nu_mat4_t transform)
+{
+    nu_draw_meshes(pass, mesh, &transform, 1);
 }
 
 #undef CHECK_NULL_API_HANDLE

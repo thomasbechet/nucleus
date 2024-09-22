@@ -4,6 +4,7 @@
 #include <nucleus/internal.h>
 #include <nucleus/gl/texture_impl.h>
 #include <nucleus/gl/material_impl.h>
+#include <nucleus/gl/buffer_impl.h>
 #include <nucleus/gl/mesh_impl.h>
 #include <nucleus/gl/camera_impl.h>
 #include <nucleus/gl/renderpass_impl.h>
@@ -127,6 +128,7 @@ MessageCallback (GLenum        source,
                     message);
             break;
     }
+    NU_ASSERT(severity != GL_DEBUG_SEVERITY_HIGH);
 }
 
 static nu_error_t
@@ -138,6 +140,7 @@ nugl__init (void)
 
     // Initialize containers
     NU_VEC_INIT(16, &gl->cameras);
+    NU_VEC_INIT(16, &gl->buffers);
     NU_VEC_INIT(16, &gl->meshes);
     NU_VEC_INIT(16, &gl->textures);
     NU_VEC_INIT(16, &gl->cubemaps);
@@ -272,20 +275,25 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->camera_view   = nugl__camera_view;
     api->camera_proj   = nugl__camera_proj;
 
+    api->buffer_create = nugl__buffer_create;
+    api->buffer_delete = nugl__buffer_delete;
+    api->buffer_vec2   = nugl__buffer_vec2;
+    api->buffer_vec3   = nugl__buffer_vec3;
+
     api->mesh_create = nugl__mesh_create;
     api->mesh_delete = nugl__mesh_delete;
-    api->mesh_update = nugl__mesh_update;
+    api->mesh_buffer = nugl__mesh_buffer;
 
     api->texture_create = nugl__texture_create;
     api->texture_delete = nugl__texture_delete;
 
     api->cubemap_create = nugl__cubemap_create;
 
-    api->material_create       = nugl__material_create;
-    api->material_color0       = nugl__material_color0;
-    api->material_color1       = nugl__material_color1;
-    api->material_uv_transform = nugl__material_uv_transform;
-    api->material_wrap_mode    = nugl__material_wrap_mode;
+    api->material_create    = nugl__material_create;
+    api->material_color     = nugl__material_color;
+    api->material_texture   = nugl__material_texture;
+    api->material_mat3      = nugl__material_mat3;
+    api->material_wrap_mode = nugl__material_wrap_mode;
 
     api->renderpass_create          = nugl__renderpass_create;
     api->renderpass_clear_color     = nugl__renderpass_clear_color;
@@ -294,12 +302,12 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->renderpass_skybox_rotation = nugl__renderpass_skybox_rotation;
     api->renderpass_target_color    = nugl__renderpass_target_color;
     api->renderpass_target_depth    = nugl__renderpass_target_depth;
-    api->renderpass_polygon_mode    = nugl__renderpass_polygon_mode;
     api->renderpass_reset           = nugl__renderpass_reset;
     api->renderpass_submit          = nugl__renderpass_submit;
 
-    api->draw_mesh = nugl__draw_mesh;
-    api->draw_blit = nugl__draw_blit;
+    api->bind_material = nugl__bind_material;
+    api->draw_meshes   = nugl__draw_meshes;
+    api->draw_blit     = nugl__draw_blit;
 }
 
 #endif

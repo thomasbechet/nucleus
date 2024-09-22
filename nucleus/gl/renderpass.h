@@ -18,7 +18,6 @@ typedef struct
 {
     nugl__mesh_command_type_t type;
     GLuint                    vao;
-    GLuint                    vbo;
     nu_size_t                 vcount;
     nu_mat4_t                 transform; // TODO: use indexed UBO
     GLuint                    texture0;
@@ -64,12 +63,13 @@ typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
 typedef struct
 {
     nugl__mesh_command_vec_t cmds;
-    nu_u32_t                 camera;
+    nu_camera_t              camera;
+    nu_material_t            material;
 } nugl__renderpass_flat_t;
 
 typedef struct
 {
-    nu_u32_t     camera;
+    nu_camera_t  camera;
     nu_cubemap_t cubemap;
     nu_mat3_t    rotation;
 } nugl__renderpass_skybox_t;
@@ -82,14 +82,15 @@ typedef struct
     nu_size_t                  blit_vbo_size;
     GLuint                     blit_vao;
     float                      depth;
+    nu_material_t              material;
 } nugl__renderpass_canvas_t;
 
 typedef struct
 {
-    nu_u32_t                 camera;
+    nu_camera_t              camera;
     nugl__mesh_command_vec_t cmds;
-    nu_polygon_mode_t        polygon_mode;
     nu_color_t               color;
+    nu_material_t            material;
 } nugl__renderpass_wireframe_t;
 
 typedef struct

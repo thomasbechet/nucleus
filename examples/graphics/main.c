@@ -23,10 +23,16 @@ main (void)
 
     // Mesh
     {
-        nu_geometry_t g = nu_geometry_create(NU_CUBE_VERTEX_COUNT);
+        nu_geometry_t g = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 100);
         nu_geometry_cube(g, 1);
         nu_geometry_transform(g, nu_mat4_translate(nu_vec3s(-0.5)));
-        mesh = nu_mesh_create_geometry(g);
+        nu_buffer_t pos   = nu_buffer_create_geometry(g, NU_BUFFER_POSITIONS);
+        nu_buffer_t uvs   = nu_buffer_create_geometry(g, NU_BUFFER_UVS);
+        nu_buffer_t norms = nu_buffer_create_geometry(g, NU_BUFFER_NORMALS);
+        mesh = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, nu_geometry_count(g));
+        nu_mesh_buffer(mesh, pos, 0);
+        nu_mesh_buffer(mesh, uvs, 0);
+        nu_mesh_buffer(mesh, norms, 0);
         nu_geometry_delete(g);
     }
 
@@ -36,8 +42,8 @@ main (void)
     }
 
     // Material
-    material = nu_material_create(NU_MATERIAL_MESH);
-    nu_material_color0(material, texture);
+    material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
 
     // Camera
     camera = nu_camera_create();
@@ -73,7 +79,8 @@ main (void)
         nu_mat4_t model
             = nu_mat4_translate(nu_vec3(0, nu_sin(time / 500) * 0.1, 0));
         model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
-        nu_draw_mesh(renderpass, material, mesh, model);
+        nu_bind_material(renderpass, material);
+        nu_draw_mesh(renderpass, mesh, model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();

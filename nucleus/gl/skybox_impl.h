@@ -4,16 +4,24 @@
 #include <nucleus/internal.h>
 
 static void
+nugl__skybox_reset (nugl__renderpass_skybox_t *pass)
+{
+}
+static void
 nugl__skybox_create (nugl__renderpass_skybox_t *pass)
 {
+    pass->camera   = NU_NULL;
     pass->cubemap  = NU_NULL;
     pass->rotation = nu_mat3_identity();
+    nugl__skybox_reset(pass);
 }
 static void
 nugl__skybox_render (nugl__renderpass_t *pass)
 {
-    nu__gl_t        *gl  = &_ctx.gl;
-    nugl__camera_t  *cam = gl->cameras.data + pass->skybox.camera;
+    nu__gl_t *gl = &_ctx.gl;
+    NU_ASSERT(pass->skybox.cubemap && pass->skybox.camera);
+    nugl__camera_t *cam
+        = gl->cameras.data + NU_HANDLE_INDEX(pass->skybox.camera);
     nugl__cubemap_t *cubemap
         = gl->cubemaps.data + NU_HANDLE_INDEX(pass->skybox.cubemap);
 
@@ -47,10 +55,6 @@ nugl__skybox_render (nugl__renderpass_t *pass)
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
     glUseProgram(0);
-}
-static void
-nugl__skybox_reset (nugl__renderpass_t *pass)
-{
 }
 
 #endif

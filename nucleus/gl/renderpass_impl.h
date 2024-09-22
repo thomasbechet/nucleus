@@ -126,14 +126,16 @@ nugl__renderpass_camera (nu_renderpass_t pass, nu_camera_t camera)
 {
     NU_ASSERT(camera);
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    nu_u32_t            index = NU_HANDLE_INDEX(camera);
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT:
-            ppass->flat.camera = index;
+            ppass->flat.camera = camera;
             break;
         case NU_RENDERPASS_WIREFRAME:
-            ppass->wireframe.camera = index;
+            ppass->wireframe.camera = camera;
+            break;
+        case NU_RENDERPASS_SKYBOX:
+            ppass->skybox.camera = camera;
             break;
         default:
             NU_ERROR("invalid");
@@ -167,28 +169,21 @@ nugl__renderpass_target_depth (nu_renderpass_t pass, nu_texture_t depth)
     ppass->depth_target       = depth;
 }
 static void
-nugl__renderpass_polygon_mode (nu_renderpass_t pass, nu_polygon_mode_t mode)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_WIREFRAME);
-    ppass->wireframe.polygon_mode = mode;
-}
-static void
 nugl__reset_renderpass (nugl__renderpass_t *pass)
 {
     switch (pass->type)
     {
         case NU_RENDERPASS_FLAT:
-            nugl__flat_reset(pass);
+            nugl__flat_reset(&pass->flat);
             break;
         case NU_RENDERPASS_SKYBOX:
-            nugl__skybox_reset(pass);
+            nugl__skybox_reset(&pass->skybox);
             break;
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_reset(pass);
+            nugl__canvas_reset(&pass->canvas);
             break;
         case NU_RENDERPASS_WIREFRAME:
-            nugl__wireframe_reset(pass);
+            nugl__wireframe_reset(&pass->wireframe);
             break;
     }
 }
@@ -235,55 +230,60 @@ nugl__renderpass_submit (nu_renderpass_t pass)
 }
 
 static void
-nugl__draw_mesh (nu_renderpass_t pass,
-                 nu_material_t   material,
-                 nu_mesh_t       mesh,
-                 nu_mat4_t       transform)
+nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     NU_ASSERT(NU_HANDLE_INDEX(material) < gl->materials.size);
     nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
-    nugl__mesh_t       *pmesh = gl->meshes.data + NU_HANDLE_INDEX(mesh);
-    nugl__material_t   *pmat  = gl->materials.data + NU_HANDLE_INDEX(material);
-    NU_ASSERT(pmat->type == NU_MATERIAL_MESH);
-    // TODO: check command validity
+
     switch (ppass->type)
     {
         case NU_RENDERPASS_FLAT:
-            nugl__flat_draw_mesh(ppass, pmat, pmesh, transform);
+            nugl__flat_bind_material(&ppass->flat, material);
+            break;
+        case NU_RENDERPASS_SKYBOX:
+            break;
+        case NU_RENDERPASS_CANVAS:
+            nugl__canvas_bind_material(&ppass->canvas, material);
             break;
         case NU_RENDERPASS_WIREFRAME:
-            nugl__wireframe_draw_mesh(ppass, pmat, pmesh, transform);
+            nugl__wireframe_bind_material(&ppass->wireframe, material);
+            break;
+    }
+}
+static void
+nugl__draw_meshes (nu_renderpass_t  pass,
+                   nu_mesh_t        mesh,
+                   const nu_mat4_t *transforms,
+                   nu_size_t        count)
+{
+    nu__gl_t *gl = &_ctx.gl;
+
+    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
+    nugl__mesh_t       *pmesh = gl->meshes.data + NU_HANDLE_INDEX(mesh);
+    // TODO: check command validity ?
+    switch (ppass->type)
+    {
+        case NU_RENDERPASS_FLAT:
+            nugl__flat_draw_meshes(ppass, pmesh, transforms, count);
+            break;
+        case NU_RENDERPASS_WIREFRAME:
+            nugl__wireframe_draw_meshes(ppass, pmesh, transforms, count);
             break;
         default:
             return;
     }
 }
 static void
-nugl__draw_blit (nu_renderpass_t pass,
-                 nu_material_t   material,
-                 nu_rect_t       extent,
-                 nu_rect_t       tex_extent)
+nugl__draw_blit (nu_renderpass_t pass, nu_rect_t extent, nu_rect_t tex_extent)
 {
-    nu__gl_t *gl = &_ctx.gl;
-
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
-    nugl__material_t   *pmat  = gl->materials.data + NU_HANDLE_INDEX(material);
-    NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
-
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)
     {
-        case NU_RENDERPASS_CANVAS: {
-            nugl__canvas_blit_rect(
-                &ppass->canvas,
-                (_ctx.gl.textures.data + NU_HANDLE_INDEX(pmat->canvas.texture0))
-                    ->texture,
-                extent,
-                tex_extent,
-                pmat->canvas.wrap_mode);
-        }
-        break;
+        case NU_RENDERPASS_CANVAS:
+            nugl__canvas_draw_blit(ppass, extent, tex_extent);
+            break;
         default:
             break;
     }
