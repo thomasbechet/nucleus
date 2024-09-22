@@ -193,8 +193,6 @@ nu_geometry_create (nu_primitive_t primitive, nu_size_t capacity)
         case NU_PRIMITIVE_LINES:
             NU_VEC_INIT(capacity * 2, &g->positions);
             break;
-        case NU_PRIMITIVE_OBJECTS:
-            break;
     }
     return NU_HANDLE_MAKE(nu_geometry_t, index);
 }
@@ -213,8 +211,6 @@ nu_geometry_delete (nu_geometry_t geometry)
         case NU_PRIMITIVE_POINTS:
         case NU_PRIMITIVE_LINES:
             NU_VEC_FREE(&g->positions);
-            break;
-        case NU_PRIMITIVE_OBJECTS:
             break;
     }
 }
@@ -291,37 +287,19 @@ nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
     NU_VEC_APPEND(&g1->normals, &g0->normals);
 }
 
-nu_buffer_t
-nu_buffer_create_geometry (nu_geometry_t geometry, nu_buffer_type_t type)
+nu_mesh_t
+nu_mesh_create_geometry (nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
 
-    nu_buffer_t buf = NU_NULL;
-    switch (type)
-    {
-        case NU_BUFFER_POSITIONS: {
-            buf = nu_buffer_create(
-                NU_BUFFER_POSITIONS, g->primitive, g->primitive_count);
-            nu_buffer_vec3(buf, 0, g->primitive_count, g->positions.data);
-        }
-        break;
-        case NU_BUFFER_UVS: {
-            buf = nu_buffer_create(
-                NU_BUFFER_UVS, g->primitive, g->primitive_count);
-            nu_buffer_vec2(buf, 0, g->primitive_count, g->uvs.data);
-        }
-        break;
-        case NU_BUFFER_NORMALS: {
-            buf = nu_buffer_create(
-                NU_BUFFER_NORMALS, g->primitive, g->primitive_count);
-            nu_buffer_vec3(buf, 0, g->primitive_count, g->normals.data);
-        }
-        break;
-        case NU_BUFFER_TRANSFORMS:
-            break;
-    }
+    nu_mesh_t mesh = nu_mesh_create(g->primitive, g->primitive_count);
+    nu_mesh_buffer_vec3(
+        mesh, NU_MESH_POSITIONS, 0, g->primitive_count, g->positions.data);
+    nu_mesh_buffer_vec2(mesh, NU_MESH_UVS, 0, g->primitive_count, g->uvs.data);
+    nu_mesh_buffer_vec3(
+        mesh, NU_MESH_NORMALS, 0, g->primitive_count, g->normals.data);
 
-    return buf;
+    return mesh;
 }
 
 #endif

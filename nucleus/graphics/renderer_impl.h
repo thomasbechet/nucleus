@@ -62,46 +62,6 @@ nu_camera_proj (nu_camera_t camera, nu_mat4_t proj)
     _ctx.graphics.renderer.api.camera_proj(camera, proj);
 }
 
-nu_buffer_t
-nu_buffer_create (nu_buffer_type_t type,
-                  nu_primitive_t   primitive,
-                  nu_size_t        size)
-{
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.buffer_create(type, primitive, size);
-}
-void
-nu_buffer_delete (nu_buffer_t buffer)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.buffer_delete(buffer);
-}
-void
-nu_buffer_vec2 (nu_buffer_t      buffer,
-                nu_size_t        first,
-                nu_size_t        count,
-                const nu_vec2_t *p)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.buffer_vec2(buffer, first, count, p);
-}
-void
-nu_buffer_vec3 (nu_buffer_t      buffer,
-                nu_size_t        first,
-                nu_size_t        count,
-                const nu_vec3_t *p)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.buffer_vec3(buffer, first, count, p);
-}
-void
-nu_buffer_mat4 (nu_buffer_t      buffer,
-                nu_size_t        first,
-                nu_size_t        count,
-                const nu_mat4_t *p)
-{
-}
-
 nu_mesh_t
 nu_mesh_create (nu_primitive_t primitive, nu_size_t count)
 {
@@ -115,10 +75,26 @@ nu_mesh_delete (nu_mesh_t mesh)
     _ctx.graphics.renderer.api.mesh_delete(mesh);
 }
 void
-nu_mesh_buffer (nu_mesh_t mesh, nu_buffer_t buffer, nu_size_t first)
+nu_mesh_buffer_vec2 (nu_mesh_t        mesh,
+                     nu_mesh_buffer_t buffer,
+                     nu_size_t        first,
+                     nu_size_t        count,
+                     const nu_vec2_t *data)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_buffer(mesh, buffer, first);
+    _ctx.graphics.renderer.api.mesh_buffer_vec2(
+        mesh, buffer, first, count, data);
+}
+void
+nu_mesh_buffer_vec3 (nu_mesh_t        mesh,
+                     nu_mesh_buffer_t buffer,
+                     nu_size_t        first,
+                     nu_size_t        count,
+                     const nu_vec3_t *data)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.mesh_buffer_vec3(
+        mesh, buffer, first, count, data);
 }
 
 nu_texture_t

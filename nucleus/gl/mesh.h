@@ -7,13 +7,14 @@
 typedef struct
 {
     GLuint         vao;
-    nu_primitive_t primitive;
+    nu_size_t      capacity;
     nu_size_t      count;
-    nu_buffer_t    positions;
+    nu_primitive_t primitive;
+    GLuint         positions;
     nu_size_t      first_position;
-    nu_buffer_t    uvs;
+    GLuint         uvs;
     nu_size_t      first_uv;
-    nu_buffer_t    normals;
+    GLuint         normals;
     nu_size_t      first_normal;
 } nugl__mesh_t;
 

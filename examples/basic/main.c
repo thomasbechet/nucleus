@@ -99,16 +99,7 @@ main (void)
         nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
         nu_geometry_append(final, sub);
 
-        nu_buffer_t positions
-            = nu_buffer_create_geometry(final, NU_BUFFER_POSITIONS);
-        nu_buffer_t uvs = nu_buffer_create_geometry(final, NU_BUFFER_UVS);
-        nu_buffer_t normals
-            = nu_buffer_create_geometry(final, NU_BUFFER_NORMALS);
-        nu_size_t count = nu_geometry_count(final);
-        custom_mesh     = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, count);
-        nu_mesh_buffer(custom_mesh, positions, 0);
-        nu_mesh_buffer(custom_mesh, uvs, 0);
-        nu_mesh_buffer(custom_mesh, normals, 0);
+        custom_mesh = nu_mesh_create_geometry(final);
         nu_geometry_delete(sub);
     }
 

@@ -9,7 +9,6 @@ NU_DEFINE_HANDLE(nu_texture_t);
 NU_DEFINE_HANDLE(nu_cubemap_t);
 NU_DEFINE_HANDLE(nu_model_t);
 NU_DEFINE_HANDLE(nu_font_t);
-NU_DEFINE_HANDLE(nu_buffer_t);
 NU_DEFINE_HANDLE(nu_mesh_t);
 NU_DEFINE_HANDLE(nu_material_t);
 NU_DEFINE_HANDLE(nu_renderpass_t);
@@ -55,16 +54,14 @@ typedef enum
     NU_PRIMITIVE_POINTS,
     NU_PRIMITIVE_TRIANGLES,
     NU_PRIMITIVE_LINES,
-    NU_PRIMITIVE_OBJECTS,
 } nu_primitive_t;
 
 typedef enum
 {
-    NU_BUFFER_POSITIONS,
-    NU_BUFFER_UVS,
-    NU_BUFFER_NORMALS,
-    NU_BUFFER_TRANSFORMS
-} nu_buffer_type_t;
+    NU_MESH_POSITIONS,
+    NU_MESH_UVS,
+    NU_MESH_NORMALS,
+} nu_mesh_buffer_t;
 
 typedef enum
 {
@@ -123,26 +120,18 @@ NU_API void       nu_model_delete(nu_model_t model);
 NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);
 
-NU_API nu_buffer_t nu_buffer_create(nu_buffer_type_t type,
-                                    nu_primitive_t   primitive,
-                                    nu_size_t        size);
-NU_API void        nu_buffer_delete(nu_buffer_t buffer);
-NU_API void        nu_buffer_vec2(nu_buffer_t      buffer,
-                                  nu_size_t        first,
-                                  nu_size_t        count,
-                                  const nu_vec2_t *data);
-NU_API void        nu_buffer_vec3(nu_buffer_t      buffer,
-                                  nu_size_t        first,
-                                  nu_size_t        count,
-                                  const nu_vec3_t *data);
-NU_API void        nu_buffer_mat4(nu_buffer_t      buffer,
-                                  nu_size_t        first,
-                                  nu_size_t        count,
-                                  const nu_mat4_t *data);
-
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t count);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
-NU_API void nu_mesh_buffer(nu_mesh_t mesh, nu_buffer_t buffer, nu_size_t first);
+NU_API void      nu_mesh_buffer_vec2(nu_mesh_t        mesh,
+                                     nu_mesh_buffer_t buffer,
+                                     nu_size_t        first,
+                                     nu_size_t        count,
+                                     const nu_vec2_t *data);
+NU_API void      nu_mesh_buffer_vec3(nu_mesh_t        mesh,
+                                     nu_mesh_buffer_t buffer,
+                                     nu_size_t        first,
+                                     nu_size_t        count,
+                                     const nu_vec3_t *data);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API void          nu_material_delete(nu_material_t material);

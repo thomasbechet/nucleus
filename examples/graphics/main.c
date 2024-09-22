@@ -26,13 +26,7 @@ main (void)
         nu_geometry_t g = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 100);
         nu_geometry_cube(g, 1);
         nu_geometry_transform(g, nu_mat4_translate(nu_vec3s(-0.5)));
-        nu_buffer_t pos   = nu_buffer_create_geometry(g, NU_BUFFER_POSITIONS);
-        nu_buffer_t uvs   = nu_buffer_create_geometry(g, NU_BUFFER_UVS);
-        nu_buffer_t norms = nu_buffer_create_geometry(g, NU_BUFFER_NORMALS);
-        mesh = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, nu_geometry_count(g));
-        nu_mesh_buffer(mesh, pos, 0);
-        nu_mesh_buffer(mesh, uvs, 0);
-        nu_mesh_buffer(mesh, norms, 0);
+        mesh = nu_mesh_create_geometry(g);
         nu_geometry_delete(g);
     }
 

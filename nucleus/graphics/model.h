@@ -12,7 +12,6 @@ typedef struct
 
 typedef union
 {
-    nu_buffer_t   buffer;
     nu_mesh_t     mesh;
     nu_texture_t  texture;
     nu_material_t material;

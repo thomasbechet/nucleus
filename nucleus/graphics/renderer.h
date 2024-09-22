@@ -16,22 +16,18 @@ typedef struct
     void (*camera_view)(nu_camera_t camera, nu_mat4_t view);
     void (*camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
-    nu_buffer_t (*buffer_create)(nu_buffer_type_t type,
-                                 nu_primitive_t   primitive,
-                                 nu_size_t        size);
-    void (*buffer_delete)(nu_buffer_t buffer);
-    void (*buffer_vec2)(nu_buffer_t      buffer,
-                        nu_size_t        first,
-                        nu_size_t        count,
-                        const nu_vec2_t *data);
-    void (*buffer_vec3)(nu_buffer_t      buffer,
-                        nu_size_t        first,
-                        nu_size_t        count,
-                        const nu_vec3_t *data);
-
     nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t count);
     void (*mesh_delete)(nu_mesh_t mesh);
-    void (*mesh_buffer)(nu_mesh_t mesh, nu_buffer_t buffer, nu_size_t first);
+    void (*mesh_buffer_vec2)(nu_mesh_t        mesh,
+                             nu_mesh_buffer_t buffer,
+                             nu_size_t        first,
+                             nu_size_t        count,
+                             const nu_vec2_t *data);
+    void (*mesh_buffer_vec3)(nu_mesh_t        mesh,
+                             nu_mesh_buffer_t buffer,
+                             nu_size_t        first,
+                             nu_size_t        count,
+                             const nu_vec3_t *data);
 
     nu_texture_t (*texture_create)(nu_uvec2_t          size,
                                    nu_texture_format_t format,

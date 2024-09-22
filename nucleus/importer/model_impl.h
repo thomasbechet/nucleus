@@ -130,21 +130,15 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             }
 
             // Create mesh
-            nu_size_t   primitive_count  = indice_count / 3;
-            nu_buffer_t handle_positions = nu_buffer_create(
-                NU_BUFFER_POSITIONS, NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_buffer_t handle_uvs = nu_buffer_create(
-                NU_BUFFER_UVS, NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_buffer_t handle_normals = nu_buffer_create(
-                NU_BUFFER_NORMALS, NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_mesh_t handle_mesh
+            nu_size_t primitive_count = indice_count / 3;
+            nu_mesh_t handle
                 = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_mesh_buffer(handle_mesh, handle_positions, 0);
-            nu_mesh_buffer(handle_mesh, handle_uvs, 0);
-            nu_mesh_buffer(handle_mesh, handle_normals, 0);
-            nu_buffer_vec3(handle_positions, 0, primitive_count, buf_positions);
-            nu_buffer_vec2(handle_uvs, 0, primitive_count, buf_uvs);
-            nu_buffer_vec3(handle_normals, 0, primitive_count, buf_normals);
+            nu_mesh_buffer_vec3(
+                handle, NU_MESH_POSITIONS, 0, primitive_count, buf_positions);
+            nu_mesh_buffer_vec2(
+                handle, NU_MESH_UVS, 0, primitive_count, buf_uvs);
+            nu_mesh_buffer_vec3(
+                handle, NU_MESH_NORMALS, 0, primitive_count, buf_normals);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
@@ -152,13 +146,10 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_free(buf_normals, sizeof(*buf_normals) * (indice_count / 3));
 
             // Append asset
-            NU_VEC_PUSH(&model->resources)->buffer = handle_positions;
-            NU_VEC_PUSH(&model->resources)->buffer = handle_uvs;
-            NU_VEC_PUSH(&model->resources)->buffer = handle_normals;
-            NU_VEC_PUSH(&model->resources)->mesh   = handle_mesh;
-            nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
-            cache->ptr                    = mesh;
-            cache->index                  = model->resources.size - 1;
+            NU_VEC_PUSH(&model->resources)->mesh = handle;
+            nu__model_gltf_cache_t *cache        = NU_VEC_PUSH(&loader->_cache);
+            cache->ptr                           = mesh;
+            cache->index                         = model->resources.size - 1;
         }
     }
 
