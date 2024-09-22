@@ -3,6 +3,7 @@
 
 #include <nucleus/internal.h>
 
+#include <nucleus/gl/unlit_impl.h>
 #include <nucleus/gl/flat_impl.h>
 #include <nucleus/gl/skybox_impl.h>
 #include <nucleus/gl/canvas_impl.h>
@@ -24,6 +25,9 @@ nugl__renderpass_create (nu_renderpass_type_t type,
     // Allocate command buffer
     switch (pass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            nugl__unlit_create(&pass->unlit);
+            break;
         case NU_RENDERPASS_FLAT:
             nugl__flat_create(&pass->flat);
             break;
@@ -128,6 +132,9 @@ nugl__renderpass_camera (nu_renderpass_t pass, nu_camera_t camera)
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            ppass->unlit.camera = camera;
+            break;
         case NU_RENDERPASS_FLAT:
             ppass->flat.camera = camera;
             break;
@@ -173,6 +180,9 @@ nugl__reset_renderpass (nugl__renderpass_t *pass)
 {
     switch (pass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            nugl__unlit_reset(&pass->unlit);
+            break;
         case NU_RENDERPASS_FLAT:
             nugl__flat_reset(&pass->flat);
             break;
@@ -203,6 +213,12 @@ nugl__renderpass_submit (nu_renderpass_t pass)
     nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)
     {
+        case NU_RENDERPASS_UNLIT: {
+            NU_ASSERT(ppass->color_target && ppass->depth_target);
+            nugl__prepare_color_depth(
+                ppass, ppass->color_target, ppass->depth_target);
+        }
+        break;
         case NU_RENDERPASS_FLAT: {
             NU_ASSERT(ppass->color_target && ppass->depth_target);
             nugl__prepare_color_depth(
@@ -239,6 +255,9 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
 
     switch (ppass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            nugl__unlit_bind_material(&ppass->unlit, material);
+            break;
         case NU_RENDERPASS_FLAT:
             nugl__flat_bind_material(&ppass->flat, material);
             break;
@@ -265,6 +284,9 @@ nugl__draw_meshes (nu_renderpass_t  pass,
     // TODO: check command validity ?
     switch (ppass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            nugl__unlit_draw_meshes(ppass, pmesh, transforms, count);
+            break;
         case NU_RENDERPASS_FLAT:
             nugl__flat_draw_meshes(ppass, pmesh, transforms, count);
             break;
@@ -272,6 +294,7 @@ nugl__draw_meshes (nu_renderpass_t  pass,
             nugl__wireframe_draw_meshes(ppass, pmesh, transforms, count);
             break;
         default:
+            NU_ASSERT(NU_FALSE);
             return;
     }
 }
@@ -285,6 +308,7 @@ nugl__draw_blit (nu_renderpass_t pass, nu_rect_t extent, nu_rect_t tex_extent)
             nugl__canvas_draw_blit(ppass, extent, tex_extent);
             break;
         default:
+            NU_ASSERT(NU_FALSE);
             break;
     }
 }
@@ -308,6 +332,9 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
     // Render
     switch (pass->type)
     {
+        case NU_RENDERPASS_UNLIT:
+            nugl__unlit_render(pass);
+            break;
         case NU_RENDERPASS_FLAT:
             nugl__flat_render(pass);
             break;

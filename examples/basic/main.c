@@ -143,7 +143,7 @@ main (void)
     nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
     nu_renderpass_t main_pass
-        = nu_renderpass_create(NU_RENDERPASS_FLAT, NU_TRUE);
+        = nu_renderpass_create(NU_RENDERPASS_UNLIT, NU_TRUE);
     nu_renderpass_camera(main_pass, camera);
     nu_renderpass_target_color(main_pass, surface_tex);
     nu_renderpass_target_depth(main_pass, depth_buffer);

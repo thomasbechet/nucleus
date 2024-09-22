@@ -65,6 +65,13 @@ typedef struct
     nugl__mesh_command_vec_t cmds;
     nu_camera_t              camera;
     nu_material_t            material;
+} nugl__renderpass_unlit_t;
+
+typedef struct
+{
+    nugl__mesh_command_vec_t cmds;
+    nu_camera_t              camera;
+    nu_material_t            material;
 } nugl__renderpass_flat_t;
 
 typedef struct
@@ -105,6 +112,7 @@ typedef struct
     nu_bool_t            reset_after_submit;
     union
     {
+        nugl__renderpass_unlit_t     unlit;
         nugl__renderpass_flat_t      flat;
         nugl__renderpass_skybox_t    skybox;
         nugl__renderpass_canvas_t    canvas;

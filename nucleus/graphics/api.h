@@ -69,6 +69,7 @@ typedef enum
 
 typedef enum
 {
+    NU_RENDERPASS_UNLIT,
     NU_RENDERPASS_FLAT,
     NU_RENDERPASS_SKYBOX,
     NU_RENDERPASS_CANVAS,

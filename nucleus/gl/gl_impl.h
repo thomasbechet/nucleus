@@ -167,6 +167,12 @@ nugl__init (void)
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    error = nugl__compile_shader(
+        nugl__shader_unlit_vert, nugl__shader_unlit_frag, &gl->unlit_program);
+    NU_ERROR_CHECK(error, return error);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
         nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
