@@ -170,7 +170,7 @@ nu__find_binding (nu_u32_t binding, nu_input_t input)
 static void
 nu__viewport_cursor (const nu__viewport_t *v, nu_vec2_t pos, nu_vec2_t *cursor)
 {
-    nu_vec2_t relpos = nu_rect_normalize(v->viewport, pos);
+    nu_vec2_t relpos = nu_box2i_normalize(v->viewport, pos);
     *cursor = nu_vec2_mul(*cursor, nu_vec2(v->viewport.s.x, v->viewport.s.y));
 }
 
@@ -371,12 +371,12 @@ nuext_input_bind_axis (nu_input_t input, nuext_axis_t axis)
     return NU_ERROR_NONE;
 }
 
-nu_ivec2_t
+nu_vec2i_t
 nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
 {
     float cx = nu_input_value(cursor_x);
     float cy = nu_input_value(cursor_y);
-    return nu_ivec2((nu_i32_t)(cx * (float)_ctx.platform.size.x),
+    return nu_vec2i((nu_i32_t)(cx * (float)_ctx.platform.size.x),
                     (nu_i32_t)(cy * (float)_ctx.platform.size.y));
 }
 

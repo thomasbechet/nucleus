@@ -25,20 +25,21 @@ nu_font_create_default (void)
         = NU__FONT_DATA_WIDTH * NU__FONT_DATA_HEIGHT;
 
     font->glyphs_count = font->max_char - font->min_char + 1;
-    font->glyph_size   = nu_uvec2(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
+    font->glyph_size   = nu_vec2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
-        = (nu_rect_t *)nu_alloc(sizeof(nu_rect_t) * font->glyphs_count);
+        = (nu_box2i_t *)nu_alloc(sizeof(nu_box2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
     // Load default font data into image
-    nu_uvec2_t image_size
-        = nu_uvec2(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
+    nu_vec2u_t image_size
+        = nu_vec2u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
     nu_image_t  image      = nu_image_create(image_size);
     nu_color_t *image_data = nu_image_colors(image);
 
-    nu_rect_t extent = nu_rect(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
+    nu_box2i_t extent
+        = nu_box2i(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     for (nu_size_t ci = 0; ci < char_count; ++ci)
     {
         for (nu_size_t p = 0; p < pixel_per_glyph; ++p)
@@ -84,7 +85,7 @@ nu_font_delete (nu_font_t handle)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_free(font->glyphs, sizeof(nu_rect_t) * font->glyphs_count);
+    nu_free(font->glyphs, sizeof(nu_box2i_t) * font->glyphs_count);
     nu_texture_delete(font->texture);
     nu_material_delete(font->material);
 }
@@ -94,12 +95,12 @@ nu_draw_text (nu_renderpass_t  pass,
               nu_font_t        handle,
               const nu_char_t *text,
               nu_size_t        n,
-              nu_ivec2_t       pos)
+              nu_vec2i_t       pos)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_rect_t   extent
-        = nu_rect(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
+    nu_box2i_t  extent
+        = nu_box2i(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)
     {
         nu_char_t c = text[i];
@@ -113,8 +114,8 @@ nu_draw_text (nu_renderpass_t  pass,
         {
             continue;
         }
-        nu_size_t gi         = c - font->min_char;
-        nu_rect_t tex_extent = font->glyphs[gi];
+        nu_size_t  gi         = c - font->min_char;
+        nu_box2i_t tex_extent = font->glyphs[gi];
         nu_bind_material(pass, font->material);
         nu_draw_blit(pass, extent, tex_extent);
         extent.p.x += font->glyph_size.x;

@@ -47,7 +47,7 @@ main (void)
                    nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZERO, NU_VEC3_UP));
 
     // Depth buffer
-    depth_buffer = nu_texture_create(nu_uvec2(WIDTH, HEIGHT),
+    depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
                                      NU_TEXTURE_FORMAT_DEPTH,
                                      NU_TEXTURE_USAGE_TARGET,
                                      NU_NULL);

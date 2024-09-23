@@ -108,7 +108,7 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
     else
     {
         pass->fbo      = 0;
-        pass->fbo_size = NU_UVEC2_ZERO;
+        pass->fbo_size = NU_VEC2U_ZERO;
     }
 }
 static void
@@ -318,7 +318,7 @@ nugl__draw_meshes (nu_renderpass_t  pass,
     }
 }
 static void
-nugl__draw_blit (nu_renderpass_t pass, nu_rect_t extent, nu_rect_t tex_extent)
+nugl__draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)

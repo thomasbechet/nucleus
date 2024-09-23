@@ -283,27 +283,27 @@ nu_vec4_zw (nu_vec4_t v)
     return ret;
 }
 
-nu_ivec2_t
-nu_ivec2 (nu_i32_t x, nu_i32_t y)
+nu_vec2i_t
+nu_vec2i (nu_i32_t x, nu_i32_t y)
 {
-    nu_ivec2_t v;
+    nu_vec2i_t v;
     v.x = x;
     v.y = y;
     return v;
 }
 
-nu_uvec2_t
-nu_uvec2 (nu_u32_t x, nu_u32_t y)
+nu_vec2u_t
+nu_vec2u (nu_u32_t x, nu_u32_t y)
 {
-    nu_uvec2_t v;
+    nu_vec2u_t v;
     v.x = x;
     v.y = y;
     return v;
 }
-nu_uvec2_t
-nu_uvec2_min (nu_uvec2_t a, nu_uvec2_t b)
+nu_vec2u_t
+nu_vec2u_min (nu_vec2u_t a, nu_vec2u_t b)
 {
-    return nu_uvec2(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
+    return nu_vec2u(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
 }
 
 nu_uvec4_t
@@ -602,16 +602,16 @@ nu_mat4_mulv3 (nu_mat4_t a, nu_vec3_t v)
     return nu_vec3(v4.x, v4.y, v4.z);
 }
 
-nu_rect_t
-nu_rect (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
+nu_box2i_t
+nu_box2i (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
 {
-    nu_rect_t ret;
-    ret.p = nu_ivec2(x, y);
-    ret.s = nu_uvec2(w, h);
+    nu_box2i_t ret;
+    ret.p = nu_vec2i(x, y);
+    ret.s = nu_vec2u(w, h);
     return ret;
 }
 nu_bool_t
-nu_rect_containsi (nu_rect_t r, nu_ivec2_t p)
+nu_box2i_containsi (nu_box2i_t r, nu_vec2i_t p)
 {
     nu_i32_t px = p.x;
     nu_i32_t py = p.y;
@@ -628,12 +628,12 @@ nu_rect_containsi (nu_rect_t r, nu_ivec2_t p)
     return NU_TRUE;
 }
 nu_bool_t
-nu_rect_contains (nu_rect_t r, nu_vec2_t p)
+nu_box2i_contains (nu_box2i_t r, nu_vec2_t p)
 {
-    return nu_rect_containsi(r, nu_ivec2(p.x, p.y));
+    return nu_box2i_containsi(r, nu_vec2i(p.x, p.y));
 }
 nu_vec2_t
-nu_rect_normalize (nu_rect_t r, nu_vec2_t p)
+nu_box2i_normalize (nu_box2i_t r, nu_vec2_t p)
 {
     nu_vec2_t ret;
     ret.x = (p.x - (float)r.p.x) / (float)r.s.x;

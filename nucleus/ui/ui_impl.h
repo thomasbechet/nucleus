@@ -6,8 +6,8 @@
 static void
 nu__blit_sliced (nu_renderpass_t pass,
                  nu_material_t   material,
-                 nu_rect_t       extent,
-                 nu_rect_t       tex_extent,
+                 nu_box2i_t      extent,
+                 nu_box2i_t      tex_extent,
                  nu_ui_margin_t  margin)
 {
     nu_bind_material(pass, material);
@@ -22,123 +22,123 @@ nu__blit_sliced (nu_renderpass_t pass,
     {
         nu_draw_blit(
             pass,
-            nu_rect(extent.p.x, extent.p.y, margin.left, margin.top),
-            nu_rect(tex_extent.p.x, tex_extent.p.y, margin.left, margin.top));
+            nu_box2i(extent.p.x, extent.p.y, margin.left, margin.top),
+            nu_box2i(tex_extent.p.x, tex_extent.p.y, margin.left, margin.top));
     }
 
     // Top-Mid
     if (margin.top)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x + margin.left,
-                             extent.p.y,
-                             ext_mid_width,
-                             margin.top),
-                     nu_rect(tex_extent.p.x + margin.left,
-                             tex_extent.p.y,
-                             tex_mid_width,
-                             margin.top));
+                     nu_box2i(extent.p.x + margin.left,
+                              extent.p.y,
+                              ext_mid_width,
+                              margin.top),
+                     nu_box2i(tex_extent.p.x + margin.left,
+                              tex_extent.p.y,
+                              tex_mid_width,
+                              margin.top));
     }
 
     // Top-Right
     if (margin.top && margin.right)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x + extent.s.x - margin.right,
-                             extent.p.y,
-                             margin.right,
-                             margin.top),
-                     nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
-                             tex_extent.p.y,
-                             margin.right,
-                             margin.top));
+                     nu_box2i(extent.p.x + extent.s.x - margin.right,
+                              extent.p.y,
+                              margin.right,
+                              margin.top),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
+                              tex_extent.p.y,
+                              margin.right,
+                              margin.top));
     }
 
     // Mid-Left
     if (margin.left)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x,
-                             extent.p.y + margin.top,
-                             margin.right,
-                             ext_mid_height),
-                     nu_rect(tex_extent.p.x,
-                             tex_extent.p.y + margin.top,
-                             margin.right,
-                             tex_mid_height));
+                     nu_box2i(extent.p.x,
+                              extent.p.y + margin.top,
+                              margin.right,
+                              ext_mid_height),
+                     nu_box2i(tex_extent.p.x,
+                              tex_extent.p.y + margin.top,
+                              margin.right,
+                              tex_mid_height));
     }
 
     // Mid-Mid
     nu_draw_blit(pass,
-                 nu_rect(extent.p.x + margin.left,
-                         extent.p.y + margin.top,
-                         ext_mid_width,
-                         ext_mid_height),
-                 nu_rect(tex_extent.p.x + margin.left,
-                         tex_extent.p.y + margin.top,
-                         tex_mid_width,
-                         tex_mid_height));
+                 nu_box2i(extent.p.x + margin.left,
+                          extent.p.y + margin.top,
+                          ext_mid_width,
+                          ext_mid_height),
+                 nu_box2i(tex_extent.p.x + margin.left,
+                          tex_extent.p.y + margin.top,
+                          tex_mid_width,
+                          tex_mid_height));
 
     // Mid-Right
     if (margin.right)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x + extent.s.x - margin.right,
-                             extent.p.y + margin.top,
-                             margin.right,
-                             ext_mid_height),
-                     nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
-                             tex_extent.p.y + margin.top,
-                             margin.right,
-                             tex_mid_height));
+                     nu_box2i(extent.p.x + extent.s.x - margin.right,
+                              extent.p.y + margin.top,
+                              margin.right,
+                              ext_mid_height),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
+                              tex_extent.p.y + margin.top,
+                              margin.right,
+                              tex_mid_height));
     }
 
     // Bottom-Left
     if (margin.bottom && margin.left)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x,
-                             extent.p.y + extent.s.y - margin.bottom,
-                             margin.left,
-                             margin.bottom),
-                     nu_rect(tex_extent.p.x,
-                             tex_extent.p.y + tex_extent.s.y - margin.bottom,
-                             margin.right,
-                             margin.bottom));
+                     nu_box2i(extent.p.x,
+                              extent.p.y + extent.s.y - margin.bottom,
+                              margin.left,
+                              margin.bottom),
+                     nu_box2i(tex_extent.p.x,
+                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                              margin.right,
+                              margin.bottom));
     }
 
     // Bottom-Mid
     if (margin.bottom)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x + margin.left,
-                             extent.p.y + extent.s.y - margin.bottom,
-                             ext_mid_width,
-                             margin.bottom),
-                     nu_rect(tex_extent.p.x + margin.left,
-                             tex_extent.p.y + tex_extent.s.y - margin.bottom,
-                             tex_mid_width,
-                             margin.bottom));
+                     nu_box2i(extent.p.x + margin.left,
+                              extent.p.y + extent.s.y - margin.bottom,
+                              ext_mid_width,
+                              margin.bottom),
+                     nu_box2i(tex_extent.p.x + margin.left,
+                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                              tex_mid_width,
+                              margin.bottom));
     }
 
     // Bottom-Right
     if (margin.bottom && margin.right)
     {
         nu_draw_blit(pass,
-                     nu_rect(extent.p.x + extent.s.x - margin.right,
-                             extent.p.y + extent.s.y - margin.bottom,
-                             margin.right,
-                             margin.bottom),
-                     nu_rect(tex_extent.p.x + tex_extent.s.x - margin.right,
-                             tex_extent.p.y + tex_extent.s.y - margin.bottom,
-                             margin.right,
-                             margin.bottom));
+                     nu_box2i(extent.p.x + extent.s.x - margin.right,
+                              extent.p.y + extent.s.y - margin.bottom,
+                              margin.right,
+                              margin.bottom),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
+                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                              margin.right,
+                              margin.bottom));
     }
 }
 
 static void
 nu__draw_image (nu__ui_instance_t         *ui,
-                nu_rect_t                  extent,
+                nu_box2i_t                 extent,
                 const nu_ui_image_style_t *style)
 {
     nu__blit_sliced(ui->active_renderpass,
@@ -176,7 +176,7 @@ nu_ui_create (void)
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
         ui->controllers[i].active       = NU_FALSE;
-        ui->controllers[i].cursor       = NU_IVEC2_ZERO;
+        ui->controllers[i].cursor       = NU_VEC2I_ZERO;
         ui->controllers[i].main_pressed = NU_FALSE;
         ui->controllers[i].mode         = NU_UI_CONTROLLER_CURSOR;
     }
@@ -198,7 +198,7 @@ nu_ui_delete (nu_ui_t handle)
 }
 
 void
-nu_ui_set_cursor (nu_ui_t handle, nu_u32_t controller, nu_ivec2_t pos)
+nu_ui_set_cursor (nu_ui_t handle, nu_u32_t controller, nu_vec2i_t pos)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     ui->controllers[controller].cursor = pos;
@@ -233,9 +233,9 @@ nu_ui_end (nu_ui_t handle)
     NU_ASSERT(ui->cursor_style);
 
     // Draw cursor
-    nu_ivec2_t cursor = ui->controllers[0].cursor;
+    nu_vec2i_t cursor = ui->controllers[0].cursor;
     nu__draw_image(ui,
-                   nu_rect(cursor.x - 3, cursor.y - 3, 6, 5),
+                   nu_box2i(cursor.x - 3, cursor.y - 3, 6, 5),
                    &ui->cursor_style->cursor.image);
 }
 void
@@ -305,11 +305,11 @@ nu_ui_controller (nu_ui_t handle)
 }
 
 static nu_bool_t
-nu__ui_hit (nu__ui_instance_t *ui, nu_rect_t extent, nu_u32_t *controller)
+nu__ui_hit (nu__ui_instance_t *ui, nu_box2i_t extent, nu_u32_t *controller)
 {
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
-        if (nu_rect_containsi(extent, ui->controllers[i].cursor))
+        if (nu_box2i_containsi(extent, ui->controllers[i].cursor))
         {
             *controller = i;
             return NU_TRUE;
@@ -319,7 +319,7 @@ nu__ui_hit (nu__ui_instance_t *ui, nu_rect_t extent, nu_u32_t *controller)
 }
 
 nu_bool_t
-nu_ui_button (nu_ui_t handle, nu_rect_t extent)
+nu_ui_button (nu_ui_t handle, nu_box2i_t extent)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     nu_u32_t           id = ui->next_id++;
@@ -376,7 +376,7 @@ nu_ui_button (nu_ui_t handle, nu_rect_t extent)
     return result;
 }
 nu_bool_t
-nu_ui_checkbox (nu_ui_t handle, nu_rect_t extent, nu_bool_t *state)
+nu_ui_checkbox (nu_ui_t handle, nu_box2i_t extent, nu_bool_t *state)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     NU_ASSERT(state);

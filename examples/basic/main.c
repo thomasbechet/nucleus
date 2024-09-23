@@ -75,7 +75,7 @@ main (void)
     nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer = nu_texture_create(nu_uvec2(WIDTH, HEIGHT),
+    nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
                                                   NU_TEXTURE_FORMAT_DEPTH,
                                                   NU_TEXTURE_USAGE_TARGET,
                                                   NU_NULL);
@@ -168,28 +168,28 @@ main (void)
     nu_ui_style_t button_style;
     button_style.type                     = NU_UI_BUTTON;
     button_style.button.pressed.material  = material_gui_repeat;
-    button_style.button.pressed.extent    = nu_rect(113, 97, 30, 14);
+    button_style.button.pressed.extent    = nu_box2i(113, 97, 30, 14);
     button_style.button.pressed.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
     button_style.button.released.material = material_gui_repeat;
-    button_style.button.released.extent   = nu_rect(113, 81, 30, 14);
+    button_style.button.released.extent   = nu_box2i(113, 81, 30, 14);
     button_style.button.released.margin   = (nu_ui_margin_t) { 3, 5, 3, 3 };
     button_style.button.hovered.material  = material_gui_repeat;
-    button_style.button.hovered.extent    = nu_rect(113, 113, 30, 14);
+    button_style.button.hovered.extent    = nu_box2i(113, 113, 30, 14);
     button_style.button.hovered.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
     nu_ui_push_style(ui, &button_style);
     nu_ui_style_t checkbox_style;
     checkbox_style.type                      = NU_UI_CHECKBOX;
     checkbox_style.checkbox.checked.material = material_gui_repeat;
-    checkbox_style.checkbox.checked.extent   = nu_rect(97, 257, 14, 14);
+    checkbox_style.checkbox.checked.extent   = nu_box2i(97, 257, 14, 14);
     checkbox_style.checkbox.checked.margin   = (nu_ui_margin_t) { 3, 3, 2, 2 };
     checkbox_style.checkbox.unchecked.material = material_gui_repeat;
-    checkbox_style.checkbox.unchecked.extent   = nu_rect(81, 257, 14, 14);
+    checkbox_style.checkbox.unchecked.extent   = nu_box2i(81, 257, 14, 14);
     checkbox_style.checkbox.unchecked.margin = (nu_ui_margin_t) { 2, 4, 2, 2 };
     nu_ui_push_style(ui, &checkbox_style);
     nu_ui_style_t cursor_style;
     cursor_style.type                  = NU_UI_CURSOR;
     cursor_style.cursor.image.material = material_gui_repeat;
-    cursor_style.cursor.image.extent   = nu_rect(98, 38, 3, 3);
+    cursor_style.cursor.image.extent   = nu_box2i(98, 38, 3, 3);
     cursor_style.cursor.image.margin   = (nu_ui_margin_t) { 0, 0, 0, 0 };
     nu_ui_push_style(ui, &cursor_style);
 
@@ -255,11 +255,11 @@ main (void)
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui);
-        // if (nu_ui_button(ui, nu_rect(300, 100, 60, 20)))
+        // if (nu_ui_button(ui, nu_box2i(300, 100, 60, 20)))
         // {
         //     nu_info("button pressed !");
         // }
-        // if (nu_ui_checkbox(ui, nu_rect(300, 300, 14, 14), &bool_state))
+        // if (nu_ui_checkbox(ui, nu_box2i(300, 300, 14, 14), &bool_state))
         // {
         //     nu_info("checkbox changed %d", bool_state);
         // }
@@ -282,9 +282,9 @@ main (void)
 
         nu_char_t string[256];
         nu_size_t n = nu_snprintf(string, 256, "FPS:%d", (nu_u32_t)frame_avg);
-        nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 10));
+        nu_draw_text(gui_pass, font, string, n, nu_vec2i(10, 10));
         n = nu_snprintf(string, 256, "RES:%dx%d", WIDTH, HEIGHT);
-        nu_draw_text(gui_pass, font, string, n, nu_ivec2(10, 20));
+        nu_draw_text(gui_pass, font, string, n, nu_vec2i(10, 20));
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);

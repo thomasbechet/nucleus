@@ -101,17 +101,17 @@ typedef enum
 NU_API void         nu_config_renderer_api(nu_renderer_api_t api);
 NU_API nu_texture_t nu_surface_color_target(void);
 
-NU_API nu_image_t  nu_image_create(nu_uvec2_t size);
+NU_API nu_image_t  nu_image_create(nu_vec2u_t size);
 NU_API void        nu_image_delete(nu_image_t image);
 NU_API nu_color_t *nu_image_colors(nu_image_t image);
-NU_API nu_uvec2_t  nu_image_size(nu_image_t image);
+NU_API nu_vec2u_t  nu_image_size(nu_image_t image);
 
 NU_API nu_camera_t nu_camera_create(void);
 NU_API void        nu_camera_delete(nu_camera_t camera);
 NU_API void        nu_camera_view(nu_camera_t camera, nu_mat4_t view);
 NU_API void        nu_camera_proj(nu_camera_t camera, nu_mat4_t proj);
 
-NU_API nu_texture_t nu_texture_create(nu_uvec2_t          size,
+NU_API nu_texture_t nu_texture_create(nu_vec2u_t          size,
                                       nu_texture_format_t format,
                                       nu_texture_usage_t  usage,
                                       const nu_color_t   *colors);
@@ -186,8 +186,8 @@ NU_API void nu_draw_meshes(nu_renderpass_t  pass,
                            const nu_mat4_t *transforms,
                            nu_size_t        count);
 NU_API void nu_draw_blit(nu_renderpass_t pass,
-                         nu_rect_t       extent,
-                         nu_rect_t       tex_extent);
+                         nu_box2i_t      extent,
+                         nu_box2i_t      tex_extent);
 
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_mesh_t       mesh,
@@ -202,6 +202,6 @@ NU_API void nu_draw_text(nu_renderpass_t  pass,
                          nu_font_t        font,
                          const nu_char_t *text,
                          nu_size_t        n,
-                         nu_ivec2_t       pos);
+                         nu_vec2i_t       pos);
 
 #endif

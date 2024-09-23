@@ -209,7 +209,7 @@ nugl__free (void)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
+nugl__render (const nu_box2i_t *global_viewport, const nu_box2i_t *viewport)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -242,7 +242,7 @@ nugl__render (const nu_rect_t *global_viewport, const nu_rect_t *viewport)
     return NU_ERROR_NONE;
 }
 static nu_texture_t
-nugl__create_surface_color (nu_uvec2_t size)
+nugl__create_surface_color (nu_vec2u_t size)
 {
     nu__gl_t *gl = &_ctx.gl;
 

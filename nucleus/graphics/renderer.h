@@ -7,9 +7,9 @@ typedef struct
 {
     nu_error_t (*init)(void);
     nu_error_t (*free)(void);
-    nu_error_t (*render)(const nu_rect_t *global_viewport,
-                         const nu_rect_t *viewport);
-    nu_texture_t (*create_surface_color)(nu_uvec2_t size);
+    nu_error_t (*render)(const nu_box2i_t *global_viewport,
+                         const nu_box2i_t *viewport);
+    nu_texture_t (*create_surface_color)(nu_vec2u_t size);
 
     nu_camera_t (*camera_create)(void);
     void (*camera_delete)(nu_camera_t camera);
@@ -29,7 +29,7 @@ typedef struct
                              nu_size_t        count,
                              const nu_vec3_t *data);
 
-    nu_texture_t (*texture_create)(nu_uvec2_t          size,
+    nu_texture_t (*texture_create)(nu_vec2u_t          size,
                                    nu_texture_format_t format,
                                    nu_texture_usage_t  usage,
                                    const nu_color_t   *colors);
@@ -83,8 +83,8 @@ typedef struct
                         const nu_mat4_t *transforms,
                         nu_size_t        count);
     void (*draw_blit)(nu_renderpass_t pass,
-                      nu_rect_t       extent,
-                      nu_rect_t       tex_extent);
+                      nu_box2i_t      extent,
+                      nu_box2i_t      tex_extent);
 } nu__renderer_api_t;
 
 typedef struct

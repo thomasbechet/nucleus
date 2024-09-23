@@ -28,9 +28,9 @@ typedef struct
 {
     nuext_viewport_mode_t mode;
     float                 scale_factor;
-    nu_uvec2_t            screen;
-    nu_rect_t             extent;
-    nu_rect_t             viewport;
+    nu_vec2u_t            screen;
+    nu_box2i_t            extent;
+    nu_box2i_t            viewport;
 } nu__viewport_t;
 
 typedef struct
@@ -96,7 +96,7 @@ typedef struct
     RGFW_rect      previous_rect;
     nu_timer_t     last_mouse_click;
     nu_bool_t      switch_capture_mouse;
-    nu_uvec2_t     size;
+    nu_vec2u_t     size;
 } nu__platform_t;
 
 static nu_error_t nu__platform_init(void);

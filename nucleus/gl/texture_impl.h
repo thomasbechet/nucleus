@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 static nu_texture_t
-nugl__texture_create (nu_uvec2_t          size,
+nugl__texture_create (nu_vec2u_t          size,
                       nu_texture_format_t format,
                       nu_texture_usage_t  usage,
                       const nu_color_t   *colors)

@@ -30,7 +30,7 @@ typedef struct
 typedef struct
 {
     nu_material_t  material;
-    nu_rect_t      extent;
+    nu_box2i_t     extent;
     nu_ui_margin_t margin;
 } nu_ui_image_style_t;
 
@@ -61,14 +61,14 @@ typedef NU_VEC(nu_ui_style_t) nu_ui_style_vec_t;
 
 NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_material_t   handle,
-                           nu_rect_t       extent,
-                           nu_rect_t       tex_extent,
+                           nu_box2i_t      extent,
+                           nu_box2i_t      tex_extent,
                            nu_ui_margin_t  margin);
 
 NU_API nu_ui_t nu_ui_create(void);
 NU_API void    nu_ui_delete(nu_ui_t ui);
 
-NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_ivec2_t pos);
+NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_vec2i_t pos);
 NU_API void nu_ui_set_pressed(nu_ui_t   ui,
                               nu_u32_t  controller,
                               nu_bool_t pressed);
@@ -82,7 +82,9 @@ NU_API void nu_ui_pop_style(nu_ui_t ui);
 
 NU_API nu_u32_t nu_ui_controller(nu_ui_t ui);
 
-NU_API nu_bool_t nu_ui_button(nu_ui_t ui, nu_rect_t extent);
-NU_API nu_bool_t nu_ui_checkbox(nu_ui_t ui, nu_rect_t extent, nu_bool_t *state);
+NU_API nu_bool_t nu_ui_button(nu_ui_t ui, nu_box2i_t extent);
+NU_API nu_bool_t nu_ui_checkbox(nu_ui_t    ui,
+                                nu_box2i_t extent,
+                                nu_bool_t *state);
 
 #endif

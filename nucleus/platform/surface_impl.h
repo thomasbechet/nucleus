@@ -48,7 +48,7 @@ nu__update_viewport (nu__viewport_t *v)
     nu_vec2_t vpos = nu_vec2_sub(global_size, size);
     vpos           = nu_vec2_divs(vpos, 2);
     vpos           = nu_vec2_add(vpos, global_pos);
-    v->viewport    = nu_rect(vpos.x, vpos.y, size.x, size.y);
+    v->viewport    = nu_box2i(vpos.x, vpos.y, size.x, size.y);
 }
 
 static void

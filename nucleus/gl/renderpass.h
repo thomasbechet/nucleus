@@ -108,7 +108,7 @@ typedef struct
     nu_color_t           clear_color;
     nu_bool_t            has_clear_color;
     GLuint               fbo;
-    nu_uvec2_t           fbo_size;
+    nu_vec2u_t           fbo_size;
     nu_bool_t            reset_after_submit;
     union
     {

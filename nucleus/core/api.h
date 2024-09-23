@@ -33,10 +33,10 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VEC2_ZERO nu_vec2(0, 0)
 #define NU_VEC2_ONE  nu_vec2(1, 1)
 
-#define NU_IVEC2_ZERO nu_ivec2(0, 0)
+#define NU_VEC2I_ZERO nu_vec2i(0, 0)
 
-#define NU_UVEC2_ZERO nu_uvec2(0, 0)
-#define NU_UVEC2_ONE  nu_uvec2(1, 1)
+#define NU_VEC2U_ZERO nu_vec2u(0, 0)
+#define NU_UVEC2_ONE  nu_vec2u(1, 1)
 
 #define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
 #define NU_VEC3_ONE      nu_vec3(1, 1, 1)
@@ -317,7 +317,7 @@ typedef union
         nu_u32_t y;
     };
     nu_u32_t data[NU_VEC2_SIZE];
-} nu_uvec2_t;
+} nu_vec2u_t;
 
 typedef union
 {
@@ -327,7 +327,29 @@ typedef union
         nu_i32_t y;
     };
     nu_i32_t data[NU_VEC2_SIZE];
-} nu_ivec2_t;
+} nu_vec2i_t;
+
+typedef union
+{
+    struct
+    {
+        nu_i32_t x;
+        nu_i32_t y;
+        nu_i32_t z;
+    };
+    nu_i32_t data[NU_VEC3_SIZE];
+} nu_vec3i_t;
+
+typedef union
+{
+    struct
+    {
+        nu_u32_t x;
+        nu_u32_t y;
+        nu_u32_t z;
+    };
+    nu_u32_t data[NU_VEC3_SIZE];
+} nu_vec3u_t;
 
 typedef union
 {
@@ -397,9 +419,15 @@ typedef union
 
 typedef struct
 {
-    nu_ivec2_t p;
-    nu_uvec2_t s;
-} nu_rect_t;
+    nu_vec2i_t p;
+    nu_vec2u_t s;
+} nu_box2i_t;
+
+typedef struct
+{
+    nu_vec3i_t p;
+    nu_vec3u_t s;
+} nu_box3i_t;
 
 typedef NU_VEC(nu_vec2_t) nu_vec2_vec_t;
 typedef NU_VEC(nu_vec3_t) nu_vec3_vec_t;
@@ -534,10 +562,10 @@ NU_API float     nu_vec4_norm(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
 
-NU_API nu_ivec2_t nu_ivec2(nu_i32_t x, nu_i32_t y);
+NU_API nu_vec2i_t nu_vec2i(nu_i32_t x, nu_i32_t y);
 
-NU_API nu_uvec2_t nu_uvec2(nu_u32_t x, nu_u32_t y);
-NU_API nu_uvec2_t nu_uvec2_min(nu_uvec2_t a, nu_uvec2_t b);
+NU_API nu_vec2u_t nu_vec2u(nu_u32_t x, nu_u32_t y);
+NU_API nu_vec2u_t nu_vec2u_min(nu_vec2u_t a, nu_vec2u_t b);
 
 NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
 
@@ -568,10 +596,10 @@ NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
 NU_API nu_vec4_t nu_mat4_mulv(nu_mat4_t a, nu_vec4_t v);
 NU_API nu_vec3_t nu_mat4_mulv3(nu_mat4_t a, nu_vec3_t v);
 
-NU_API nu_rect_t nu_rect(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
-NU_API nu_bool_t nu_rect_contains(nu_rect_t r, nu_vec2_t p);
-NU_API nu_bool_t nu_rect_containsi(nu_rect_t r, nu_ivec2_t p);
-NU_API nu_vec2_t nu_rect_normalize(nu_rect_t r, nu_vec2_t p);
+NU_API nu_box2i_t nu_box2i(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
+NU_API nu_bool_t  nu_box2i_contains(nu_box2i_t r, nu_vec2_t p);
+NU_API nu_bool_t  nu_box2i_containsi(nu_box2i_t r, nu_vec2i_t p);
+NU_API nu_vec2_t  nu_box2i_normalize(nu_box2i_t r, nu_vec2_t p);
 
 NU_API nu_mat4_t nu_perspective(float fov,
                                 float aspect_ratio,

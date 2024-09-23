@@ -98,7 +98,7 @@ nu_mesh_buffer_vec3 (nu_mesh_t        mesh,
 }
 
 nu_texture_t
-nu_texture_create (nu_uvec2_t          size,
+nu_texture_create (nu_vec2u_t          size,
                    nu_texture_format_t format,
                    nu_texture_usage_t  usage,
                    const nu_color_t   *colors)
@@ -110,7 +110,7 @@ nu_texture_create (nu_uvec2_t          size,
 nu_texture_t
 nu_texture_create_color (nu_color_t color)
 {
-    return nu_texture_create(nu_uvec2(1, 1),
+    return nu_texture_create(nu_vec2u(1, 1),
                              NU_TEXTURE_FORMAT_COLOR,
                              NU_TEXTURE_USAGE_SAMPLE,
                              &color);
@@ -274,7 +274,7 @@ nu_draw_meshes (nu_renderpass_t  pass,
     _ctx.graphics.renderer.api.draw_meshes(pass, mesh, transforms, count);
 }
 void
-nu_draw_blit (nu_renderpass_t pass, nu_rect_t extent, nu_rect_t tex_extent)
+nu_draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.draw_blit(pass, extent, tex_extent);

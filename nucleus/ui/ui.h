@@ -7,7 +7,7 @@ typedef struct
 {
     nu_ui_controller_mode_t mode;
     nu_bool_t               active;
-    nu_ivec2_t              cursor;
+    nu_vec2i_t              cursor;
     nu_bool_t               main_pressed;
 } nu_ui_controller_t;
 
