@@ -26,7 +26,7 @@ main (void)
         nu_geometry_t g = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 100);
         nu_geometry_cube(g, 1);
         nu_geometry_transform(g, nu_mat4_translate(nu_vec3s(-0.5)));
-        mesh = nu_mesh_create_geometry(g);
+        mesh = nu_geometry_create_mesh(g);
         nu_geometry_delete(g);
     }
 

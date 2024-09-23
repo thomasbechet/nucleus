@@ -288,7 +288,7 @@ nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
 }
 
 nu_mesh_t
-nu_mesh_create_geometry (nu_geometry_t geometry)
+nu_geometry_create_mesh (nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
 

@@ -18,7 +18,7 @@ nuext_import_asset (nu_asset_type_t  type,
         case NU_ASSET_TEXTURE: {
             nu_image_t image = nuext_image_load_filename(filename);
             NU_CHECK(image, return NU_NULL);
-            entry->data = nu_texture_create_image(image);
+            entry->data = nu_image_create_texture(image);
             nu_image_delete(image);
         }
         break;

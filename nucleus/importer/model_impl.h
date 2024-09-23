@@ -168,7 +168,7 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
         (const nu_byte_t *)tview->buffer->data + tview->offset, tview->size);
 
     // Create texture
-    nu_texture_t handle = nu_texture_create_image(image);
+    nu_texture_t handle = nu_image_create_texture(image);
     nu_image_delete(image);
 
     // Append asset

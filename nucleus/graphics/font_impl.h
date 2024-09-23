@@ -67,7 +67,7 @@ nu_font_create_default (void)
     }
 
     // Create renderer image
-    font->texture = nu_texture_create_image(image);
+    font->texture = nu_image_create_texture(image);
 
     // Create material
     font->material = nu_material_create(NU_MATERIAL_TYPE_CANVAS);

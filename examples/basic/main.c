@@ -99,7 +99,7 @@ main (void)
         nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
         nu_geometry_append(final, sub);
 
-        custom_mesh = nu_mesh_create_geometry(final);
+        custom_mesh = nu_geometry_create_mesh(final);
         nu_geometry_delete(sub);
     }
 

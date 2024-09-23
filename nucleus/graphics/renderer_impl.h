@@ -116,7 +116,7 @@ nu_texture_create_color (nu_color_t color)
                              &color);
 }
 nu_texture_t
-nu_texture_create_image (nu_image_t image)
+nu_image_create_texture (nu_image_t image)
 {
     nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
     return nu_texture_create(ima->size,
