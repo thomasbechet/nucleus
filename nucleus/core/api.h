@@ -94,14 +94,14 @@ NU_DEFINE_HANDLE(nu_table_t);
 
 #define NU_VEC_CLEAR(v) ((v)->size = 0)
 
-#define NU_VEC_PUSH(v)                                          \
-    (((v)->data = NU_VOID_CAST((v)->data,                       \
-                               nu__vec_push((v)->allocator,     \
-                                            sizeof(*(v)->data), \
-                                            (v)->data,          \
-                                            &(v)->size,         \
-                                            &(v)->capacity)))   \
-         ? (v)->data + ((v)->size - 1)                          \
+#define NU_VEC_PUSH(v)                                            \
+    (((v)->data = NU_VOID_CAST((v)->data,                         \
+                               nu__vec_push((v)->allocator,       \
+                                            sizeof(*((v)->data)), \
+                                            (v)->data,            \
+                                            &(v)->size,           \
+                                            &(v)->capacity)))     \
+         ? (v)->data + ((v)->size - 1)                            \
          : NU_NULL)
 
 #define NU_VEC_POP(v) \

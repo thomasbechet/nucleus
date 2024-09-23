@@ -4,6 +4,7 @@
 #include <nucleus/graphics/api.h>
 
 NU_DEFINE_HANDLE(nu_ui_t);
+NU_DEFINE_HANDLE(nu_ui_style_t);
 
 typedef enum
 {
@@ -19,51 +20,29 @@ typedef enum
     NU_UI_CONTROLLER_CURSOR,
 } nu_ui_controller_mode_t;
 
-typedef struct
+typedef enum
 {
-    nu_u32_t top;
-    nu_u32_t bottom;
-    nu_u32_t left;
-    nu_u32_t right;
-} nu_ui_margin_t;
-
-typedef struct
-{
-    nu_material_t  material;
-    nu_box2i_t     extent;
-    nu_ui_margin_t margin;
-} nu_ui_image_style_t;
-
-typedef struct
-{
-    nu_ui_element_t type;
-    union
-    {
-        struct
-        {
-            nu_ui_image_style_t pressed;
-            nu_ui_image_style_t released;
-            nu_ui_image_style_t hovered;
-        } button;
-        struct
-        {
-            nu_ui_image_style_t checked;
-            nu_ui_image_style_t unchecked;
-        } checkbox;
-        struct
-        {
-            nu_ui_image_style_t image;
-        } cursor;
-    };
-} nu_ui_style_t;
-
-typedef NU_VEC(nu_ui_style_t) nu_ui_style_vec_t;
+    NU_UI_STYLE_BUTTON_PRESSED,
+    NU_UI_STYLE_BUTTON_RELEASED,
+    NU_UI_STYLE_BUTTON_HOVERED,
+    NU_UI_STYLE_CHECKBOX_CHECKED,
+    NU_UI_STYLE_CHECKBOX_UNCHECKED,
+    NU_UI_STYLE_CURSOR
+} nu_ui_style_property_t;
 
 NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_material_t   handle,
                            nu_box2i_t      extent,
                            nu_box2i_t      tex_extent,
-                           nu_ui_margin_t  margin);
+                           nu_box2i_t      inner);
+
+NU_API nu_ui_style_t nu_ui_style_create(void);
+NU_API void          nu_ui_style_delete(nu_ui_style_t style);
+NU_API void          nu_ui_style(nu_ui_style_t          style,
+                                 nu_ui_style_property_t property,
+                                 nu_material_t          material,
+                                 nu_box2i_t             extent,
+                                 nu_box2i_t             inner);
 
 NU_API nu_ui_t nu_ui_create(void);
 NU_API void    nu_ui_delete(nu_ui_t ui);
@@ -77,7 +56,7 @@ NU_API void nu_ui_begin(nu_ui_t ui);
 NU_API void nu_ui_end(nu_ui_t ui);
 NU_API void nu_ui_submit_renderpasses(nu_ui_t ui, nu_texture_t color_target);
 
-NU_API void nu_ui_push_style(nu_ui_t ui, nu_ui_style_t *style);
+NU_API void nu_ui_push_style(nu_ui_t ui, nu_ui_style_t style);
 NU_API void nu_ui_pop_style(nu_ui_t ui);
 
 NU_API nu_u32_t nu_ui_controller(nu_ui_t ui);

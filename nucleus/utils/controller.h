@@ -5,6 +5,14 @@
 
 typedef struct
 {
+    nu_input_t view_pitch;
+    nu_input_t view_yaw;
+    nu_input_t view_roll;
+    nu_input_t move_x;
+    nu_input_t move_y;
+    nu_input_t move_z;
+    nu_input_t switch_mode;
+
     nu_vec3_t pos;
     nu_vec3_t vel;
     nu_vec3_t acc;

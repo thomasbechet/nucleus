@@ -20,6 +20,14 @@ static nu_input_t quit;
 static nu_input_t cursor_x;
 static nu_input_t cursor_y;
 
+static nu_input_t move_x;
+static nu_input_t move_y;
+static nu_input_t move_z;
+static nu_input_t view_yaw;
+static nu_input_t view_pitch;
+static nu_input_t view_roll;
+static nu_input_t switch_mode;
+
 static nu_model_t temple_model;
 static nu_model_t ariane_model;
 
@@ -37,42 +45,43 @@ main (void)
 
     // Configure inputs
     nu_controller_info_t cinfo;
-    draw              = nu_input_create();
-    main_button       = nu_input_create();
-    quit              = nu_input_create();
-    cursor_x          = nu_input_create();
-    cursor_y          = nu_input_create();
-    cinfo.move_x      = nu_input_create();
-    cinfo.move_y      = nu_input_create();
-    cinfo.move_z      = nu_input_create();
-    cinfo.view_yaw    = nu_input_create();
-    cinfo.view_pitch  = nu_input_create();
-    cinfo.view_roll   = nu_input_create();
-    cinfo.switch_mode = nu_input_create();
+    draw        = nu_input_create();
+    main_button = nu_input_create();
+    quit        = nu_input_create();
+    cursor_x    = nu_input_create();
+    cursor_y    = nu_input_create();
+    move_x      = nu_input_create();
+    move_y      = nu_input_create();
+    move_z      = nu_input_create();
+    view_yaw    = nu_input_create();
+    view_pitch  = nu_input_create();
+    view_roll   = nu_input_create();
+    switch_mode = nu_input_create();
 
     // Create camera controller
-    nu_controller_t controller = nu_controller_create(&cinfo);
+    nu_controller_t controller = nu_controller_create(
+        view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs
     nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_LEFT);
     nuext_input_bind_button(quit, NUEXT_BUTTON_ESCAPE);
     nuext_input_bind_axis(cursor_x, NUEXT_AXIS_MOUSE_X);
     nuext_input_bind_axis(cursor_y, NUEXT_AXIS_MOUSE_Y);
-    nuext_input_bind_button_value(cinfo.move_z, NUEXT_BUTTON_W, 1);
-    nuext_input_bind_button_value(cinfo.move_z, NUEXT_BUTTON_S, -1);
-    nuext_input_bind_button_value(cinfo.move_x, NUEXT_BUTTON_D, 1);
-    nuext_input_bind_button_value(cinfo.move_x, NUEXT_BUTTON_A, -1);
-    nuext_input_bind_button_value(cinfo.move_y, NUEXT_BUTTON_X, 1);
-    nuext_input_bind_button_value(cinfo.move_y, NUEXT_BUTTON_Z, -1);
-    nuext_input_bind_axis(cinfo.view_pitch, NUEXT_AXIS_MOUSE_MOTION_Y);
-    nuext_input_bind_axis(cinfo.view_yaw, NUEXT_AXIS_MOUSE_MOTION_X);
-    nuext_input_bind_button_value(cinfo.view_pitch, NUEXT_BUTTON_J, 0.12);
-    nuext_input_bind_button_value(cinfo.view_pitch, NUEXT_BUTTON_K, -0.12);
-    nuext_input_bind_button_value(cinfo.view_yaw, NUEXT_BUTTON_L, 0.12);
-    nuext_input_bind_button_value(cinfo.view_yaw, NUEXT_BUTTON_H, -0.12);
-    nuext_input_bind_button_value(cinfo.view_roll, NUEXT_BUTTON_Q, 0.12);
-    nuext_input_bind_button_value(cinfo.view_roll, NUEXT_BUTTON_E, -0.12);
-    nuext_input_bind_button(cinfo.switch_mode, NUEXT_BUTTON_C);
+    nuext_input_bind_button_value(move_z, NUEXT_BUTTON_W, 1);
+    nuext_input_bind_button_value(move_z, NUEXT_BUTTON_S, -1);
+    nuext_input_bind_button_value(move_x, NUEXT_BUTTON_D, 1);
+    nuext_input_bind_button_value(move_x, NUEXT_BUTTON_A, -1);
+    nuext_input_bind_button_value(move_y, NUEXT_BUTTON_X, 1);
+    nuext_input_bind_button_value(move_y, NUEXT_BUTTON_Z, -1);
+    nuext_input_bind_axis(view_pitch, NUEXT_AXIS_MOUSE_MOTION_Y);
+    nuext_input_bind_axis(view_yaw, NUEXT_AXIS_MOUSE_MOTION_X);
+    nuext_input_bind_button_value(view_pitch, NUEXT_BUTTON_J, 0.12);
+    nuext_input_bind_button_value(view_pitch, NUEXT_BUTTON_K, -0.12);
+    nuext_input_bind_button_value(view_yaw, NUEXT_BUTTON_L, 0.12);
+    nuext_input_bind_button_value(view_yaw, NUEXT_BUTTON_H, -0.12);
+    nuext_input_bind_button_value(view_roll, NUEXT_BUTTON_Q, 0.12);
+    nuext_input_bind_button_value(view_roll, NUEXT_BUTTON_E, -0.12);
+    nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
     nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
@@ -163,35 +172,41 @@ main (void)
         wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
     // Create UI
-    nu_ui_t ui = nu_ui_create();
+    nu_ui_t       ui    = nu_ui_create();
+    nu_ui_style_t style = nu_ui_style_create();
 
-    nu_ui_style_t button_style;
-    button_style.type                     = NU_UI_BUTTON;
-    button_style.button.pressed.material  = material_gui_repeat;
-    button_style.button.pressed.extent    = nu_box2i(113, 97, 30, 14);
-    button_style.button.pressed.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
-    button_style.button.released.material = material_gui_repeat;
-    button_style.button.released.extent   = nu_box2i(113, 81, 30, 14);
-    button_style.button.released.margin   = (nu_ui_margin_t) { 3, 5, 3, 3 };
-    button_style.button.hovered.material  = material_gui_repeat;
-    button_style.button.hovered.extent    = nu_box2i(113, 113, 30, 14);
-    button_style.button.hovered.margin    = (nu_ui_margin_t) { 3, 5, 3, 3 };
-    nu_ui_push_style(ui, &button_style);
-    nu_ui_style_t checkbox_style;
-    checkbox_style.type                      = NU_UI_CHECKBOX;
-    checkbox_style.checkbox.checked.material = material_gui_repeat;
-    checkbox_style.checkbox.checked.extent   = nu_box2i(97, 257, 14, 14);
-    checkbox_style.checkbox.checked.margin   = (nu_ui_margin_t) { 3, 3, 2, 2 };
-    checkbox_style.checkbox.unchecked.material = material_gui_repeat;
-    checkbox_style.checkbox.unchecked.extent   = nu_box2i(81, 257, 14, 14);
-    checkbox_style.checkbox.unchecked.margin = (nu_ui_margin_t) { 2, 4, 2, 2 };
-    nu_ui_push_style(ui, &checkbox_style);
-    nu_ui_style_t cursor_style;
-    cursor_style.type                  = NU_UI_CURSOR;
-    cursor_style.cursor.image.material = material_gui_repeat;
-    cursor_style.cursor.image.extent   = nu_box2i(98, 38, 3, 3);
-    cursor_style.cursor.image.margin   = (nu_ui_margin_t) { 0, 0, 0, 0 };
-    nu_ui_push_style(ui, &cursor_style);
+    nu_ui_style(style,
+                NU_UI_STYLE_BUTTON_PRESSED,
+                material_gui_repeat,
+                nu_box2i(113, 97, 30, 14),
+                nu_box2i(115, 100, 26, 8));
+    nu_ui_style(style,
+                NU_UI_STYLE_BUTTON_RELEASED,
+                material_gui_repeat,
+                nu_box2i(113, 81, 30, 14),
+                nu_box2i(115, 83, 26, 8));
+    nu_ui_style(style,
+                NU_UI_STYLE_BUTTON_HOVERED,
+                material_gui_repeat,
+                nu_box2i(113, 113, 30, 14),
+                nu_box2i(115, 116, 26, 8));
+    nu_ui_style(style,
+                NU_UI_STYLE_CHECKBOX_CHECKED,
+                material_gui_repeat,
+                nu_box2i(97, 257, 14, 14),
+                nu_box2i(99, 260, 10, 8));
+    nu_ui_style(style,
+                NU_UI_STYLE_CHECKBOX_UNCHECKED,
+                material_gui_repeat,
+                nu_box2i(81, 257, 14, 14),
+                nu_box2i(99, 261, 10, 8));
+    nu_ui_style(style,
+                NU_UI_STYLE_CURSOR,
+                material_gui_repeat,
+                nu_box2i(52, 83, 8, 7),
+                nu_box2i(52, 83, 8, 7));
+
+    nu_ui_push_style(ui, style);
 
     // Main loop
     nu_bool_t drawing = NU_FALSE;
@@ -255,14 +270,14 @@ main (void)
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui);
-        // if (nu_ui_button(ui, nu_box2i(300, 100, 60, 20)))
-        // {
-        //     nu_info("button pressed !");
-        // }
-        // if (nu_ui_checkbox(ui, nu_box2i(300, 300, 14, 14), &bool_state))
-        // {
-        //     nu_info("checkbox changed %d", bool_state);
-        // }
+        if (nu_ui_button(ui, nu_box2i(300, 100, 60, 20)))
+        {
+            NU_INFO("button pressed !");
+        }
+        if (nu_ui_checkbox(ui, nu_box2i(300, 300, 14, 14), &bool_state))
+        {
+            NU_INFO("checkbox changed %d", bool_state);
+        }
         nu_ui_end(ui);
 
         // Print FPS

@@ -15,11 +15,33 @@ typedef NU_VEC(nu_ui_controller_t *) nu__ui_controller_vec_t;
 
 typedef struct
 {
-    nu_ui_style_t *data;
-    nu_ui_style_t *prev;
+    nu_material_t material;
+    nu_box2i_t    extent;
+    nu_box2i_t    inner;
+} nu__ui_image_style_t;
+
+typedef struct
+{
+    struct
+    {
+        nu__ui_image_style_t pressed;
+        nu__ui_image_style_t released;
+        nu__ui_image_style_t hovered;
+    } button;
+    struct
+    {
+        nu__ui_image_style_t checked;
+        nu__ui_image_style_t unchecked;
+    } checkbox;
+    struct
+    {
+        nu__ui_image_style_t image;
+    } cursor;
 } nu__ui_style_t;
 
-typedef NU_VEC(nu__ui_style_t) nu__ui_style_vec_t;
+typedef NU_POOL(nu__ui_style_t) nu__ui_style_data_pool_t;
+
+typedef NU_VEC(nu_ui_style_t) nu__ui_style_stack_t;
 
 typedef struct
 {
@@ -37,10 +59,8 @@ typedef struct
 
     nu__ui_pass_vec_t passes;
 
-    nu__ui_style_vec_t styles;
-    nu_ui_style_t     *button_style;
-    nu_ui_style_t     *checkbox_style;
-    nu_ui_style_t     *cursor_style;
+    nu__ui_style_stack_t styles;
+    nu_ui_style_t        active_style;
 
     nu_u32_t next_id;
     nu_u32_t active_id;
@@ -53,7 +73,8 @@ typedef NU_POOL(nu__ui_instance_t) nu__ui_pool_t;
 
 typedef struct
 {
-    nu__ui_pool_t uis;
+    nu__ui_pool_t            uis;
+    nu__ui_style_data_pool_t styles;
 } nu__ui_t;
 
 static nu_error_t nu__ui_init(void);

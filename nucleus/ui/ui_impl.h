@@ -8,144 +8,205 @@ nu__blit_sliced (nu_renderpass_t pass,
                  nu_material_t   material,
                  nu_box2i_t      extent,
                  nu_box2i_t      tex_extent,
-                 nu_ui_margin_t  margin)
+                 nu_box2i_t      inner)
 {
     nu_bind_material(pass, material);
 
-    nu_u32_t tex_mid_width  = tex_extent.s.x - margin.left - margin.right;
-    nu_u32_t tex_mid_height = tex_extent.s.y - margin.top - margin.bottom;
-    nu_u32_t ext_mid_width  = extent.s.x - margin.left - margin.right;
-    nu_u32_t ext_mid_height = extent.s.y - margin.top - margin.bottom;
+    nu_u32_t margin_left = inner.p.x - tex_extent.p.x;
+    nu_u32_t margin_right
+        = (tex_extent.p.x + tex_extent.s.x) - (inner.p.x + inner.s.x);
+    nu_u32_t margin_top = inner.p.y - tex_extent.p.y;
+    nu_u32_t margin_bottom
+        = (tex_extent.p.y + tex_extent.s.y) - (inner.p.y + inner.s.y);
+
+    nu_u32_t tex_mid_width  = tex_extent.s.x - margin_left - margin_right;
+    nu_u32_t tex_mid_height = tex_extent.s.y - margin_top - margin_bottom;
+    nu_u32_t ext_mid_width  = extent.s.x - margin_left - margin_right;
+    nu_u32_t ext_mid_height = extent.s.y - margin_top - margin_bottom;
 
     // Top-Left
-    if (margin.top && margin.left)
+    if (margin_top && margin_left)
     {
         nu_draw_blit(
             pass,
-            nu_box2i(extent.p.x, extent.p.y, margin.left, margin.top),
-            nu_box2i(tex_extent.p.x, tex_extent.p.y, margin.left, margin.top));
+            nu_box2i(extent.p.x, extent.p.y, margin_left, margin_top),
+            nu_box2i(tex_extent.p.x, tex_extent.p.y, margin_left, margin_top));
     }
 
     // Top-Mid
-    if (margin.top)
+    if (margin_top)
     {
         nu_draw_blit(pass,
-                     nu_box2i(extent.p.x + margin.left,
+                     nu_box2i(extent.p.x + margin_left,
                               extent.p.y,
                               ext_mid_width,
-                              margin.top),
-                     nu_box2i(tex_extent.p.x + margin.left,
+                              margin_top),
+                     nu_box2i(tex_extent.p.x + margin_left,
                               tex_extent.p.y,
                               tex_mid_width,
-                              margin.top));
+                              margin_top));
     }
 
     // Top-Right
-    if (margin.top && margin.right)
+    if (margin_top && margin_right)
     {
         nu_draw_blit(pass,
-                     nu_box2i(extent.p.x + extent.s.x - margin.right,
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
                               extent.p.y,
-                              margin.right,
-                              margin.top),
-                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
+                              margin_right,
+                              margin_top),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
                               tex_extent.p.y,
-                              margin.right,
-                              margin.top));
+                              margin_right,
+                              margin_top));
     }
 
     // Mid-Left
-    if (margin.left)
+    if (margin_left)
     {
         nu_draw_blit(pass,
                      nu_box2i(extent.p.x,
-                              extent.p.y + margin.top,
-                              margin.right,
+                              extent.p.y + margin_top,
+                              margin_right,
                               ext_mid_height),
                      nu_box2i(tex_extent.p.x,
-                              tex_extent.p.y + margin.top,
-                              margin.right,
+                              tex_extent.p.y + margin_top,
+                              margin_right,
                               tex_mid_height));
     }
 
     // Mid-Mid
     nu_draw_blit(pass,
-                 nu_box2i(extent.p.x + margin.left,
-                          extent.p.y + margin.top,
+                 nu_box2i(extent.p.x + margin_left,
+                          extent.p.y + margin_top,
                           ext_mid_width,
                           ext_mid_height),
-                 nu_box2i(tex_extent.p.x + margin.left,
-                          tex_extent.p.y + margin.top,
+                 nu_box2i(tex_extent.p.x + margin_left,
+                          tex_extent.p.y + margin_top,
                           tex_mid_width,
                           tex_mid_height));
 
     // Mid-Right
-    if (margin.right)
+    if (margin_right)
     {
         nu_draw_blit(pass,
-                     nu_box2i(extent.p.x + extent.s.x - margin.right,
-                              extent.p.y + margin.top,
-                              margin.right,
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
+                              extent.p.y + margin_top,
+                              margin_right,
                               ext_mid_height),
-                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
-                              tex_extent.p.y + margin.top,
-                              margin.right,
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
+                              tex_extent.p.y + margin_top,
+                              margin_right,
                               tex_mid_height));
     }
 
     // Bottom-Left
-    if (margin.bottom && margin.left)
+    if (margin_bottom && margin_left)
     {
         nu_draw_blit(pass,
                      nu_box2i(extent.p.x,
-                              extent.p.y + extent.s.y - margin.bottom,
-                              margin.left,
-                              margin.bottom),
+                              extent.p.y + extent.s.y - margin_bottom,
+                              margin_left,
+                              margin_bottom),
                      nu_box2i(tex_extent.p.x,
-                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
-                              margin.right,
-                              margin.bottom));
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom));
     }
 
     // Bottom-Mid
-    if (margin.bottom)
+    if (margin_bottom)
     {
         nu_draw_blit(pass,
-                     nu_box2i(extent.p.x + margin.left,
-                              extent.p.y + extent.s.y - margin.bottom,
+                     nu_box2i(extent.p.x + margin_left,
+                              extent.p.y + extent.s.y - margin_bottom,
                               ext_mid_width,
-                              margin.bottom),
-                     nu_box2i(tex_extent.p.x + margin.left,
-                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
+                              margin_bottom),
+                     nu_box2i(tex_extent.p.x + margin_left,
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
                               tex_mid_width,
-                              margin.bottom));
+                              margin_bottom));
     }
 
     // Bottom-Right
-    if (margin.bottom && margin.right)
+    if (margin_bottom && margin_right)
     {
         nu_draw_blit(pass,
-                     nu_box2i(extent.p.x + extent.s.x - margin.right,
-                              extent.p.y + extent.s.y - margin.bottom,
-                              margin.right,
-                              margin.bottom),
-                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin.right,
-                              tex_extent.p.y + tex_extent.s.y - margin.bottom,
-                              margin.right,
-                              margin.bottom));
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
+                              extent.p.y + extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom));
     }
 }
 
 static void
-nu__draw_image (nu__ui_instance_t         *ui,
-                nu_box2i_t                 extent,
-                const nu_ui_image_style_t *style)
+nu__draw_image (nu__ui_instance_t          *ui,
+                nu_box2i_t                  extent,
+                const nu__ui_image_style_t *style)
 {
     nu__blit_sliced(ui->active_renderpass,
                     style->material,
                     extent,
                     style->extent,
-                    style->margin);
+                    style->inner);
+}
+
+nu_ui_style_t
+nu_ui_style_create (void)
+{
+    nu_size_t       index;
+    nu__ui_style_t *style = NU_POOL_ADD(&_ctx.ui.styles, &index);
+    return NU_HANDLE_MAKE(nu_ui_style_t, index);
+}
+void
+nu_ui_style_delete (nu_ui_style_t style)
+{
+}
+void
+nu_ui_style (nu_ui_style_t          style,
+             nu_ui_style_property_t property,
+             nu_material_t          material,
+             nu_box2i_t             extent,
+             nu_box2i_t             inner)
+{
+    nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(style);
+    switch (property)
+    {
+        case NU_UI_STYLE_BUTTON_PRESSED:
+            s->button.pressed.material = material;
+            s->button.pressed.extent   = extent;
+            s->button.pressed.inner    = inner;
+            break;
+        case NU_UI_STYLE_BUTTON_RELEASED:
+            s->button.released.material = material;
+            s->button.released.extent   = extent;
+            s->button.released.inner    = inner;
+            break;
+        case NU_UI_STYLE_BUTTON_HOVERED:
+            s->button.hovered.material = material;
+            s->button.hovered.extent   = extent;
+            s->button.hovered.inner    = inner;
+            break;
+        case NU_UI_STYLE_CHECKBOX_CHECKED:
+            s->checkbox.checked.material = material;
+            s->checkbox.checked.extent   = extent;
+            s->checkbox.checked.inner    = inner;
+            break;
+        case NU_UI_STYLE_CHECKBOX_UNCHECKED:
+            s->checkbox.unchecked.material = material;
+            s->checkbox.unchecked.extent   = extent;
+            s->checkbox.unchecked.inner    = inner;
+            break;
+        case NU_UI_STYLE_CURSOR:
+            s->cursor.image.material = material;
+            s->cursor.image.extent   = extent;
+            s->cursor.image.inner    = inner;
+            break;
+    }
 }
 
 nu_ui_t
@@ -155,10 +216,7 @@ nu_ui_create (void)
     nu__ui_instance_t *ui = NU_POOL_ADD(&_ctx.ui.uis, &index);
 
     NU_VEC_INIT(10, &ui->styles);
-    ui->button_style   = NU_NULL;
-    ui->checkbox_style = NU_NULL;
-    ui->cursor_style   = NU_NULL;
-
+    ui->active_style      = NU_NULL;
     ui->active_id         = 0;
     ui->hot_id            = 0;
     ui->active_controller = 0;
@@ -222,21 +280,18 @@ nu_ui_begin (nu_ui_t handle)
 
     ui->next_id = 1;
     ui->hot_id  = 0;
-
-    NU_ASSERT(ui->button_style);
-    NU_ASSERT(ui->checkbox_style);
+    NU_ASSERT(ui->active_style);
 }
 void
 nu_ui_end (nu_ui_t handle)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    NU_ASSERT(ui->cursor_style);
+    nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);
 
     // Draw cursor
     nu_vec2i_t cursor = ui->controllers[0].cursor;
-    nu__draw_image(ui,
-                   nu_box2i(cursor.x - 3, cursor.y - 3, 6, 5),
-                   &ui->cursor_style->cursor.image);
+    nu__draw_image(
+        ui, nu_box2i(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
 }
 void
 nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
@@ -252,49 +307,17 @@ nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
 }
 
 void
-nu_ui_push_style (nu_ui_t handle, nu_ui_style_t *style)
+nu_ui_push_style (nu_ui_t handle, nu_ui_style_t style)
 {
-    nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    nu__ui_style_t    *s  = NU_VEC_PUSH(&ui->styles);
-
-    s->data = style;
-    switch (style->type)
-    {
-        case NU_UI_BUTTON:
-            s->prev          = ui->button_style;
-            ui->button_style = style;
-            break;
-        case NU_UI_CHECKBOX:
-            s->prev            = ui->checkbox_style;
-            ui->checkbox_style = style;
-            break;
-        case NU_UI_CURSOR:
-            s->prev          = ui->cursor_style;
-            ui->cursor_style = style;
-            break;
-    }
+    nu__ui_instance_t *ui     = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
+    *NU_VEC_PUSH(&ui->styles) = ui->active_style;
+    ui->active_style          = style;
 }
 void
 nu_ui_pop_style (nu_ui_t handle)
 {
-    nu__ui_instance_t *ui   = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    nu__ui_style_t    *last = NU_VEC_LAST(&ui->styles);
-    if (last)
-    {
-        switch (last->data->type)
-        {
-            case NU_UI_BUTTON:
-                ui->button_style = last->prev;
-                break;
-            case NU_UI_CHECKBOX:
-                ui->checkbox_style = last->prev;
-                break;
-            case NU_UI_CURSOR:
-                ui->cursor_style = last->prev;
-                break;
-        }
-        (void)NU_VEC_POP(&ui->styles);
-    }
+    nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
+    ui->active_style      = *NU_VEC_POP(&ui->styles);
 }
 
 nu_u32_t
@@ -322,11 +345,12 @@ nu_bool_t
 nu_ui_button (nu_ui_t handle, nu_box2i_t extent)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    nu_u32_t           id = ui->next_id++;
-    nu_u32_t           controller;
-    nu_bool_t          result  = NU_FALSE;
-    nu_bool_t          inside  = nu__ui_hit(ui, extent, &controller);
-    nu_bool_t          pressed = ui->controllers[0].main_pressed;
+    nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);
+    nu_u32_t        id = ui->next_id++;
+    nu_u32_t        controller;
+    nu_bool_t       result  = NU_FALSE;
+    nu_bool_t       inside  = nu__ui_hit(ui, extent, &controller);
+    nu_bool_t       pressed = ui->controllers[0].main_pressed;
 
     if (inside)
     {
@@ -361,16 +385,16 @@ nu_ui_button (nu_ui_t handle, nu_box2i_t extent)
     {
         if (ui->active_id == id)
         {
-            nu__draw_image(ui, extent, &ui->button_style->button.pressed);
+            nu__draw_image(ui, extent, &s->button.pressed);
         }
         else
         {
-            nu__draw_image(ui, extent, &ui->button_style->button.hovered);
+            nu__draw_image(ui, extent, &s->button.hovered);
         }
     }
     else
     {
-        nu__draw_image(ui, extent, &ui->button_style->button.released);
+        nu__draw_image(ui, extent, &s->button.released);
     }
 
     return result;
@@ -379,6 +403,7 @@ nu_bool_t
 nu_ui_checkbox (nu_ui_t handle, nu_box2i_t extent, nu_bool_t *state)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
+    nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);
     NU_ASSERT(state);
 
     nu_bool_t result = NU_FALSE;
@@ -409,11 +434,11 @@ nu_ui_checkbox (nu_ui_t handle, nu_box2i_t extent, nu_bool_t *state)
 
     if ((*state))
     {
-        nu__draw_image(ui, extent, &ui->checkbox_style->checkbox.checked);
+        nu__draw_image(ui, extent, &s->checkbox.checked);
     }
     else
     {
-        nu__draw_image(ui, extent, &ui->checkbox_style->checkbox.unchecked);
+        nu__draw_image(ui, extent, &s->checkbox.unchecked);
     }
 
     return result;
@@ -423,11 +448,13 @@ static nu_error_t
 nu__ui_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ui.uis);
+    NU_POOL_INIT(1, &_ctx.ui.styles);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__ui_free (void)
 {
+    NU_POOL_FREE(&_ctx.ui.styles);
     NU_POOL_FREE(&_ctx.ui.uis);
     return NU_ERROR_NONE;
 }

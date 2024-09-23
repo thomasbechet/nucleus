@@ -4,11 +4,25 @@
 #include <nucleus/internal.h>
 
 nu_controller_t
-nu_controller_create (const nu_controller_info_t *info)
+nu_controller_create (nu_input_t view_pitch,
+                      nu_input_t view_yaw,
+                      nu_input_t view_roll,
+                      nu_input_t move_x,
+                      nu_input_t move_y,
+                      nu_input_t move_z,
+                      nu_input_t switch_mode)
 {
     nu_size_t                index;
     nu__camera_controller_t *ctrl
         = NU_POOL_ADD(&_ctx.utils.controllers, &index);
+
+    ctrl->view_pitch  = view_pitch;
+    ctrl->view_yaw    = view_yaw;
+    ctrl->view_roll   = view_roll;
+    ctrl->move_x      = move_x;
+    ctrl->move_y      = move_y;
+    ctrl->move_z      = move_z;
+    ctrl->switch_mode = switch_mode;
 
     ctrl->pos   = NU_VEC3_ZERO;
     ctrl->vel   = NU_VEC3_ZERO;
@@ -23,8 +37,6 @@ nu_controller_create (const nu_controller_info_t *info)
     ctrl->speed     = 10;
     ctrl->on_ground = NU_FALSE;
 
-    ctrl->info = *info;
-
     return NU_HANDLE_MAKE(nu_controller_t, index);
 }
 void
@@ -32,16 +44,15 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 {
     nu__camera_controller_t *ctrl
         = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
-    nu_vec3_t look = nu_vec3(nu_input_value(ctrl->info.view_yaw),
-                             nu_input_value(ctrl->info.view_pitch),
-                             nu_input_value(ctrl->info.view_roll));
-    nu_vec3_t move
-        = nu_vec3_normalize(nu_vec3(nu_input_value(ctrl->info.move_x),
-                                    nu_input_value(ctrl->info.move_y),
-                                    nu_input_value(ctrl->info.move_z)));
+    nu_vec3_t look = nu_vec3(nu_input_value(ctrl->view_yaw),
+                             nu_input_value(ctrl->view_pitch),
+                             nu_input_value(ctrl->view_roll));
+    nu_vec3_t move = nu_vec3_normalize(nu_vec3(nu_input_value(ctrl->move_x),
+                                               nu_input_value(ctrl->move_y),
+                                               nu_input_value(ctrl->move_z)));
 
     // Switch mode
-    if (nu_input_just_pressed(ctrl->info.switch_mode))
+    if (nu_input_just_pressed(ctrl->switch_mode))
     {
         switch (ctrl->mode)
         {
@@ -139,7 +150,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     // Apply jump
     if (ctrl->mode == NU_CONTROLLER_CHARACTER)
     {
-        if (ctrl->on_ground && nu_input_value(ctrl->info.move_y) > 0)
+        if (ctrl->on_ground && nu_input_value(ctrl->move_y) > 0)
         {
             ctrl->on_ground = NU_FALSE;
             ctrl->vel       = nu_vec3_muls(NU_VEC3_UP, 15);
