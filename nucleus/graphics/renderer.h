@@ -58,15 +58,24 @@ typedef struct
     nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type,
                                          nu_bool_t reset_after_submit);
     void (*renderpass_delete)(nu_renderpass_t pass);
-    void (*renderpass_clear_color)(nu_renderpass_t pass, nu_color_t *color);
-    void (*renderpass_camera)(nu_renderpass_t pass, nu_camera_t camera);
-    void (*renderpass_skybox_cubemap)(nu_renderpass_t pass,
-                                      nu_cubemap_t    cubemap);
-    void (*renderpass_skybox_rotation)(nu_renderpass_t pass, nu_quat_t rot);
-    void (*renderpass_target_color)(nu_renderpass_t pass, nu_texture_t color);
-    void (*renderpass_target_depth)(nu_renderpass_t pass, nu_texture_t depth);
     void (*renderpass_reset)(nu_renderpass_t pass);
     void (*renderpass_submit)(nu_renderpass_t pass);
+
+    void (*renderpass_color)(nu_renderpass_t          pass,
+                             nu_renderpass_property_t prop,
+                             nu_color_t              *color);
+    void (*renderpass_camera)(nu_renderpass_t          pass,
+                              nu_renderpass_property_t prop,
+                              nu_camera_t              camera);
+    void (*renderpass_cubemap)(nu_renderpass_t          pass,
+                               nu_renderpass_property_t prop,
+                               nu_cubemap_t             cubemap);
+    void (*renderpass_quat)(nu_renderpass_t          pass,
+                            nu_renderpass_property_t prop,
+                            nu_quat_t                rot);
+    void (*renderpass_texture)(nu_renderpass_t          pass,
+                               nu_renderpass_property_t prop,
+                               nu_texture_t             texture);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
     void (*draw_meshes)(nu_renderpass_t  pass,

@@ -19,7 +19,7 @@ main (void)
     nu_init();
 
     // Renderpass
-    renderpass = nu_renderpass_create(NU_RENDERPASS_WIREFRAME, NU_TRUE);
+    renderpass = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME, NU_TRUE);
 
     // Mesh
     {
@@ -79,10 +79,13 @@ main (void)
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();
 
-        nu_renderpass_camera(renderpass, camera);
-        nu_renderpass_clear_color(renderpass, &clear_color);
-        nu_renderpass_color_target(renderpass, surface_color);
-        nu_renderpass_depth_target(renderpass, depth_buffer);
+        nu_renderpass_camera(renderpass, NU_RENDERPASS_CAMERA, camera);
+        nu_renderpass_color(
+            renderpass, NU_RENDERPASS_CLEAR_COLOR, &clear_color);
+        nu_renderpass_texture(
+            renderpass, NU_RENDERPASS_COLOR_TARGET, surface_color);
+        nu_renderpass_texture(
+            renderpass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
         nu_renderpass_submit(renderpass);
 
         nu_swap_buffers();

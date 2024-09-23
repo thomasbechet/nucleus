@@ -205,42 +205,6 @@ nu_renderpass_delete (nu_renderpass_t pass)
     _ctx.graphics.renderer.api.renderpass_delete(pass);
 }
 void
-nu_renderpass_clear_color (nu_renderpass_t pass, nu_color_t *color)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_clear_color(pass, color);
-}
-void
-nu_renderpass_camera (nu_renderpass_t pass, nu_camera_t camera)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_camera(pass, camera);
-}
-void
-nu_renderpass_skybox_cubemap (nu_renderpass_t pass, nu_cubemap_t cubemap)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_skybox_cubemap(pass, cubemap);
-}
-void
-nu_renderpass_skybox_rotation (nu_renderpass_t pass, nu_quat_t rot)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_skybox_rotation(pass, rot);
-}
-void
-nu_renderpass_color_target (nu_renderpass_t pass, nu_texture_t color)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_target_color(pass, color);
-}
-void
-nu_renderpass_depth_target (nu_renderpass_t pass, nu_texture_t depth)
-{
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_target_depth(pass, depth);
-}
-void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
     CHECK_NULL_API_VOID
@@ -251,6 +215,47 @@ nu_renderpass_submit (nu_renderpass_t pass)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.renderpass_submit(pass);
+}
+
+void
+nu_renderpass_color (nu_renderpass_t          pass,
+                     nu_renderpass_property_t prop,
+                     nu_color_t              *color)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_color(pass, prop, color);
+}
+void
+nu_renderpass_camera (nu_renderpass_t          pass,
+                      nu_renderpass_property_t prop,
+                      nu_camera_t              camera)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_camera(pass, prop, camera);
+}
+void
+nu_renderpass_cubemap (nu_renderpass_t          pass,
+                       nu_renderpass_property_t prop,
+                       nu_cubemap_t             cubemap)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_cubemap(pass, prop, cubemap);
+}
+void
+nu_renderpass_quat (nu_renderpass_t          pass,
+                    nu_renderpass_property_t prop,
+                    nu_quat_t                rot)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_quat(pass, prop, rot);
+}
+void
+nu_renderpass_texture (nu_renderpass_t          pass,
+                       nu_renderpass_property_t prop,
+                       nu_texture_t             texture)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.renderpass_texture(pass, prop, texture);
 }
 
 void
