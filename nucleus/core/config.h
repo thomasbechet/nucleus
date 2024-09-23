@@ -74,6 +74,7 @@
 #define NU_STDLIB
 #ifdef NU_STDLIB
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
@@ -134,7 +135,7 @@
     }
 
 #define NU_DEFINE_HANDLE(type)      typedef struct type *type
-#define NU_HANDLE_INDEX(handle)     ((nu_intptr_t)handle - 1)
+#define NU_HANDLE_INDEX(handle)     (nu_size_t)((nu_intptr_t)handle - 1)
 #define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
