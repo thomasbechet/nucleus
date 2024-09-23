@@ -17,9 +17,10 @@ def process_file(path):
                 child_file = m.group(1)
                 if child_file.startswith('nucleus'):
                     process_file(child_file)
-            elif line.strip():
-                output.write(line)
-                line_count += 1
+                    continue
+            line.strip()
+            output.write(line)
+            line_count += 1
 
 process_file('nucleus/nucleus.h')
 print('line count:', line_count)
