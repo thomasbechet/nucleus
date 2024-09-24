@@ -291,10 +291,12 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
     }
 }
 static void
-nugl__draw_meshes (nu_renderpass_t  pass,
-                   nu_mesh_t        mesh,
-                   const nu_mat4_t *transforms,
-                   nu_size_t        count)
+nugl__draw_mesh_instanced (nu_renderpass_t  pass,
+                           nu_mesh_t        mesh,
+                           nu_size_t        first,
+                           nu_size_t        count,
+                           nu_size_t        instance_count,
+                           const nu_mat4_t *transforms)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -304,13 +306,16 @@ nugl__draw_meshes (nu_renderpass_t  pass,
     switch (ppass->type)
     {
         case NU_RENDERPASS_TYPE_UNLIT:
-            nugl__unlit_draw_meshes(ppass, pmesh, transforms, count);
+            nugl__unlit_draw_mesh_instanced(
+                ppass, pmesh, first, count, instance_count, transforms);
             break;
         case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_draw_meshes(ppass, pmesh, transforms, count);
+            nugl__flat_draw_mesh_instanced(
+                ppass, pmesh, first, count, instance_count, transforms);
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
-            nugl__wireframe_draw_meshes(ppass, pmesh, transforms, count);
+            nugl__wireframe_draw_mesh_instanced(
+                ppass, pmesh, first, count, instance_count, transforms);
             break;
         default:
             NU_ASSERT(NU_FALSE);

@@ -16,7 +16,7 @@ typedef struct
     void (*camera_view)(nu_camera_t camera, nu_mat4_t view);
     void (*camera_proj)(nu_camera_t camera, nu_mat4_t proj);
 
-    nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t count);
+    nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t capacity);
     void (*mesh_delete)(nu_mesh_t mesh);
     void (*mesh_buffer_vec2)(nu_mesh_t        mesh,
                              nu_mesh_buffer_t buffer,
@@ -78,10 +78,12 @@ typedef struct
                                nu_texture_t             texture);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
-    void (*draw_meshes)(nu_renderpass_t  pass,
-                        nu_mesh_t        meshes,
-                        const nu_mat4_t *transforms,
-                        nu_size_t        count);
+    void (*draw_mesh_instanced)(nu_renderpass_t  pass,
+                                nu_mesh_t        meshes,
+                                nu_size_t        first,
+                                nu_size_t        count,
+                                nu_size_t        instance_count,
+                                const nu_mat4_t *transforms);
     void (*draw_blit)(nu_renderpass_t pass,
                       nu_box2i_t      extent,
                       nu_box2i_t      tex_extent);

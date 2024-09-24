@@ -18,6 +18,7 @@ typedef struct
 {
     nugl__mesh_command_type_t type;
     GLuint                    vao;
+    nu_size_t                 vfirst;
     nu_size_t                 vcount;
     nu_mat4_t                 transform; // TODO: use indexed UBO
     GLuint                    texture0;

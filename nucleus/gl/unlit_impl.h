@@ -23,10 +23,12 @@ nugl__unlit_bind_material (nugl__renderpass_unlit_t *pass,
     pass->material = material;
 }
 static void
-nugl__unlit_draw_meshes (nugl__renderpass_t *pass,
-                         nugl__mesh_t       *pmesh,
-                         const nu_mat4_t    *transforms,
-                         nu_size_t           count)
+nugl__unlit_draw_mesh_instanced (nugl__renderpass_t *pass,
+                                 nugl__mesh_t       *pmesh,
+                                 nu_size_t           first,
+                                 nu_size_t           count,
+                                 nu_size_t           instance_count,
+                                 const nu_mat4_t    *transforms)
 {
     if (!pass->unlit.material)
     {
@@ -38,13 +40,14 @@ nugl__unlit_draw_meshes (nugl__renderpass_t *pass,
     NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_SURFACE);
 
     // TODO: instanced rendering
-    for (nu_size_t i = 0; i < count; ++i)
+    for (nu_size_t i = 0; i < instance_count; ++i)
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->unlit.cmds);
         cmd->type                 = NUGL__DRAW;
         cmd->transform            = transforms[i];
         cmd->vao                  = pmesh->vao;
-        cmd->vcount               = pmesh->count * 3;
+        cmd->vfirst               = first * 3;
+        cmd->vcount               = count * 3;
         cmd->texture0             = pmat->mesh.texture0
                                         ? (_ctx.gl.textures.data
                                + NU_HANDLE_INDEX(pmat->mesh.texture0))
@@ -110,7 +113,7 @@ nugl__unlit_render (nugl__renderpass_t *pass)
                 glBindTexture(GL_TEXTURE_2D, cmd->texture0);
 
                 glBindVertexArray(cmd->vao);
-                glDrawArrays(GL_TRIANGLES, 0, cmd->vcount);
+                glDrawArrays(GL_TRIANGLES, cmd->vfirst, cmd->vcount);
                 glBindVertexArray(0);
             }
             break;

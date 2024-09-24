@@ -305,9 +305,9 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->renderpass_quat    = nugl__renderpass_quat;
     api->renderpass_texture = nugl__renderpass_texture;
 
-    api->bind_material = nugl__bind_material;
-    api->draw_meshes   = nugl__draw_meshes;
-    api->draw_blit     = nugl__draw_blit;
+    api->bind_material       = nugl__bind_material;
+    api->draw_mesh_instanced = nugl__draw_mesh_instanced;
+    api->draw_blit           = nugl__draw_blit;
 }
 
 #endif

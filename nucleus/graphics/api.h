@@ -118,7 +118,7 @@ NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t           size,
                                       const nu_color_t **colors);
 NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
 
-NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t count);
+NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
 NU_API void      nu_mesh_buffer_vec2(nu_mesh_t        mesh,
                                      nu_mesh_buffer_t buffer,
@@ -169,16 +169,20 @@ NU_API void nu_renderpass_texture(nu_renderpass_t          pass,
                                   nu_texture_t             texture);
 
 NU_API void nu_bind_material(nu_renderpass_t pass, nu_material_t material);
-NU_API void nu_draw_meshes(nu_renderpass_t  pass,
-                           nu_mesh_t        mesh,
-                           const nu_mat4_t *transforms,
-                           nu_size_t        count);
+NU_API void nu_draw_mesh_instanced(nu_renderpass_t  pass,
+                                   nu_mesh_t        mesh,
+                                   nu_size_t        first,
+                                   nu_size_t        count,
+                                   nu_size_t        instance_count,
+                                   const nu_mat4_t *transforms);
 NU_API void nu_draw_blit(nu_renderpass_t pass,
                          nu_box2i_t      extent,
                          nu_box2i_t      tex_extent);
 
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_mesh_t       mesh,
+                         nu_size_t       first,
+                         nu_size_t       count,
                          nu_mat4_t       transform);
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,

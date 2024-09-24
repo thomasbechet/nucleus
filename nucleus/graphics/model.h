@@ -12,7 +12,11 @@ typedef struct
 
 typedef union
 {
-    nu_mesh_t     mesh;
+    struct
+    {
+        nu_mesh_t handle;
+        nu_size_t count;
+    } mesh;
     nu_texture_t  texture;
     nu_material_t material;
 } nu__model_resource_t;

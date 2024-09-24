@@ -91,6 +91,7 @@ main (void)
 
     // Create meshes
     nu_mesh_t custom_mesh;
+    nu_size_t custom_mesh_count;
     {
         nu_geometry_t final = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 1000);
         nu_geometry_t sub   = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 2 * 6);
@@ -108,7 +109,8 @@ main (void)
         nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
         nu_geometry_append(final, sub);
 
-        custom_mesh = nu_geometry_create_mesh(final);
+        custom_mesh       = nu_geometry_create_mesh(final);
+        custom_mesh_count = nu_geometry_count(final);
         nu_geometry_delete(sub);
     }
 
@@ -143,7 +145,7 @@ main (void)
     nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
     nu_renderpass_t main_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_UNLIT, NU_TRUE);
+        = nu_renderpass_create(NU_RENDERPASS_TYPE_FLAT, NU_TRUE);
     nu_renderpass_camera(main_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
@@ -255,7 +257,8 @@ main (void)
 
         // Render loop
         nu_bind_material(main_pass, material);
-        nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
+        nu_draw_mesh(
+            main_pass, custom_mesh, 0, custom_mesh_count, nu_mat4_identity());
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_identity();
