@@ -175,19 +175,26 @@ NU_API void nu_renderpass_texture(nu_renderpass_t          pass,
 NU_API void nu_bind_material(nu_renderpass_t pass, nu_material_t material);
 NU_API void nu_draw_mesh_instanced(nu_renderpass_t  pass,
                                    nu_mesh_t        mesh,
-                                   nu_size_t        first,
-                                   nu_size_t        count,
                                    nu_size_t        instance_count,
                                    const nu_mat4_t *transforms);
+NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
+                                      nu_mesh_t        mesh,
+                                      nu_size_t        first,
+                                      nu_size_t        count,
+                                      nu_size_t        instance_count,
+                                      const nu_mat4_t *transforms);
 NU_API void nu_draw_blit(nu_renderpass_t pass,
                          nu_box2i_t      extent,
                          nu_box2i_t      tex_extent);
 
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_mesh_t       mesh,
-                         nu_size_t       first,
-                         nu_size_t       count,
                          nu_mat4_t       transform);
+NU_API void nu_draw_submesh(nu_renderpass_t pass,
+                            nu_mesh_t       mesh,
+                            nu_size_t       first,
+                            nu_size_t       count,
+                            nu_mat4_t       transform);
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,
                           nu_mat4_t       transform);

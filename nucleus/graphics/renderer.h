@@ -80,10 +80,14 @@ typedef struct
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
     void (*draw_mesh_instanced)(nu_renderpass_t  pass,
                                 nu_mesh_t        meshes,
-                                nu_size_t        first,
-                                nu_size_t        count,
                                 nu_size_t        instance_count,
                                 const nu_mat4_t *transforms);
+    void (*draw_submesh_instanced)(nu_renderpass_t  pass,
+                                   nu_mesh_t        meshes,
+                                   nu_size_t        first,
+                                   nu_size_t        count,
+                                   nu_size_t        instance_count,
+                                   const nu_mat4_t *transforms);
     void (*draw_blit)(nu_renderpass_t pass,
                       nu_box2i_t      extent,
                       nu_box2i_t      tex_extent);

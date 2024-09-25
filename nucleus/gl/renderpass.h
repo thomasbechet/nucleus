@@ -3,6 +3,8 @@
 
 #include <nucleus/graphics/api.h>
 #include <nucleus/external/glad/gl.h>
+#include <nucleus/gl/mesh.h>
+#include <nucleus/gl/material.h>
 
 #define NUGL__MIN_DEPTH       0.0
 #define NUGL__MAX_DEPTH       1000.0
@@ -130,5 +132,13 @@ typedef struct
 
 typedef NU_VEC(nugl__rendertarget_t) nugl__rendertarget_vec_t;
 typedef NU_VEC(nugl__renderpass_t) nugl__renderpass_vec_t;
+
+static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
+                                         const nugl__mesh_t       *pmesh,
+                                         nu_material_t             mat,
+                                         nu_size_t                 first,
+                                         nu_size_t                 count,
+                                         nu_size_t        instance_count,
+                                         const nu_mat4_t *transforms);
 
 #endif

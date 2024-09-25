@@ -24,34 +24,6 @@ nugl__wireframe_bind_material (nugl__renderpass_wireframe_t *pass,
     pass->material = material;
 }
 static void
-nugl__wireframe_draw_mesh_instanced (nugl__renderpass_t *pass,
-                                     nugl__mesh_t       *pmesh,
-                                     nu_size_t           first,
-                                     nu_size_t           count,
-                                     nu_size_t           instance_count,
-                                     const nu_mat4_t    *transforms)
-{
-    if (!pass->wireframe.material)
-    {
-        NU_ERROR("no material bound");
-        return;
-    }
-    const nugl__material_t *pmat
-        = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->wireframe.material);
-    NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_SURFACE);
-
-    // TODO: instanced rendering
-    for (nu_size_t i = 0; i < instance_count; ++i)
-    {
-        nugl__mesh_command_t *cmd = NU_VEC_PUSH(&pass->wireframe.cmds);
-        cmd->type                 = NUGL__DRAW;
-        cmd->transform            = transforms[i];
-        cmd->vao                  = pmesh->vao;
-        cmd->vfirst               = first * 3;
-        cmd->vcount               = count * 3;
-    }
-}
-static void
 nugl__wireframe_render (nugl__renderpass_t *pass)
 {
     nu__gl_t *gl = &_ctx.gl;

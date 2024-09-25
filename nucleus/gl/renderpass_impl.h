@@ -9,6 +9,45 @@
 #include <nucleus/gl/canvas_impl.h>
 #include <nucleus/gl/wireframe_impl.h>
 
+static void
+nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
+                              const nugl__mesh_t       *pmesh,
+                              nu_material_t             mat,
+                              nu_size_t                 first,
+                              nu_size_t                 count,
+                              nu_size_t                 instance_count,
+                              const nu_mat4_t          *transforms)
+{
+    const nugl__material_t *pmat
+        = mat ? _ctx.gl.materials.data + NU_HANDLE_INDEX(mat) : NU_NULL;
+    for (nu_size_t i = 0; i < instance_count; ++i)
+    {
+        nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
+        cmd->type                 = NUGL__DRAW;
+        cmd->transform            = transforms[i];
+        cmd->vao                  = pmesh->vao;
+        cmd->vfirst               = first * 3;
+        cmd->vcount               = count * 3;
+
+        const nugl__material_t *pmat
+            = _ctx.gl.materials.data + NU_HANDLE_INDEX(mat);
+        if (mat)
+        {
+            cmd->texture0     = pmat->mesh.texture0
+                                    ? (_ctx.gl.textures.data
+                                   + NU_HANDLE_INDEX(pmat->mesh.texture0))
+                                      ->texture
+                                    : 0;
+            cmd->texture1     = pmat->mesh.texture1
+                                    ? (_ctx.gl.textures.data
+                                   + NU_HANDLE_INDEX(pmat->mesh.texture1))
+                                      ->texture
+                                    : 0;
+            cmd->uv_transform = pmat->mesh.uv_transform;
+        }
+    }
+}
+
 static nu_renderpass_t
 nugl__renderpass_create (nu_renderpass_type_t type,
                          nu_bool_t            reset_after_submit)
@@ -291,36 +330,70 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
     }
 }
 static void
-nugl__draw_mesh_instanced (nu_renderpass_t  pass,
-                           nu_mesh_t        mesh,
-                           nu_size_t        first,
-                           nu_size_t        count,
-                           nu_size_t        instance_count,
-                           const nu_mat4_t *transforms)
+nugl__draw_submesh_instanced_p (nu_renderpass_t     pass,
+                                const nugl__mesh_t *pmesh,
+                                nu_size_t           first,
+                                nu_size_t           count,
+                                nu_size_t           instance_count,
+                                const nu_mat4_t    *transforms)
 {
-    nu__gl_t *gl = &_ctx.gl;
-
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
-    nugl__mesh_t       *pmesh = gl->meshes.data + NU_HANDLE_INDEX(mesh);
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     // TODO: check command validity ?
     switch (ppass->type)
     {
         case NU_RENDERPASS_TYPE_UNLIT:
-            nugl__unlit_draw_mesh_instanced(
-                ppass, pmesh, first, count, instance_count, transforms);
+            nugl__submesh_draw_instanced(&ppass->unlit.cmds,
+                                         pmesh,
+                                         ppass->unlit.material,
+                                         first,
+                                         count,
+                                         instance_count,
+                                         transforms);
             break;
         case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_draw_mesh_instanced(
-                ppass, pmesh, first, count, instance_count, transforms);
+            nugl__submesh_draw_instanced(&ppass->flat.cmds,
+                                         pmesh,
+                                         ppass->flat.material,
+                                         first,
+                                         count,
+                                         instance_count,
+                                         transforms);
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
-            nugl__wireframe_draw_mesh_instanced(
-                ppass, pmesh, first, count, instance_count, transforms);
+            nugl__submesh_draw_instanced(&ppass->wireframe.cmds,
+                                         pmesh,
+                                         ppass->wireframe.material,
+                                         first,
+                                         count,
+                                         instance_count,
+                                         transforms);
             break;
         default:
             NU_ASSERT(NU_FALSE);
             return;
     }
+}
+static void
+nugl__draw_mesh_instanced (nu_renderpass_t  pass,
+                           nu_mesh_t        mesh,
+                           nu_size_t        instance_count,
+                           const nu_mat4_t *transforms)
+{
+    const nugl__mesh_t *pmesh = _ctx.gl.meshes.data + NU_HANDLE_INDEX(mesh);
+    nugl__draw_submesh_instanced_p(
+        pass, pmesh, 0, pmesh->capacity, instance_count, transforms);
+}
+static void
+nugl__draw_submesh_instanced (nu_renderpass_t  pass,
+                              nu_mesh_t        mesh,
+                              nu_size_t        first,
+                              nu_size_t        count,
+                              nu_size_t        instance_count,
+                              const nu_mat4_t *transforms)
+{
+    const nugl__mesh_t *pmesh = _ctx.gl.meshes.data + NU_HANDLE_INDEX(mesh);
+    nugl__draw_submesh_instanced_p(
+        pass, pmesh, first, count, instance_count, transforms);
 }
 static void
 nugl__draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)

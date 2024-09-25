@@ -120,8 +120,7 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
 
             // Append asset
             nu__model_resource_t *r       = NU_VEC_PUSH(&model->resources);
-            r->mesh.handle                = handle;
-            r->mesh.count                 = primitive_count;
+            r->mesh                       = handle;
             nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->_cache);
             cache->ptr                    = mesh;
             cache->index                  = model->resources.size - 1;

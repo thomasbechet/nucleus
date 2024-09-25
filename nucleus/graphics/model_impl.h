@@ -29,11 +29,10 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_mat4_t transform)
     for (nu_size_t i = 0; i < m->nodes.size; ++i)
     {
         nu_material_t material = m->resources.data[nodes[i].material].material;
-        nu_mesh_t     mesh     = m->resources.data[nodes[i].mesh].mesh.handle;
-        nu_size_t     count    = m->resources.data[nodes[i].mesh].mesh.count;
+        nu_mesh_t     mesh     = m->resources.data[nodes[i].mesh].mesh;
         nu_mat4_t global_transform = nu_mat4_mul(transform, nodes[i].transform);
         nu_bind_material(pass, material);
-        nu_draw_mesh(pass, mesh, 0, count, global_transform);
+        nu_draw_mesh(pass, mesh, global_transform);
     }
 }
 

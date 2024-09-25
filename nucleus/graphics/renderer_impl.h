@@ -273,13 +273,23 @@ nu_bind_material (nu_renderpass_t pass, nu_material_t material)
 void
 nu_draw_mesh_instanced (nu_renderpass_t  pass,
                         nu_mesh_t        mesh,
-                        nu_size_t        first,
-                        nu_size_t        count,
                         nu_size_t        instance_count,
                         const nu_mat4_t *transforms)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.draw_mesh_instanced(
+        pass, mesh, instance_count, transforms);
+}
+void
+nu_draw_submesh_instanced (nu_renderpass_t  pass,
+                           nu_mesh_t        mesh,
+                           nu_size_t        first,
+                           nu_size_t        count,
+                           nu_size_t        instance_count,
+                           const nu_mat4_t *transforms)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.draw_submesh_instanced(
         pass, mesh, first, count, instance_count, transforms);
 }
 void
@@ -290,13 +300,18 @@ nu_draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 }
 
 void
-nu_draw_mesh (nu_renderpass_t pass,
-              nu_mesh_t       mesh,
-              nu_size_t       first,
-              nu_size_t       count,
-              nu_mat4_t       transform)
+nu_draw_mesh (nu_renderpass_t pass, nu_mesh_t mesh, nu_mat4_t transform)
 {
-    nu_draw_mesh_instanced(pass, mesh, first, count, 1, &transform);
+    nu_draw_mesh_instanced(pass, mesh, 1, &transform);
+}
+void
+nu_draw_submesh (nu_renderpass_t pass,
+                 nu_mesh_t       mesh,
+                 nu_size_t       first,
+                 nu_size_t       count,
+                 nu_mat4_t       transform)
+{
+    nu_draw_submesh_instanced(pass, mesh, first, count, 1, &transform);
 }
 
 #undef CHECK_NULL_API_HANDLE
