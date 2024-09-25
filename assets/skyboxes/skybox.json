@@ -1,8 +1,8 @@
 {
-  "posx": "../../../assets/skyboxes/vz_clear_ocean_right.png",
-  "negx": "../../../assets/skyboxes/vz_clear_ocean_left.png",
-  "posy": "../../../assets/skyboxes/vz_clear_ocean_up.png",
-  "negy": "../../../assets/skyboxes/vz_clear_ocean_down.png",
-  "posz": "../../../assets/skyboxes/vz_clear_ocean_front.png",
-  "negz": "../../../assets/skyboxes/vz_clear_ocean_back.png"
+  "posx": "vz_clear_ocean_right.png",
+  "negx": "vz_clear_ocean_left.png",
+  "posy": "vz_clear_ocean_up.png",
+  "negy": "vz_clear_ocean_down.png",
+  "posz": "vz_clear_ocean_front.png",
+  "negz": "vz_clear_ocean_back.png"
 }

@@ -18,6 +18,9 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
     jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
     NU_CHECK(toks, goto cleanup1);
 
+    nu_char_t json_path[NUEXT_PATH_MAX];
+    nuext_path_dirname(filename, json_path);
+
     nu_size_t image_count = 0;
     NU_CHECK(toks[0].type == JSMN_OBJECT, goto cleanup0);
 
@@ -40,7 +43,9 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         {
             nu_char_t path[NUEXT_PATH_MAX];
             nu__json_value(json, tok, path, NUEXT_PATH_MAX);
-            images[f] = nuext_image_load_filename(path);
+            nu_char_t final_path[NUEXT_PATH_MAX];
+            nuext_path_concat(json_path, path, final_path);
+            images[f] = nuext_image_load_filename(final_path);
             if (!images[f])
             {
                 NU_ERROR("cubemap face loading error '%s'", path);

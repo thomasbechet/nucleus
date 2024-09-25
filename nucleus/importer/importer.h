@@ -1,6 +1,7 @@
 #ifndef NU_IMPORTER_H
 #define NU_IMPORTER_H
 
+#include <nucleus/importer/api.h>
 #include <nucleus/graphics/graphics.h>
 #include <nucleus/asset/asset.h>
 #include <nucleus/external/jsmn/jsmn.h>
