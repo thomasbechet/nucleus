@@ -75,26 +75,32 @@ nu_mesh_delete (nu_mesh_t mesh)
     _ctx.graphics.renderer.api.mesh_delete(mesh);
 }
 void
-nu_mesh_buffer_vec2 (nu_mesh_t        mesh,
-                     nu_mesh_buffer_t buffer,
-                     nu_size_t        first,
-                     nu_size_t        count,
-                     const nu_vec2_t *data)
+nu_mesh_vec2 (nu_mesh_t        mesh,
+              nu_mesh_buffer_t buffer,
+              nu_size_t        first,
+              nu_size_t        count,
+              const nu_vec2_t *data)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_buffer_vec2(
-        mesh, buffer, first, count, data);
+    _ctx.graphics.renderer.api.mesh_vec2(mesh, buffer, first, count, data);
 }
 void
-nu_mesh_buffer_vec3 (nu_mesh_t        mesh,
-                     nu_mesh_buffer_t buffer,
-                     nu_size_t        first,
-                     nu_size_t        count,
-                     const nu_vec3_t *data)
+nu_mesh_vec3 (nu_mesh_t        mesh,
+              nu_mesh_buffer_t buffer,
+              nu_size_t        first,
+              nu_size_t        count,
+              const nu_vec3_t *data)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_buffer_vec3(
-        mesh, buffer, first, count, data);
+    _ctx.graphics.renderer.api.mesh_vec3(mesh, buffer, first, count, data);
+}
+void
+nu_mesh_color (nu_mesh_t         mesh,
+               nu_mesh_buffer_t  buffer,
+               nu_size_t         first,
+               nu_size_t         count,
+               const nu_color_t *data)
+{
 }
 
 nu_texture_t

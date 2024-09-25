@@ -279,10 +279,10 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->camera_view   = nugl__camera_view;
     api->camera_proj   = nugl__camera_proj;
 
-    api->mesh_create      = nugl__mesh_create;
-    api->mesh_delete      = nugl__mesh_delete;
-    api->mesh_buffer_vec2 = nugl__mesh_buffer_vec2;
-    api->mesh_buffer_vec3 = nugl__mesh_buffer_vec3;
+    api->mesh_create = nugl__mesh_create;
+    api->mesh_delete = nugl__mesh_delete;
+    api->mesh_vec2   = nugl__mesh_vec2;
+    api->mesh_vec3   = nugl__mesh_vec3;
 
     api->texture_create = nugl__texture_create;
     api->texture_delete = nugl__texture_delete;

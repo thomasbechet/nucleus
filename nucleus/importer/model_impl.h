@@ -11,10 +11,8 @@
 static void
 nu__emplace_vertex (const nu_vec3_t *positions,
                     const nu_vec2_t *uvs,
-                    const nu_vec3_t *normals,
                     nu_vec3_t       *buf_positions,
                     nu_vec2_t       *buf_uvs,
-                    nu_vec3_t       *buf_normals,
                     nu_u32_t         vertex_index,
                     nu_u32_t         index)
 {
@@ -28,29 +26,15 @@ nu__emplace_vertex (const nu_vec3_t *positions,
     {
         buf_uvs[vertex_index] = NU_VEC2_ZERO;
     }
-    if (normals)
-    {
-        buf_normals[vertex_index / 3] = normals[index];
-    }
-    else
-    {
-        buf_normals[vertex_index / 3] = NU_VEC3_ZERO;
-    }
 }
 
-#define NU__EMPLACE_VERTEX(index_type)                            \
-    index_type *indices                                           \
-        = (index_type *)(data + view->offset + accessor->offset); \
-    for (nu_size_t i = 0; i < indice_count; ++i)                  \
-    {                                                             \
-        nu__emplace_vertex(positions,                             \
-                           uvs,                                   \
-                           normals,                               \
-                           buf_positions,                         \
-                           buf_uvs,                               \
-                           buf_normals,                           \
-                           i,                                     \
-                           indices[i]);                           \
+#define NU__EMPLACE_VERTEX(index_type)                              \
+    index_type *indices                                             \
+        = (index_type *)(data + view->offset + accessor->offset);   \
+    for (nu_size_t i = 0; i < indice_count; ++i)                    \
+    {                                                               \
+        nu__emplace_vertex(                                         \
+            positions, uvs, buf_positions, buf_uvs, i, indices[i]); \
     }
 
 static nu_error_t
@@ -67,7 +51,6 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
         // Access attributes
         const nu_vec3_t *positions = NU_NULL;
         const nu_vec2_t *uvs       = NU_NULL;
-        const nu_vec3_t *normals   = NU_NULL;
         for (nu_size_t a = 0; a < primitive->attributes_count; ++a)
         {
             cgltf_attribute   *attribute = primitive->attributes + a;
@@ -82,10 +65,6 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
                     break;
                 case cgltf_attribute_type_texcoord:
                     uvs = (nu_vec2_t *)(data + accessor->offset + view->offset);
-                    break;
-                case cgltf_attribute_type_normal:
-                    normals
-                        = (nu_vec3_t *)(data + accessor->offset + view->offset);
                     break;
                 default:
                     break;
@@ -105,8 +84,6 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             buf_positions
                 = (nu_vec3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
             buf_uvs = (nu_vec2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
-            buf_normals = (nu_vec3_t *)nu_alloc(sizeof(*buf_normals)
-                                                * (indice_count / 3));
 
             switch (accessor->component_type)
             {
@@ -133,17 +110,13 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_size_t primitive_count = indice_count / 3;
             nu_mesh_t handle
                 = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_mesh_buffer_vec3(
+            nu_mesh_vec3(
                 handle, NU_MESH_POSITIONS, 0, primitive_count, buf_positions);
-            nu_mesh_buffer_vec2(
-                handle, NU_MESH_UVS, 0, primitive_count, buf_uvs);
-            nu_mesh_buffer_vec3(
-                handle, NU_MESH_NORMALS, 0, primitive_count, buf_normals);
+            nu_mesh_vec2(handle, NU_MESH_UVS, 0, primitive_count, buf_uvs);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
             nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
-            nu_free(buf_normals, sizeof(*buf_normals) * (indice_count / 3));
 
             // Append asset
             nu__model_resource_t *r       = NU_VEC_PUSH(&model->resources);

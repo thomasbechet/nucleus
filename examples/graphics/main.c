@@ -74,7 +74,7 @@ main (void)
             = nu_mat4_translate(nu_vec3(0, nu_sin(time / 500) * 0.1, 0));
         model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
         nu_bind_material(renderpass, material);
-        nu_draw_mesh(renderpass, mesh, model);
+        nu_draw_mesh(renderpass, mesh, 0, 12, model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();

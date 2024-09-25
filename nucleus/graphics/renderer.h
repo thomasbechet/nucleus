@@ -18,16 +18,16 @@ typedef struct
 
     nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t capacity);
     void (*mesh_delete)(nu_mesh_t mesh);
-    void (*mesh_buffer_vec2)(nu_mesh_t        mesh,
-                             nu_mesh_buffer_t buffer,
-                             nu_size_t        first,
-                             nu_size_t        count,
-                             const nu_vec2_t *data);
-    void (*mesh_buffer_vec3)(nu_mesh_t        mesh,
-                             nu_mesh_buffer_t buffer,
-                             nu_size_t        first,
-                             nu_size_t        count,
-                             const nu_vec3_t *data);
+    void (*mesh_vec2)(nu_mesh_t        mesh,
+                      nu_mesh_buffer_t buffer,
+                      nu_size_t        first,
+                      nu_size_t        count,
+                      const nu_vec2_t *data);
+    void (*mesh_vec3)(nu_mesh_t        mesh,
+                      nu_mesh_buffer_t buffer,
+                      nu_size_t        first,
+                      nu_size_t        count,
+                      const nu_vec3_t *data);
 
     nu_texture_t (*texture_create)(nu_vec2u_t          size,
                                    nu_texture_format_t format,

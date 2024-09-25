@@ -61,16 +61,15 @@ typedef enum
 
 typedef enum
 {
-    NU_PRIMITIVE_POINTS,
-    NU_PRIMITIVE_TRIANGLES,
-    NU_PRIMITIVE_LINES,
+    NU_PRIMITIVE_POINTS    = 0,
+    NU_PRIMITIVE_LINES     = 1,
+    NU_PRIMITIVE_TRIANGLES = 2,
 } nu_primitive_t;
 
 typedef enum
 {
     NU_MESH_POSITIONS,
     NU_MESH_UVS,
-    NU_MESH_NORMALS,
 } nu_mesh_buffer_t;
 
 typedef enum
@@ -120,16 +119,21 @@ NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
-NU_API void      nu_mesh_buffer_vec2(nu_mesh_t        mesh,
-                                     nu_mesh_buffer_t buffer,
-                                     nu_size_t        first,
-                                     nu_size_t        count,
-                                     const nu_vec2_t *data);
-NU_API void      nu_mesh_buffer_vec3(nu_mesh_t        mesh,
-                                     nu_mesh_buffer_t buffer,
-                                     nu_size_t        first,
-                                     nu_size_t        count,
-                                     const nu_vec3_t *data);
+NU_API void      nu_mesh_vec2(nu_mesh_t        mesh,
+                              nu_mesh_buffer_t buffer,
+                              nu_size_t        first,
+                              nu_size_t        count,
+                              const nu_vec2_t *data);
+NU_API void      nu_mesh_vec3(nu_mesh_t        mesh,
+                              nu_mesh_buffer_t buffer,
+                              nu_size_t        first,
+                              nu_size_t        count,
+                              const nu_vec3_t *data);
+NU_API void      nu_mesh_color(nu_mesh_t         mesh,
+                               nu_mesh_buffer_t  buffer,
+                               nu_size_t         first,
+                               nu_size_t         count,
+                               const nu_color_t *data);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API void          nu_material_delete(nu_material_t material);

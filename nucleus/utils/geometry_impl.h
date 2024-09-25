@@ -14,8 +14,7 @@ nu__generate_grid_mesh (nu_u32_t   width,
                         float      unit,
                         float      uv_scale,
                         nu_vec3_t *positions,
-                        nu_vec2_t *uvs,
-                        nu_vec3_t *normals)
+                        nu_vec2_t *uvs)
 {
     for (nu_u32_t h = 0; h < height; ++h)
     {
@@ -42,10 +41,6 @@ nu__generate_grid_mesh (nu_u32_t   width,
                 positions[index + i] = vertex_positions[indices[i]];
                 uvs[index + i] = nu_vec2_muls(vertex_uvs[indices[i]], uv_scale);
             }
-            for (nu_size_t i = 0; i < NU__PLANE_TRIANGLE; ++i)
-            {
-                normals[index / 3 + i] = NU_VEC3_UP;
-            }
         }
     }
 }
@@ -53,8 +48,8 @@ static void
 nu__generate_plane_mesh (float     width,
                          float     height,
                          nu_vec3_t positions[NU__PLANE_VERTEX],
-                         nu_vec2_t uvs[NU__PLANE_VERTEX],
-                         nu_vec3_t normals[NU__PLANE_TRIANGLE])
+                         nu_vec2_t uvs[NU__PLANE_VERTEX])
+
 {
     nu_vec3_t vertex_positions[4] = { nu_vec3(0, 0, 0),
                                       nu_vec3(width, 0, 0),
@@ -68,16 +63,11 @@ nu__generate_plane_mesh (float     width,
         positions[i] = vertex_positions[indices[i]];
         uvs[i]       = vertex_uvs[indices[i]];
     }
-    for (nu_size_t i = 0; i < NU__PLANE_TRIANGLE; ++i)
-    {
-        normals[i] = NU_VEC3_UP;
-    }
 }
 static void
 nu__generate_cube_mesh (float     unit,
                         nu_vec3_t positions[NU__CUBE_VERTEX],
-                        nu_vec2_t uvs[NU__CUBE_VERTEX],
-                        nu_vec3_t normals[NU__CUBE_TRIANGLE])
+                        nu_vec2_t uvs[NU__CUBE_VERTEX])
 {
     nu_vec3_t vertex_positions[8] = {
         nu_vec3(0, 0, unit),    nu_vec3(unit, 0, unit),
@@ -127,28 +117,6 @@ nu__generate_cube_mesh (float     unit,
         { 0, 1, 2 },
         { 2, 3, 0 },
     };
-    int faces_normals[12][3] = { // Front face
-                                 { 0, 0, 0 },
-                                 { 0, 0, 0 },
-                                 // Back face
-                                 { 1, 1, 1 },
-                                 { 1, 1, 1 },
-                                 // Left face
-                                 { 2, 2, 2 },
-                                 { 2, 2, 2 },
-                                 // Right face
-                                 { 3, 3, 3 },
-                                 { 3, 3, 3 },
-                                 // Top face
-                                 { 4, 4, 4 },
-                                 { 4, 4, 4 },
-                                 // Bottom face
-                                 { 5, 5, 5 },
-                                 { 5, 5, 5 }
-    };
-    nu_vec3_t vertex_normals[6]
-        = { NU_VEC3_FORWARD, NU_VEC3_BACKWARD, NU_VEC3_LEFT,
-            NU_VEC3_RIGHT,   NU_VEC3_UP,       NU_VEC3_DOWN };
 
     // Flatten the triangles
     nu_size_t index = 0;
@@ -162,11 +130,6 @@ nu__generate_cube_mesh (float     unit,
             {
                 int uv_index = faces_uvs[i][j];
                 uvs[index]   = vertex_uvs[uv_index];
-            }
-            if (normals)
-            {
-                int normal_index   = faces_normals[i][j];
-                normals[index / 3] = vertex_normals[normal_index];
             }
             ++index;
         }
@@ -186,7 +149,6 @@ nu_geometry_create (nu_primitive_t primitive, nu_size_t capacity)
         case NU_PRIMITIVE_TRIANGLES: {
             NU_VEC_INIT(capacity * 3, &g->positions);
             NU_VEC_INIT(capacity * 3, &g->uvs);
-            NU_VEC_INIT(capacity, &g->normals);
         }
         break;
         case NU_PRIMITIVE_POINTS:
@@ -205,7 +167,6 @@ nu_geometry_delete (nu_geometry_t geometry)
         case NU_PRIMITIVE_TRIANGLES: {
             NU_VEC_FREE(&g->positions);
             NU_VEC_FREE(&g->uvs);
-            NU_VEC_FREE(&g->normals);
         }
         break;
         case NU_PRIMITIVE_POINTS:
@@ -228,9 +189,7 @@ nu_geometry_cube (nu_geometry_t geometry, float side_length)
     g->primitive_count = NU__CUBE_TRIANGLE;
     NU_VEC_RESIZE(&g->positions, NU__CUBE_VERTEX);
     NU_VEC_RESIZE(&g->uvs, NU__CUBE_VERTEX);
-    NU_VEC_RESIZE(&g->normals, NU__CUBE_TRIANGLE);
-    nu__generate_cube_mesh(
-        side_length, g->positions.data, g->uvs.data, g->normals.data);
+    nu__generate_cube_mesh(side_length, g->positions.data, g->uvs.data);
 }
 void
 nu_geometry_plane (nu_geometry_t geometry, float width, float height)
@@ -239,9 +198,7 @@ nu_geometry_plane (nu_geometry_t geometry, float width, float height)
     g->primitive_count = NU__PLANE_TRIANGLE;
     NU_VEC_RESIZE(&g->positions, NU__PLANE_VERTEX);
     NU_VEC_RESIZE(&g->uvs, NU__PLANE_VERTEX);
-    NU_VEC_RESIZE(&g->normals, NU__PLANE_TRIANGLE);
-    nu__generate_plane_mesh(
-        width, height, g->positions.data, g->uvs.data, g->normals.data);
+    nu__generate_plane_mesh(width, height, g->positions.data, g->uvs.data);
 }
 void
 nu_geometry_grid (nu_geometry_t geometry,
@@ -256,14 +213,8 @@ nu_geometry_grid (nu_geometry_t geometry,
     g->primitive_count             = triangle_count;
     NU_VEC_RESIZE(&g->positions, vertex_count);
     NU_VEC_RESIZE(&g->uvs, vertex_count);
-    NU_VEC_RESIZE(&g->normals, vertex_count);
-    nu__generate_grid_mesh(width,
-                           height,
-                           unit,
-                           uv_scale,
-                           g->positions.data,
-                           g->uvs.data,
-                           g->normals.data);
+    nu__generate_grid_mesh(
+        width, height, unit, uv_scale, g->positions.data, g->uvs.data);
 }
 void
 nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
@@ -284,7 +235,6 @@ nu_geometry_append (nu_geometry_t dst, nu_geometry_t src)
     g1->primitive_count += g0->primitive_count;
     NU_VEC_APPEND(&g1->positions, &g0->positions);
     NU_VEC_APPEND(&g1->uvs, &g0->uvs);
-    NU_VEC_APPEND(&g1->normals, &g0->normals);
 }
 
 nu_mesh_t
@@ -293,11 +243,9 @@ nu_geometry_create_mesh (nu_geometry_t geometry)
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
 
     nu_mesh_t mesh = nu_mesh_create(g->primitive, g->primitive_count);
-    nu_mesh_buffer_vec3(
+    nu_mesh_vec3(
         mesh, NU_MESH_POSITIONS, 0, g->primitive_count, g->positions.data);
-    nu_mesh_buffer_vec2(mesh, NU_MESH_UVS, 0, g->primitive_count, g->uvs.data);
-    nu_mesh_buffer_vec3(
-        mesh, NU_MESH_NORMALS, 0, g->primitive_count, g->normals.data);
+    nu_mesh_vec2(mesh, NU_MESH_UVS, 0, g->primitive_count, g->uvs.data);
 
     return mesh;
 }
