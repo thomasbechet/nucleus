@@ -9,6 +9,8 @@ typedef struct
     nu_size_t points_count;
     nu_mesh_t lines;
     nu_size_t lines_count;
+    nu_mesh_t lines_strip;
+    nu_size_t lines_strip_count;
     nu_mesh_t triangles;
     nu_size_t triangles_count;
 } nu__graphics_immediate_t;

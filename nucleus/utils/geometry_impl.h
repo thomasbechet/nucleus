@@ -144,17 +144,10 @@ nu_geometry_create (nu_primitive_t primitive, nu_size_t capacity)
     nu__geometry_t *g  = NU_POOL_ADD(&_ctx.utils.geometries, &index);
     g->primitive       = primitive;
     g->primitive_count = 0;
-    switch (g->primitive)
+    NU_VEC_INIT(nu__primitive_vertex_count(primitive, capacity), &g->positions);
+    if (primitive == NU_PRIMITIVE_TRIANGLES)
     {
-        case NU_PRIMITIVE_TRIANGLES: {
-            NU_VEC_INIT(capacity * 3, &g->positions);
-            NU_VEC_INIT(capacity * 3, &g->uvs);
-        }
-        break;
-        case NU_PRIMITIVE_POINTS:
-        case NU_PRIMITIVE_LINES:
-            NU_VEC_INIT(capacity * 2, &g->positions);
-            break;
+        NU_VEC_INIT(nu__primitive_vertex_count(primitive, capacity), &g->uvs);
     }
     return NU_HANDLE_MAKE(nu_geometry_t, index);
 }
@@ -162,18 +155,11 @@ void
 nu_geometry_delete (nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
-    switch (g->primitive)
+    if (g->primitive == NU_PRIMITIVE_TRIANGLES)
     {
-        case NU_PRIMITIVE_TRIANGLES: {
-            NU_VEC_FREE(&g->positions);
-            NU_VEC_FREE(&g->uvs);
-        }
-        break;
-        case NU_PRIMITIVE_POINTS:
-        case NU_PRIMITIVE_LINES:
-            NU_VEC_FREE(&g->positions);
-            break;
+        NU_VEC_FREE(&g->uvs);
     }
+    NU_VEC_FREE(&g->positions);
 }
 nu_size_t
 nu_geometry_count (nu_geometry_t geometry)

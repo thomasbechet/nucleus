@@ -62,6 +62,9 @@ main (void)
 
         nu_bind_material(renderpass, material);
         nu_draw_box(renderpass, nu_box3(nu_vec3s(-0.5), NU_VEC3_ONE), model);
+        const nu_vec3_t points[]
+            = { nu_vec3s(0.0), nu_vec3s(0.1), nu_vec3s(0.2), nu_vec3s(0.3) };
+        nu_draw_points(renderpass, points, 4, model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();

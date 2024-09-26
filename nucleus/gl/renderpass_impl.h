@@ -34,11 +34,14 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
             case NU_PRIMITIVE_LINES:
                 cmd->primitive = GL_LINES;
                 break;
+            case NU_PRIMITIVE_LINES_STRIP:
+                cmd->primitive = GL_LINE_STRIP;
+                break;
             case NU_PRIMITIVE_TRIANGLES:
                 cmd->primitive = GL_TRIANGLES;
                 break;
         }
-        cmd->vfirst = nu__primitive_vertex_count(pmesh->primitive, first);
+        cmd->vfirst = nu__primitive_vertex_first(pmesh->primitive, first);
         cmd->vcount = nu__primitive_vertex_count(pmesh->primitive, count);
 
         const nugl__material_t *pmat

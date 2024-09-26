@@ -63,6 +63,7 @@ typedef enum
 {
     NU_PRIMITIVE_POINTS,
     NU_PRIMITIVE_LINES,
+    NU_PRIMITIVE_LINES_STRIP,
     NU_PRIMITIVE_TRIANGLES,
 } nu_primitive_t;
 
@@ -207,10 +208,18 @@ NU_API void nu_draw_text(nu_renderpass_t  pass,
                          const nu_char_t *text,
                          nu_size_t        n,
                          nu_vec2i_t       pos);
+NU_API void nu_draw_points(nu_renderpass_t  pass,
+                           const nu_vec3_t *positions,
+                           nu_size_t        count,
+                           nu_mat4_t        transform);
 NU_API void nu_draw_lines(nu_renderpass_t  pass,
                           const nu_vec3_t *positions,
                           nu_size_t        count,
                           nu_mat4_t        transform);
+NU_API void nu_draw_lines_strip(nu_renderpass_t  pass,
+                                const nu_vec3_t *positions,
+                                nu_size_t        count,
+                                nu_mat4_t        transform);
 NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_box3_t       box,
                         nu_mat4_t       transform);

@@ -144,31 +144,22 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                 glBindVertexArray(0);
             }
 
-            const nu_size_t vertex_per_primitive
-                = nu__primitive_vertex_count(p->primitive, 1);
-            const nu_size_t offset = first * vertex_per_primitive;
+            const nu_size_t vcount
+                = nu__primitive_vertex_count(p->primitive, count);
+            const nu_size_t vfirst
+                = nu__primitive_vertex_first(p->primitive, first);
 
             // Update positions
+            glBindBuffer(GL_ARRAY_BUFFER, p->positions);
+            float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+            NU_ASSERT(ptr);
+            for (nu_size_t v = 0; v < vcount; ++v)
             {
-                glBindBuffer(GL_ARRAY_BUFFER, p->positions);
-                float *ptr
-                    = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-                NU_ASSERT(ptr);
-                for (nu_size_t p = 0; p < count; ++p)
-                {
-                    for (nu_size_t v = 0; v < vertex_per_primitive; ++v)
-                    {
-                        const nu_size_t index = p * vertex_per_primitive + v;
-                        ptr[(offset + index) * NU_VEC3_SIZE + 0]
-                            = data[index].x;
-                        ptr[(offset + index) * NU_VEC3_SIZE + 1]
-                            = data[index].y;
-                        ptr[(offset + index) * NU_VEC3_SIZE + 2]
-                            = data[index].z;
-                    }
-                }
-                glUnmapBuffer(GL_ARRAY_BUFFER);
+                ptr[(vfirst + v) * NU_VEC3_SIZE + 0] = data[v].x;
+                ptr[(vfirst + v) * NU_VEC3_SIZE + 1] = data[v].y;
+                ptr[(vfirst + v) * NU_VEC3_SIZE + 2] = data[v].z;
             }
+            glUnmapBuffer(GL_ARRAY_BUFFER);
 
             // Normals must be updated as well
             if (p->primitive == NU_PRIMITIVE_TRIANGLES)
@@ -177,9 +168,11 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                 float *ptr
                     = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
                 NU_ASSERT(ptr);
+                nu_size_t vfirst
+                    = nu__primitive_vertex_first(p->primitive, first);
                 for (nu_size_t p = 0; p < count; ++p)
                 {
-                    const nu_size_t index = p * vertex_per_primitive;
+                    const nu_size_t index = p * 3;
                     nu_vec3_t       p0    = data[index + 0];
                     nu_vec3_t       p1    = data[index + 1];
                     nu_vec3_t       p2    = data[index + 2];
@@ -188,9 +181,9 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
 
                     for (nu_size_t i = 0; i < 3; ++i)
                     {
-                        ptr[(offset + index + i) * NU_VEC3_SIZE + 0] = n.x;
-                        ptr[(offset + index + i) * NU_VEC3_SIZE + 1] = n.y;
-                        ptr[(offset + index + i) * NU_VEC3_SIZE + 2] = n.z;
+                        ptr[(vfirst + index + i) * NU_VEC3_SIZE + 0] = n.x;
+                        ptr[(vfirst + index + i) * NU_VEC3_SIZE + 1] = n.y;
+                        ptr[(vfirst + index + i) * NU_VEC3_SIZE + 2] = n.z;
                     }
                 }
                 glUnmapBuffer(GL_ARRAY_BUFFER);
