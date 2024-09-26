@@ -173,10 +173,6 @@ NU_API void nu_renderpass_texture(nu_renderpass_t          pass,
                                   nu_texture_t             texture);
 
 NU_API void nu_bind_material(nu_renderpass_t pass, nu_material_t material);
-NU_API void nu_draw_mesh_instanced(nu_renderpass_t  pass,
-                                   nu_mesh_t        mesh,
-                                   nu_size_t        instance_count,
-                                   const nu_mat4_t *transforms);
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
                                       nu_mesh_t        mesh,
                                       nu_size_t        first,
@@ -187,6 +183,10 @@ NU_API void nu_draw_blit(nu_renderpass_t pass,
                          nu_box2i_t      extent,
                          nu_box2i_t      tex_extent);
 
+NU_API void nu_draw_blit_sliced(nu_renderpass_t pass,
+                                nu_box2i_t      extent,
+                                nu_box2i_t      tex_extent,
+                                nu_box2i_t      inner);
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_mesh_t       mesh,
                          nu_mat4_t       transform);
@@ -195,11 +195,10 @@ NU_API void nu_draw_submesh(nu_renderpass_t pass,
                             nu_size_t       first,
                             nu_size_t       count,
                             nu_mat4_t       transform);
-NU_API void nu_draw_lines(nu_renderpass_t  pass,
-                          const nu_vec3_t *points,
-                          nu_size_t        count,
-                          nu_mat4_t        transform,
-                          nu_color_t       color);
+NU_API void nu_draw_mesh_instanced(nu_renderpass_t  pass,
+                                   nu_mesh_t        mesh,
+                                   nu_size_t        instance_count,
+                                   const nu_mat4_t *transforms);
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,
                           nu_mat4_t       transform);
@@ -208,6 +207,13 @@ NU_API void nu_draw_text(nu_renderpass_t  pass,
                          const nu_char_t *text,
                          nu_size_t        n,
                          nu_vec2i_t       pos);
+NU_API void nu_draw_lines(nu_renderpass_t  pass,
+                          const nu_vec3_t *positions,
+                          nu_size_t        count,
+                          nu_mat4_t        transform);
+NU_API void nu_draw_box(nu_renderpass_t pass,
+                        nu_box3_t       box,
+                        nu_mat4_t       transform);
 
 NU_API nu_image_t   nu_image_create(nu_vec2u_t size);
 NU_API void         nu_image_delete(nu_image_t image);

@@ -6,7 +6,6 @@
 
 static nu_renderpass_t renderpass;
 static nu_texture_t    depth_buffer;
-static nu_mesh_t       mesh;
 static nu_texture_t    texture;
 static nu_material_t   material;
 static nu_camera_t     camera;
@@ -21,21 +20,8 @@ main (void)
     // Renderpass
     renderpass = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME, NU_TRUE);
 
-    // Mesh
-    {
-        nu_geometry_t g = nu_geometry_create(NU_PRIMITIVE_TRIANGLES, 100);
-        nu_geometry_cube(g, 1);
-        nu_geometry_transform(g, nu_mat4_translate(nu_vec3s(-0.5)));
-        mesh = nu_geometry_create_mesh(g);
-        nu_geometry_delete(g);
-    }
-
-    // Texture
-    {
-        texture = nu_texture_create_color(NU_COLOR_WHITE);
-    }
-
     // Material
+    texture  = nu_texture_create_color(NU_COLOR_WHITE);
     material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
     nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
 
@@ -73,8 +59,9 @@ main (void)
         nu_mat4_t model
             = nu_mat4_translate(nu_vec3(0, nu_sin(time / 500) * 0.1, 0));
         model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
+
         nu_bind_material(renderpass, material);
-        nu_draw_mesh(renderpass, mesh, model);
+        nu_draw_box(renderpass, nu_box3(nu_vec3s(-0.5), NU_VEC3_ONE), model);
 
         nu_color_t   clear_color   = NU_COLOR_BLACK;
         nu_texture_t surface_color = nu_surface_color_target();

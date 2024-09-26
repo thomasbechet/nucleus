@@ -429,6 +429,12 @@ typedef struct
     nu_vec3u_t s;
 } nu_box3i_t;
 
+typedef struct
+{
+    nu_vec3_t p;
+    nu_vec3_t s;
+} nu_box3_t;
+
 typedef NU_VEC(nu_vec2_t) nu_vec2_vec_t;
 typedef NU_VEC(nu_vec3_t) nu_vec3_vec_t;
 typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
@@ -600,6 +606,8 @@ NU_API nu_box2i_t nu_box2i(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
 NU_API nu_bool_t  nu_box2i_contains(nu_box2i_t r, nu_vec2_t p);
 NU_API nu_bool_t  nu_box2i_containsi(nu_box2i_t r, nu_vec2i_t p);
 NU_API nu_vec2_t  nu_box2i_normalize(nu_box2i_t r, nu_vec2_t p);
+
+NU_API nu_box3_t nu_box3(nu_vec3_t p, nu_vec3_t s);
 
 NU_API nu_mat4_t nu_perspective(float fov,
                                 float aspect_ratio,

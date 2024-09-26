@@ -641,6 +641,15 @@ nu_box2i_normalize (nu_box2i_t r, nu_vec2_t p)
     return ret;
 }
 
+nu_box3_t
+nu_box3 (nu_vec3_t p, nu_vec3_t s)
+{
+    nu_box3_t b;
+    b.p = p;
+    b.s = s;
+    return b;
+}
+
 nu_mat4_t
 nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 {

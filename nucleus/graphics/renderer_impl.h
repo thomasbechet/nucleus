@@ -271,17 +271,6 @@ nu_bind_material (nu_renderpass_t pass, nu_material_t material)
     _ctx.graphics.renderer.api.bind_material(pass, material);
 }
 void
-nu_draw_mesh_instanced (nu_renderpass_t  pass,
-                        nu_mesh_t        mesh,
-                        nu_size_t        instance_count,
-                        const nu_mat4_t *transforms)
-{
-    CHECK_NULL_API_VOID
-    nu_size_t capacity = _ctx.graphics.renderer.api.mesh_capacity(mesh);
-    _ctx.graphics.renderer.api.draw_submesh_instanced(
-        pass, mesh, 0, capacity, instance_count, transforms);
-}
-void
 nu_draw_submesh_instanced (nu_renderpass_t  pass,
                            nu_mesh_t        mesh,
                            nu_size_t        first,
@@ -301,6 +290,142 @@ nu_draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 }
 
 void
+nu_draw_blit_sliced (nu_renderpass_t pass,
+                     nu_box2i_t      extent,
+                     nu_box2i_t      tex_extent,
+                     nu_box2i_t      inner)
+{
+    nu_u32_t margin_left = inner.p.x - tex_extent.p.x;
+    nu_u32_t margin_right
+        = (tex_extent.p.x + tex_extent.s.x) - (inner.p.x + inner.s.x);
+    nu_u32_t margin_top = inner.p.y - tex_extent.p.y;
+    nu_u32_t margin_bottom
+        = (tex_extent.p.y + tex_extent.s.y) - (inner.p.y + inner.s.y);
+
+    nu_u32_t tex_mid_width  = tex_extent.s.x - margin_left - margin_right;
+    nu_u32_t tex_mid_height = tex_extent.s.y - margin_top - margin_bottom;
+    nu_u32_t ext_mid_width  = extent.s.x - margin_left - margin_right;
+    nu_u32_t ext_mid_height = extent.s.y - margin_top - margin_bottom;
+
+    // Top-Left
+    if (margin_top && margin_left)
+    {
+        nu_draw_blit(
+            pass,
+            nu_box2i(extent.p.x, extent.p.y, margin_left, margin_top),
+            nu_box2i(tex_extent.p.x, tex_extent.p.y, margin_left, margin_top));
+    }
+
+    // Top-Mid
+    if (margin_top)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x + margin_left,
+                              extent.p.y,
+                              ext_mid_width,
+                              margin_top),
+                     nu_box2i(tex_extent.p.x + margin_left,
+                              tex_extent.p.y,
+                              tex_mid_width,
+                              margin_top));
+    }
+
+    // Top-Right
+    if (margin_top && margin_right)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
+                              extent.p.y,
+                              margin_right,
+                              margin_top),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
+                              tex_extent.p.y,
+                              margin_right,
+                              margin_top));
+    }
+
+    // Mid-Left
+    if (margin_left)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x,
+                              extent.p.y + margin_top,
+                              margin_right,
+                              ext_mid_height),
+                     nu_box2i(tex_extent.p.x,
+                              tex_extent.p.y + margin_top,
+                              margin_right,
+                              tex_mid_height));
+    }
+
+    // Mid-Mid
+    nu_draw_blit(pass,
+                 nu_box2i(extent.p.x + margin_left,
+                          extent.p.y + margin_top,
+                          ext_mid_width,
+                          ext_mid_height),
+                 nu_box2i(tex_extent.p.x + margin_left,
+                          tex_extent.p.y + margin_top,
+                          tex_mid_width,
+                          tex_mid_height));
+
+    // Mid-Right
+    if (margin_right)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
+                              extent.p.y + margin_top,
+                              margin_right,
+                              ext_mid_height),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
+                              tex_extent.p.y + margin_top,
+                              margin_right,
+                              tex_mid_height));
+    }
+
+    // Bottom-Left
+    if (margin_bottom && margin_left)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x,
+                              extent.p.y + extent.s.y - margin_bottom,
+                              margin_left,
+                              margin_bottom),
+                     nu_box2i(tex_extent.p.x,
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom));
+    }
+
+    // Bottom-Mid
+    if (margin_bottom)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x + margin_left,
+                              extent.p.y + extent.s.y - margin_bottom,
+                              ext_mid_width,
+                              margin_bottom),
+                     nu_box2i(tex_extent.p.x + margin_left,
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
+                              tex_mid_width,
+                              margin_bottom));
+    }
+
+    // Bottom-Right
+    if (margin_bottom && margin_right)
+    {
+        nu_draw_blit(pass,
+                     nu_box2i(extent.p.x + extent.s.x - margin_right,
+                              extent.p.y + extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom),
+                     nu_box2i(tex_extent.p.x + tex_extent.s.x - margin_right,
+                              tex_extent.p.y + tex_extent.s.y - margin_bottom,
+                              margin_right,
+                              margin_bottom));
+    }
+}
+void
 nu_draw_mesh (nu_renderpass_t pass, nu_mesh_t mesh, nu_mat4_t transform)
 {
     nu_draw_mesh_instanced(pass, mesh, 1, &transform);
@@ -313,6 +438,17 @@ nu_draw_submesh (nu_renderpass_t pass,
                  nu_mat4_t       transform)
 {
     nu_draw_submesh_instanced(pass, mesh, first, count, 1, &transform);
+}
+void
+nu_draw_mesh_instanced (nu_renderpass_t  pass,
+                        nu_mesh_t        mesh,
+                        nu_size_t        instance_count,
+                        const nu_mat4_t *transforms)
+{
+    CHECK_NULL_API_VOID
+    nu_size_t capacity = _ctx.graphics.renderer.api.mesh_capacity(mesh);
+    nu_draw_submesh_instanced(
+        pass, mesh, 0, capacity, instance_count, transforms);
 }
 
 #undef CHECK_NULL_API_HANDLE
