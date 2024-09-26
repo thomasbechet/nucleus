@@ -18,6 +18,7 @@ typedef struct
 
     nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t capacity);
     void (*mesh_delete)(nu_mesh_t mesh);
+    nu_size_t (*mesh_capacity)(nu_mesh_t mesh);
     void (*mesh_vec2)(nu_mesh_t        mesh,
                       nu_mesh_buffer_t buffer,
                       nu_size_t        first,
@@ -78,10 +79,6 @@ typedef struct
                                nu_texture_t             texture);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
-    void (*draw_mesh_instanced)(nu_renderpass_t  pass,
-                                nu_mesh_t        meshes,
-                                nu_size_t        instance_count,
-                                const nu_mat4_t *transforms);
     void (*draw_submesh_instanced)(nu_renderpass_t  pass,
                                    nu_mesh_t        meshes,
                                    nu_size_t        first,

@@ -277,8 +277,9 @@ nu_draw_mesh_instanced (nu_renderpass_t  pass,
                         const nu_mat4_t *transforms)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.draw_mesh_instanced(
-        pass, mesh, instance_count, transforms);
+    nu_size_t capacity = _ctx.graphics.renderer.api.mesh_capacity(mesh);
+    _ctx.graphics.renderer.api.draw_submesh_instanced(
+        pass, mesh, 0, capacity, instance_count, transforms);
 }
 void
 nu_draw_submesh_instanced (nu_renderpass_t  pass,
