@@ -26,8 +26,20 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
         cmd->type                 = NUGL__DRAW;
         cmd->transform            = transforms[i];
         cmd->vao                  = pmesh->vao;
-        cmd->vfirst               = first * 3;
-        cmd->vcount               = count * 3;
+        switch (pmesh->primitive)
+        {
+            case NU_PRIMITIVE_POINTS:
+                cmd->primitive = GL_POINTS;
+                break;
+            case NU_PRIMITIVE_LINES:
+                cmd->primitive = GL_LINES;
+                break;
+            case NU_PRIMITIVE_TRIANGLES:
+                cmd->primitive = GL_TRIANGLES;
+                break;
+        }
+        cmd->vfirst = nu__primitive_vertex_count(pmesh->primitive, first);
+        cmd->vcount = nu__primitive_vertex_count(pmesh->primitive, count);
 
         const nugl__material_t *pmat
             = _ctx.gl.materials.data + NU_HANDLE_INDEX(mat);
@@ -351,7 +363,8 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                                          instance_count,
                                          transforms);
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
+        case NU_RENDERPASS_TYPE_FLAT: {
+            NU_ASSERT(pmesh->primitive == NU_PRIMITIVE_TRIANGLES);
             nugl__submesh_draw_instanced(&ppass->flat.cmds,
                                          pmesh,
                                          ppass->flat.material,
@@ -359,7 +372,8 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                                          count,
                                          instance_count,
                                          transforms);
-            break;
+        }
+        break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             nugl__submesh_draw_instanced(&ppass->wireframe.cmds,
                                          pmesh,

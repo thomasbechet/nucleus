@@ -5,21 +5,12 @@
 #include <nucleus/graphics/font.h>
 #include <nucleus/graphics/image.h>
 #include <nucleus/graphics/model.h>
+#include <nucleus/graphics/immediate.h>
 
 typedef struct
 {
     nu_renderer_api_t api;
 } nu__graphics_config_t;
-
-typedef struct
-{
-    nu_mesh_t points;
-    nu_size_t points_count;
-    nu_mesh_t lines;
-    nu_size_t lines_count;
-    nu_mesh_t triangles;
-    nu_size_t triangles_count;
-} nu__graphics_immediate_t;
 
 typedef struct
 {

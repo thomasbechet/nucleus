@@ -3,8 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static nu_size_t nugl__vertex_count[3] = { 1, 2, 3 };
-
 static nu_mesh_t
 nugl__mesh_create (nu_primitive_t primitive, nu_size_t capacity)
 {
@@ -53,8 +51,9 @@ nugl__mesh_vec2 (nu_mesh_t        mesh,
                 glGenBuffers(1, &p->uvs);
                 glBindVertexArray(p->vao);
                 glBindBuffer(GL_ARRAY_BUFFER, p->uvs);
-                nu_size_t bsize = nugl__vertex_count[p->primitive] * p->capacity
-                                  * NU_VEC2_SIZE * sizeof(float);
+                nu_size_t bsize
+                    = nu__primitive_vertex_count(p->primitive, p->capacity)
+                      * NU_VEC2_SIZE * sizeof(float);
                 glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
                 glVertexAttribPointer(1,
                                       2,
@@ -71,7 +70,7 @@ nugl__mesh_vec2 (nu_mesh_t        mesh,
             NU_ASSERT(ptr && data);
             NU_ASSERT(first + count <= p->capacity);
             const nu_size_t vertex_per_primitive
-                = nugl__vertex_count[p->primitive];
+                = nu__primitive_vertex_count(p->primitive, 1);
             const nu_size_t offset = first * vertex_per_primitive;
             for (nu_size_t p = 0; p < count; ++p)
             {
@@ -112,8 +111,9 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
 
                 glGenBuffers(1, &p->positions);
                 glBindBuffer(GL_ARRAY_BUFFER, p->positions);
-                nu_size_t bsize = nugl__vertex_count[p->primitive] * p->capacity
-                                  * NU_VEC3_SIZE * sizeof(float);
+                nu_size_t bsize
+                    = nu__primitive_vertex_count(p->primitive, p->capacity)
+                      * NU_VEC3_SIZE * sizeof(float);
                 glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
                 glVertexAttribPointer(0,
                                       3,
@@ -127,8 +127,9 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                 {
                     glGenBuffers(1, &p->normals);
                     glBindBuffer(GL_ARRAY_BUFFER, p->normals);
-                    bsize = nugl__vertex_count[NU_PRIMITIVE_TRIANGLES]
-                            * p->capacity * NU_VEC3_SIZE * sizeof(float);
+                    bsize = nu__primitive_vertex_count(NU_PRIMITIVE_TRIANGLES,
+                                                       p->capacity)
+                            * NU_VEC3_SIZE * sizeof(float);
                     glBufferData(
                         GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
                     glVertexAttribPointer(2,
@@ -144,7 +145,7 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
             }
 
             const nu_size_t vertex_per_primitive
-                = nugl__vertex_count[p->primitive];
+                = nu__primitive_vertex_count(p->primitive, 1);
             const nu_size_t offset = first * vertex_per_primitive;
 
             // Update positions

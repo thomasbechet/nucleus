@@ -74,7 +74,7 @@ nugl__unlit_render (nugl__renderpass_t *pass)
                 glBindTexture(GL_TEXTURE_2D, cmd->texture0);
 
                 glBindVertexArray(cmd->vao);
-                glDrawArrays(GL_TRIANGLES, cmd->vfirst, cmd->vcount);
+                glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);
                 glBindVertexArray(0);
             }
             break;

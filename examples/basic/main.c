@@ -266,6 +266,15 @@ main (void)
             = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -3.97, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
 
+        const nu_vec3_t points[]
+            = { NU_VEC3_ZERO,  NU_VEC3_UP,   NU_VEC3_ZERO,
+                NU_VEC3_RIGHT, NU_VEC3_ZERO, NU_VEC3_BACKWARD };
+        nu_draw_lines(wireframe_pass,
+                      points,
+                      3,
+                      nu_mat4_translate(nu_vec3(-5, 5, -5)),
+                      NU_COLOR_WHITE);
+
         // GUI
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));

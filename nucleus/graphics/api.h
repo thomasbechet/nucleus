@@ -61,9 +61,9 @@ typedef enum
 
 typedef enum
 {
-    NU_PRIMITIVE_POINTS    = 0,
-    NU_PRIMITIVE_LINES     = 1,
-    NU_PRIMITIVE_TRIANGLES = 2,
+    NU_PRIMITIVE_POINTS,
+    NU_PRIMITIVE_LINES,
+    NU_PRIMITIVE_TRIANGLES,
 } nu_primitive_t;
 
 typedef enum

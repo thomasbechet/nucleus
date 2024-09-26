@@ -97,4 +97,19 @@ typedef struct
     nu_texture_t       surface_color;
 } nu__renderer_t;
 
+static nu_size_t
+nu__primitive_vertex_count (nu_primitive_t primitive, nu_size_t capacity)
+{
+    switch (primitive)
+    {
+        case NU_PRIMITIVE_POINTS:
+            return capacity;
+        case NU_PRIMITIVE_LINES:
+            return capacity * 2;
+        case NU_PRIMITIVE_TRIANGLES:
+            return capacity * 3;
+    }
+    return 0;
+}
+
 #endif

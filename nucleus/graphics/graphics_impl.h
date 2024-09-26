@@ -2,9 +2,10 @@
 #define NU_GRAPHICS_IMPL_H
 
 #include <nucleus/graphics/renderer_impl.h>
-#include <nucleus/graphics/model_impl.h>
 #include <nucleus/graphics/font_impl.h>
 #include <nucleus/graphics/image_impl.h>
+#include <nucleus/graphics/model_impl.h>
+#include <nucleus/graphics/immediate_impl.h>
 
 static nu_error_t
 nu__graphics_init (void)
@@ -42,12 +43,16 @@ nu__graphics_init (void)
     }
 
     // Initialize immediate context
+    nu__graphics_immediate_init();
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__graphics_free (void)
 {
+    // Terminate immediate context
+    nu__graphics_immediate_free();
+
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
     NU_INFO("terminate renderer context");
     if (!renderer->null_api)
@@ -63,13 +68,15 @@ nu__graphics_free (void)
 static nu_error_t
 nu__graphics_render (void)
 {
+    nu_error_t      error    = NU_ERROR_NONE;
     nu__renderer_t *renderer = &_ctx.graphics.renderer;
     if (!renderer->null_api)
     {
-        return _ctx.graphics.renderer.api.render(
+        error = _ctx.graphics.renderer.api.render(
             &_ctx.platform.viewport.extent, &_ctx.platform.viewport.viewport);
     }
-    return NU_ERROR_NONE;
+    nu__graphics_immediate_reset();
+    return error;
 }
 
 #endif

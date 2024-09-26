@@ -26,6 +26,7 @@ typedef struct
     GLuint                    texture0;
     GLuint                    texture1;
     nu_mat3_t                 uv_transform;
+    GLuint                    primitive;
 } nugl__mesh_command_t;
 
 typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;

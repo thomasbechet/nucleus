@@ -66,7 +66,7 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
                                    cam->vp.data);
 
                 glBindVertexArray(cmd->vao);
-                glDrawArrays(GL_TRIANGLES, cmd->vfirst, cmd->vcount);
+                glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);
                 glBindVertexArray(0);
             }
             break;
