@@ -195,12 +195,14 @@ NU_API void nu_draw_submesh(nu_renderpass_t pass,
                             nu_size_t       first,
                             nu_size_t       count,
                             nu_mat4_t       transform);
+NU_API void nu_draw_lines(nu_renderpass_t  pass,
+                          const nu_vec3_t *points,
+                          nu_size_t        count,
+                          nu_mat4_t        transform,
+                          nu_color_t       color);
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,
                           nu_mat4_t       transform);
-NU_API void nu_draw_lines(nu_renderpass_t  pass,
-                          const nu_vec3_t *points,
-                          nu_color_t       color);
 NU_API void nu_draw_text(nu_renderpass_t  pass,
                          nu_font_t        font,
                          const nu_char_t *text,

@@ -313,6 +313,14 @@ nu_draw_submesh (nu_renderpass_t pass,
 {
     nu_draw_submesh_instanced(pass, mesh, first, count, 1, &transform);
 }
+void
+nu_draw_lines (nu_renderpass_t  pass,
+               const nu_vec3_t *points,
+               nu_size_t        count,
+               nu_mat4_t        transform,
+               nu_color_t       color)
+{
+}
 
 #undef CHECK_NULL_API_HANDLE
 #undef CHECK_NULL_API_ERROR

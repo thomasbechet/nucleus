@@ -41,6 +41,8 @@ nu__graphics_init (void)
             = renderer->api.create_surface_color(_ctx.platform.size);
     }
 
+    // Initialize immediate context
+
     return NU_ERROR_NONE;
 }
 static nu_error_t
