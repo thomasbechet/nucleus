@@ -1,10 +1,10 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-// #define WIDTH  640
-// #define HEIGHT 400
-#define WIDTH  720
-#define HEIGHT 480
+#define WIDTH  640
+#define HEIGHT 400
+// #define WIDTH  720
+// #define HEIGHT 480
 // #define WIDTH  1920
 // #define HEIGHT 1080
 // #define HEIGHT 640
@@ -104,9 +104,9 @@ main (void)
             nu_geometry_append(final, sub);
         }
 
-        nu_geometry_grid(sub, 200, 200, 1, 75);
-        nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0, -100)));
-        nu_geometry_append(final, sub);
+        // nu_geometry_grid(sub, 200, 200, 1, 75);
+        // nu_geometry_transform(sub, nu_mat4_translate(nu_vec3(-100, 0,
+        // -100))); nu_geometry_append(final, sub);
 
         custom_mesh = nu_geometry_create_mesh(final);
         nu_geometry_delete(sub);
@@ -126,8 +126,9 @@ main (void)
         material_gui_repeat, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_REPEAT);
 
     // Load temple
-    temple_model = NU_ASSET_MODEL("temple");
-    ariane_model = NU_ASSET_MODEL("ariane");
+    temple_model      = NU_ASSET_MODEL("temple");
+    ariane_model      = NU_ASSET_MODEL("ariane");
+    nu_model_t castle = NU_ASSET_MODEL("castle");
 
     // Load cubemap
     nu_cubemap_t skybox = NU_ASSET_CUBEMAP("skybox");
@@ -137,6 +138,8 @@ main (void)
 
     // Create camera
     nu_camera_t camera = nu_camera_create();
+    nu_camera_proj(
+        camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
 
     // Create renderpasses
     nu_texture_t surface_tex = nu_surface_color_target();
@@ -256,6 +259,7 @@ main (void)
         // Render loop
         nu_bind_material(main_pass, material);
         nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
+        nu_draw_model(main_pass, castle, nu_mat4_identity());
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_identity();
@@ -263,7 +267,7 @@ main (void)
 
         transform = nu_mat4_scale(nu_vec3(4, 4, 4));
         transform
-            = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -3.97, 0)), transform);
+            = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -50, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
 
         const nu_vec3_t points[]

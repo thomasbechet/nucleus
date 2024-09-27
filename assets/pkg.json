@@ -10,6 +10,11 @@
         "path": "temple_of_time.glb"
     },
     {
+        "name": "castle",
+        "type": "model",
+        "path": "peach_castle.glb"
+    },
+    {
         "name": "ariane",
         "type": "model",
         "path": "ariane6.glb"
