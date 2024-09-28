@@ -569,6 +569,7 @@ NU_API nu_vec2_t nu_vec4_xy(nu_vec4_t v);
 NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
 
 NU_API nu_vec2i_t nu_vec2i(nu_i32_t x, nu_i32_t y);
+NU_API nu_vec2i_t nu_vec2i_add(nu_vec2i_t a, nu_vec2i_t b);
 
 NU_API nu_vec2u_t nu_vec2u(nu_u32_t x, nu_u32_t y);
 NU_API nu_vec2u_t nu_vec2u_min(nu_vec2u_t a, nu_vec2u_t b);

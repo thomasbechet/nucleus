@@ -291,6 +291,14 @@ nu_vec2i (nu_i32_t x, nu_i32_t y)
     v.y = y;
     return v;
 }
+nu_vec2i_t
+nu_vec2i_add (nu_vec2i_t a, nu_vec2i_t b)
+{
+    nu_vec2i_t ret;
+    ret.x = a.x + b.x;
+    ret.y = a.y + b.y;
+    return ret;
+}
 
 nu_vec2u_t
 nu_vec2u (nu_u32_t x, nu_u32_t y)

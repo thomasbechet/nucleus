@@ -11,6 +11,7 @@ typedef struct
     float      frames[NU__STATS_FRAME_COUNT];
     nu_size_t  head;
     float      avg;
+    nu_size_t  frame;
 } nu__stats_t;
 
 static void nu__stats_init(void);
