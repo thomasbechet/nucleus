@@ -49,4 +49,6 @@ NU_API void nu_geometry_append(nu_geometry_t dst, nu_geometry_t src);
 
 NU_API nu_mesh_t nu_geometry_create_mesh(nu_geometry_t geometry);
 
+NU_API void nu_draw_stats(nu_renderpass_t pass, nu_font_t font, nu_vec2i_t pos);
+
 #endif

@@ -159,8 +159,9 @@ nugl__init (void)
     glDebugMessageCallback(MessageCallback, NU_NULL);
 
     // Compile programs
-    error = nugl__compile_shader(
-        nugl__shader_blit_vert, nugl__shader_blit_frag, &gl->blit_program);
+    error = nugl__compile_shader(nugl__shader_screen_blit_vert,
+                                 nugl__shader_screen_blit_frag,
+                                 &gl->screen_blit_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
@@ -226,7 +227,7 @@ nugl__render (const nu_box2i_t *global_viewport, const nu_box2i_t *viewport)
     glEnable(GL_FRAMEBUFFER_SRGB);
     nu_vec4_t clear
         = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
-    glUseProgram(gl->blit_program);
+    glUseProgram(gl->screen_blit_program);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport->p.x, viewport->p.y, viewport->s.x, viewport->s.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);

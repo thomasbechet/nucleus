@@ -294,25 +294,7 @@ main (void)
         nu_ui_end(ui);
 
         // Print FPS
-#define AVG_SIZE 10
-        static nu_u32_t avg[AVG_SIZE] = { 0 };
-        static nu_u32_t head          = 0;
-
-        float frame_fps = nu_floor((1.0 / delta) * 1000.0);
-        avg[head]       = frame_fps;
-        head            = (head + 1) % AVG_SIZE;
-        float frame_avg = 0;
-        for (nu_size_t i = 0; i < AVG_SIZE; ++i)
-        {
-            frame_avg += avg[i];
-        }
-        frame_avg /= AVG_SIZE;
-
-        nu_char_t string[256];
-        nu_size_t n = nu_snprintf(string, 256, "FPS:%d", (nu_u32_t)frame_avg);
-        nu_draw_text(gui_pass, font, string, n, nu_vec2i(10, 10));
-        n = nu_snprintf(string, 256, "RES:%dx%d", WIDTH, HEIGHT);
-        nu_draw_text(gui_pass, font, string, n, nu_vec2i(10, 20));
+        nu_draw_stats(gui_pass, font, NU_VEC2I_ZERO);
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);

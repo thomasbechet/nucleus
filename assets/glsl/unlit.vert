@@ -14,19 +14,13 @@ out vec2 uv;
 
 void main()
 {
-    // Transform vertex
     vec4 position = view_projection * model * vec4(in_position, 1);
 
-    // Prevent sub pixel aliasing by flooring vertices to pixel
-    // vec2 grid = vec2(viewport_size);
-    // position.xyz = position.xyz / position.w;
-    // position.xy = floor(grid * position.xy) / grid;
-    // position.xyz *= position.w;
-
+    vec2 grid = vec2(viewport_size);
+    position.xy = position.xy / position.w;
+    position.xy = (floor(grid * position.xy) + 0.5) / grid;
+    position.xy *= position.w;
     gl_Position = position;
 
-    // Floors UVs
     uv = (uv_transform * vec3(in_uv, 1)).xy;
-    // ivec2 tex_size = textureSize(texture0, 0);
-    // uv = (floor(tex_size * uv) + 0.5) / tex_size;
 }

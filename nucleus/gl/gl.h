@@ -13,8 +13,8 @@ typedef struct
 {
     nu_u32_t surface_color_index;
 
+    GLuint screen_blit_program;
     GLuint unlit_program;
-    GLuint blit_program;
     GLuint flat_program;
     GLuint skybox_program;
     GLuint wireframe_program;

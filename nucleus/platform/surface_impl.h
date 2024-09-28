@@ -72,6 +72,9 @@ nu_swap_buffers (void)
 #ifdef NU_BUILD_GRAPHICS
     nu__graphics_render();
 #endif
+#ifdef NU_BUILD_UTILS
+    nu__stats_update();
+#endif
     RGFW_window_swapBuffers(_ctx.platform.win);
 }
 float
