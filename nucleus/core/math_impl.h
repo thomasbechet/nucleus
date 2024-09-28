@@ -223,7 +223,7 @@ nu_vec3_normalize (nu_vec3_t v)
     float norm = nu_vec3_norm(v);
     if (norm == 0)
     {
-        return NU_VEC3_ZERO;
+        return NU_VEC3_ZEROS;
     }
     nu_vec3_t ret;
     ret.x = v.x / norm;

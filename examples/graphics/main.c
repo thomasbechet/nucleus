@@ -27,7 +27,7 @@ main (void)
     nu_camera_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 100));
     nu_camera_view(camera,
-                   nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZERO, NU_VEC3_UP));
+                   nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
 
     // Renderpass
     depth_buffer               = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
@@ -73,12 +73,12 @@ main (void)
         model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
 
         nu_bind_material(renderpass, material);
-        nu_draw_box(renderpass, nu_box3(nu_vec3s(-0.5), NU_VEC3_ONE), model);
+        nu_draw_box(renderpass, nu_box3(nu_vec3s(-0.5), NU_VEC3_ONES), model);
         const nu_vec3_t points[]
             = { nu_vec3s(0.0), nu_vec3s(0.1), nu_vec3s(0.2), nu_vec3s(0.3) };
         nu_draw_points(renderpass, points, 4, model);
 
-        nu_draw_stats(guipass, font, NU_VEC2I_ZERO);
+        nu_draw_stats(guipass, font, NU_VEC2I_ZEROS);
 
         nu_renderpass_submit(renderpass);
         nu_renderpass_submit(guipass);

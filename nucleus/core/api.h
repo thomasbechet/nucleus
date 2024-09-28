@@ -30,16 +30,16 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_MAT3_SIZE 9
 #define NU_MAT4_SIZE 16
 
-#define NU_VEC2_ZERO nu_vec2(0, 0)
-#define NU_VEC2_ONE  nu_vec2(1, 1)
+#define NU_VEC2_ZEROS nu_vec2(0, 0)
+#define NU_VEC2_ONES  nu_vec2(1, 1)
 
-#define NU_VEC2I_ZERO nu_vec2i(0, 0)
+#define NU_VEC2I_ZEROS nu_vec2i(0, 0)
 
-#define NU_VEC2U_ZERO nu_vec2u(0, 0)
-#define NU_UVEC2_ONE  nu_vec2u(1, 1)
+#define NU_VEC2U_ZEROS nu_vec2u(0, 0)
+#define NU_VEC2U_ONES  nu_vec2u(1, 1)
 
-#define NU_VEC3_ZERO     nu_vec3(0, 0, 0)
-#define NU_VEC3_ONE      nu_vec3(1, 1, 1)
+#define NU_VEC3_ZEROS    nu_vec3(0, 0, 0)
+#define NU_VEC3_ONES     nu_vec3(1, 1, 1)
 #define NU_VEC3_UP       nu_vec3(0, 1, 0)
 #define NU_VEC3_DOWN     nu_vec3(0, -1, 0)
 #define NU_VEC3_FORWARD  nu_vec3(0, 0, -1)
@@ -47,7 +47,7 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VEC3_LEFT     nu_vec3(-1, 0, 0)
 #define NU_VEC3_RIGHT    nu_vec3(1, 0, 0)
 
-#define NU_VEC4_ZERO nu_vec4(0, 0, 0, 0)
+#define NU_VEC4_ZEROS nu_vec4(0, 0, 0, 0)
 
 #define NU_VEC2_FORMAT "%lf %lf"
 #define NU_VEC3_FORMAT "%lf %lf %lf"

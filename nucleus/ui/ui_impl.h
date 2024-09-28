@@ -92,7 +92,7 @@ nu_ui_create (void)
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
         ui->controllers[i].active       = NU_FALSE;
-        ui->controllers[i].cursor       = NU_VEC2I_ZERO;
+        ui->controllers[i].cursor       = NU_VEC2I_ZEROS;
         ui->controllers[i].main_pressed = NU_FALSE;
         ui->controllers[i].mode         = NU_UI_CONTROLLER_CURSOR;
     }

@@ -162,7 +162,7 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
     else
     {
         pass->fbo      = 0;
-        pass->fbo_size = NU_VEC2U_ZERO;
+        pass->fbo_size = NU_VEC2U_ZEROS;
     }
 }
 static void

@@ -24,9 +24,9 @@ nu_controller_create (nu_input_t view_pitch,
     ctrl->move_z      = move_z;
     ctrl->switch_mode = switch_mode;
 
-    ctrl->pos   = NU_VEC3_ZERO;
-    ctrl->vel   = NU_VEC3_ZERO;
-    ctrl->acc   = NU_VEC3_ZERO;
+    ctrl->pos   = NU_VEC3_ZEROS;
+    ctrl->vel   = NU_VEC3_ZEROS;
+    ctrl->acc   = NU_VEC3_ZEROS;
     ctrl->rot   = nu_quat_identity();
     ctrl->pitch = 0;
     ctrl->yaw   = 0;
@@ -69,7 +69,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     }
 
     // Translation
-    nu_vec3_t direction = NU_VEC3_ZERO;
+    nu_vec3_t direction = NU_VEC3_ZEROS;
 
     direction = nu_vec3_add(
         direction,
@@ -133,7 +133,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
 
     // Compute sum of forces
     const float mass  = 10.0;
-    nu_vec3_t   force = NU_VEC3_ZERO;
+    nu_vec3_t   force = NU_VEC3_ZEROS;
 
     // Apply movement
     if (nu_vec3_norm(direction) > 0.001)

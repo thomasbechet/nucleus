@@ -24,7 +24,7 @@ nu__emplace_vertex (const nu_vec3_t *positions,
     }
     else
     {
-        buf_uvs[vertex_index] = NU_VEC2_ZERO;
+        buf_uvs[vertex_index] = NU_VEC2_ZEROS;
     }
 }
 

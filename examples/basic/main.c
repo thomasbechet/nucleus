@@ -271,12 +271,12 @@ main (void)
         nu_draw_model(main_pass, temple_model, transform);
 
         const nu_vec3_t points[]
-            = { NU_VEC3_ZERO,  NU_VEC3_UP,   NU_VEC3_ZERO,
-                NU_VEC3_RIGHT, NU_VEC3_ZERO, NU_VEC3_BACKWARD };
+            = { NU_VEC3_ZEROS, NU_VEC3_UP,    NU_VEC3_ZEROS,
+                NU_VEC3_RIGHT, NU_VEC3_ZEROS, NU_VEC3_BACKWARD };
         nu_draw_lines(
             wireframe_pass, points, 3, nu_mat4_translate(nu_vec3(-5, 5, -5)));
         nu_draw_box(wireframe_pass,
-                    nu_box3(NU_VEC3_ZERO, NU_VEC3_ONE),
+                    nu_box3(NU_VEC3_ZEROS, NU_VEC3_ONES),
                     nu_mat4_translate(nu_vec3(0, 5, -5)));
 
         // GUI
@@ -294,7 +294,7 @@ main (void)
         nu_ui_end(ui);
 
         // Print FPS
-        nu_draw_stats(gui_pass, font, NU_VEC2I_ZERO);
+        nu_draw_stats(gui_pass, font, NU_VEC2I_ZEROS);
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);

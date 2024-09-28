@@ -52,8 +52,8 @@ nu__platform_init (void)
     RGFW_point p                 = RGFW_window_getMousePoint(_ctx.platform.win);
     _ctx.platform.mouse_position = nu_vec2((float)p.x, (float)p.y);
     _ctx.platform.mouse_old_position    = _ctx.platform.mouse_position;
-    _ctx.platform.mouse_motion          = NU_VEC2_ZERO;
-    _ctx.platform.mouse_motion_previous = NU_VEC2_ZERO;
+    _ctx.platform.mouse_motion          = NU_VEC2_ZEROS;
+    _ctx.platform.mouse_motion_previous = NU_VEC2_ZEROS;
 
     // Initialize inputs
     NU_POOL_INIT(10, &_ctx.platform.bindings);
@@ -102,8 +102,8 @@ nu_poll_events (void)
         }
 
         // Reset mouse scroll
-        _ctx.platform.mouse_scroll = NU_VEC2_ZERO;
-        _ctx.platform.mouse_motion = NU_VEC2_ZERO;
+        _ctx.platform.mouse_scroll = NU_VEC2_ZEROS;
+        _ctx.platform.mouse_motion = NU_VEC2_ZEROS;
 
         // Check close requested
         _ctx.platform.close_requested

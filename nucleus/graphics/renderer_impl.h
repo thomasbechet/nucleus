@@ -38,7 +38,7 @@ nu_camera_create (void)
     nu_camera_t handle = _ctx.graphics.renderer.api.camera_create();
     NU_CHECK(handle, return handle);
     nu_camera_view(handle,
-                   nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZERO));
+                   nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZEROS));
     float aspect = (float)_ctx.platform.size.x / (float)_ctx.platform.size.y;
     nu_camera_proj(handle, nu_perspective(nu_radian(70), aspect, 0.01, 100));
     return handle;

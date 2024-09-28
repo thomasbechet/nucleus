@@ -11,7 +11,7 @@ nu__update_viewport (nu__viewport_t *v)
 
     float aspect_ratio = (float)v->screen.x / (float)v->screen.y;
 
-    nu_vec2_t size = NU_VEC2_ZERO;
+    nu_vec2_t size = NU_VEC2_ZEROS;
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
