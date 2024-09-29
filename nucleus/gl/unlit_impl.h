@@ -51,7 +51,6 @@ nugl__unlit_render (nugl__renderpass_t *pass)
         switch (cmds->data[i].type)
         {
             case NUGL__DRAW: {
-
                 glUniformMatrix4fv(
                     glGetUniformLocation(gl->unlit_program, "model"),
                     1,

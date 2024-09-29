@@ -297,7 +297,7 @@ main (void)
         nu_ui_end(ui);
 
         // Print FPS
-        nu_draw_stats(gui_pass, font, NU_VEC2I_ZEROS);
+        nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);

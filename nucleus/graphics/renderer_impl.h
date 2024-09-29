@@ -221,6 +221,9 @@ nu_renderpass_submit (nu_renderpass_t pass)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.renderpass_submit(pass);
+#ifdef NU_BUILD_UTILS
+    _ctx.utils.stats.renderer_current.renderpass_count += 1;
+#endif
 }
 
 void
@@ -281,6 +284,24 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.draw_submesh_instanced(
         pass, mesh, first, count, instance_count, transforms);
+#ifdef NU_BUILD_UTILS
+    nu_primitive_t primitive = _ctx.graphics.renderer.api.mesh_primitive(mesh);
+    switch (primitive)
+    {
+        case NU_PRIMITIVE_POINTS:
+            _ctx.utils.stats.renderer_current.point_count += count;
+            break;
+        case NU_PRIMITIVE_LINES:
+            _ctx.utils.stats.renderer_current.line_count += count;
+            break;
+        case NU_PRIMITIVE_LINES_STRIP:
+            _ctx.utils.stats.renderer_current.line_count += count;
+            break;
+        case NU_PRIMITIVE_TRIANGLES:
+            _ctx.utils.stats.renderer_current.triangle_count += count;
+            break;
+    }
+#endif
 }
 void
 nu_draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)

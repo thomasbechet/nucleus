@@ -34,6 +34,11 @@ nugl__mesh_capacity (nu_mesh_t mesh)
 {
     return _ctx.gl.meshes.data[NU_HANDLE_INDEX(mesh)].capacity;
 }
+static nu_primitive_t
+nugl__mesh_primitive (nu_mesh_t mesh)
+{
+    return _ctx.gl.meshes.data[NU_HANDLE_INDEX(mesh)].primitive;
+}
 static void
 nugl__mesh_vec2 (nu_mesh_t        mesh,
                  nu_mesh_buffer_t buffer,

@@ -5,6 +5,14 @@
 
 typedef struct
 {
+    nu_size_t triangle_count;
+    nu_size_t line_count;
+    nu_size_t point_count;
+    nu_size_t renderpass_count;
+} nu__renderer_stats_t;
+
+typedef struct
+{
     nu_error_t (*init)(void);
     nu_error_t (*free)(void);
     nu_error_t (*render)(const nu_box2i_t *global_viewport,
@@ -19,6 +27,7 @@ typedef struct
     nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t capacity);
     void (*mesh_delete)(nu_mesh_t mesh);
     nu_size_t (*mesh_capacity)(nu_mesh_t mesh);
+    nu_primitive_t (*mesh_primitive)(nu_mesh_t mesh);
     void (*mesh_vec2)(nu_mesh_t        mesh,
                       nu_mesh_buffer_t buffer,
                       nu_size_t        first,

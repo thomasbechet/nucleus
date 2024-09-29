@@ -78,7 +78,7 @@ main (void)
             = { nu_vec3s(0.0), nu_vec3s(0.1), nu_vec3s(0.2), nu_vec3s(0.3) };
         nu_draw_points(renderpass, points, 4, model);
 
-        nu_draw_stats(guipass, font, NU_VEC2I_ZEROS);
+        nu_draw_stats(guipass, font, nu_vec2i(10, 10));
 
         nu_renderpass_submit(renderpass);
         nu_renderpass_submit(guipass);
