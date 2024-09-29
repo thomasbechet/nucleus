@@ -27,6 +27,8 @@ typedef struct
     GLuint                    texture1;
     nu_mat3_t                 uv_transform;
     GLuint                    primitive;
+    nu_color_t                color;
+    nu_bool_t                 has_color;
 } nugl__mesh_command_t;
 
 typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;

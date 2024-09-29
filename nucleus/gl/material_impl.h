@@ -15,7 +15,7 @@ nugl__material_color (nu_material_t          material,
             switch (prop)
             {
                 case NU_MATERIAL_COLOR:
-                    mat->mesh.color = color;
+                    mat->surface.color = color;
                     return;
                 default:
                     break;
@@ -38,10 +38,10 @@ nugl__material_texture (nu_material_t          material,
             switch (prop)
             {
                 case NU_MATERIAL_TEXTURE0:
-                    mat->mesh.texture0 = texture;
+                    mat->surface.texture0 = texture;
                     return;
                 case NU_MATERIAL_TEXTURE1:
-                    mat->mesh.texture1 = texture;
+                    mat->surface.texture1 = texture;
                     return;
                 default:
                     break;
@@ -74,7 +74,7 @@ nugl__material_mat3 (nu_material_t          material,
             switch (prop)
             {
                 case NU_MATERIAL_UV_TRANSFORM:
-                    mat->mesh.uv_transform = matrix;
+                    mat->surface.uv_transform = matrix;
                     return;
                 default:
                     break;
@@ -121,10 +121,10 @@ nugl__material_create (nu_material_type_t type)
     switch (p->type)
     {
         case NU_MATERIAL_TYPE_SURFACE:
-            p->mesh.color        = NU_COLOR_WHITE;
-            p->mesh.texture0     = NU_NULL;
-            p->mesh.texture1     = NU_NULL;
-            p->mesh.uv_transform = nu_mat3_identity();
+            p->surface.color        = NU_COLOR_WHITE;
+            p->surface.texture0     = NU_NULL;
+            p->surface.texture1     = NU_NULL;
+            p->surface.uv_transform = nu_mat3_identity();
             break;
         case NU_MATERIAL_TYPE_CANVAS:
             p->canvas.texture0  = NU_NULL;

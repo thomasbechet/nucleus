@@ -22,7 +22,7 @@ typedef struct
     nu_material_type_t type;
     union
     {
-        nugl__material_mesh_t   mesh;
+        nugl__material_mesh_t   surface;
         nugl__material_canvas_t canvas;
     };
 } nugl__material_t;

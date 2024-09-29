@@ -43,9 +43,12 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
     glUniform2uiv(glGetUniformLocation(gl->wireframe_program, "viewport_size"),
                   1,
                   pass->fbo_size.data);
-    nu_vec4_t color = nu_color_to_vec4(pass->wireframe.color);
-    glUniform3fv(
-        glGetUniformLocation(gl->wireframe_program, "color"), 1, color.data);
+
+    glUniformMatrix4fv(
+        glGetUniformLocation(gl->wireframe_program, "view_projection"),
+        1,
+        GL_FALSE,
+        cam->vp.data);
 
     const nugl__mesh_command_vec_t *cmds = &pass->wireframe.cmds;
     for (nu_size_t i = 0; i < cmds->size; ++i)
@@ -60,11 +63,15 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
                     GL_FALSE,
                     cmd->transform.data);
 
-                glUniformMatrix4fv(glGetUniformLocation(gl->wireframe_program,
-                                                        "view_projection"),
-                                   1,
-                                   GL_FALSE,
-                                   cam->vp.data);
+                nu_color_t color = pass->wireframe.color;
+                if (cmd->has_color)
+                {
+                }
+                nu_vec4_t vcolor = nu_color_to_vec4(color);
+                glUniform3fv(
+                    glGetUniformLocation(gl->wireframe_program, "color"),
+                    1,
+                    vcolor.data);
 
                 glBindVertexArray(cmd->vao);
                 glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);
