@@ -2,6 +2,7 @@
 #define NUGL_MATERIAL_H
 
 #include <nucleus/graphics/graphics.h>
+#include <nucleus/external/glad/gl.h>
 
 typedef struct
 {
@@ -28,5 +29,10 @@ typedef struct
 } nugl__material_t;
 
 typedef NU_VEC(nugl__material_t) nugl__material_vec_t;
+
+static nu_mat3_t  nugl__material_surface_uv_transform(nu_material_t mat);
+static GLuint     nugl__material_surface_texture0(nu_material_t mat);
+static nu_color_t nugl__material_surface_color(nu_material_t mat,
+                                               nu_color_t    vdefault);
 
 #endif

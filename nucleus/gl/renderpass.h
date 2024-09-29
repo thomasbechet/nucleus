@@ -23,12 +23,8 @@ typedef struct
     nu_size_t                 vfirst;
     nu_size_t                 vcount;
     nu_mat4_t                 transform; // TODO: use indexed UBO
-    GLuint                    texture0;
-    GLuint                    texture1;
-    nu_mat3_t                 uv_transform;
     GLuint                    primitive;
-    nu_color_t                color;
-    nu_bool_t                 has_color;
+    nu_material_t             material;
 } nugl__mesh_command_t;
 
 typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;

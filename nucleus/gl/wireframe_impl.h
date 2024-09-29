@@ -54,6 +54,11 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
         const nugl__mesh_command_t *cmd = &cmds->data[i];
+        nu_mat3_t                   uv_transform
+            = nugl__material_surface_uv_transform(cmd->material);
+        GLuint     texture0 = nugl__material_surface_texture0(cmd->material);
+        nu_color_t color    = nugl__material_surface_color(cmd->material,
+                                                        pass->wireframe.color);
         switch (cmds->data[i].type)
         {
             case NUGL__DRAW: {
@@ -63,10 +68,6 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
                     GL_FALSE,
                     cmd->transform.data);
 
-                nu_color_t color = pass->wireframe.color;
-                if (cmd->has_color)
-                {
-                }
                 nu_vec4_t vcolor = nu_color_to_vec4(color);
                 glUniform3fv(
                     glGetUniformLocation(gl->wireframe_program, "color"),

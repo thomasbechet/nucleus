@@ -1,4 +1,3 @@
-#include "nucleus/graphics/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -148,6 +147,9 @@ main (void)
         nu_geometry_delete(g);
     }
 
+    nu_material_t red_mat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_color(red_mat, NU_MATERIAL_COLOR, NU_COLOR_RED);
+
     // Create font
     nu_font_t font = nu_font_create_default();
 
@@ -201,6 +203,7 @@ main (void)
 
         update_context(delta);
 
+        nu_bind_material(wireframe_pass, red_mat);
         for (nu_size_t i = 0; i < ctx.pms.size; ++i)
         {
             point_mass_t *pm = ctx.pms.data + i;
@@ -210,6 +213,7 @@ main (void)
         // Update camera controller
         nu_controller_update(controller, delta, camera);
 
+        nu_bind_material(wireframe_pass, NU_NULL);
         nu_draw_mesh(wireframe_pass, grid, nu_mat4_identity());
         nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
 

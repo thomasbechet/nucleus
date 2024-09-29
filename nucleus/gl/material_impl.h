@@ -135,4 +135,38 @@ nugl__material_create (nu_material_type_t type)
     return handle;
 }
 
+static nu_mat3_t
+nugl__material_surface_uv_transform (nu_material_t mat)
+{
+    if (mat)
+    {
+        return _ctx.gl.materials.data[NU_HANDLE_INDEX(mat)]
+            .surface.uv_transform;
+    }
+    return nu_mat3_identity();
+}
+static GLuint
+nugl__material_surface_texture0 (nu_material_t mat)
+{
+    if (mat)
+    {
+        nu_texture_t tex
+            = _ctx.gl.materials.data[NU_HANDLE_INDEX(mat)].surface.texture0;
+        if (tex)
+        {
+            return _ctx.gl.textures.data[NU_HANDLE_INDEX(tex)].texture;
+        }
+    }
+    return 0;
+}
+static nu_color_t
+nugl__material_surface_color (nu_material_t mat, nu_color_t vdefault)
+{
+    if (mat)
+    {
+        return _ctx.gl.materials.data[NU_HANDLE_INDEX(mat)].surface.color;
+    }
+    return vdefault;
+}
+
 #endif

@@ -46,6 +46,9 @@ nugl__flat_render (nugl__renderpass_t *pass)
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
         const nugl__mesh_command_t *cmd = &cmds->data[i];
+        nu_mat3_t                   uv_transform
+            = nugl__material_surface_uv_transform(cmd->material);
+        GLuint texture0 = nugl__material_surface_texture0(cmd->material);
         switch (cmds->data[i].type)
         {
             case NUGL__DRAW: {
@@ -66,10 +69,9 @@ nugl__flat_render (nugl__renderpass_t *pass)
                     glGetUniformLocation(gl->flat_program, "uv_transform"),
                     1,
                     GL_FALSE,
-                    cmd->uv_transform.data);
+                    uv_transform.data);
 
-                // glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, cmd->texture0);
+                glBindTexture(GL_TEXTURE_2D, texture0);
 
                 glBindVertexArray(cmd->vao);
                 glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);

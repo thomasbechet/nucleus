@@ -18,8 +18,6 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
                               nu_size_t                 instance_count,
                               const nu_mat4_t          *transforms)
 {
-    const nugl__material_t *pmat
-        = mat ? _ctx.gl.materials.data + NU_HANDLE_INDEX(mat) : NU_NULL;
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
@@ -41,28 +39,9 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
                 cmd->primitive = GL_TRIANGLES;
                 break;
         }
-        cmd->vfirst    = nu__primitive_vertex_first(pmesh->primitive, first);
-        cmd->vcount    = nu__primitive_vertex_count(pmesh->primitive, count);
-        cmd->has_color = NU_FALSE;
-
-        const nugl__material_t *pmat
-            = _ctx.gl.materials.data + NU_HANDLE_INDEX(mat);
-        if (mat)
-        {
-            cmd->texture0     = pmat->surface.texture0
-                                    ? (_ctx.gl.textures.data
-                                   + NU_HANDLE_INDEX(pmat->surface.texture0))
-                                      ->texture
-                                    : 0;
-            cmd->texture1     = pmat->surface.texture1
-                                    ? (_ctx.gl.textures.data
-                                   + NU_HANDLE_INDEX(pmat->surface.texture1))
-                                      ->texture
-                                    : 0;
-            cmd->uv_transform = pmat->surface.uv_transform;
-            cmd->color        = pmat->surface.color;
-            cmd->has_color    = NU_TRUE;
-        }
+        cmd->vfirst   = nu__primitive_vertex_first(pmesh->primitive, first);
+        cmd->vcount   = nu__primitive_vertex_count(pmesh->primitive, count);
+        cmd->material = mat;
     }
 }
 
@@ -326,7 +305,6 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    NU_ASSERT(NU_HANDLE_INDEX(material) < gl->materials.size);
     nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
 
     switch (ppass->type)
