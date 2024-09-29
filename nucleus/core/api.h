@@ -624,4 +624,6 @@ NU_API nu_vec3_t nu_axis3d(float     pos_x,
                            float     neg_z,
                            nu_bool_t normalize);
 
+NU_API nu_vec3_t nu_triangle_normal(nu_vec3_t p0, nu_vec3_t p1, nu_vec3_t p2);
+
 #endif

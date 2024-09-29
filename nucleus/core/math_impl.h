@@ -746,4 +746,11 @@ nu_axis3d (float     pos_x,
     return ax;
 }
 
+nu_vec3_t
+nu_triangle_normal (nu_vec3_t p0, nu_vec3_t p1, nu_vec3_t p2)
+{
+    return nu_vec3_normalize(
+        nu_vec3_cross(nu_vec3_sub(p2, p0), nu_vec3_sub(p0, p1)));
+}
+
 #endif

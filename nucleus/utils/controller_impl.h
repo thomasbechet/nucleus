@@ -34,7 +34,7 @@ nu_controller_create (nu_input_t view_pitch,
     ctrl->mode = NU_CONTROLLER_FREEFLY_ALIGNED;
 
     ctrl->fov       = 90;
-    ctrl->speed     = 10;
+    ctrl->speed     = 20;
     ctrl->on_ground = NU_FALSE;
 
     return NU_HANDLE_MAKE(nu_controller_t, index);
@@ -138,7 +138,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     // Apply movement
     if (nu_vec3_norm(direction) > 0.001)
     {
-        force = nu_vec3_add(force, nu_vec3_muls(direction, 6));
+        force = nu_vec3_add(force, nu_vec3_muls(direction, 8));
     }
 
     // Apply gravity

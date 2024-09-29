@@ -181,8 +181,7 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                     nu_vec3_t       p0    = data[index + 0];
                     nu_vec3_t       p1    = data[index + 1];
                     nu_vec3_t       p2    = data[index + 2];
-                    nu_vec3_t       n     = nu_vec3_normalize(nu_vec3_cross(
-                        nu_vec3_sub(p2, p0), nu_vec3_sub(p0, p1)));
+                    nu_vec3_t       n     = nu_triangle_normal(p0, p1, p2);
 
                     for (nu_size_t i = 0; i < 3; ++i)
                     {

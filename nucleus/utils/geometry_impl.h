@@ -229,11 +229,100 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
     NU_VEC_APPEND(&d->uvs, &s->uvs);
 }
 
-nu_mesh_t
-nu_geometry_create_mesh (nu_geometry_t geometry)
+static nu_mesh_t
+nu__geometry_create_mesh_lines (nu__geometry_t *g)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    nu_size_t max_line_count = 0;
+    for (nu_size_t i = 0; i < g->primitives.size; ++i)
+    {
+        nu__primitive_type_t *p = g->primitives.data + i;
+        if (p->count == 2)
+        {
+            max_line_count += p->positions.size / 2;
+        }
+        else if (p->count >= 2)
+        {
+            max_line_count += p->positions.size;
+        }
+    }
+    NU_ASSERT(max_line_count);
 
+    nu_u32_vec_t edges;
+    NU_VEC_INIT(max_line_count * 2, &edges);
+
+    nu_size_t vindex = 0;
+    for (nu_size_t i = 0; i < g->primitives.size; ++i)
+    {
+        nu__primitive_type_t *p = g->primitives.data + i;
+        // Cannot generate triangles for points and lines
+        if (p->count >= 2)
+        {
+            nu_size_t edge_count = p->count;
+            if (p->count == 2)
+            {
+                edge_count /= 2;
+            }
+            // Iterate over faces
+            const nu_size_t face_count = p->positions.size / p->count;
+            for (nu_size_t f = 0; f < face_count; ++f)
+            {
+                // Iterate over face edges
+                for (nu_size_t e = 0; e < edge_count; ++e)
+                {
+                    // Order edge indices
+                    nu_u32_t index0 = p->positions.data[f * p->count + e + 0];
+                    nu_u32_t index1
+                        = p->positions
+                              .data[f * p->count + (e + 1) % edge_count];
+                    if (index0 > index1)
+                    {
+                        nu_u32_t temp = index1;
+                        index1        = index0;
+                        index0        = temp;
+                    }
+                    // Add edge to list if missing
+                    nu_bool_t found = NU_FALSE;
+                    for (nu_size_t j = 0; j < edges.size; j += 2)
+                    {
+                        if (edges.data[j] == index0
+                            && edges.data[j + 1] == index1)
+                        {
+                            found = NU_TRUE;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        *NU_VEC_PUSH(&edges) = index0;
+                        *NU_VEC_PUSH(&edges) = index1;
+                    }
+                }
+            }
+        }
+    }
+
+    // Generate mesh
+    nu_vec3_vec_t positions;
+    NU_VEC_INIT(edges.size, &positions);
+    NU_VEC_RESIZE(&positions, edges.size);
+
+    for (nu_size_t e = 0; e < edges.size; e += 2)
+    {
+        positions.data[e + 0] = g->positions.data[edges.data[e + 0]];
+        positions.data[e + 1] = g->positions.data[edges.data[e + 1]];
+    }
+
+    nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, edges.size / 2);
+    nu_mesh_vec3(mesh, NU_MESH_POSITIONS, 0, edges.size / 2, positions.data);
+
+    NU_VEC_FREE(&edges);
+    NU_VEC_FREE(&positions);
+
+    return mesh;
+}
+static nu_mesh_t
+nu__geometry_create_mesh_triangles (nu__geometry_t *g)
+{
     nu_size_t triangle_count = 0;
     for (nu_size_t i = 0; i < g->primitives.size; ++i)
     {
@@ -292,6 +381,73 @@ nu_geometry_create_mesh (nu_geometry_t geometry)
 
     NU_VEC_FREE(&positions);
     NU_VEC_FREE(&uvs);
+
+    return mesh;
+}
+nu_mesh_t
+nu_geometry_create_mesh (nu_geometry_t geometry, nu_primitive_t primitive)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    switch (primitive)
+    {
+        case NU_PRIMITIVE_LINES:
+            return nu__geometry_create_mesh_lines(g);
+        case NU_PRIMITIVE_TRIANGLES:
+            return nu__geometry_create_mesh_triangles(g);
+        default:
+            break;
+    }
+    NU_ERROR("unsupported geometry primitive mesh generation");
+    return NU_NULL;
+}
+nu_mesh_t
+nu_geometry_create_mesh_normals (nu_geometry_t geometry)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    nu_size_t       face_count = 0;
+    for (nu_size_t i = 0; i < g->primitives.size; ++i)
+    {
+        nu__primitive_type_t *p = g->primitives.data + i;
+        if (p->count >= 3)
+        {
+            face_count += p->positions.size / p->count;
+        }
+    }
+    NU_ASSERT(face_count);
+
+    nu_vec3_vec_t positions;
+    NU_VEC_INIT(face_count * 2, &positions);
+
+    for (nu_size_t i = 0; i < g->primitives.size; ++i)
+    {
+        nu__primitive_type_t *p = g->primitives.data + i;
+        if (p->count >= 3)
+        {
+            for (nu_size_t f = 0; f < p->positions.size; f += p->count)
+            {
+                // Computer the face center of mass
+                nu_vec3_t center = NU_VEC3_ZEROS;
+                for (nu_size_t i = f; i < f + p->count; ++i)
+                {
+                    center = nu_vec3_add(
+                        center, g->positions.data[p->positions.data[i]]);
+                }
+                center = nu_vec3_divs(center, p->count);
+                // Compute normal (expect all points to be coplanar)
+                nu_vec3_t p0 = g->positions.data[p->positions.data[f + 0]];
+                nu_vec3_t p1 = g->positions.data[p->positions.data[f + 1]];
+                nu_vec3_t p2 = g->positions.data[p->positions.data[f + 2]];
+                nu_vec3_t n  = nu_triangle_normal(p0, p1, p2);
+                *NU_VEC_PUSH(&positions) = center;
+                *NU_VEC_PUSH(&positions) = nu_vec3_add(center, n);
+            }
+        }
+    }
+
+    nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, face_count);
+    nu_mesh_vec3(mesh, NU_MESH_POSITIONS, 0, face_count, positions.data);
+
+    NU_VEC_FREE(&positions);
 
     return mesh;
 }
