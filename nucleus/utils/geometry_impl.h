@@ -451,5 +451,19 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
 
     return mesh;
 }
+nu_box3_t
+nu_geometry_bounds (nu_geometry_t geometry)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    NU_ASSERT(g->positions.size);
+    nu_vec3_t min, max;
+    min = max = g->positions.data[0];
+    for (nu_size_t i = 1; i < g->positions.size; ++i)
+    {
+        min = nu_vec3_min(min, g->positions.data[i]);
+        max = nu_vec3_max(max, g->positions.data[i]);
+    }
+    return nu_box3_minmax(min, max);
+}
 
 #endif

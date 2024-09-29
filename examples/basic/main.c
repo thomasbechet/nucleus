@@ -92,6 +92,7 @@ main (void)
     // Create meshes
     nu_mesh_t custom_mesh;
     nu_mesh_t custom_mesh_normals;
+    nu_box3_t bounds;
     {
         nu_geometry_t final = nu_geometry_create();
         nu_geometry_t sub   = nu_geometry_create();
@@ -115,6 +116,7 @@ main (void)
         // nu_geometry_plane(final, 10, 10);
         custom_mesh = nu_geometry_create_mesh(final, NU_PRIMITIVE_TRIANGLES);
         custom_mesh_normals = nu_geometry_create_mesh_normals(final);
+        bounds              = nu_geometry_bounds(final);
         nu_geometry_delete(final);
     }
 
@@ -266,6 +268,7 @@ main (void)
         nu_bind_material(main_pass, material);
         nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
         nu_draw_mesh(wireframe_pass, custom_mesh_normals, nu_mat4_identity());
+        nu_draw_box(wireframe_pass, bounds, nu_mat4_identity());
         nu_draw_model(main_pass, castle, nu_mat4_identity());
 
         // Render custom mesh

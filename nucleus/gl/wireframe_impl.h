@@ -34,6 +34,7 @@ nugl__wireframe_render (nugl__renderpass_t *pass)
     // Prepare pass
     glUseProgram(gl->wireframe_program);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     glFrontFace(GL_CCW);
     glDisable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

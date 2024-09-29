@@ -561,6 +561,8 @@ NU_API float     nu_vec3_norm(nu_vec3_t a);
 NU_API nu_vec3_t nu_vec3_normalize(nu_vec3_t a);
 NU_API nu_vec3_t nu_vec3_cross(nu_vec3_t a, nu_vec3_t b);
 NU_API float     nu_vec3_dot(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_min(nu_vec3_t a, nu_vec3_t b);
+NU_API nu_vec3_t nu_vec3_max(nu_vec3_t a, nu_vec3_t b);
 
 NU_API nu_vec4_t nu_vec4(float x, float y, float z, float w);
 NU_API float     nu_vec4_dot(nu_vec4_t a, nu_vec4_t b);
@@ -609,6 +611,7 @@ NU_API nu_bool_t  nu_box2i_containsi(nu_box2i_t r, nu_vec2i_t p);
 NU_API nu_vec2_t  nu_box2i_normalize(nu_box2i_t r, nu_vec2_t p);
 
 NU_API nu_box3_t nu_box3(nu_vec3_t p, nu_vec3_t s);
+NU_API nu_box3_t nu_box3_minmax(nu_vec3_t min, nu_vec3_t max);
 
 NU_API nu_mat4_t nu_perspective(float fov,
                                 float aspect_ratio,

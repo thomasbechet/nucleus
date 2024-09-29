@@ -245,6 +245,24 @@ nu_vec3_dot (nu_vec3_t a, nu_vec3_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+nu_vec3_t
+nu_vec3_min (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t v;
+    v.x = NU_MIN(a.x, b.x);
+    v.y = NU_MIN(a.y, b.y);
+    v.z = NU_MIN(a.z, b.z);
+    return v;
+}
+nu_vec3_t
+nu_vec3_max (nu_vec3_t a, nu_vec3_t b)
+{
+    nu_vec3_t v;
+    v.x = NU_MAX(a.x, b.x);
+    v.y = NU_MAX(a.y, b.y);
+    v.z = NU_MAX(a.z, b.z);
+    return v;
+}
 
 nu_vec4_t
 nu_vec4 (float x, float y, float z, float w)
@@ -655,6 +673,15 @@ nu_box3 (nu_vec3_t p, nu_vec3_t s)
     nu_box3_t b;
     b.p = p;
     b.s = s;
+    return b;
+}
+nu_box3_t
+nu_box3_minmax (nu_vec3_t min, nu_vec3_t max)
+{
+    NU_ASSERT(max.x >= min.x && max.y >= min.y && max.z >= min.z);
+    nu_box3_t b;
+    b.p = min;
+    b.s = nu_vec3_sub(max, min);
     return b;
 }
 
