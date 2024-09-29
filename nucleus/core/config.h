@@ -15,6 +15,7 @@
 #define NU_BUILD_JSMN
 #define NU_BUILD_ASSET
 #define NU_BUILD_UI
+#define NU_BUILD_PHYSICS
 
 #if defined(NU_NO_PLATFORM)
 #undef NU_BUILD_PLATFORM
@@ -46,6 +47,10 @@
 
 #if defined(NU_NO_UI) || !defined(NU_BUILD_GRAPHICS)
 #undef NU_BUILD_UI
+#endif
+
+#if defined(NU_NO_PHYSICS)
+#undef NU_BUILD_PHYSICS
 #endif
 
 //////////////////////////////////////////////////////////////////////////

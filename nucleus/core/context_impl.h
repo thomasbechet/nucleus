@@ -64,11 +64,18 @@ nu_init (void)
     nu__ui_init();
 #endif
 
+#ifdef NU_BUILD_PHYSICS
+    nu__physics_init();
+#endif
+
     return NU_ERROR_NONE;
 }
 void
 nu_terminate (void)
 {
+#ifdef NU_BUILD_PHYSICS
+    nu__physics_free();
+#endif
 #ifdef NU_BUILD_UI
     nu__ui_free();
 #endif

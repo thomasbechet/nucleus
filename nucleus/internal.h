@@ -23,6 +23,9 @@
 #ifdef NU_BUILD_UI
 #include <nucleus/ui/ui.h>
 #endif
+#ifdef NU_BUILD_PHYSICS
+#include <nucleus/physics/physics.h>
+#endif
 
 typedef struct
 {
@@ -61,6 +64,9 @@ static struct nu__context
 #endif
 #ifdef NU_BUILD_UI
     nu__ui_t ui;
+#endif
+#ifdef NU_BUILD_PHYSICS
+    nu__physics_t physics;
 #endif
 } _ctx;
 

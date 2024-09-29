@@ -20,6 +20,9 @@
 #ifdef NU_BUILD_UI
 #include <nucleus/ui/api.h>
 #endif
+#ifdef NU_BUILD_PHYSICS
+#include <nucleus/physics/api.h>
+#endif
 
 #ifdef NU_IMPLEMENTATION
 
@@ -44,6 +47,9 @@
 #endif
 #ifdef NU_BUILD_UI
 #include <nucleus/ui/ui_impl.h>
+#endif
+#ifdef NU_BUILD_PHYSICS
+#include <nucleus/physics/physics_impl.h>
 #endif
 
 #endif
