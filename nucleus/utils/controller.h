@@ -25,8 +25,6 @@ typedef struct
     float     fov;
     float     speed;
     nu_bool_t on_ground;
-
-    nu_controller_info_t info;
 } nu__camera_controller_t;
 
 typedef NU_POOL(nu__camera_controller_t) nu__camera_controller_pool_t;

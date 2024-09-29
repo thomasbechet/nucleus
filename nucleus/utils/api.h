@@ -13,11 +13,6 @@ typedef enum
     NU_CONTROLLER_CHARACTER
 } nu_controller_mode_t;
 
-typedef struct
-{
-
-} nu_controller_info_t;
-
 NU_API nu_controller_t nu_controller_create(nu_input_t view_pitch,
                                             nu_input_t view_yaw,
                                             nu_input_t view_roll,

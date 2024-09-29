@@ -44,7 +44,6 @@ main (void)
     nuext_import_package("../../../assets/pkg.json");
 
     // Configure inputs
-    nu_controller_info_t cinfo;
     draw        = nu_input_create();
     main_button = nu_input_create();
     quit        = nu_input_create();

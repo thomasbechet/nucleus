@@ -1,20 +1,26 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-project(cxx LANGUAGES CXX VERSION 0.0.1)
+project(physics LANGUAGES C VERSION 0.0.1)
 
 set(CMAKE_BUILD_TYPE Debug)
 # set(CMAKE_BUILD_TYPE Release)
 
 add_executable(
     ${PROJECT_NAME}
-    main.cpp
+    main.c
 )
 
-# Compile GLFW (TODO: find header only library)
-# add_subdirectory(${CMAKE_SOURCE_DIR}/nucleus/external/glfw-3.4 glfw)
-target_link_libraries(${PROJECT_NAME} glfw GL)
+find_package(OpenGL REQUIRED)
+if (UNIX)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m Xrandr X11 dl pthread)
+endif (UNIX)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} m)
+endif (WIN32)
 
 include_directories(${CMAKE_SOURCE_DIR})
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
 
 include(CheckCCompilerFlag)
 function(enable_c_compiler_flag_if_supported flag)
@@ -31,7 +37,7 @@ endfunction()
 enable_c_compiler_flag_if_supported("-Wall")
 enable_c_compiler_flag_if_supported("-Wextra")
 enable_c_compiler_flag_if_supported("-Werror")
-enable_c_compiler_flag_if_supported("-pedantic")
+# enable_c_compiler_flag_if_supported("-pedantic")
 enable_c_compiler_flag_if_supported("-ansi")
 # enable_c_compiler_flag_if_supported("-nostdlib")
 enable_c_compiler_flag_if_supported("-Wstrict-prototypes")
