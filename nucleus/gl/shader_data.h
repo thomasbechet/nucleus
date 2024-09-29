@@ -240,9 +240,9 @@ static const nu_char_t *nugl__shader_wireframe_vert
       "    vec4 position = view_projection * model * vec4(in_position, 1);\n"
       "\n"
       "    vec2 grid = vec2(viewport_size);\n"
-      "    position.xy = position.xy / position.w;\n"
-      "    position.xy = (floor(grid * position.xy) + 0.5) / grid;\n"
-      "    position.xy *= position.w;\n"
+      "    // position.xy = position.xy / position.w;\n"
+      "    // position.xy = (floor(grid * position.xy) + 0.5) / grid;\n"
+      "    // position.xy *= position.w;\n"
       "    gl_Position = position;\n"
       "}\n";
 #endif

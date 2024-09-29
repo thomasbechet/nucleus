@@ -24,6 +24,7 @@ NU_API void            nu_controller_delete(nu_controller_t controller);
 NU_API void            nu_controller_update(nu_controller_t controller,
                                             float           dt,
                                             nu_camera_t     camera);
+NU_API nu_mat4_t       nu_controller_transform(nu_controller_t controller);
 
 NU_API nu_geometry_t nu_geometry_create(void);
 NU_API void          nu_geometry_delete(nu_geometry_t geometry);

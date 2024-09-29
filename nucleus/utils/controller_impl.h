@@ -197,5 +197,12 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     nu_camera_view(camera,
                    nu_lookat(ctrl->pos, nu_vec3_add(ctrl->pos, forward), up));
 }
+nu_mat4_t
+nu_controller_transform (nu_controller_t controller)
+{
+    nu__camera_controller_t *ctrl
+        = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
+    return nu_mat4_mul(nu_mat4_translate(ctrl->pos), nu_quat_mat4(ctrl->rot));
+}
 
 #endif

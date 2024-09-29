@@ -78,6 +78,13 @@ nu_tan (float x)
     return tanf(x);
 #endif
 }
+float
+nu_exp (float x)
+{
+#ifdef NU_STDLIB
+    return expf(x);
+#endif
+}
 
 nu_vec2_t
 nu_vec2 (float x, float y)

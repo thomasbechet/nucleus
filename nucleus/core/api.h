@@ -539,6 +539,7 @@ NU_API float     nu_pow(float b, float e);
 NU_API float     nu_cos(float x);
 NU_API float     nu_sin(float x);
 NU_API float     nu_tan(float x);
+NU_API float     nu_exp(float x);
 
 NU_API nu_vec2_t nu_vec2(float x, float y);
 NU_API nu_vec2_t nu_vec2_add(nu_vec2_t a, nu_vec2_t b);

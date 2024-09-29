@@ -25,33 +25,107 @@ typedef NU_VEC(collision_t) collision_vec_t;
 
 typedef struct
 {
+    nu_u32_t index0;
+    nu_u32_t index1;
+    float    distance;
+} constraint_t;
+
+typedef NU_VEC(constraint_t) constraint_vec_t;
+
+typedef struct
+{
     point_mass_vec_t pms;
     collision_vec_t  collisions;
+    constraint_vec_t constraints;
     nu_vec3_t        global_force;
 } context_t;
 
 static context_t ctx;
 
-static void
-reset_context (void)
+static nu_u32_t
+add_pm (nu_vec3_t pos, nu_vec3_t vel)
 {
-    NU_VEC_CLEAR(&ctx.pms);
-    ctx.global_force = nu_vec3(0, -9.81 / 2, 0);
     point_mass_t *pm = NU_VEC_PUSH(&ctx.pms);
-    pm->pos          = nu_vec3(0, 5, 0);
-    pm->vel          = NU_VEC3_ZEROS;
+    pm->pos          = pos;
+    pm->vel          = vel;
     pm->acc          = NU_VEC3_ZEROS;
+    return ctx.pms.size - 1;
+}
+static void
+add_constraint (nu_u32_t a, nu_u32_t b, float distance)
+{
+    constraint_t *c = NU_VEC_PUSH(&ctx.constraints);
+    c->index0       = a;
+    c->index1       = b;
+    c->distance     = distance;
+}
+static void
+shoot_context (nu_vec3_t pos, nu_vec3_t dir)
+{
+    ctx.global_force = nu_vec3(0, -9.81, 0);
+    nu_vec3_t   vel  = nu_vec3_muls(dir, 10);
+    const float s    = 1.0;
+    const float h    = s / 2;
+    const float s2   = nu_sqrt(s + s);
+    const float s3   = nu_sqrt(s + s + s);
+
+    nu_u32_t p0 = add_pm(nu_vec3_add(pos, nu_vec3(-h, h, h)), vel);
+    nu_u32_t p1 = add_pm(nu_vec3_add(pos, nu_vec3(-h, h, -h)), vel);
+    nu_u32_t p2 = add_pm(nu_vec3_add(pos, nu_vec3(h, h, -h)), vel);
+    nu_u32_t p3 = add_pm(nu_vec3_add(pos, nu_vec3(h, h, h)), vel);
+    nu_u32_t p4 = add_pm(nu_vec3_add(pos, nu_vec3(-h, -h, h)), vel);
+    nu_u32_t p5 = add_pm(nu_vec3_add(pos, nu_vec3(-h, -h, -h)), vel);
+    nu_u32_t p6 = add_pm(nu_vec3_add(pos, nu_vec3(h, -h, -h)), vel);
+    nu_u32_t p7 = add_pm(nu_vec3_add(pos, nu_vec3(h, -h, h)), vel);
+
+    add_constraint(p0, p1, s);
+    add_constraint(p1, p2, s);
+    add_constraint(p2, p3, s);
+    add_constraint(p3, p0, s);
+
+    add_constraint(p4, p5, s);
+    add_constraint(p5, p6, s);
+    add_constraint(p6, p7, s);
+    add_constraint(p7, p4, s);
+
+    add_constraint(p0, p4, s);
+    add_constraint(p1, p5, s);
+    add_constraint(p2, p6, s);
+    add_constraint(p3, p7, s);
+
+    add_constraint(p0, p2, s2);
+    add_constraint(p1, p3, s2);
+
+    add_constraint(p4, p6, s2);
+    add_constraint(p5, p7, s2);
+
+    add_constraint(p0, p7, s2);
+    add_constraint(p4, p3, s2);
+
+    add_constraint(p5, p2, s2);
+    add_constraint(p1, p6, s2);
+
+    add_constraint(p4, p1, s2);
+    add_constraint(p0, p5, s2);
+
+    add_constraint(p3, p6, s2);
+    add_constraint(p7, p2, s2);
+
+    add_constraint(p4, p2, s3);
+    add_constraint(p0, p6, s3);
+    add_constraint(p7, p1, s3);
 }
 static void
 init_context (void)
 {
     NU_VEC_INIT(100, &ctx.pms);
     NU_VEC_INIT(100, &ctx.collisions);
-    reset_context();
+    NU_VEC_INIT(100, &ctx.constraints);
 }
 static void
 free_context (void)
 {
+    NU_VEC_FREE(&ctx.constraints);
     NU_VEC_FREE(&ctx.collisions);
     NU_VEC_FREE(&ctx.pms);
 }
@@ -61,6 +135,14 @@ compute_force (point_mass_t *pm)
     return ctx.global_force;
 }
 
+static collision_t
+find_collision (nu_vec3_t position)
+{
+    collision_t c;
+    c.depth  = -position.y;
+    c.normal = NU_VEC3_UP;
+    return c;
+}
 static void
 update_context (float dt)
 {
@@ -78,6 +160,46 @@ update_context (float dt)
             pm->vel, nu_vec3_muls(nu_vec3_add(pm->acc, new_acc), 0.5 * dt));
         pm->acc = new_acc;
         pm->vel = new_vel;
+
+        // Update collision
+        collision_t c = find_collision(pm->pos);
+        if (c.depth < 0)
+        {
+            continue;
+        }
+        pm->pos      = nu_vec3_add(pm->pos, nu_vec3_muls(c.normal, c.depth));
+        nu_vec3_t vn = nu_vec3_muls(c.normal, nu_vec3_dot(c.normal, pm->vel));
+        nu_vec3_t vt = nu_vec3_sub(pm->vel, vn);
+        vn           = nu_vec3_muls(vn, -0.5);
+        vt           = nu_vec3_muls(vt, nu_exp(-50 * dt));
+
+        pm->vel = nu_vec3_add(vn, vt);
+
+        // Resolve constraints
+        for (nu_size_t i = 0; i < ctx.constraints.size; ++i)
+        {
+            constraint_t *c  = ctx.constraints.data + i;
+            nu_vec3_t     p0 = ctx.pms.data[c->index0].pos;
+            nu_vec3_t     p1 = ctx.pms.data[c->index1].pos;
+
+            nu_vec3_t delta    = nu_vec3_sub(p1, p0);
+            float     distance = nu_vec3_norm(delta);
+
+            nu_vec3_t required_delta
+                = nu_vec3_muls(delta, c->distance / distance);
+            nu_vec3_t force
+                = nu_vec3_muls(nu_vec3_sub(required_delta, delta), 20);
+
+            // ctx.pms.data[c->index0].pos
+            //     = nu_vec3_sub(p0, nu_vec3_muls(offset, 0.5));
+            // ctx.pms.data[c->index1].pos
+            //     = nu_vec3_add(p1, nu_vec3_muls(offset, 0.5));
+
+            ctx.pms.data[c->index0].vel = nu_vec3_sub(
+                ctx.pms.data[c->index0].vel, nu_vec3_muls(force, dt));
+            ctx.pms.data[c->index1].vel = nu_vec3_add(
+                ctx.pms.data[c->index1].vel, nu_vec3_muls(force, dt));
+        }
     }
 }
 
@@ -97,7 +219,7 @@ main (void)
     nu_input_t view_pitch  = nu_input_create();
     nu_input_t view_roll   = nu_input_create();
     nu_input_t switch_mode = nu_input_create();
-    nu_input_t reset       = nu_input_create();
+    nu_input_t shoot       = nu_input_create();
 
     // Create camera controller
     nu_controller_t controller = nu_controller_create(
@@ -120,7 +242,7 @@ main (void)
     nuext_input_bind_button_value(view_roll, NUEXT_BUTTON_Q, 0.12);
     nuext_input_bind_button_value(view_roll, NUEXT_BUTTON_E, -0.12);
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
-    nuext_input_bind_button(reset, NUEXT_BUTTON_R);
+    nuext_input_bind_button(shoot, NUEXT_BUTTON_R);
 
     // Create depth buffer
     nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
@@ -188,26 +310,49 @@ main (void)
 
     init_context();
 
+    nu_fixed_loop_t loop = nu_fixed_loop(0, 1.0 / 60.0 * 1000.0);
+
     while (!nu_exit_requested())
     {
-        delta = nu_timer_elapsed(&timer);
-        nu_timer_reset(&timer);
-
         // Poll events
         nu_poll_events();
 
-        if (nu_input_just_pressed(reset))
+        if (nu_input_just_pressed(shoot))
         {
-            reset_context();
+            nu_mat4_t transform = nu_controller_transform(controller);
+            nu_vec3_t pos       = nu_mat4_mulv3(transform, NU_VEC3_ZEROS);
+            nu_vec4_t dir0      = nu_mat4_mulv(transform, nu_vec4(0, 0, -1, 0));
+            nu_vec3_t dir       = nu_vec3(dir0.x, dir0.y, dir0.z);
+            shoot_context(pos, dir);
         }
 
         update_context(delta);
+        nu_fixed_loop_update(&loop, 1, delta);
+        nu_u32_t id;
+        while (nu_fixed_loop_next(&loop, 1, &id))
+        {
+            if (id == 0)
+            {
+                update_context(0.5);
+            }
+        }
+
+        delta = nu_timer_elapsed(&timer);
+        nu_timer_reset(&timer);
 
         nu_bind_material(wireframe_pass, red_mat);
         for (nu_size_t i = 0; i < ctx.pms.size; ++i)
         {
             point_mass_t *pm = ctx.pms.data + i;
             nu_draw_mesh(wireframe_pass, cube, nu_mat4_translate(pm->pos));
+        }
+        nu_bind_material(wireframe_pass, NU_NULL);
+        for (nu_size_t i = 0; i < ctx.constraints.size; ++i)
+        {
+            nu_vec3_t p0 = ctx.pms.data[ctx.constraints.data[i].index0].pos;
+            nu_vec3_t p1 = ctx.pms.data[ctx.constraints.data[i].index1].pos;
+            const nu_vec3_t points[] = { p0, p1 };
+            nu_draw_lines(wireframe_pass, points, 1, nu_mat4_identity());
         }
 
         // Update camera controller
