@@ -114,6 +114,7 @@ shoot_context (nu_vec3_t pos, nu_vec3_t dir)
     add_constraint(p4, p2, s3);
     add_constraint(p0, p6, s3);
     add_constraint(p7, p1, s3);
+    add_constraint(p3, p5, s3);
 }
 static void
 init_context (void)
@@ -147,9 +148,9 @@ static void
 update_context (float dt)
 {
     dt *= 0.001;
+    // Verlet integration
     for (nu_size_t i = 0; i < ctx.pms.size; ++i)
     {
-        // Verlet integration
         point_mass_t *pm = ctx.pms.data + i;
         pm->pos
             = nu_vec3_add(pm->pos,
@@ -161,7 +162,17 @@ update_context (float dt)
         pm->acc = new_acc;
         pm->vel = new_vel;
 
-        // Update collision
+        // pm->vel = nu_vec3_add(pm->vel, nu_vec3_muls(compute_force(pm), dt));
+        // pm->pos = nu_vec3_add(pm->pos, nu_vec3_muls(pm->vel, dt));
+    }
+
+    // Collision resolution
+    for (nu_size_t i = 0; i < ctx.pms.size; ++i)
+    {
+        point_mass_t *pm         = ctx.pms.data + i;
+        const float   elasticity = 0;
+        const float   friction   = 100;
+
         collision_t c = find_collision(pm->pos);
         if (c.depth < 0)
         {
@@ -170,12 +181,14 @@ update_context (float dt)
         pm->pos      = nu_vec3_add(pm->pos, nu_vec3_muls(c.normal, c.depth));
         nu_vec3_t vn = nu_vec3_muls(c.normal, nu_vec3_dot(c.normal, pm->vel));
         nu_vec3_t vt = nu_vec3_sub(pm->vel, vn);
-        vn           = nu_vec3_muls(vn, -0.5);
-        vt           = nu_vec3_muls(vt, nu_exp(-50 * dt));
+        vn           = nu_vec3_muls(vn, -elasticity);
+        vt           = nu_vec3_muls(vt, nu_exp(-friction * dt));
+        pm->vel      = nu_vec3_add(vn, vt);
+    }
 
-        pm->vel = nu_vec3_add(vn, vt);
-
-        // Resolve constraints
+    // Resolve constraints
+    for (nu_size_t n = 0; n < 10; ++n)
+    {
         for (nu_size_t i = 0; i < ctx.constraints.size; ++i)
         {
             constraint_t *c  = ctx.constraints.data + i;
@@ -187,18 +200,25 @@ update_context (float dt)
 
             nu_vec3_t required_delta
                 = nu_vec3_muls(delta, c->distance / distance);
-            nu_vec3_t force
-                = nu_vec3_muls(nu_vec3_sub(required_delta, delta), 20);
+            // nu_vec3_t force = nu_vec3_muls(nu_vec3_sub(required_delta,
+            // delta), 50);
 
-            // ctx.pms.data[c->index0].pos
-            //     = nu_vec3_sub(p0, nu_vec3_muls(offset, 0.5));
-            // ctx.pms.data[c->index1].pos
-            //     = nu_vec3_add(p1, nu_vec3_muls(offset, 0.5));
+            // ctx.pms.data[c->index0].vel
+            //     = nu_vec3_sub(ctx.pms.data[c->index0].vel,
+            //     nu_vec3_muls(force, dt));
+            // ctx.pms.data[c->index1].vel
+            //     = nu_vec3_add(ctx.pms.data[c->index1].vel,
+            //     nu_vec3_muls(force, dt));
 
-            ctx.pms.data[c->index0].vel = nu_vec3_sub(
-                ctx.pms.data[c->index0].vel, nu_vec3_muls(force, dt));
-            ctx.pms.data[c->index1].vel = nu_vec3_add(
-                ctx.pms.data[c->index1].vel, nu_vec3_muls(force, dt));
+            // float     damping = 1.0 - nu_exp(-500 * dt);
+            // nu_vec3_t offset
+            //     = nu_vec3_muls(nu_vec3_sub(required_delta, delta), damping);
+            nu_vec3_t offset = nu_vec3_sub(required_delta, delta);
+
+            ctx.pms.data[c->index0].pos
+                = nu_vec3_sub(p0, nu_vec3_muls(offset, 0.5));
+            ctx.pms.data[c->index1].pos
+                = nu_vec3_add(p1, nu_vec3_muls(offset, 0.5));
         }
     }
 }

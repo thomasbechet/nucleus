@@ -9,7 +9,7 @@ nu__graphics_immediate_init (void)
     nu__graphics_immediate_reset();
 
     _ctx.graphics.im.points = nu_mesh_create(NU_PRIMITIVE_POINTS, 1000);
-    _ctx.graphics.im.lines  = nu_mesh_create(NU_PRIMITIVE_LINES, 1000);
+    _ctx.graphics.im.lines  = nu_mesh_create(NU_PRIMITIVE_LINES, 5000);
     _ctx.graphics.im.lines_strip
         = nu_mesh_create(NU_PRIMITIVE_LINES_STRIP, 1000);
     _ctx.graphics.im.triangles = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, 1000);
