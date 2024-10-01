@@ -59,7 +59,7 @@ add_pm (nu_vec3_t pos, nu_vec3_t vel)
     return ctx.point_masses.size - 1;
 }
 static void
-add_constraint (nu_u32_t a, nu_u32_t b, float distance)
+add_distance_constraint (nu_u32_t a, nu_u32_t b, float distance)
 {
     distance_constraint_t *c = NU_VEC_PUSH(&ctx.distance_constraints);
     c->a                     = a;
@@ -84,43 +84,43 @@ shoot_context (nu_vec3_t pos, nu_vec3_t dir)
     nu_u32_t p6 = add_pm(nu_vec3_add(pos, nu_vec3(h, -h, -h)), vel);
     nu_u32_t p7 = add_pm(nu_vec3_add(pos, nu_vec3(h, -h, h)), vel);
 
-    add_constraint(p0, p1, s);
-    add_constraint(p1, p2, s);
-    add_constraint(p2, p3, s);
-    add_constraint(p3, p0, s);
+    add_distance_constraint(p0, p1, s);
+    add_distance_constraint(p1, p2, s);
+    add_distance_constraint(p2, p3, s);
+    add_distance_constraint(p3, p0, s);
 
-    add_constraint(p4, p5, s);
-    add_constraint(p5, p6, s);
-    add_constraint(p6, p7, s);
-    add_constraint(p7, p4, s);
+    add_distance_constraint(p4, p5, s);
+    add_distance_constraint(p5, p6, s);
+    add_distance_constraint(p6, p7, s);
+    add_distance_constraint(p7, p4, s);
 
-    add_constraint(p0, p4, s);
-    add_constraint(p1, p5, s);
-    add_constraint(p2, p6, s);
-    add_constraint(p3, p7, s);
+    add_distance_constraint(p0, p4, s);
+    add_distance_constraint(p1, p5, s);
+    add_distance_constraint(p2, p6, s);
+    add_distance_constraint(p3, p7, s);
 
-    add_constraint(p0, p2, s2);
-    add_constraint(p1, p3, s2);
+    add_distance_constraint(p0, p2, s2);
+    add_distance_constraint(p1, p3, s2);
 
-    add_constraint(p4, p6, s2);
-    add_constraint(p5, p7, s2);
+    add_distance_constraint(p4, p6, s2);
+    add_distance_constraint(p5, p7, s2);
 
-    add_constraint(p0, p7, s2);
-    add_constraint(p4, p3, s2);
+    add_distance_constraint(p0, p7, s2);
+    add_distance_constraint(p4, p3, s2);
 
-    add_constraint(p5, p2, s2);
-    add_constraint(p1, p6, s2);
+    add_distance_constraint(p5, p2, s2);
+    add_distance_constraint(p1, p6, s2);
 
-    add_constraint(p4, p1, s2);
-    add_constraint(p0, p5, s2);
+    add_distance_constraint(p4, p1, s2);
+    add_distance_constraint(p0, p5, s2);
 
-    add_constraint(p3, p6, s2);
-    add_constraint(p7, p2, s2);
+    add_distance_constraint(p3, p6, s2);
+    add_distance_constraint(p7, p2, s2);
 
-    add_constraint(p4, p2, s3);
-    add_constraint(p0, p6, s3);
-    add_constraint(p7, p1, s3);
-    add_constraint(p3, p5, s3);
+    add_distance_constraint(p4, p2, s3);
+    add_distance_constraint(p0, p6, s3);
+    add_distance_constraint(p7, p1, s3);
+    add_distance_constraint(p3, p5, s3);
 }
 static void
 init_context (void)

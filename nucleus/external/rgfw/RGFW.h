@@ -263,10 +263,8 @@ typedef u32 b32;
 
 #if defined(RGFW_DIRECTX)
 #include <d3d11.h>
-#include <dxgi.h>
-#include <dxgi.h>
 #include <d3dcompiler.h>
-
+#include <dxgi.h>
 #ifndef __cplusplus
 #define __uuidof(T) IID_##T
 #endif
@@ -2153,7 +2151,7 @@ void RGFW_window_maximize(RGFW_window *win) {
 
 b8 RGFW_window_shouldClose(RGFW_window *win) {
   assert(win != NULL);
-  return (win->event.type == RGFW_quit || RGFW_isPressed(win, RGFW_Escape));
+  return (win->event.type == RGFW_quit);
 }
 
 void RGFW_window_setShouldClose(RGFW_window *win) {
@@ -2287,9 +2285,9 @@ void RGFW_window_setDND(RGFW_window *win, b8 allow) {
 #ifndef GL_SILENCE_DEPRECATION
 #define GL_SILENCE_DEPRECATION
 #endif
-#include <OpenGL/gl.h>
 #include <OpenGL/OpenGL.h>
-#endif
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
 
 /* EGL, normal OpenGL only */
 #if !defined(RGFW_OSMESA)
@@ -2713,10 +2711,10 @@ This is where OS specific stuff starts
 int RGFW_eventWait_forceStop[] = {0, 0, 0}; /* for wait events */
 
 #ifdef __linux__
-#include <linux/joystick.h>
 #include <fcntl.h>
+#include <fcntl.h>
+#include <linux/joystick.h>
 #include <unistd.h>
-
 RGFW_Event *RGFW_linux_updateJoystick(RGFW_window *win) {
   static int xAxis = 0, yAxis = 0;
   u8 i;
@@ -4639,15 +4637,15 @@ scale the window to the screen
 - other missing functions functions ("TODO wayland") (~30 functions)
 - fix buffer rendering weird behavior
 */
-#include <errno.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <xkbcommon/xkbcommon.h>
-#include <xkbcommon/xkbcommon-keysyms.h>
 #include <dirent.h>
+#include <dirent.h>
+#include <errno.h>
 #include <linux/kd.h>
+#include <sys/mman.h>
+#include <unistd.h>
 #include <wayland-cursor.h>
-
+#include <xkbcommon/xkbcommon-keysyms.h>
+#include <xkbcommon/xkbcommon.h>
 RGFW_window *RGFW_key_win = NULL;
 
 void RGFW_eventPipe_push(RGFW_window *win, RGFW_Event event) {
@@ -5618,13 +5616,13 @@ char *RGFW_readClipboard(size_t *size) {
 #define OEMRESOURCE
 #include <windows.h>
 
-#include <processthreadsapi.h>
-#include <wchar.h>
 #include <locale.h>
-#include <windowsx.h>
+#include <locale.h>
+#include <processthreadsapi.h>
 #include <shellapi.h>
 #include <shellscalingapi.h>
-
+#include <wchar.h>
+#include <windowsx.h>
 __declspec(dllimport) int __stdcall WideCharToMultiByte(
     UINT CodePage, DWORD dwFlags, const WCHAR *lpWideCharStr, int cchWideChar,
     LPSTR lpMultiByteStr, int cbMultiByte, LPCCH lpDefaultChar,
@@ -7797,10 +7795,10 @@ CVReturn displayCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow,
                          const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn,
                          CVOptionFlags *flagsOut, void *displayLinkContext) {
   RGFW_UNUSED(displayLink)
-  RGFW_UNUSED(inNow) RGFW_UNUSED(inOutputTime) RGFW_UNUSED(flagsIn)
-      RGFW_UNUSED(flagsOut)
-          RGFW_UNUSED(displayLinkContext) return kCVReturnSuccess;
-}
+  RGFW_UNUSED(inNow)
+  RGFW_UNUSED(inOutp
+  tTime) RGFW_UNUSED(flagsIn) RGFW_UNUSED(flagsO RGFW_UNUSED(displayLi
+      
 
 id NSWindow_delegate(RGFW_window *win) {
   return (id)objc_msgSend_id(win->src.window, sel_registerName("delegate"));

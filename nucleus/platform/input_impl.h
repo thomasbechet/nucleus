@@ -200,18 +200,24 @@ nu__mouse_button_callback (RGFW_window *window,
 {
     if (button < RGFW_mouseScrollUp)
     {
-        if (button == RGFW_mouseLeft && !_ctx.platform.capture_mouse)
+        if (!_ctx.platform.capture_mouse)
         {
-            if (nu_timer_elapsed(&_ctx.platform.last_mouse_click) < 500.0)
+            if (button == RGFW_mouseLeft && pressed)
             {
-                _ctx.platform.switch_capture_mouse = NU_TRUE;
+                if (nu_timer_elapsed(&_ctx.platform.last_mouse_click) < 500.0)
+                {
+                    _ctx.platform.switch_capture_mouse = NU_TRUE;
+                }
+                nu_timer_reset(&_ctx.platform.last_mouse_click);
             }
-            nu_timer_reset(&_ctx.platform.last_mouse_click);
         }
-        nu__dispatch_binding_button(
-            _ctx.platform.mouse_button_to_first_binding[button], pressed);
+        else
+        {
+            nu__dispatch_binding_button(
+                _ctx.platform.mouse_button_to_first_binding[button], pressed);
+        }
     }
-    else
+    else if (_ctx.platform.capture_mouse)
     {
         _ctx.platform.mouse_scroll = nu_vec2((float)scroll, (float)scroll);
     }
