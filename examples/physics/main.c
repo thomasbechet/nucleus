@@ -8,36 +8,39 @@
 
 typedef struct
 {
-    nu_vec3_t pos;
-    nu_vec3_t vel;
-    nu_vec3_t acc;
+    nu_vec3_t x; // position
+    nu_vec3_t p; // temp position
+    nu_vec3_t v; // velocity
+    nu_vec3_t u; // pre-solved velocity (for restitution)
+    nu_vec3_t f; // force
+    float     m; // mass
+    float     w; // inv mass
 } point_mass_t;
 
+typedef struct
+{
+    nu_u32_t  a; // index of point mass
+    nu_vec3_t p; // position of collision
+    nu_vec3_t n; // normal
+    float     d; // depth
+} collision_constraint_t;
+
+typedef struct
+{
+    nu_u32_t a; // index of first point mass
+    nu_u32_t b; // index of second point mass
+    float    d; // distance
+} distance_constraint_t;
+
 typedef NU_VEC(point_mass_t) point_mass_vec_t;
+typedef NU_VEC(collision_constraint_t) collision_constraint_vec_t;
+typedef NU_VEC(distance_constraint_t) distance_constraint_vec_t;
 
 typedef struct
 {
-    nu_vec3_t normal;
-    float     depth;
-} collision_t;
-
-typedef NU_VEC(collision_t) collision_vec_t;
-
-typedef struct
-{
-    nu_u32_t index0;
-    nu_u32_t index1;
-    float    distance;
-} constraint_t;
-
-typedef NU_VEC(constraint_t) constraint_vec_t;
-
-typedef struct
-{
-    point_mass_vec_t pms;
-    collision_vec_t  collisions;
-    constraint_vec_t constraints;
-    nu_vec3_t        global_force;
+    point_mass_vec_t           point_masses;
+    collision_constraint_vec_t collision_constraints;
+    distance_constraint_vec_t  distance_constraints;
 } context_t;
 
 static context_t ctx;
@@ -45,29 +48,32 @@ static context_t ctx;
 static nu_u32_t
 add_pm (nu_vec3_t pos, nu_vec3_t vel)
 {
-    point_mass_t *pm = NU_VEC_PUSH(&ctx.pms);
-    pm->pos          = pos;
-    pm->vel          = vel;
-    pm->acc          = NU_VEC3_ZEROS;
-    return ctx.pms.size - 1;
+    point_mass_t *pm = NU_VEC_PUSH(&ctx.point_masses);
+    pm->x            = pos;
+    pm->p            = NU_VEC3_ZEROS;
+    pm->v            = vel;
+    pm->u            = NU_VEC3_ZEROS;
+    pm->f            = NU_VEC3_ZEROS;
+    pm->m            = 1;
+    pm->w            = 1.0 / pm->m;
+    return ctx.point_masses.size - 1;
 }
 static void
 add_constraint (nu_u32_t a, nu_u32_t b, float distance)
 {
-    constraint_t *c = NU_VEC_PUSH(&ctx.constraints);
-    c->index0       = a;
-    c->index1       = b;
-    c->distance     = distance;
+    distance_constraint_t *c = NU_VEC_PUSH(&ctx.distance_constraints);
+    c->a                     = a;
+    c->b                     = b;
+    c->d                     = distance;
 }
 static void
 shoot_context (nu_vec3_t pos, nu_vec3_t dir)
 {
-    ctx.global_force = nu_vec3(0, -9.81, 0);
-    nu_vec3_t   vel  = nu_vec3_muls(dir, 10);
-    const float s    = 1.0;
-    const float h    = s / 2;
-    const float s2   = nu_sqrt(s + s);
-    const float s3   = nu_sqrt(s + s + s);
+    nu_vec3_t   vel = nu_vec3_muls(dir, 10);
+    const float s   = 1.0;
+    const float h   = s / 2;
+    const float s2  = nu_sqrt(s + s);
+    const float s3  = nu_sqrt(s + s + s);
 
     nu_u32_t p0 = add_pm(nu_vec3_add(pos, nu_vec3(-h, h, h)), vel);
     nu_u32_t p1 = add_pm(nu_vec3_add(pos, nu_vec3(-h, h, -h)), vel);
@@ -119,107 +125,134 @@ shoot_context (nu_vec3_t pos, nu_vec3_t dir)
 static void
 init_context (void)
 {
-    NU_VEC_INIT(100, &ctx.pms);
-    NU_VEC_INIT(100, &ctx.collisions);
-    NU_VEC_INIT(100, &ctx.constraints);
+    NU_VEC_INIT(100, &ctx.point_masses);
+    NU_VEC_INIT(100, &ctx.collision_constraints);
+    NU_VEC_INIT(100, &ctx.distance_constraints);
 }
 static void
 free_context (void)
 {
-    NU_VEC_FREE(&ctx.constraints);
-    NU_VEC_FREE(&ctx.collisions);
-    NU_VEC_FREE(&ctx.pms);
+    NU_VEC_FREE(&ctx.distance_constraints);
+    NU_VEC_FREE(&ctx.collision_constraints);
+    NU_VEC_FREE(&ctx.point_masses);
 }
 static nu_vec3_t
-compute_force (point_mass_t *pm)
+compute_sum_forces (point_mass_t *pm)
 {
-    return ctx.global_force;
+    return nu_vec3(0, -9.81, 0);
 }
 
-static collision_t
-find_collision (nu_vec3_t position)
+static collision_constraint_t
+find_collision (nu_vec3_t p)
 {
-    collision_t c;
-    c.depth  = -position.y;
-    c.normal = NU_VEC3_UP;
+    collision_constraint_t c;
+    c.p = nu_vec3(p.x, 0, p.y);
+    c.d = -p.y;
+    c.n = NU_VEC3_UP;
     return c;
 }
 static void
 update_context (float dt)
 {
     dt *= 0.001;
-    // Verlet integration
-    for (nu_size_t i = 0; i < ctx.pms.size; ++i)
-    {
-        point_mass_t *pm = ctx.pms.data + i;
-        pm->pos
-            = nu_vec3_add(pm->pos,
-                          nu_vec3_add(nu_vec3_muls(pm->vel, dt),
-                                      nu_vec3_muls(pm->acc, 0.5 * dt * dt)));
-        nu_vec3_t new_acc = compute_force(pm);
-        nu_vec3_t new_vel = nu_vec3_add(
-            pm->vel, nu_vec3_muls(nu_vec3_add(pm->acc, new_acc), 0.5 * dt));
-        pm->acc = new_acc;
-        pm->vel = new_vel;
 
-        // pm->vel = nu_vec3_add(pm->vel, nu_vec3_muls(compute_force(pm), dt));
-        // pm->pos = nu_vec3_add(pm->pos, nu_vec3_muls(pm->vel, dt));
+    NU_VEC_CLEAR(&ctx.collision_constraints);
+
+    // (5) compute new velocities
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t *pm        = ctx.point_masses.data + i;
+        nu_vec3_t     sum_force = compute_sum_forces(pm);
+        pm->v = nu_vec3_add(pm->v, nu_vec3_muls(sum_force, dt * pm->w));
     }
-
-    // Collision resolution
-    for (nu_size_t i = 0; i < ctx.pms.size; ++i)
+    // (6) damp velocities
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
     {
-        point_mass_t *pm         = ctx.pms.data + i;
-        const float   elasticity = 0;
-        const float   friction   = 100;
-
-        collision_t c = find_collision(pm->pos);
-        if (c.depth < 0)
+        point_mass_t *pm = ctx.point_masses.data + i;
+        pm->v            = nu_vec3_muls(pm->v, 0.999);
+    }
+    // (6bis) keep pre solved velocities for step (16)
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t *pm = ctx.point_masses.data + i;
+        pm->u            = pm->v;
+    }
+    // (7) compute new position
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t *pm = ctx.point_masses.data + i;
+        pm->p            = nu_vec3_add(pm->x, nu_vec3_muls(pm->v, dt));
+    }
+    // (8) generate collision constraints
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t          *pm = ctx.point_masses.data + i;
+        collision_constraint_t c  = find_collision(pm->p);
+        if (c.d < 0)
         {
             continue;
         }
-        pm->pos      = nu_vec3_add(pm->pos, nu_vec3_muls(c.normal, c.depth));
-        nu_vec3_t vn = nu_vec3_muls(c.normal, nu_vec3_dot(c.normal, pm->vel));
-        nu_vec3_t vt = nu_vec3_sub(pm->vel, vn);
-        vn           = nu_vec3_muls(vn, -elasticity);
-        vt           = nu_vec3_muls(vt, nu_exp(-friction * dt));
-        pm->vel      = nu_vec3_add(vn, vt);
+        c.a                                      = i;
+        *NU_VEC_PUSH(&ctx.collision_constraints) = c;
     }
-
-    // Resolve constraints
-    for (nu_size_t n = 0; n < 10; ++n)
+    // (9) solve constraints
+    const nu_size_t substep = 100;
+    for (nu_size_t n = 0; n < substep; ++n)
     {
-        for (nu_size_t i = 0; i < ctx.constraints.size; ++i)
+        float subdt = dt / substep;
+        // solve collision constraints
+        for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
         {
-            constraint_t *c  = ctx.constraints.data + i;
-            nu_vec3_t     p0 = ctx.pms.data[c->index0].pos;
-            nu_vec3_t     p1 = ctx.pms.data[c->index1].pos;
+            collision_constraint_t *c = ctx.collision_constraints.data + i;
+            point_mass_t           *a = ctx.point_masses.data + c->a;
 
-            nu_vec3_t delta    = nu_vec3_sub(p1, p0);
-            float     distance = nu_vec3_norm(delta);
+            float depth = -a->p.y;
+            a->p        = nu_vec3_add(a->p, nu_vec3_muls(c->n, depth));
+        }
+        // solve distance constraints
+        for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
+        {
+            distance_constraint_t *c = ctx.distance_constraints.data + i;
+            point_mass_t          *a = ctx.point_masses.data + c->a;
+            point_mass_t          *b = ctx.point_masses.data + c->b;
 
-            nu_vec3_t required_delta
-                = nu_vec3_muls(delta, c->distance / distance);
-            // nu_vec3_t force = nu_vec3_muls(nu_vec3_sub(required_delta,
-            // delta), 50);
+            nu_vec3_t p0 = a->p;
+            nu_vec3_t p1 = b->p;
 
-            // ctx.pms.data[c->index0].vel
-            //     = nu_vec3_sub(ctx.pms.data[c->index0].vel,
-            //     nu_vec3_muls(force, dt));
-            // ctx.pms.data[c->index1].vel
-            //     = nu_vec3_add(ctx.pms.data[c->index1].vel,
-            //     nu_vec3_muls(force, dt));
+            nu_vec3_t delta          = nu_vec3_sub(p1, p0);
+            float     distance       = nu_vec3_norm(delta);
+            nu_vec3_t required_delta = nu_vec3_muls(delta, c->d / distance);
 
-            // float     damping = 1.0 - nu_exp(-500 * dt);
+            float damping = 1.0 - nu_exp(-500 * subdt);
             // nu_vec3_t offset
             //     = nu_vec3_muls(nu_vec3_sub(required_delta, delta), damping);
             nu_vec3_t offset = nu_vec3_sub(required_delta, delta);
 
-            ctx.pms.data[c->index0].pos
-                = nu_vec3_sub(p0, nu_vec3_muls(offset, 0.5));
-            ctx.pms.data[c->index1].pos
-                = nu_vec3_add(p1, nu_vec3_muls(offset, 0.5));
+            a->p = nu_vec3_sub(p0, nu_vec3_muls(offset, 0.5));
+            b->p = nu_vec3_add(p1, nu_vec3_muls(offset, 0.5));
         }
+    }
+    // (12) compute new velocity
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t *pm = ctx.point_masses.data + i;
+        pm->v            = nu_vec3_divs(nu_vec3_sub(pm->p, pm->x), dt);
+        pm->x            = pm->p;
+    }
+    // (16) solve velocities
+    for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
+    {
+        const float elasticity = 0.5;
+        const float friction   = 50;
+
+        collision_constraint_t *c  = ctx.collision_constraints.data + i;
+        point_mass_t           *pm = ctx.point_masses.data + c->a;
+
+        nu_vec3_t vn = nu_vec3_muls(c->n, nu_vec3_dot(c->n, pm->u));
+        nu_vec3_t vt = nu_vec3_sub(pm->u, vn);
+        vn           = nu_vec3_muls(vn, -elasticity);
+        vt           = nu_vec3_muls(vt, nu_exp(-friction * dt));
+        pm->v        = nu_vec3_add(vn, vt);
     }
 }
 
@@ -289,8 +322,10 @@ main (void)
         nu_geometry_delete(g);
     }
 
-    nu_material_t red_mat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_color(red_mat, NU_MATERIAL_COLOR, NU_COLOR_RED);
+    nu_material_t redmat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_color(redmat, NU_MATERIAL_COLOR, NU_COLOR_RED);
+    nu_material_t greenmat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_color(greenmat, NU_MATERIAL_COLOR, NU_COLOR_GREEN);
 
     // Create font
     nu_font_t font = nu_font_create_default();
@@ -360,20 +395,23 @@ main (void)
         delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
 
-        nu_bind_material(wireframe_pass, red_mat);
-        for (nu_size_t i = 0; i < ctx.pms.size; ++i)
+        nu_bind_material(wireframe_pass, redmat);
+        for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
         {
-            point_mass_t *pm = ctx.pms.data + i;
-            nu_draw_mesh(wireframe_pass, cube, nu_mat4_translate(pm->pos));
+            point_mass_t *pm = ctx.point_masses.data + i;
+            nu_draw_mesh(wireframe_pass, cube, nu_mat4_translate(pm->x));
         }
-        nu_bind_material(wireframe_pass, NU_NULL);
-        for (nu_size_t i = 0; i < ctx.constraints.size; ++i)
+        nu_bind_material(wireframe_pass, greenmat);
+        for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
         {
-            nu_vec3_t p0 = ctx.pms.data[ctx.constraints.data[i].index0].pos;
-            nu_vec3_t p1 = ctx.pms.data[ctx.constraints.data[i].index1].pos;
+            nu_vec3_t p0
+                = ctx.point_masses.data[ctx.distance_constraints.data[i].a].x;
+            nu_vec3_t p1
+                = ctx.point_masses.data[ctx.distance_constraints.data[i].b].x;
             const nu_vec3_t points[] = { p0, p1 };
             nu_draw_lines(wireframe_pass, points, 1, nu_mat4_identity());
         }
+        nu_bind_material(wireframe_pass, NU_NULL);
 
         // Update camera controller
         nu_controller_update(controller, delta, camera);

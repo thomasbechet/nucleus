@@ -14,6 +14,8 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_COLOR_WHITE    nu_color(255, 255, 255, 0)
 #define NU_COLOR_BLACK    nu_color(0, 0, 0, 0)
 #define NU_COLOR_RED      nu_color(255, 0, 0, 0)
+#define NU_COLOR_GREEN    nu_color(0, 255, 0, 0)
+#define NU_COLOR_BLUE     nu_color(0, 0, 255, 0)
 #define NU_COLOR_BLUE_SKY nu_color(52, 181, 248, 0)
 #define NUEXT_PATH_MAX    256
 #define NU_PI             3.14159265359
