@@ -20,7 +20,7 @@ typedef struct
 typedef struct
 {
     nu_u32_t  a; // index of point mass
-    nu_vec3_t p; // position of collision
+    nu_vec3_t q; // position of collision
     nu_vec3_t n; // normal
     float     d; // depth
 } collision_constraint_t;
@@ -143,20 +143,31 @@ compute_sum_forces (point_mass_t *pm)
 }
 
 static collision_constraint_t
-find_collision (nu_vec3_t p)
+check_collision (nu_vec3_t p)
 {
+    const float ground = 0;
+
     collision_constraint_t c;
-    c.p = nu_vec3(p.x, 0, p.y);
-    c.d = -p.y;
+    c.q = nu_vec3(p.x, ground, p.z);
     c.n = NU_VEC3_UP;
+    c.d = -p.y - ground;
     return c;
+}
+static nu_vec3_t
+solve_collision (const collision_constraint_t *c, nu_vec3_t p)
+{
+    nu_vec3_t v     = nu_vec3_sub(p, c->q);
+    float     depth = -nu_vec3_dot(v, c->n);
+    if (depth > 0)
+    {
+        return nu_vec3_add(p, nu_vec3_muls(c->n, depth));
+    }
+    return p;
 }
 static void
 update_context (float dt)
 {
     dt *= 0.001;
-
-    NU_VEC_CLEAR(&ctx.collision_constraints);
 
     // (5) compute new velocities
     for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
@@ -184,19 +195,19 @@ update_context (float dt)
         pm->p            = nu_vec3_add(pm->x, nu_vec3_muls(pm->v, dt));
     }
     // (8) generate collision constraints
+    NU_VEC_CLEAR(&ctx.collision_constraints);
     for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
     {
         point_mass_t          *pm = ctx.point_masses.data + i;
-        collision_constraint_t c  = find_collision(pm->p);
-        if (c.d < 0)
+        collision_constraint_t c  = check_collision(pm->p);
+        if (c.d > 0)
         {
-            continue;
+            c.a                                      = i;
+            *NU_VEC_PUSH(&ctx.collision_constraints) = c;
         }
-        c.a                                      = i;
-        *NU_VEC_PUSH(&ctx.collision_constraints) = c;
     }
     // (9) solve constraints
-    const nu_size_t substep = 100;
+    const nu_size_t substep = 30;
     for (nu_size_t n = 0; n < substep; ++n)
     {
         float subdt = dt / substep;
@@ -205,9 +216,7 @@ update_context (float dt)
         {
             collision_constraint_t *c = ctx.collision_constraints.data + i;
             point_mass_t           *a = ctx.point_masses.data + c->a;
-
-            float depth = -a->p.y;
-            a->p        = nu_vec3_add(a->p, nu_vec3_muls(c->n, depth));
+            a->p                      = solve_collision(c, a->p);
         }
         // solve distance constraints
         for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
