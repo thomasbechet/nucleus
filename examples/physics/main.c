@@ -390,14 +390,13 @@ main (void)
             shoot_context(pos, dir);
         }
 
-        update_context(delta);
         nu_fixed_loop_update(&loop, 1, delta);
         nu_u32_t id;
         while (nu_fixed_loop_next(&loop, 1, &id))
         {
             if (id == 0)
             {
-                update_context(0.5);
+                update_context(loop.timestep);
             }
         }
 
