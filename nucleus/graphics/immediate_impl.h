@@ -87,16 +87,15 @@ nu_draw_box (nu_renderpass_t pass, nu_box3_t box, nu_mat4_t transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
-    const nu_vec3_t v0 = nu_vec3(box.p.x, box.p.y, box.p.z);
-    const nu_vec3_t v1 = nu_vec3(box.p.x + box.s.x, box.p.y, box.p.z);
-    const nu_vec3_t v2 = nu_vec3(box.p.x + box.s.x, box.p.y, box.p.z + box.s.z);
-    const nu_vec3_t v3 = nu_vec3(box.p.x, box.p.y, box.p.z + box.s.z);
+    const nu_vec3_t v0 = nu_vec3(box.min.x, box.min.y, box.min.z);
+    const nu_vec3_t v1 = nu_vec3(box.max.x, box.min.y, box.min.z);
+    const nu_vec3_t v2 = nu_vec3(box.max.x, box.min.y, box.max.z);
+    const nu_vec3_t v3 = nu_vec3(box.min.x, box.min.y, box.max.z);
 
-    const nu_vec3_t v4 = nu_vec3(box.p.x, box.p.y + box.s.y, box.p.z);
-    const nu_vec3_t v5 = nu_vec3(box.p.x + box.s.x, box.p.y + box.s.y, box.p.z);
-    const nu_vec3_t v6
-        = nu_vec3(box.p.x + box.s.x, box.p.y + box.s.y, box.p.z + box.s.z);
-    const nu_vec3_t v7 = nu_vec3(box.p.x, box.p.y + box.s.y, box.p.z + box.s.z);
+    const nu_vec3_t v4 = nu_vec3(box.min.x, box.max.y, box.min.z);
+    const nu_vec3_t v5 = nu_vec3(box.max.x, box.max.y, box.min.z);
+    const nu_vec3_t v6 = nu_vec3(box.max.x, box.max.y, box.max.z);
+    const nu_vec3_t v7 = nu_vec3(box.min.x, box.max.y, box.max.z);
 
     const nu_vec3_t positions[]
         = { v0, v1, v1, v2, v2, v3, v3, v0, v4, v5, v5, v6,

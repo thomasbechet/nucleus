@@ -95,6 +95,11 @@ nu_vec2 (float x, float y)
     return ret;
 }
 nu_vec2_t
+nu_vec2_v2u (nu_vec2u_t v)
+{
+    return nu_vec2(v.x, v.y);
+}
+nu_vec2_t
 nu_vec2_add (nu_vec2_t a, nu_vec2_t b)
 {
     nu_vec2_t ret;
@@ -322,6 +327,30 @@ nu_vec2i_add (nu_vec2i_t a, nu_vec2i_t b)
     nu_vec2i_t ret;
     ret.x = a.x + b.x;
     ret.y = a.y + b.y;
+    return ret;
+}
+nu_vec2i_t
+nu_vec2i_sub (nu_vec2i_t a, nu_vec2i_t b)
+{
+    nu_vec2i_t ret;
+    ret.x = a.x - b.x;
+    ret.y = a.y - b.y;
+    return ret;
+}
+nu_vec2i_t
+nu_vec2i_min (nu_vec2i_t a, nu_vec2i_t b)
+{
+    nu_vec2i_t ret;
+    ret.x = NU_MIN(a.x, b.x);
+    ret.y = NU_MIN(a.y, b.y);
+    return ret;
+}
+nu_vec2i_t
+nu_vec2i_max (nu_vec2i_t a, nu_vec2i_t b)
+{
+    nu_vec2i_t ret;
+    ret.x = NU_MAX(a.x, b.x);
+    ret.y = NU_MAX(a.y, b.y);
     return ret;
 }
 
@@ -636,59 +665,97 @@ nu_mat4_mulv3 (nu_mat4_t a, nu_vec3_t v)
 }
 
 nu_box2i_t
-nu_box2i (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
+nu_box2i (nu_vec2i_t min, nu_vec2i_t max)
 {
     nu_box2i_t ret;
-    ret.p = nu_vec2i(x, y);
-    ret.s = nu_vec2u(w, h);
+    ret.min = min;
+    ret.max = max;
     return ret;
 }
-nu_bool_t
-nu_box2i_containsi (nu_box2i_t r, nu_vec2i_t p)
+nu_box2i_t
+nu_box2i_xywh (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
 {
-    nu_i32_t px = p.x;
-    nu_i32_t py = p.y;
-    if (px < r.p.x || py < r.p.y)
-    {
-        return NU_FALSE;
-    }
-    nu_i32_t xw = r.p.x + r.s.x;
-    nu_i32_t xh = r.p.y + r.s.y;
-    if (px > xw || py > xh)
-    {
-        return NU_FALSE;
-    }
-    return NU_TRUE;
+    NU_ASSERT(w && h);
+    nu_box2i_t ret;
+    ret.min = nu_vec2i(x, y);
+    ret.max = nu_vec2i(x + w - 1, y + h - 1);
+    return ret;
+}
+nu_vec2u_t
+nu_box2i_size (nu_box2i_t b)
+{
+    NU_ASSERT((b.max.x - b.min.x) >= 0 && (b.max.y - b.min.y) >= 0);
+    return nu_vec2u(b.max.x - b.min.x + 1, b.max.y - b.min.y + 1);
+}
+nu_box2i_t
+nu_box2i_resize (nu_box2i_t b, nu_vec2u_t size)
+{
+    NU_ASSERT(size.x && size.y);
+    return nu_box2i(b.min,
+                    nu_vec2i(b.min.x + size.x - 1, b.min.y + size.y - 1));
+}
+nu_vec2i_t
+nu_box2i_tr (nu_box2i_t b)
+{
+    return nu_vec2i(b.max.x, b.min.y);
+}
+nu_vec2i_t
+nu_box2i_bl (nu_box2i_t b)
+{
+    return nu_vec2i(b.min.x, b.max.y);
+}
+
+nu_box2i_t
+nu_box2i_translate (nu_box2i_t b, nu_vec2i_t t)
+{
+    return nu_box2i(nu_vec2i_add(b.min, t), nu_vec2i_add(b.max, t));
+}
+nu_box2i_t
+nu_box2i_moveto (nu_box2i_t b, nu_vec2i_t p)
+{
+    return nu_box2i_translate(b, nu_vec2i_sub(p, b.min));
+}
+nu_box2i_t
+nu_box2i_union (nu_box2i_t a, nu_box2i_t b)
+{
+    return nu_box2i(nu_vec2i_max(a.min, b.min), nu_vec2i_min(a.max, b.max));
 }
 nu_bool_t
-nu_box2i_contains (nu_box2i_t r, nu_vec2_t p)
+nu_box2i_containsi (nu_box2i_t b, nu_vec2i_t p)
 {
-    return nu_box2i_containsi(r, nu_vec2i(p.x, p.y));
+    return (p.x >= b.min.x && p.x <= b.max.x && p.y >= b.min.y
+            && p.y <= b.max.y);
+}
+nu_bool_t
+nu_box2i_contains (nu_box2i_t b, nu_vec2_t p)
+{
+    return nu_box2i_containsi(b, nu_vec2i(p.x, p.y));
 }
 nu_vec2_t
-nu_box2i_normalize (nu_box2i_t r, nu_vec2_t p)
+nu_box2i_normalize (nu_box2i_t b, nu_vec2_t p)
 {
-    nu_vec2_t ret;
-    ret.x = (p.x - (float)r.p.x) / (float)r.s.x;
-    ret.y = (p.y - (float)r.p.y) / (float)r.s.y;
+    nu_vec2_t  ret;
+    nu_vec2u_t size = nu_box2i_size(b);
+    ret.x           = (p.x - (float)b.min.x) / (float)(size.x);
+    ret.y           = (p.y - (float)b.min.y) / (float)(size.y);
     return ret;
 }
 
 nu_box3_t
 nu_box3 (nu_vec3_t p, nu_vec3_t s)
 {
-    nu_box3_t b;
-    b.p = p;
-    b.s = s;
-    return b;
+    nu_box3_t ret;
+    ret.min = p;
+    ret.max = nu_vec3_add(p, s);
+    return ret;
 }
 nu_box3_t
 nu_box3_minmax (nu_vec3_t min, nu_vec3_t max)
 {
     NU_ASSERT(max.x >= min.x && max.y >= min.y && max.z >= min.z);
     nu_box3_t b;
-    b.p = min;
-    b.s = nu_vec3_sub(max, min);
+    b.min = min;
+    b.max = max;
     return b;
 }
 

@@ -229,7 +229,8 @@ nugl__render (const nu_box2i_t *global_viewport, const nu_box2i_t *viewport)
         = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
     glUseProgram(gl->screen_blit_program);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(viewport->p.x, viewport->p.y, viewport->s.x, viewport->s.y);
+    nu_vec2u_t size = nu_box2i_size(*viewport);
+    glViewport(viewport->min.x, viewport->min.y, size.x, size.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D,

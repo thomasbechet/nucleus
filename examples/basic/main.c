@@ -1,3 +1,4 @@
+#include "nucleus/graphics/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -131,6 +132,10 @@ main (void)
     nu_material_texture(material_gui_repeat, NU_MATERIAL_TEXTURE0, texture_gui);
     nu_material_wrap_mode(
         material_gui_repeat, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_REPEAT);
+    nu_material_t material_gui = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
+    nu_material_texture(material_gui, NU_MATERIAL_TEXTURE0, texture_gui);
+    nu_material_wrap_mode(
+        material_gui, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
     temple_model      = NU_ASSET_MODEL("temple");
@@ -188,33 +193,33 @@ main (void)
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_PRESSED,
                 material_gui_repeat,
-                nu_box2i(113, 97, 30, 14),
-                nu_box2i(115, 100, 26, 8));
+                nu_box2i_xywh(113, 97, 30, 14),
+                nu_box2i_xywh(115, 100, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_RELEASED,
                 material_gui_repeat,
-                nu_box2i(113, 81, 30, 14),
-                nu_box2i(115, 83, 26, 8));
+                nu_box2i_xywh(113, 81, 30, 14),
+                nu_box2i_xywh(115, 83, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_HOVERED,
                 material_gui_repeat,
-                nu_box2i(113, 113, 30, 14),
-                nu_box2i(115, 116, 26, 8));
+                nu_box2i_xywh(113, 113, 30, 14),
+                nu_box2i_xywh(115, 116, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CHECKBOX_CHECKED,
                 material_gui_repeat,
-                nu_box2i(97, 257, 14, 14),
-                nu_box2i(99, 260, 10, 8));
+                nu_box2i_xywh(97, 257, 14, 14),
+                nu_box2i_xywh(99, 260, 10, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CHECKBOX_UNCHECKED,
                 material_gui_repeat,
-                nu_box2i(81, 257, 14, 14),
-                nu_box2i(99, 261, 10, 8));
+                nu_box2i_xywh(81, 257, 14, 14),
+                nu_box2i_xywh(99, 261, 10, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CURSOR,
                 material_gui_repeat,
-                nu_box2i(52, 83, 8, 7),
-                nu_box2i(52, 83, 8, 7));
+                nu_box2i_xywh(52, 83, 8, 7),
+                nu_box2i_xywh(52, 83, 8, 7));
 
     nu_ui_push_style(ui, style);
 
@@ -292,15 +297,24 @@ main (void)
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui);
-        if (nu_ui_button(ui, nu_box2i(300, 100, 60, 20)))
+        if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
         {
             NU_INFO("button pressed !");
         }
-        if (nu_ui_checkbox(ui, nu_box2i(300, 300, 14, 14), &bool_state))
-        {
-            NU_INFO("checkbox changed %d", bool_state);
-        }
-        nu_ui_end(ui);
+        // if (nu_ui_checkbox(ui, nu_box2i_xywh(300, 300, 14, 14), &bool_state))
+        // {
+        //     NU_INFO("checkbox changed %d", bool_state);
+        // }
+        // nu_ui_end(ui);
+
+        // nu_bind_material(gui_pass, material_gui_repeat);
+        // nu_bind_material(gui_pass, material_gui_repeat);
+        // NU_INFO("start");
+        // nu_draw_blit_sliced(gui_pass,
+        //                     nu_box2i_xywh(0, 0, 50, 50),
+        //                     nu_box2i(nu_vec2i(145, 65), nu_vec2i(190, 78)),
+        //                     nu_box2i(nu_vec2i(146, 66), nu_vec2i(189, 77)));
+        // NU_INFO("stop");
 
         // Print FPS
         nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));

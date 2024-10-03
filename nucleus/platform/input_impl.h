@@ -171,7 +171,7 @@ static void
 nu__viewport_cursor (const nu__viewport_t *v, nu_vec2_t pos, nu_vec2_t *cursor)
 {
     nu_vec2_t relpos = nu_box2i_normalize(v->viewport, pos);
-    *cursor = nu_vec2_mul(*cursor, nu_vec2(v->viewport.s.x, v->viewport.s.y));
+    *cursor = nu_vec2_mul(*cursor, nu_vec2_v2u(nu_box2i_size(v->viewport)));
 }
 
 static void

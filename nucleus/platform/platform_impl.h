@@ -40,8 +40,8 @@ nu__platform_init (void)
     // Initialize viewport
     _ctx.platform.viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
     _ctx.platform.viewport.screen   = _ctx.platform.size;
-    _ctx.platform.viewport.extent   = nu_box2i(0, 0, width, height);
-    _ctx.platform.viewport.viewport = nu_box2i(0, 0, width, height);
+    _ctx.platform.viewport.extent   = nu_box2i_xywh(0, 0, width, height);
+    _ctx.platform.viewport.viewport = nu_box2i_xywh(0, 0, width, height);
     nu__update_viewport(&_ctx.platform.viewport);
 
     // Bind callbacks

@@ -149,7 +149,7 @@ nu_ui_end (nu_ui_t handle)
     // Draw cursor
     nu_vec2i_t cursor = ui->controllers[0].cursor;
     nu__draw_image(
-        ui, nu_box2i(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
+        ui, nu_box2i_xywh(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
 }
 void
 nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)

@@ -421,20 +421,20 @@ typedef union
 
 typedef struct
 {
-    nu_vec2i_t p;
-    nu_vec2u_t s;
+    nu_vec2i_t min;
+    nu_vec2i_t max;
 } nu_box2i_t;
 
 typedef struct
 {
-    nu_vec3i_t p;
-    nu_vec3u_t s;
+    nu_vec3i_t min;
+    nu_vec3i_t max;
 } nu_box3i_t;
 
 typedef struct
 {
-    nu_vec3_t p;
-    nu_vec3_t s;
+    nu_vec3_t min;
+    nu_vec3_t max;
 } nu_box3_t;
 
 typedef NU_VEC(nu_vec2_t) nu_vec2_vec_t;
@@ -544,6 +544,7 @@ NU_API float     nu_tan(float x);
 NU_API float     nu_exp(float x);
 
 NU_API nu_vec2_t nu_vec2(float x, float y);
+NU_API nu_vec2_t nu_vec2_v2u(nu_vec2u_t v);
 NU_API nu_vec2_t nu_vec2_add(nu_vec2_t a, nu_vec2_t b);
 NU_API nu_vec2_t nu_vec2_sub(nu_vec2_t a, nu_vec2_t b);
 NU_API nu_vec2_t nu_vec2_mul(nu_vec2_t a, nu_vec2_t b);
@@ -575,6 +576,9 @@ NU_API nu_vec2_t nu_vec4_zw(nu_vec4_t v);
 
 NU_API nu_vec2i_t nu_vec2i(nu_i32_t x, nu_i32_t y);
 NU_API nu_vec2i_t nu_vec2i_add(nu_vec2i_t a, nu_vec2i_t b);
+NU_API nu_vec2i_t nu_vec2i_sub(nu_vec2i_t a, nu_vec2i_t b);
+NU_API nu_vec2i_t nu_vec2i_min(nu_vec2i_t a, nu_vec2i_t b);
+NU_API nu_vec2i_t nu_vec2i_max(nu_vec2i_t a, nu_vec2i_t b);
 
 NU_API nu_vec2u_t nu_vec2u(nu_u32_t x, nu_u32_t y);
 NU_API nu_vec2u_t nu_vec2u_min(nu_vec2u_t a, nu_vec2u_t b);
@@ -608,10 +612,18 @@ NU_API nu_mat4_t nu_mat4_mul(nu_mat4_t a, nu_mat4_t b);
 NU_API nu_vec4_t nu_mat4_mulv(nu_mat4_t a, nu_vec4_t v);
 NU_API nu_vec3_t nu_mat4_mulv3(nu_mat4_t a, nu_vec3_t v);
 
-NU_API nu_box2i_t nu_box2i(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
-NU_API nu_bool_t  nu_box2i_contains(nu_box2i_t r, nu_vec2_t p);
-NU_API nu_bool_t  nu_box2i_containsi(nu_box2i_t r, nu_vec2i_t p);
-NU_API nu_vec2_t  nu_box2i_normalize(nu_box2i_t r, nu_vec2_t p);
+NU_API nu_box2i_t nu_box2i(nu_vec2i_t min, nu_vec2i_t max);
+NU_API nu_box2i_t nu_box2i_xywh(nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h);
+NU_API nu_vec2u_t nu_box2i_size(nu_box2i_t b);
+NU_API nu_box2i_t nu_box2i_resize(nu_box2i_t b, nu_vec2u_t size);
+NU_API nu_vec2i_t nu_box2i_tr(nu_box2i_t b);
+NU_API nu_vec2i_t nu_box2i_bl(nu_box2i_t b);
+NU_API nu_box2i_t nu_box2i_translate(nu_box2i_t b, nu_vec2i_t t);
+NU_API nu_box2i_t nu_box2i_moveto(nu_box2i_t b, nu_vec2i_t p);
+NU_API nu_box2i_t nu_box2i_union(nu_box2i_t a, nu_box2i_t b);
+NU_API nu_bool_t  nu_box2i_contains(nu_box2i_t b, nu_vec2_t p);
+NU_API nu_bool_t  nu_box2i_containsi(nu_box2i_t b, nu_vec2i_t p);
+NU_API nu_vec2_t  nu_box2i_normalize(nu_box2i_t b, nu_vec2_t p);
 
 NU_API nu_box3_t nu_box3(nu_vec3_t p, nu_vec3_t s);
 NU_API nu_box3_t nu_box3_minmax(nu_vec3_t min, nu_vec3_t max);
