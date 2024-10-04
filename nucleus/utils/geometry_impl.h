@@ -463,7 +463,7 @@ nu_geometry_bounds (nu_geometry_t geometry)
         min = nu_vec3_min(min, g->positions.data[i]);
         max = nu_vec3_max(max, g->positions.data[i]);
     }
-    return nu_box3_minmax(min, max);
+    return nu_box3(min, max);
 }
 
 #endif

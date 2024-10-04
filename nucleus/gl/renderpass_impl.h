@@ -292,7 +292,7 @@ nugl__renderpass_submit (nu_renderpass_t pass)
         }
         break;
         case NU_RENDERPASS_TYPE_WIREFRAME: {
-            NU_ASSERT(ppass->color_target && ppass->depth_target);
+            NU_ASSERT(ppass->color_target);
             nugl__prepare_color_depth(
                 ppass, ppass->color_target, ppass->depth_target);
         }

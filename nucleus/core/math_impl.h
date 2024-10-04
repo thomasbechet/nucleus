@@ -742,21 +742,24 @@ nu_box2i_normalize (nu_box2i_t b, nu_vec2_t p)
 }
 
 nu_box3_t
-nu_box3 (nu_vec3_t p, nu_vec3_t s)
-{
-    nu_box3_t ret;
-    ret.min = p;
-    ret.max = nu_vec3_add(p, s);
-    return ret;
-}
-nu_box3_t
-nu_box3_minmax (nu_vec3_t min, nu_vec3_t max)
+nu_box3 (nu_vec3_t min, nu_vec3_t max)
 {
     NU_ASSERT(max.x >= min.x && max.y >= min.y && max.z >= min.z);
     nu_box3_t b;
     b.min = min;
     b.max = max;
     return b;
+}
+nu_vec3_t
+nu_box3_center (nu_box3_t b)
+{
+    return nu_vec3_muls(nu_vec3_sub(b.max, b.min), 0.5);
+}
+nu_bool_t
+nu_box3_contains (nu_box3_t b, nu_vec3_t p)
+{
+    return (p.x >= b.min.x && p.y >= b.min.y && p.z >= b.min.z && p.x <= b.max.x
+            && p.y <= b.max.y && p.z <= b.max.z);
 }
 
 nu_mat4_t

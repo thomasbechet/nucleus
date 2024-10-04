@@ -22,7 +22,6 @@ typedef struct
     nu_u32_t  a; // index of point mass
     nu_vec3_t q; // position of collision
     nu_vec3_t n; // normal
-    float     d; // depth
 } collision_constraint_t;
 
 typedef struct
@@ -42,6 +41,11 @@ typedef struct
     collision_constraint_vec_t collision_constraints;
     distance_constraint_vec_t  distance_constraints;
 } context_t;
+
+#define BOX0 nu_box3(nu_vec3(0, 0, 0), nu_vec3(5, 2, 5))
+#define BOX1 nu_box3(nu_vec3(-5, 0, -5), nu_vec3(-1, 6, -1))
+
+static nu_box3_t boxes[2];
 
 static context_t ctx;
 
@@ -142,28 +146,6 @@ compute_sum_forces (point_mass_t *pm)
     return nu_vec3(0, -9.81, 0);
 }
 
-static collision_constraint_t
-check_collision (nu_vec3_t p)
-{
-    const float ground = 0;
-
-    collision_constraint_t c;
-    c.q = nu_vec3(p.x, ground, p.z);
-    c.n = NU_VEC3_UP;
-    c.d = -p.y - ground;
-    return c;
-}
-static nu_vec3_t
-solve_collision (const collision_constraint_t *c, nu_vec3_t p)
-{
-    nu_vec3_t v     = nu_vec3_sub(p, c->q);
-    float     depth = -nu_vec3_dot(v, c->n);
-    if (depth > 0)
-    {
-        return nu_vec3_add(p, nu_vec3_muls(c->n, depth));
-    }
-    return p;
-}
 static void
 update_context (float dt)
 {
@@ -198,12 +180,82 @@ update_context (float dt)
     NU_VEC_CLEAR(&ctx.collision_constraints);
     for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
     {
-        point_mass_t          *pm = ctx.point_masses.data + i;
-        collision_constraint_t c  = check_collision(pm->p);
-        if (c.d > 0)
+        point_mass_t *pm = ctx.point_masses.data + i;
+
+        // ground collision
+        const float ground = 0;
+        if (pm->p.y < ground)
         {
-            c.a                                      = i;
-            *NU_VEC_PUSH(&ctx.collision_constraints) = c;
+            collision_constraint_t *c = NU_VEC_PUSH(&ctx.collision_constraints);
+            c->q                      = nu_vec3(pm->p.x, ground, pm->p.z);
+            c->n                      = NU_VEC3_UP;
+            c->a                      = i;
+        }
+
+        // box collision
+        for (nu_size_t b = 0; b < NU_ARRAY_SIZE(boxes); ++b)
+        {
+            nu_box3_t box = boxes[b];
+            if (nu_box3_contains(box, pm->p))
+            {
+                nu_vec3_t rel = pm->p;
+
+                // Left
+                float     d, maxd = 999999.0;
+                nu_vec3_t q, n;
+                q = n = NU_VEC3_ZEROS;
+
+                d = box.max.x - rel.x;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(box.max.x, rel.y, rel.z);
+                    n    = NU_VEC3_RIGHT;
+                }
+                d = rel.x - box.min.x;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(box.min.x, rel.y, rel.z);
+                    n    = NU_VEC3_LEFT;
+                }
+
+                d = box.max.y - rel.y;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(rel.x, box.max.y, rel.z);
+                    n    = NU_VEC3_UP;
+                }
+                d = rel.y - box.min.y;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(rel.x, box.min.y, rel.z);
+                    n    = NU_VEC3_DOWN;
+                }
+
+                d = box.max.z - rel.z;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(rel.x, rel.y, box.max.z);
+                    n    = NU_VEC3_BACKWARD;
+                }
+                d = rel.z - box.min.z;
+                if (d < maxd)
+                {
+                    maxd = d;
+                    q    = nu_vec3(rel.x, rel.y, box.min.z);
+                    n    = NU_VEC3_FORWARD;
+                }
+
+                collision_constraint_t *c
+                    = NU_VEC_PUSH(&ctx.collision_constraints);
+                c->q = q;
+                c->n = n;
+                c->a = i;
+            }
         }
     }
     // (9) solve constraints
@@ -214,9 +266,14 @@ update_context (float dt)
         // solve collision constraints
         for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
         {
-            collision_constraint_t *c = ctx.collision_constraints.data + i;
-            point_mass_t           *a = ctx.point_masses.data + c->a;
-            a->p                      = solve_collision(c, a->p);
+            collision_constraint_t *c     = ctx.collision_constraints.data + i;
+            point_mass_t           *a     = ctx.point_masses.data + c->a;
+            nu_vec3_t               v     = nu_vec3_sub(a->p, c->q);
+            float                   depth = -nu_vec3_dot(v, c->n);
+            if (depth > 0)
+            {
+                a->p = nu_vec3_add(a->p, nu_vec3_muls(c->n, depth));
+            }
         }
         // solve distance constraints
         for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
@@ -306,6 +363,10 @@ main (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
     nuext_input_bind_button(shoot, NUEXT_BUTTON_R);
 
+    // Setup boxes
+    boxes[0] = BOX0;
+    boxes[1] = BOX1;
+
     // Create depth buffer
     nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
                                                   NU_TEXTURE_FORMAT_DEPTH,
@@ -335,6 +396,8 @@ main (void)
     nu_material_color(redmat, NU_MATERIAL_COLOR, NU_COLOR_RED);
     nu_material_t greenmat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
     nu_material_color(greenmat, NU_MATERIAL_COLOR, NU_COLOR_GREEN);
+    nu_material_t bluemat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
+    nu_material_color(bluemat, NU_MATERIAL_COLOR, NU_COLOR_BLUE_SKY);
 
     // Create font
     nu_font_t font = nu_font_create_default();
@@ -364,8 +427,8 @@ main (void)
     nu_renderpass_camera(wireframe_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(
         wireframe_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
-    nu_renderpass_texture(
-        wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
+    // nu_renderpass_texture(
+    //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
     // Main loop
     nu_timer_t timer;
@@ -427,6 +490,12 @@ main (void)
         nu_bind_material(wireframe_pass, NU_NULL);
         nu_draw_mesh(wireframe_pass, grid, nu_mat4_identity());
         nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
+        nu_bind_material(wireframe_pass, bluemat);
+        for (nu_size_t i = 0; i < NU_ARRAY_SIZE(boxes); ++i)
+        {
+            nu_draw_box(wireframe_pass, boxes[i], nu_mat4_identity());
+        }
+        nu_bind_material(wireframe_pass, NU_NULL);
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);
