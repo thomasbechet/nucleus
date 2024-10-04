@@ -137,6 +137,8 @@ NU_API void      nu_mesh_color(nu_mesh_t         mesh,
                                const nu_color_t *data);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
+NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
+                                              nu_color_t         color);
 NU_API void          nu_material_delete(nu_material_t material);
 NU_API void          nu_material_color(nu_material_t          material,
                                        nu_material_property_t prop,

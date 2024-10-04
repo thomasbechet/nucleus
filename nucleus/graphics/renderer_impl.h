@@ -158,6 +158,13 @@ nu_material_create (nu_material_type_t type)
     CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.material_create(type);
 }
+nu_material_t
+nu_material_create_color (nu_material_type_t type, nu_color_t color)
+{
+    nu_material_t mat = nu_material_create(type);
+    nu_material_color(mat, NU_MATERIAL_COLOR, color);
+    return mat;
+}
 void
 nu_material_delete (nu_material_t material)
 {

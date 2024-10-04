@@ -1,10 +1,10 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-#define WIDTH  720
-#define HEIGHT 480
-// #define WIDTH  640
-// #define HEIGHT 400
+// #define WIDTH  720
+// #define HEIGHT 480
+#define WIDTH  640
+#define HEIGHT 400
 
 typedef struct
 {
@@ -104,22 +104,22 @@ shoot_context (nu_vec3_t pos, nu_vec3_t dir)
     add_distance_constraint(p3, p7, s);
 
     add_distance_constraint(p0, p2, s2);
-    add_distance_constraint(p1, p3, s2);
+    // add_distance_constraint(p1, p3, s2);
 
     add_distance_constraint(p4, p6, s2);
-    add_distance_constraint(p5, p7, s2);
+    // add_distance_constraint(p5, p7, s2);
 
     add_distance_constraint(p0, p7, s2);
-    add_distance_constraint(p4, p3, s2);
+    // add_distance_constraint(p4, p3, s2);
 
     add_distance_constraint(p5, p2, s2);
-    add_distance_constraint(p1, p6, s2);
+    // add_distance_constraint(p1, p6, s2);
 
     add_distance_constraint(p4, p1, s2);
-    add_distance_constraint(p0, p5, s2);
+    // add_distance_constraint(p0, p5, s2);
 
     add_distance_constraint(p3, p6, s2);
-    add_distance_constraint(p7, p2, s2);
+    // add_distance_constraint(p7, p2, s2);
 
     add_distance_constraint(p4, p2, s3);
     add_distance_constraint(p0, p6, s3);
@@ -149,6 +149,7 @@ compute_sum_forces (point_mass_t *pm)
 static void
 update_context (float dt)
 {
+    // Convert to seconds
     dt *= 0.001;
 
     // (5) compute new velocities
@@ -201,7 +202,7 @@ update_context (float dt)
                 nu_vec3_t rel = pm->p;
 
                 // Left
-                float     d, maxd = 999999.0;
+                float     d, maxd = NU_FLT_MAX;
                 nu_vec3_t q, n;
                 q = n = NU_VEC3_ZEROS;
 
@@ -260,9 +261,9 @@ update_context (float dt)
     }
     // (9) solve constraints
     const nu_size_t substep = 30;
+    float           subdt   = dt / substep;
     for (nu_size_t n = 0; n < substep; ++n)
     {
-        float subdt = dt / substep;
         // solve collision constraints
         for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
         {
@@ -289,7 +290,7 @@ update_context (float dt)
             float     distance       = nu_vec3_norm(delta);
             nu_vec3_t required_delta = nu_vec3_muls(delta, c->d / distance);
 
-            float damping = 1.0 - nu_exp(-500 * subdt);
+            // float damping = 1.0 - nu_exp(-500 * subdt);
             // nu_vec3_t offset
             //     = nu_vec3_muls(nu_vec3_sub(required_delta, delta), damping);
             nu_vec3_t offset = nu_vec3_sub(required_delta, delta);
@@ -392,12 +393,12 @@ main (void)
         nu_geometry_delete(g);
     }
 
-    nu_material_t redmat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_color(redmat, NU_MATERIAL_COLOR, NU_COLOR_RED);
-    nu_material_t greenmat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_color(greenmat, NU_MATERIAL_COLOR, NU_COLOR_GREEN);
-    nu_material_t bluemat = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_color(bluemat, NU_MATERIAL_COLOR, NU_COLOR_BLUE_SKY);
+    nu_material_t redmat
+        = nu_material_create_color(NU_MATERIAL_TYPE_SURFACE, NU_COLOR_RED);
+    nu_material_t greenmat
+        = nu_material_create_color(NU_MATERIAL_TYPE_SURFACE, NU_COLOR_GREEN);
+    nu_material_t bluemat
+        = nu_material_create_color(NU_MATERIAL_TYPE_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
     nu_font_t font = nu_font_create_default();

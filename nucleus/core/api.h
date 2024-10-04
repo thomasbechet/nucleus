@@ -19,6 +19,7 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_COLOR_BLUE_SKY nu_color(52, 181, 248, 0)
 #define NUEXT_PATH_MAX    256
 #define NU_PI             3.14159265359
+#define NU_FLT_MAX        3.402823E+38
 
 #define NU_MIN(a, b)          (((a) < (b)) ? (a) : (b))
 #define NU_MAX(a, b)          (((a) > (b)) ? (a) : (b))
