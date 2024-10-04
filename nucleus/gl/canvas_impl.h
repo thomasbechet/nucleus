@@ -123,17 +123,6 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
         = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->canvas.material);
     NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_CANVAS);
 
-    NU_INFO("ext %d %d %d %d",
-            extent.min.x,
-            extent.min.y,
-            extent.max.x,
-            extent.max.y);
-    NU_INFO("tex %d %d %d %d",
-            tex_extent.min.x,
-            tex_extent.min.y,
-            tex_extent.max.x,
-            tex_extent.max.y);
-
     nu_u32_t blit_count = 0;
     switch (pmat->canvas.wrap_mode)
     {
@@ -194,11 +183,11 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
             {
                 for (nu_size_t x = 0; x < full_hblit_count; ++x)
                 {
-                    nu_i32_t pos_x = extent.min.x + (x * tex_extent.min.x);
+                    nu_i32_t pos_x = extent.min.x + (x * tex_extent_s.x);
                     nu_i32_t pos_y
-                        = extent.min.y + (full_vblit_count * tex_extent.min.y);
+                        = extent.min.y + (full_vblit_count * tex_extent_s.y);
                     nu_vec2u_t size
-                        = nu_vec2u(tex_extent.min.x, partial_vblit_size);
+                        = nu_vec2u(tex_extent_s.x, partial_vblit_size);
                     nugl__canvas_add_blit(
                         &pass->canvas,
                         nu_vec2i(pos_x, pos_y),

@@ -204,7 +204,7 @@ main (void)
                 NU_UI_STYLE_BUTTON_HOVERED,
                 material_gui_repeat,
                 nu_box2i_xywh(113, 113, 30, 14),
-                nu_box2i_xywh(115, 116, 26, 8));
+                nu_box2i_xywh(115, 115, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CHECKBOX_CHECKED,
                 material_gui_repeat,
