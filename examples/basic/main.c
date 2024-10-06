@@ -278,9 +278,11 @@ main (void)
         // Render loop
         nu_bind_material(main_pass, material);
         nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
+        nu_draw_mesh(shadow_pass, custom_mesh, nu_mat4_identity());
         nu_draw_mesh(wireframe_pass, custom_mesh_normals, nu_mat4_identity());
         nu_draw_box(wireframe_pass, bounds, nu_mat4_identity());
         nu_draw_model(main_pass, castle, nu_mat4_identity());
+        nu_draw_model(shadow_pass, castle, nu_mat4_identity());
 
         // Render custom mesh
         nu_mat4_t transform = nu_mat4_identity();
@@ -290,6 +292,7 @@ main (void)
         transform
             = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -50, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
+        nu_draw_model(shadow_pass, temple_model, transform);
 
         const nu_vec3_t points[]
             = { NU_VEC3_ZEROS, NU_VEC3_UP,    NU_VEC3_ZEROS,
@@ -327,6 +330,7 @@ main (void)
         nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
 
         // Submit renderpass
+        nu_renderpass_submit(shadow_pass);
         nu_renderpass_submit(main_pass);
         nu_renderpass_submit(skybox_pass);
         nu_renderpass_submit(wireframe_pass);

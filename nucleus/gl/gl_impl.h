@@ -197,6 +197,12 @@ nugl__init (void)
                                  &gl->wireframe_program);
     NU_ERROR_CHECK(error, return error);
 
+    glEnableVertexAttribArray(0);
+    error = nugl__compile_shader(nugl__shader_shadow_vert,
+                                 nugl__shader_shadow_frag,
+                                 &gl->shadow_program);
+    NU_ERROR_CHECK(error, return error);
+
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
     glSamplerParameteri(gl->nearest_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

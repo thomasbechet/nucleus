@@ -406,6 +406,15 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                                          instance_count,
                                          transforms);
             break;
+        case NU_RENDERPASS_TYPE_SHADOW:
+            nugl__submesh_draw_instanced(&ppass->shadow.cmds,
+                                         pmesh,
+                                         NU_NULL,
+                                         first,
+                                         count,
+                                         instance_count,
+                                         transforms);
+            break;
         default:
             NU_ASSERT(NU_FALSE);
             return;
@@ -429,40 +438,47 @@ nugl__draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 static void
 nugl__execute_renderpass (nugl__renderpass_t *pass)
 {
-    // Bind surface
-    glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
-    glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
 
-    // Clear color
-    if (pass->has_clear_color)
+    if (pass->type == NU_RENDERPASS_TYPE_SHADOW)
     {
-        nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
-        glClearColor(
-            clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        nugl__shadow_render(pass);
     }
-
-    // Render
-    switch (pass->type)
+    else
     {
-        case NU_RENDERPASS_TYPE_UNLIT:
-            nugl__unlit_render(pass);
-            break;
-        case NU_RENDERPASS_TYPE_LIT:
-            nugl__lit_render(pass);
-            break;
-        case NU_RENDERPASS_TYPE_SKYBOX:
-            nugl__skybox_render(pass);
-            break;
-        case NU_RENDERPASS_TYPE_CANVAS:
-            nugl__canvas_render(pass);
-            break;
-        case NU_RENDERPASS_TYPE_WIREFRAME:
-            nugl__wireframe_render(pass);
-            break;
-        case NU_RENDERPASS_TYPE_SHADOW:
-            nugl__shadow_render(pass);
-            break;
+        // Bind surface
+        glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+        glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+
+        // Clear color
+        if (pass->has_clear_color)
+        {
+            nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
+            glClearColor(
+                clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+
+        // Render
+        switch (pass->type)
+        {
+            case NU_RENDERPASS_TYPE_UNLIT:
+                nugl__unlit_render(pass);
+                break;
+            case NU_RENDERPASS_TYPE_LIT:
+                nugl__lit_render(pass);
+                break;
+            case NU_RENDERPASS_TYPE_SKYBOX:
+                nugl__skybox_render(pass);
+                break;
+            case NU_RENDERPASS_TYPE_CANVAS:
+                nugl__canvas_render(pass);
+                break;
+            case NU_RENDERPASS_TYPE_WIREFRAME:
+                nugl__wireframe_render(pass);
+                break;
+            default:
+                NU_ASSERT(NU_FALSE);
+        }
     }
 
     // Reset pass

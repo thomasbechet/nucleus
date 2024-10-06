@@ -19,6 +19,7 @@ typedef struct
     GLuint skybox_program;
     GLuint wireframe_program;
     GLuint canvas_blit_program;
+    GLuint shadow_program;
     GLuint nearest_sampler;
 
     nugl__camera_vec_t       cameras;

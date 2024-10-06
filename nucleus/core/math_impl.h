@@ -793,6 +793,38 @@ nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
     return m;
 }
 nu_mat4_t
+nu_ortho (
+    float left, float right, float bottom, float top, float near, float far)
+{
+    nu_mat4_t m;
+
+    float rl = 1.0 / (right - left);
+    float tb = 1.0 / (top - bottom);
+    float fn = -1.0 / (far - near);
+
+    m.data[0] = 2.0 * rl;
+    m.data[1] = 0;
+    m.data[2] = 0;
+    m.data[3] = 0;
+
+    m.data[4] = 0;
+    m.data[5] = 2.0 * tb;
+    m.data[6] = 0;
+    m.data[7] = 0;
+
+    m.data[8]  = 0;
+    m.data[9]  = 0;
+    m.data[10] = 2.0 * fn;
+    m.data[11] = 0;
+
+    m.data[12] = -(right + left) * rl;
+    m.data[13] = -(top + bottom) * tb;
+    m.data[14] = (far + near) * fn;
+    m.data[15] = 1;
+
+    return m;
+}
+nu_mat4_t
 nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
 {
     nu_vec3_t f = nu_vec3(center.x - eye.x, center.y - eye.y, center.z - eye.z);

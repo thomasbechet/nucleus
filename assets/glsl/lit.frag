@@ -5,6 +5,7 @@ in vec3 normal;
 out vec4 frag_color;
 
 uniform sampler2D texture0;
+uniform sampler2D shadow_map;
 
 void main()
 {

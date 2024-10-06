@@ -105,6 +105,8 @@ typedef struct
 typedef struct
 {
     nugl__mesh_command_vec_t cmds;
+    nu_texture_t             depth_map;
+    GLuint                   fbo;
 } nugl__renderpass_shadow_t;
 
 typedef struct

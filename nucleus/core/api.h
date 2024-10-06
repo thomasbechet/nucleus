@@ -634,6 +634,8 @@ NU_API nu_mat4_t nu_perspective(float fov,
                                 float aspect_ratio,
                                 float z_near,
                                 float z_far);
+NU_API nu_mat4_t nu_ortho(
+    float left, float right, float bottom, float top, float near, float far);
 NU_API nu_mat4_t nu_lookat(nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up);
 
 NU_API nu_vec3_t nu_axis3d(float     pos_x,
