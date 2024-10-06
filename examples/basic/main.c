@@ -1,4 +1,3 @@
-#include "nucleus/graphics/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -14,6 +13,9 @@
 // #define HEIGHT 400 / 2
 // #define WIDTH  512
 // #define HEIGHT 288
+
+#define SHADOW_WIDTH  1000
+#define SHADOW_HEIGHT 1000
 
 static nu_input_t draw;
 static nu_input_t main_button;
@@ -84,10 +86,10 @@ main (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
-                                                  NU_TEXTURE_FORMAT_DEPTH,
-                                                  NU_TEXTURE_USAGE_TARGET,
-                                                  NU_NULL);
+    nu_texture_t depth_buffer
+        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH);
+    nu_texture_t shadow_map = nu_texture_create(
+        nu_vec2u(SHADOW_WIDTH, SHADOW_HEIGHT), NU_TEXTURE_SHADOW_DEPTH_MAP);
 
     // Create meshes
     nu_mesh_t custom_mesh;
@@ -157,15 +159,14 @@ main (void)
     nu_texture_t surface_tex = nu_surface_color_target();
     nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
-    nu_renderpass_t main_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_FLAT, NU_TRUE);
+    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_LIT);
     nu_renderpass_camera(main_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
     nu_renderpass_color(main_pass, NU_RENDERPASS_CLEAR_COLOR, &clear_color);
 
     nu_renderpass_t skybox_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_SKYBOX, NU_TRUE);
+        = nu_renderpass_create(NU_RENDERPASS_TYPE_SKYBOX);
     nu_renderpass_texture(skybox_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
     nu_renderpass_texture(
         skybox_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
@@ -174,17 +175,23 @@ main (void)
         skybox_pass, NU_RENDERPASS_SKYBOX_ROTATION, nu_quat_identity());
     nu_renderpass_camera(skybox_pass, NU_RENDERPASS_CAMERA, camera);
 
-    nu_renderpass_t gui_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS, NU_TRUE);
+    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
     nu_renderpass_texture(gui_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
 
     nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME, NU_TRUE);
+        = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME);
     nu_renderpass_camera(wireframe_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(
         wireframe_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
     nu_renderpass_texture(
         wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
+
+    nu_renderpass_t shadow_pass
+        = nu_renderpass_create(NU_RENDERPASS_TYPE_SHADOW);
+    nu_renderpass_texture(
+        shadow_pass, NU_RENDERPASS_SHADOW_DEPTH_MAP, shadow_map);
+    nu_renderpass_quat(
+        shadow_pass, NU_RENDERPASS_SHADOW_ROTATION, nu_quat_identity());
 
     // Create UI
     nu_ui_t       ui    = nu_ui_create();
@@ -297,10 +304,10 @@ main (void)
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui);
-        if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
-        {
-            NU_INFO("button pressed !");
-        }
+        // if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
+        // {
+        //     NU_INFO("button pressed !");
+        // }
         // if (nu_ui_checkbox(ui, nu_box2i_xywh(300, 300, 14, 14), &bool_state))
         // {
         //     NU_INFO("checkbox changed %d", bool_state);

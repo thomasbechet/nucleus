@@ -56,7 +56,7 @@ static const nu_char_t *nugl__shader_canvas_blit_vert
       "    uv = floor(vertex_tex + vertex_size * vertex_offset) / "
       "vec2(textureSize(texture0, 0));\n"
       "}\n";
-static const nu_char_t *nugl__shader_flat_frag
+static const nu_char_t *nugl__shader_lit_frag
     = "#version 330 core\n"
       "\n"
       "in vec2 uv;\n"
@@ -68,10 +68,10 @@ static const nu_char_t *nugl__shader_flat_frag
       "void main()\n"
       "{\n"
       "    vec4 color = texture(texture0, uv);\n"
-      "    color *= max(0.4, dot(normal, normalize(vec3(1))));\n"
+      "    color *= max(0.0, dot(normal, normalize(vec3(1))));\n"
       "    frag_color = color;\n"
       "}\n";
-static const nu_char_t *nugl__shader_flat_vert
+static const nu_char_t *nugl__shader_lit_vert
     = "#version 330 core\n"
       "\n"
       "layout(location = 0) in vec3 in_position;\n"

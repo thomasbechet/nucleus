@@ -58,8 +58,7 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         = { nu_image_colors(images[0]), nu_image_colors(images[1]),
             nu_image_colors(images[2]), nu_image_colors(images[3]),
             nu_image_colors(images[4]), nu_image_colors(images[5]) };
-    cubemap = nu_cubemap_create(
-        nu_image_size(images[0]).x, NU_TEXTURE_USAGE_SAMPLE, colors);
+    cubemap = nu_cubemap_create(nu_image_size(images[0]).x, colors);
 
 cleanup2:
     for (nu_size_t i = 0; i < NU_ARRAY_SIZE(images); ++i)

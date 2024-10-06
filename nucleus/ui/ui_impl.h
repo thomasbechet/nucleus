@@ -83,8 +83,9 @@ nu_ui_create (void)
     NU_VEC_INIT(1, &ui->passes);
 
     // Create main renderpass
-    ui->active_renderpass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS, NU_FALSE);
+    ui->active_renderpass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
+    nu_renderpass_bool(
+        ui->active_renderpass, NU_RENDERPASS_RESET_AFTER_SUBMIT, NU_FALSE);
     nu__ui_pass_t *pass = NU_VEC_PUSH(&ui->passes);
     pass->renderpass    = ui->active_renderpass;
 

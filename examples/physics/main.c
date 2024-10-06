@@ -352,10 +352,8 @@ main (void)
     boxes[1] = BOX1;
 
     // Create depth buffer
-    nu_texture_t depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT),
-                                                  NU_TEXTURE_FORMAT_DEPTH,
-                                                  NU_TEXTURE_USAGE_TARGET,
-                                                  NU_NULL);
+    nu_texture_t depth_buffer
+        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH);
     // Grid mesh
     nu_mesh_t grid;
     {
@@ -395,19 +393,17 @@ main (void)
     nu_texture_t surface_tex = nu_surface_color_target();
     nu_color_t   clear_color = NU_COLOR_BLACK;
 
-    nu_renderpass_t main_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_FLAT, NU_TRUE);
+    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_LIT);
     nu_renderpass_camera(main_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
     nu_renderpass_texture(main_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
     nu_renderpass_color(main_pass, NU_RENDERPASS_CLEAR_COLOR, &clear_color);
 
-    nu_renderpass_t gui_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS, NU_TRUE);
+    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
     nu_renderpass_texture(gui_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
 
     nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME, NU_TRUE);
+        = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME);
     nu_renderpass_camera(wireframe_pass, NU_RENDERPASS_CAMERA, camera);
     nu_renderpass_texture(
         wireframe_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);

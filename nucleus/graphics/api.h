@@ -17,14 +17,10 @@ NU_DEFINE_HANDLE(nu_renderpass_t);
 
 typedef enum
 {
-    NU_TEXTURE_FORMAT_COLOR,
-    NU_TEXTURE_FORMAT_DEPTH
-} nu_texture_format_t;
-
-typedef enum
-{
-    NU_TEXTURE_USAGE_TARGET,
-    NU_TEXTURE_USAGE_SAMPLE
+    NU_TEXTURE_COLOR,
+    NU_TEXTURE_COLOR_TARGET,
+    NU_TEXTURE_DEPTH,
+    NU_TEXTURE_SHADOW_DEPTH_MAP,
 } nu_texture_usage_t;
 
 typedef enum
@@ -51,12 +47,15 @@ typedef enum
 
 typedef enum
 {
-    NU_RENDERPASS_COLOR_TARGET,
-    NU_RENDERPASS_DEPTH_TARGET,
-    NU_RENDERPASS_CLEAR_COLOR,
-    NU_RENDERPASS_CAMERA,
-    NU_RENDERPASS_SKYBOX,
-    NU_RENDERPASS_SKYBOX_ROTATION
+    NU_RENDERPASS_COLOR_TARGET,       // texture
+    NU_RENDERPASS_DEPTH_TARGET,       // texture
+    NU_RENDERPASS_CLEAR_COLOR,        // color
+    NU_RENDERPASS_CAMERA,             // camera
+    NU_RENDERPASS_SKYBOX,             // cubemap
+    NU_RENDERPASS_SKYBOX_ROTATION,    // quat
+    NU_RENDERPASS_RESET_AFTER_SUBMIT, // bool
+    NU_RENDERPASS_SHADOW_ROTATION,    // quat
+    NU_RENDERPASS_SHADOW_DEPTH_MAP,   // texture
 } nu_renderpass_property_t;
 
 typedef enum
@@ -76,10 +75,11 @@ typedef enum
 typedef enum
 {
     NU_RENDERPASS_TYPE_UNLIT,
-    NU_RENDERPASS_TYPE_FLAT,
+    NU_RENDERPASS_TYPE_LIT,
     NU_RENDERPASS_TYPE_SKYBOX,
     NU_RENDERPASS_TYPE_CANVAS,
-    NU_RENDERPASS_TYPE_WIREFRAME
+    NU_RENDERPASS_TYPE_WIREFRAME,
+    NU_RENDERPASS_TYPE_SHADOW
 } nu_renderpass_type_t;
 
 typedef enum
@@ -106,16 +106,13 @@ NU_API void        nu_camera_delete(nu_camera_t camera);
 NU_API void        nu_camera_view(nu_camera_t camera, nu_mat4_t view);
 NU_API void        nu_camera_proj(nu_camera_t camera, nu_mat4_t proj);
 
-NU_API nu_texture_t nu_texture_create(nu_vec2u_t          size,
-                                      nu_texture_format_t format,
-                                      nu_texture_usage_t  usage,
-                                      const nu_color_t   *colors);
+NU_API nu_texture_t nu_texture_create(nu_vec2u_t         size,
+                                      nu_texture_usage_t usage);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API void         nu_texture_delete(nu_texture_t texture);
+NU_API void nu_texture_colors(nu_texture_t texture, const nu_color_t *colors);
 
-NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t           size,
-                                      nu_texture_usage_t usage,
-                                      const nu_color_t **colors);
+NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size, const nu_color_t **colors);
 NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
@@ -153,8 +150,7 @@ NU_API void          nu_material_wrap_mode(nu_material_t          material,
                                            nu_material_property_t prop,
                                            nu_texture_wrap_mode_t mode);
 
-NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type,
-                                            nu_bool_t reset_after_submit);
+NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
 NU_API void            nu_renderpass_reset(nu_renderpass_t pass);
 NU_API void            nu_renderpass_submit(nu_renderpass_t pass);
@@ -174,6 +170,9 @@ NU_API void nu_renderpass_quat(nu_renderpass_t          pass,
 NU_API void nu_renderpass_texture(nu_renderpass_t          pass,
                                   nu_renderpass_property_t prop,
                                   nu_texture_t             texture);
+NU_API void nu_renderpass_bool(nu_renderpass_t          pass,
+                               nu_renderpass_property_t prop,
+                               nu_bool_t bool);
 
 NU_API void nu_bind_material(nu_renderpass_t pass, nu_material_t material);
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,

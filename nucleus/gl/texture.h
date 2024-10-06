@@ -1,13 +1,14 @@
 #ifndef NUGL_TEXTURE_H
 #define NUGL_TEXTURE_H
 
-#include <nucleus/core/core.h>
+#include <nucleus/graphics/graphics.h>
 #include <nucleus/external/glad/gl.h>
 
 typedef struct
 {
-    nu_vec2u_t size;
-    GLuint     texture;
+    nu_vec2u_t         size;
+    GLuint             texture;
+    nu_texture_usage_t usage;
 } nugl__texture_t;
 
 typedef struct

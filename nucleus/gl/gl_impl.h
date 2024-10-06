@@ -174,7 +174,7 @@ nugl__init (void)
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_shader(
-        nugl__shader_flat_vert, nugl__shader_flat_frag, &gl->flat_program);
+        nugl__shader_lit_vert, nugl__shader_lit_frag, &gl->lit_program);
     NU_ERROR_CHECK(error, return error);
 
     error = nugl__compile_shader(nugl__shader_skybox_vert,
@@ -290,6 +290,7 @@ nugl__setup_api (nu__renderer_api_t *api)
 
     api->texture_create = nugl__texture_create;
     api->texture_delete = nugl__texture_delete;
+    api->texture_colors = nugl__texture_colors;
 
     api->cubemap_create = nugl__cubemap_create;
 
@@ -308,6 +309,7 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->renderpass_cubemap = nugl__renderpass_cubemap;
     api->renderpass_quat    = nugl__renderpass_quat;
     api->renderpass_texture = nugl__renderpass_texture;
+    api->renderpass_bool    = nugl__renderpass_bool;
 
     api->bind_material          = nugl__bind_material;
     api->draw_submesh_instanced = nugl__draw_submesh_instanced;

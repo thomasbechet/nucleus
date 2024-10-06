@@ -4,10 +4,11 @@
 #include <nucleus/internal.h>
 
 #include <nucleus/gl/unlit_impl.h>
-#include <nucleus/gl/flat_impl.h>
+#include <nucleus/gl/lit_impl.h>
 #include <nucleus/gl/skybox_impl.h>
 #include <nucleus/gl/canvas_impl.h>
 #include <nucleus/gl/wireframe_impl.h>
+#include <nucleus/gl/shadow_impl.h>
 
 static void
 nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
@@ -46,13 +47,12 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
 }
 
 static nu_renderpass_t
-nugl__renderpass_create (nu_renderpass_type_t type,
-                         nu_bool_t            reset_after_submit)
+nugl__renderpass_create (nu_renderpass_type_t type)
 {
     nugl__renderpass_t *pass  = NU_VEC_PUSH(&_ctx.gl.passes);
     nu_size_t           index = _ctx.gl.passes.size - 1;
     pass->type                = type;
-    pass->reset_after_submit  = reset_after_submit;
+    pass->reset_after_submit  = NU_TRUE;
     pass->has_clear_color     = NU_FALSE;
     pass->clear_color         = NU_COLOR_BLACK;
     pass->color_target        = NU_NULL;
@@ -64,8 +64,8 @@ nugl__renderpass_create (nu_renderpass_type_t type,
         case NU_RENDERPASS_TYPE_UNLIT:
             nugl__unlit_create(&pass->unlit);
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_create(&pass->flat);
+        case NU_RENDERPASS_TYPE_LIT:
+            nugl__lit_create(&pass->lit);
             break;
         case NU_RENDERPASS_TYPE_SKYBOX:
             nugl__skybox_create(&pass->skybox);
@@ -75,6 +75,9 @@ nugl__renderpass_create (nu_renderpass_type_t type,
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             nugl__wireframe_create(&pass->wireframe);
+            break;
+        case NU_RENDERPASS_TYPE_SHADOW:
+            nugl__shadow_create(&pass->shadow);
             break;
     }
 
@@ -177,8 +180,8 @@ nugl__renderpass_camera (nu_renderpass_t          pass,
         case NU_RENDERPASS_TYPE_UNLIT:
             ppass->unlit.camera = camera;
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
-            ppass->flat.camera = camera;
+        case NU_RENDERPASS_TYPE_LIT:
+            ppass->lit.camera = camera;
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             ppass->wireframe.camera = camera;
@@ -207,9 +210,17 @@ nugl__renderpass_quat (nu_renderpass_t          pass,
                        nu_quat_t                rot)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_TYPE_SKYBOX);
-    NU_ASSERT(prop == NU_RENDERPASS_SKYBOX_ROTATION);
-    ppass->skybox.rotation = nu_quat_mat3(rot);
+    switch (ppass->type)
+    {
+        case NU_RENDERPASS_TYPE_SKYBOX:
+            ppass->skybox.rotation = nu_quat_mat3(rot);
+            break;
+        case NU_RENDERPASS_TYPE_SHADOW:
+            break;
+        default:
+            NU_ERROR("invalid quat renderpass property");
+            break;
+    }
 }
 static void
 nugl__renderpass_texture (nu_renderpass_t          pass,
@@ -225,11 +236,31 @@ nugl__renderpass_texture (nu_renderpass_t          pass,
         case NU_RENDERPASS_DEPTH_TARGET:
             ppass->depth_target = texture;
             break;
+        case NU_RENDERPASS_SHADOW_DEPTH_MAP:
+            nugl__shadow_set_depth_map(&ppass->shadow, texture);
+            break;
         default:
             NU_ERROR("invalid texture renderpass property");
             break;
     }
 }
+static void
+nugl__renderpass_bool (nu_renderpass_t          pass,
+                       nu_renderpass_property_t prop,
+                       nu_bool_t bool)
+{
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
+    switch (prop)
+    {
+        case NU_RENDERPASS_RESET_AFTER_SUBMIT:
+            ppass->reset_after_submit = bool;
+            break;
+        default:
+            NU_ERROR("invalid bool renderpass property");
+            break;
+    }
+}
+
 static void
 nugl__reset_renderpass (nugl__renderpass_t *pass)
 {
@@ -238,8 +269,8 @@ nugl__reset_renderpass (nugl__renderpass_t *pass)
         case NU_RENDERPASS_TYPE_UNLIT:
             nugl__unlit_reset(&pass->unlit);
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_reset(&pass->flat);
+        case NU_RENDERPASS_TYPE_LIT:
+            nugl__lit_reset(&pass->lit);
             break;
         case NU_RENDERPASS_TYPE_SKYBOX:
             nugl__skybox_reset(&pass->skybox);
@@ -249,6 +280,9 @@ nugl__reset_renderpass (nugl__renderpass_t *pass)
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             nugl__wireframe_reset(&pass->wireframe);
+            break;
+        case NU_RENDERPASS_TYPE_SHADOW:
+            nugl__shadow_reset(&pass->shadow);
             break;
     }
 }
@@ -274,7 +308,7 @@ nugl__renderpass_submit (nu_renderpass_t pass)
                 ppass, ppass->color_target, ppass->depth_target);
         }
         break;
-        case NU_RENDERPASS_TYPE_FLAT: {
+        case NU_RENDERPASS_TYPE_LIT: {
             NU_ASSERT(ppass->color_target && ppass->depth_target);
             nugl__prepare_color_depth(
                 ppass, ppass->color_target, ppass->depth_target);
@@ -297,6 +331,9 @@ nugl__renderpass_submit (nu_renderpass_t pass)
                 ppass, ppass->color_target, ppass->depth_target);
         }
         break;
+        case NU_RENDERPASS_TYPE_SHADOW: {
+        }
+        break;
     }
 }
 
@@ -312,8 +349,8 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
         case NU_RENDERPASS_TYPE_UNLIT:
             nugl__unlit_bind_material(&ppass->unlit, material);
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_bind_material(&ppass->flat, material);
+        case NU_RENDERPASS_TYPE_LIT:
+            nugl__lit_bind_material(&ppass->lit, material);
             break;
         case NU_RENDERPASS_TYPE_SKYBOX:
             break;
@@ -322,6 +359,8 @@ nugl__bind_material (nu_renderpass_t pass, nu_material_t material)
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             nugl__wireframe_bind_material(&ppass->wireframe, material);
+            break;
+        case NU_RENDERPASS_TYPE_SHADOW:
             break;
     }
 }
@@ -347,11 +386,11 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                                          instance_count,
                                          transforms);
             break;
-        case NU_RENDERPASS_TYPE_FLAT: {
+        case NU_RENDERPASS_TYPE_LIT: {
             NU_ASSERT(pmesh->primitive == NU_PRIMITIVE_TRIANGLES);
-            nugl__submesh_draw_instanced(&ppass->flat.cmds,
+            nugl__submesh_draw_instanced(&ppass->lit.cmds,
                                          pmesh,
-                                         ppass->flat.material,
+                                         ppass->lit.material,
                                          first,
                                          count,
                                          instance_count,
@@ -409,8 +448,8 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
         case NU_RENDERPASS_TYPE_UNLIT:
             nugl__unlit_render(pass);
             break;
-        case NU_RENDERPASS_TYPE_FLAT:
-            nugl__flat_render(pass);
+        case NU_RENDERPASS_TYPE_LIT:
+            nugl__lit_render(pass);
             break;
         case NU_RENDERPASS_TYPE_SKYBOX:
             nugl__skybox_render(pass);
@@ -420,6 +459,9 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
             break;
         case NU_RENDERPASS_TYPE_WIREFRAME:
             nugl__wireframe_render(pass);
+            break;
+        case NU_RENDERPASS_TYPE_SHADOW:
+            nugl__shadow_render(pass);
             break;
     }
 

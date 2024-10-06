@@ -15,7 +15,7 @@ typedef struct
 
     GLuint screen_blit_program;
     GLuint unlit_program;
-    GLuint flat_program;
+    GLuint lit_program;
     GLuint skybox_program;
     GLuint wireframe_program;
     GLuint canvas_blit_program;

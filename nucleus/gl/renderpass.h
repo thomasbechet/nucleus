@@ -74,7 +74,7 @@ typedef struct
     nugl__mesh_command_vec_t cmds;
     nu_camera_t              camera;
     nu_material_t            material;
-} nugl__renderpass_flat_t;
+} nugl__renderpass_lit_t;
 
 typedef struct
 {
@@ -104,6 +104,11 @@ typedef struct
 
 typedef struct
 {
+    nugl__mesh_command_vec_t cmds;
+} nugl__renderpass_shadow_t;
+
+typedef struct
+{
     nu_renderpass_type_t type;
     nu_texture_t         depth_target;
     nu_texture_t         color_target;
@@ -115,10 +120,11 @@ typedef struct
     union
     {
         nugl__renderpass_unlit_t     unlit;
-        nugl__renderpass_flat_t      flat;
+        nugl__renderpass_lit_t       lit;
         nugl__renderpass_skybox_t    skybox;
         nugl__renderpass_canvas_t    canvas;
         nugl__renderpass_wireframe_t wireframe;
+        nugl__renderpass_shadow_t    shadow;
     };
 } nugl__renderpass_t;
 

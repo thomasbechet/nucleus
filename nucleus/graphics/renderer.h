@@ -39,15 +39,11 @@ typedef struct
                       nu_size_t        count,
                       const nu_vec3_t *data);
 
-    nu_texture_t (*texture_create)(nu_vec2u_t          size,
-                                   nu_texture_format_t format,
-                                   nu_texture_usage_t  usage,
-                                   const nu_color_t   *colors);
+    nu_texture_t (*texture_create)(nu_vec2u_t size, nu_texture_usage_t usage);
     void (*texture_delete)(nu_texture_t texture);
+    void (*texture_colors)(nu_texture_t texture, const nu_color_t *colors);
 
-    nu_cubemap_t (*cubemap_create)(nu_u32_t           size,
-                                   nu_texture_usage_t usage,
-                                   const nu_color_t **colors);
+    nu_cubemap_t (*cubemap_create)(nu_u32_t size, const nu_color_t **colors);
     void (*cubemap_delete)(nu_cubemap_t cubemap);
 
     nu_material_t (*material_create)(nu_material_type_t type);
@@ -65,8 +61,7 @@ typedef struct
                                nu_material_property_t prop,
                                nu_texture_wrap_mode_t mode);
 
-    nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type,
-                                         nu_bool_t reset_after_submit);
+    nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type);
     void (*renderpass_delete)(nu_renderpass_t pass);
     void (*renderpass_reset)(nu_renderpass_t pass);
     void (*renderpass_submit)(nu_renderpass_t pass);
@@ -86,6 +81,9 @@ typedef struct
     void (*renderpass_texture)(nu_renderpass_t          pass,
                                nu_renderpass_property_t prop,
                                nu_texture_t             texture);
+    void (*renderpass_bool)(nu_renderpass_t          pass,
+                            nu_renderpass_property_t prop,
+                            nu_bool_t bool);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
     void (*draw_submesh_instanced)(nu_renderpass_t  pass,
