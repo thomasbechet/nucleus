@@ -59,7 +59,7 @@ nugl__mesh_vec2 (nu_mesh_t        mesh,
                 nu_size_t bsize
                     = nu__primitive_vertex_count(p->primitive, p->capacity)
                       * NU_VEC2_SIZE * sizeof(float);
-                glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
                 glVertexAttribPointer(1,
                                       2,
                                       GL_FLOAT,
@@ -119,7 +119,7 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                 nu_size_t bsize
                     = nu__primitive_vertex_count(p->primitive, p->capacity)
                       * NU_VEC3_SIZE * sizeof(float);
-                glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
                 glVertexAttribPointer(0,
                                       3,
                                       GL_FLOAT,
@@ -136,7 +136,7 @@ nugl__mesh_vec3 (nu_mesh_t        mesh,
                                                        p->capacity)
                             * NU_VEC3_SIZE * sizeof(float);
                     glBufferData(
-                        GL_ARRAY_BUFFER, bsize, NU_NULL, GL_STATIC_DRAW);
+                        GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
                     glVertexAttribPointer(2,
                                           3,
                                           GL_FLOAT,
