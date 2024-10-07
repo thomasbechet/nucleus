@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 static nu_texture_t
-nugl__texture_create (nu_vec2u_t size, nu_texture_usage_t usage)
+nugl__texture_create (nu_vec2u_t size, nu_texture_type_t usage)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -31,7 +31,7 @@ nugl__texture_create (nu_vec2u_t size, nu_texture_usage_t usage)
                          GL_UNSIGNED_BYTE,
                          NU_NULL);
             break;
-        case NU_TEXTURE_DEPTH:
+        case NU_TEXTURE_DEPTH_TARGET:
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          GL_DEPTH24_STENCIL8,
@@ -42,7 +42,7 @@ nugl__texture_create (nu_vec2u_t size, nu_texture_usage_t usage)
                          GL_UNSIGNED_INT_24_8,
                          NU_NULL);
             break;
-        case NU_TEXTURE_SHADOW_DEPTH_MAP:
+        case NU_TEXTURE_SHADOW_TARGET:
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          GL_DEPTH_COMPONENT,

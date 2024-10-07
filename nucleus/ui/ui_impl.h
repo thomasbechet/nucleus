@@ -83,9 +83,8 @@ nu_ui_create (void)
     NU_VEC_INIT(1, &ui->passes);
 
     // Create main renderpass
-    ui->active_renderpass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
-    nu_renderpass_bool(
-        ui->active_renderpass, NU_RENDERPASS_RESET_AFTER_SUBMIT, NU_FALSE);
+    ui->active_renderpass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    nu_renderpass_set_reset_after_submit(ui->active_renderpass, NU_FALSE);
     nu__ui_pass_t *pass = NU_VEC_PUSH(&ui->passes);
     pass->renderpass    = ui->active_renderpass;
 
@@ -158,9 +157,8 @@ nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     for (nu_size_t i = ui->passes.size; i > 0; --i)
     {
-        nu_renderpass_texture(ui->passes.data[i - 1].renderpass,
-                              NU_RENDERPASS_COLOR_TARGET,
-                              color_target);
+        nu_renderpass_set_color_target(ui->passes.data[i - 1].renderpass,
+                                       color_target);
         nu_renderpass_submit(ui->passes.data[i - 1].renderpass);
     }
 }

@@ -194,8 +194,8 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     nu_vec3_t forward = nu_quat_mulv3(ctrl->rot, NU_VEC3_FORWARD);
     nu_vec3_t up      = nu_vec3_normalize(nu_quat_mulv3(ctrl->rot, NU_VEC3_UP));
 
-    nu_camera_view(camera,
-                   nu_lookat(ctrl->pos, nu_vec3_add(ctrl->pos, forward), up));
+    nu_camera_set_view(
+        camera, nu_lookat(ctrl->pos, nu_vec3_add(ctrl->pos, forward), up));
 }
 nu_mat4_t
 nu_controller_transform (nu_controller_t controller)

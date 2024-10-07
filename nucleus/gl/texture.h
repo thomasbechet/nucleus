@@ -6,9 +6,9 @@
 
 typedef struct
 {
-    nu_vec2u_t         size;
-    GLuint             texture;
-    nu_texture_usage_t usage;
+    nu_vec2u_t        size;
+    GLuint            texture;
+    nu_texture_type_t usage;
 } nugl__texture_t;
 
 typedef struct

@@ -19,30 +19,29 @@ main (void)
 
     // Material
     texture  = nu_texture_create_color(NU_COLOR_WHITE);
-    material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
+    material = nu_material_create(NU_MATERIAL_SURFACE);
+    nu_material_set_texture(material, texture);
 
     // Camera
     camera = nu_camera_create();
-    nu_camera_proj(
+    nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 100));
-    nu_camera_view(camera,
-                   nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
+    nu_camera_set_view(camera,
+                       nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
 
     // Renderpass
-    depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH);
+    depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
     nu_color_t   clear_color   = NU_COLOR_BLACK;
     nu_texture_t surface_color = nu_surface_color_target();
 
-    renderpass = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME);
-    nu_renderpass_camera(renderpass, NU_RENDERPASS_CAMERA, camera);
-    nu_renderpass_color(renderpass, NU_RENDERPASS_CLEAR_COLOR, &clear_color);
-    nu_renderpass_texture(
-        renderpass, NU_RENDERPASS_COLOR_TARGET, surface_color);
-    nu_renderpass_texture(renderpass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
+    renderpass = nu_renderpass_create(NU_RENDERPASS_WIREFRAME);
+    nu_renderpass_set_camera(renderpass, camera);
+    nu_renderpass_set_clear_color(renderpass, &clear_color);
+    nu_renderpass_set_color_target(renderpass, surface_color);
+    nu_renderpass_set_depth_target(renderpass, depth_buffer);
 
-    nu_renderpass_t guipass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
-    nu_renderpass_texture(guipass, NU_RENDERPASS_COLOR_TARGET, surface_color);
+    nu_renderpass_t guipass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    nu_renderpass_set_color_target(guipass, surface_color);
 
     nu_font_t font = nu_font_create_default();
 

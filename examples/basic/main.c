@@ -87,9 +87,9 @@ main (void)
 
     // Create depth buffer
     nu_texture_t depth_buffer
-        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH);
+        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
     nu_texture_t shadow_map = nu_texture_create(
-        nu_vec2u(SHADOW_WIDTH, SHADOW_HEIGHT), NU_TEXTURE_SHADOW_DEPTH_MAP);
+        nu_vec2u(SHADOW_WIDTH, SHADOW_HEIGHT), NU_TEXTURE_SHADOW_TARGET);
 
     // Create meshes
     nu_mesh_t custom_mesh;
@@ -127,17 +127,14 @@ main (void)
     nu_texture_t texture_gui = NU_ASSET_TEXTURE("GUI");
 
     // Create material
-    nu_material_t material = nu_material_create(NU_MATERIAL_TYPE_SURFACE);
-    nu_material_texture(material, NU_MATERIAL_TEXTURE0, texture);
-    nu_material_t material_gui_repeat
-        = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
-    nu_material_texture(material_gui_repeat, NU_MATERIAL_TEXTURE0, texture_gui);
-    nu_material_wrap_mode(
-        material_gui_repeat, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_REPEAT);
-    nu_material_t material_gui = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
-    nu_material_texture(material_gui, NU_MATERIAL_TEXTURE0, texture_gui);
-    nu_material_wrap_mode(
-        material_gui, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_CLAMP);
+    nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);
+    nu_material_set_texture(material, texture);
+    nu_material_t material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
+    nu_material_set_texture(material_gui_repeat, texture_gui);
+    nu_material_set_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
+    nu_material_t material_gui = nu_material_create(NU_MATERIAL_CANVAS);
+    nu_material_set_texture(material_gui, texture_gui);
+    nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
     temple_model      = NU_ASSET_MODEL("temple");
@@ -152,46 +149,36 @@ main (void)
 
     // Create camera
     nu_camera_t camera = nu_camera_create();
-    nu_camera_proj(
+    nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
 
     // Create renderpasses
     nu_texture_t surface_tex = nu_surface_color_target();
     nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
-    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_LIT);
-    nu_renderpass_camera(main_pass, NU_RENDERPASS_CAMERA, camera);
-    nu_renderpass_texture(main_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
-    nu_renderpass_texture(main_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
-    nu_renderpass_color(main_pass, NU_RENDERPASS_CLEAR_COLOR, &clear_color);
+    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_LIT);
+    nu_renderpass_set_camera(main_pass, camera);
+    nu_renderpass_set_color_target(main_pass, surface_tex);
+    nu_renderpass_set_depth_target(main_pass, depth_buffer);
+    nu_renderpass_set_clear_color(main_pass, &clear_color);
 
-    nu_renderpass_t skybox_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_SKYBOX);
-    nu_renderpass_texture(skybox_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
-    nu_renderpass_texture(
-        skybox_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
-    nu_renderpass_cubemap(skybox_pass, NU_RENDERPASS_SKYBOX, skybox);
-    nu_renderpass_quat(
-        skybox_pass, NU_RENDERPASS_SKYBOX_ROTATION, nu_quat_identity());
-    nu_renderpass_camera(skybox_pass, NU_RENDERPASS_CAMERA, camera);
+    nu_renderpass_t skybox_pass = nu_renderpass_create(NU_RENDERPASS_SKYBOX);
+    nu_renderpass_set_color_target(skybox_pass, surface_tex);
+    nu_renderpass_set_depth_target(skybox_pass, depth_buffer);
+    nu_renderpass_set_skybox(skybox_pass, skybox, nu_quat_identity());
+    nu_renderpass_set_camera(skybox_pass, camera);
 
-    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_TYPE_CANVAS);
-    nu_renderpass_texture(gui_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
+    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    nu_renderpass_set_color_target(gui_pass, surface_tex);
 
     nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_WIREFRAME);
-    nu_renderpass_camera(wireframe_pass, NU_RENDERPASS_CAMERA, camera);
-    nu_renderpass_texture(
-        wireframe_pass, NU_RENDERPASS_COLOR_TARGET, surface_tex);
-    nu_renderpass_texture(
-        wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
+        = nu_renderpass_create(NU_RENDERPASS_WIREFRAME);
+    nu_renderpass_set_camera(wireframe_pass, camera);
+    nu_renderpass_set_color_target(wireframe_pass, surface_tex);
+    nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
 
-    nu_renderpass_t shadow_pass
-        = nu_renderpass_create(NU_RENDERPASS_TYPE_SHADOW);
-    nu_renderpass_texture(
-        shadow_pass, NU_RENDERPASS_SHADOW_DEPTH_MAP, shadow_map);
-    nu_renderpass_quat(
-        shadow_pass, NU_RENDERPASS_SHADOW_ROTATION, nu_quat_identity());
+    nu_renderpass_t shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
+    nu_renderpass_set_shadow_target(shadow_pass, shadow_map);
 
     // Create UI
     nu_ui_t       ui    = nu_ui_create();

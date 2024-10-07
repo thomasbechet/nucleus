@@ -70,10 +70,9 @@ nu_font_create_default (void)
     font->texture = nu_image_create_texture(image);
 
     // Create material
-    font->material = nu_material_create(NU_MATERIAL_TYPE_CANVAS);
-    nu_material_texture(font->material, NU_MATERIAL_TEXTURE0, font->texture);
-    nu_material_wrap_mode(
-        font->material, NU_MATERIAL_WRAP_MODE, NU_TEXTURE_WRAP_CLAMP);
+    font->material = nu_material_create(NU_MATERIAL_CANVAS);
+    nu_material_set_texture(font->material, font->texture);
+    nu_material_set_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
 
     // Free resources
     nu_image_delete(image);

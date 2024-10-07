@@ -21,25 +21,27 @@ typedef struct
 
     nu_camera_t (*camera_create)(void);
     void (*camera_delete)(nu_camera_t camera);
-    void (*camera_view)(nu_camera_t camera, nu_mat4_t view);
-    void (*camera_proj)(nu_camera_t camera, nu_mat4_t proj);
+    void (*camera_set_view)(nu_camera_t camera, nu_mat4_t view);
+    void (*camera_set_proj)(nu_camera_t camera, nu_mat4_t proj);
 
     nu_mesh_t (*mesh_create)(nu_primitive_t primitive, nu_size_t capacity);
     void (*mesh_delete)(nu_mesh_t mesh);
     nu_size_t (*mesh_capacity)(nu_mesh_t mesh);
     nu_primitive_t (*mesh_primitive)(nu_mesh_t mesh);
-    void (*mesh_vec2)(nu_mesh_t        mesh,
-                      nu_mesh_buffer_t buffer,
-                      nu_size_t        first,
-                      nu_size_t        count,
-                      const nu_vec2_t *data);
-    void (*mesh_vec3)(nu_mesh_t        mesh,
-                      nu_mesh_buffer_t buffer,
-                      nu_size_t        first,
-                      nu_size_t        count,
-                      const nu_vec3_t *data);
+    void (*mesh_write_uvs)(nu_mesh_t        mesh,
+                           nu_size_t        first,
+                           nu_size_t        count,
+                           const nu_vec2_t *data);
+    void (*mesh_write_positions)(nu_mesh_t        mesh,
+                                 nu_size_t        first,
+                                 nu_size_t        count,
+                                 const nu_vec3_t *data);
+    void (*mesh_write_colors)(nu_mesh_t         mesh,
+                              nu_size_t         first,
+                              nu_size_t         count,
+                              const nu_color_t *data);
 
-    nu_texture_t (*texture_create)(nu_vec2u_t size, nu_texture_usage_t usage);
+    nu_texture_t (*texture_create)(nu_vec2u_t size, nu_texture_type_t usage);
     void (*texture_delete)(nu_texture_t texture);
     void (*texture_colors)(nu_texture_t texture, const nu_color_t *colors);
 
@@ -48,42 +50,30 @@ typedef struct
 
     nu_material_t (*material_create)(nu_material_type_t type);
     void (*material_delete)(nu_material_t material);
-    void (*material_color)(nu_material_t          material,
-                           nu_material_property_t prop,
-                           nu_color_t             color);
-    void (*material_texture)(nu_material_t          material,
-                             nu_material_property_t prop,
-                             nu_texture_t           texture);
-    void (*material_mat3)(nu_material_t          material,
-                          nu_material_property_t prop,
-                          nu_mat3_t              mat);
-    void (*material_wrap_mode)(nu_material_t          material,
-                               nu_material_property_t prop,
-                               nu_texture_wrap_mode_t mode);
+    void (*material_set_color)(nu_material_t material, nu_color_t color);
+    void (*material_set_texture)(nu_material_t material, nu_texture_t texture);
+    void (*material_set_uv_transform)(nu_material_t material, nu_mat3_t mat);
+    void (*material_set_wrap_mode)(nu_material_t          material,
+                                   nu_texture_wrap_mode_t mode);
 
     nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type);
     void (*renderpass_delete)(nu_renderpass_t pass);
     void (*renderpass_reset)(nu_renderpass_t pass);
     void (*renderpass_submit)(nu_renderpass_t pass);
 
-    void (*renderpass_color)(nu_renderpass_t          pass,
-                             nu_renderpass_property_t prop,
-                             nu_color_t              *color);
-    void (*renderpass_camera)(nu_renderpass_t          pass,
-                              nu_renderpass_property_t prop,
-                              nu_camera_t              camera);
-    void (*renderpass_cubemap)(nu_renderpass_t          pass,
-                               nu_renderpass_property_t prop,
-                               nu_cubemap_t             cubemap);
-    void (*renderpass_quat)(nu_renderpass_t          pass,
-                            nu_renderpass_property_t prop,
-                            nu_quat_t                rot);
-    void (*renderpass_texture)(nu_renderpass_t          pass,
-                               nu_renderpass_property_t prop,
-                               nu_texture_t             texture);
-    void (*renderpass_bool)(nu_renderpass_t          pass,
-                            nu_renderpass_property_t prop,
-                            nu_bool_t bool);
+    void (*renderpass_set_reset_after_submit)(nu_renderpass_t pass,
+                                              nu_bool_t bool);
+    void (*renderpass_set_clear_color)(nu_renderpass_t pass, nu_color_t *color);
+    void (*renderpass_set_camera)(nu_renderpass_t pass, nu_camera_t camera);
+    void (*renderpass_set_skybox)(nu_renderpass_t pass,
+                                  nu_cubemap_t    cubemap,
+                                  nu_quat_t       rotation);
+    void (*renderpass_set_color_target)(nu_renderpass_t pass,
+                                        nu_texture_t    texture);
+    void (*renderpass_set_depth_target)(nu_renderpass_t pass,
+                                        nu_texture_t    texture);
+    void (*renderpass_set_shadow_target)(nu_renderpass_t pass,
+                                         nu_texture_t    texture);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
     void (*draw_submesh_instanced)(nu_renderpass_t  pass,

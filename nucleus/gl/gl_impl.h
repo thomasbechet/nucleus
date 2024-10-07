@@ -283,16 +283,16 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->render               = nugl__render;
     api->create_surface_color = nugl__create_surface_color;
 
-    api->camera_create = nugl__camera_create;
-    api->camera_view   = nugl__camera_view;
-    api->camera_proj   = nugl__camera_proj;
+    api->camera_create   = nugl__camera_create;
+    api->camera_set_view = nugl__camera_view;
+    api->camera_set_proj = nugl__camera_proj;
 
-    api->mesh_create    = nugl__mesh_create;
-    api->mesh_delete    = nugl__mesh_delete;
-    api->mesh_capacity  = nugl__mesh_capacity;
-    api->mesh_primitive = nugl__mesh_primitive;
-    api->mesh_vec2      = nugl__mesh_vec2;
-    api->mesh_vec3      = nugl__mesh_vec3;
+    api->mesh_create          = nugl__mesh_create;
+    api->mesh_delete          = nugl__mesh_delete;
+    api->mesh_capacity        = nugl__mesh_capacity;
+    api->mesh_primitive       = nugl__mesh_primitive;
+    api->mesh_write_uvs       = nugl__mesh_write_uvs;
+    api->mesh_write_positions = nugl__mesh_write_positions;
 
     api->texture_create = nugl__texture_create;
     api->texture_delete = nugl__texture_delete;
@@ -300,22 +300,24 @@ nugl__setup_api (nu__renderer_api_t *api)
 
     api->cubemap_create = nugl__cubemap_create;
 
-    api->material_create    = nugl__material_create;
-    api->material_color     = nugl__material_color;
-    api->material_texture   = nugl__material_texture;
-    api->material_mat3      = nugl__material_mat3;
-    api->material_wrap_mode = nugl__material_wrap_mode;
+    api->material_create           = nugl__material_create;
+    api->material_set_color        = nugl__material_set_color;
+    api->material_set_texture      = nugl__material_set_texture;
+    api->material_set_uv_transform = nugl__material_set_uv_transform;
+    api->material_set_wrap_mode    = nugl__material_set_wrap_mode;
 
     api->renderpass_create = nugl__renderpass_create;
     api->renderpass_reset  = nugl__renderpass_reset;
     api->renderpass_submit = nugl__renderpass_submit;
 
-    api->renderpass_color   = nugl__renderpass_color;
-    api->renderpass_camera  = nugl__renderpass_camera;
-    api->renderpass_cubemap = nugl__renderpass_cubemap;
-    api->renderpass_quat    = nugl__renderpass_quat;
-    api->renderpass_texture = nugl__renderpass_texture;
-    api->renderpass_bool    = nugl__renderpass_bool;
+    api->renderpass_set_reset_after_submit
+        = nugl__renderpass_set_reset_after_submit;
+    api->renderpass_set_clear_color   = nugl__renderpass_set_clear_color;
+    api->renderpass_set_color_target  = nugl__renderpass_set_color_target;
+    api->renderpass_set_depth_target  = nugl__renderpass_set_depth_target;
+    api->renderpass_set_shadow_target = nugl__renderpass_set_shadow_target;
+    api->renderpass_set_camera        = nugl__renderpass_set_camera;
+    api->renderpass_set_skybox        = nugl__renderpass_set_skybox;
 
     api->bind_material          = nugl__bind_material;
     api->draw_submesh_instanced = nugl__draw_submesh_instanced;

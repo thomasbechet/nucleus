@@ -313,7 +313,7 @@ nu__geometry_create_mesh_lines (nu__geometry_t *g)
     }
 
     nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, edges.size / 2);
-    nu_mesh_vec3(mesh, NU_MESH_POSITIONS, 0, edges.size / 2, positions.data);
+    nu_mesh_write_positions(mesh, 0, edges.size / 2, positions.data);
 
     NU_VEC_FREE(&edges);
     NU_VEC_FREE(&positions);
@@ -376,8 +376,8 @@ nu__geometry_create_mesh_triangles (nu__geometry_t *g)
     }
 
     nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, triangle_count);
-    nu_mesh_vec3(mesh, NU_MESH_POSITIONS, 0, triangle_count, positions.data);
-    nu_mesh_vec2(mesh, NU_MESH_UVS, 0, triangle_count, uvs.data);
+    nu_mesh_write_positions(mesh, 0, triangle_count, positions.data);
+    nu_mesh_write_uvs(mesh, 0, triangle_count, uvs.data);
 
     NU_VEC_FREE(&positions);
     NU_VEC_FREE(&uvs);
@@ -445,7 +445,7 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
     }
 
     nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, face_count);
-    nu_mesh_vec3(mesh, NU_MESH_POSITIONS, 0, face_count, positions.data);
+    nu_mesh_write_positions(mesh, 0, face_count, positions.data);
 
     NU_VEC_FREE(&positions);
 

@@ -121,7 +121,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
     }
     const nugl__material_t *pmat
         = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->canvas.material);
-    NU_ASSERT(pmat->type == NU_MATERIAL_TYPE_CANVAS);
+    NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
 
     nu_u32_t blit_count = 0;
     switch (pmat->canvas.wrap_mode)

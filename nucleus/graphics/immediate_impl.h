@@ -53,7 +53,7 @@ nu_draw_points (nu_renderpass_t  pass,
 
     nu_size_t first = im->points_count;
     im->points_count += count;
-    nu_mesh_vec3(im->points, NU_MESH_POSITIONS, first, count, positions);
+    nu_mesh_write_positions(im->points, first, count, positions);
     nu_draw_submesh(pass, im->points, first, count, transform);
 }
 void
@@ -66,7 +66,7 @@ nu_draw_lines (nu_renderpass_t  pass,
 
     nu_size_t first = im->lines_count;
     im->lines_count += count;
-    nu_mesh_vec3(im->lines, NU_MESH_POSITIONS, first, count, positions);
+    nu_mesh_write_positions(im->lines, first, count, positions);
     nu_draw_submesh(pass, im->lines, first, count, transform);
 }
 void
@@ -79,7 +79,7 @@ nu_draw_lines_strip (nu_renderpass_t  pass,
 
     nu_size_t first = im->lines_strip_count;
     im->lines_strip_count += count;
-    nu_mesh_vec3(im->lines_strip, NU_MESH_POSITIONS, first, count, positions);
+    nu_mesh_write_positions(im->lines_strip, first, count, positions);
     nu_draw_submesh(pass, im->lines_strip, first, count, transform);
 }
 void
