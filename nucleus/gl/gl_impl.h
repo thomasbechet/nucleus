@@ -4,6 +4,7 @@
 #include <nucleus/internal.h>
 #include <nucleus/gl/texture_impl.h>
 #include <nucleus/gl/material_impl.h>
+#include <nucleus/gl/light_impl.h>
 #include <nucleus/gl/mesh_impl.h>
 #include <nucleus/gl/camera_impl.h>
 #include <nucleus/gl/renderpass_impl.h>
@@ -306,6 +307,11 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->material_set_texture      = nugl__material_set_texture;
     api->material_set_uv_transform = nugl__material_set_uv_transform;
     api->material_set_wrap_mode    = nugl__material_set_wrap_mode;
+
+    api->light_create       = nugl__light_create;
+    api->light_delete       = nugl__light_delete;
+    api->light_set_position = nugl__light_set_position;
+    api->light_set_rotation = nugl__light_set_rotation;
 
     api->renderpass_create = nugl__renderpass_create;
     api->renderpass_reset  = nugl__renderpass_reset;

@@ -60,6 +60,12 @@ typedef struct
     void (*material_set_wrap_mode)(nu_material_t          material,
                                    nu_texture_wrap_mode_t mode);
 
+    nu_light_t (*light_create)(nu_light_type_t type);
+    void (*light_delete)(nu_light_t light);
+    void (*light_set_position)(nu_light_t light, nu_vec3_t v);
+    void (*light_set_rotation)(nu_light_t light, nu_quat_t q);
+    void (*light_set_color)(nu_light_t light, nu_color_t v);
+
     nu_renderpass_t (*renderpass_create)(nu_renderpass_type_t type);
     void (*renderpass_delete)(nu_renderpass_t pass);
     void (*renderpass_reset)(nu_renderpass_t pass);

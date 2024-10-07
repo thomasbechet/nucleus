@@ -5,6 +5,7 @@
 #include <nucleus/gl/shader_data.h>
 #include <nucleus/gl/texture.h>
 #include <nucleus/gl/material.h>
+#include <nucleus/gl/light.h>
 #include <nucleus/gl/mesh.h>
 #include <nucleus/gl/camera.h>
 #include <nucleus/gl/renderpass.h>
@@ -27,6 +28,7 @@ typedef struct
     nugl__texture_vec_t      textures;
     nugl__cubemap_vec_t      cubemaps;
     nugl__material_vec_t     materials;
+    nugl__light_vec_t        lights;
     nugl__rendertarget_vec_t targets;
     nugl__renderpass_vec_t   passes;
     nu_u32_vec_t             passes_order;

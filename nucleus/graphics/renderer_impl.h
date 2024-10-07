@@ -202,8 +202,34 @@ nu_material_set_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
     _ctx.graphics.renderer.api.material_set_wrap_mode(material, mode);
 }
 
-nu_renderpass_t
-nu_renderpass_create (nu_renderpass_type_t type)
+nu_light_t
+nu_light_create (nu_light_type_t type)
+{
+    CHECK_NULL_API_HANDLE
+    return _ctx.graphics.renderer.api.light_create(type);
+}
+void
+nu_light_delete (nu_light_t light)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.light_delete(light);
+}
+void
+nu_light_set_position (nu_light_t light, nu_vec3_t v)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.light_set_position(light, v);
+}
+void
+nu_light_set_rotation (nu_light_t light, nu_quat_t q)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.light_set_rotation(light, q);
+}
+void
+nu_light_set_color (nu_light_t light, nu_color_t v) { CHECK_NULL_API_VOID }
+
+nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type)
 {
     CHECK_NULL_API_HANDLE
     return _ctx.graphics.renderer.api.renderpass_create(type);
