@@ -11,6 +11,8 @@ NU_DEFINE_HANDLE(nu_model_t);
 NU_DEFINE_HANDLE(nu_font_t);
 NU_DEFINE_HANDLE(nu_mesh_t);
 NU_DEFINE_HANDLE(nu_material_t);
+NU_DEFINE_HANDLE(nu_light_t);
+NU_DEFINE_HANDLE(nu_lightenv_t);
 NU_DEFINE_HANDLE(nu_renderpass_t);
 
 #define NU_CUBEMAP_FACE_COUNT 6
@@ -44,6 +46,27 @@ typedef enum
     NU_MATERIAL_UV_TRANSFORM,
     NU_MATERIAL_WRAP_MODE,
 } nu_material_property_t;
+
+typedef enum
+{
+    NU_LIGHT_TYPE_DIRECTIONAL,
+    NU_LIGHT_TYPE_POINT,
+} nu_light_type_t;
+
+typedef enum
+{
+    NU_LIGHT_POSITION,  // vec3
+    NU_LIGHT_DIRECTION, // quat
+    NU_LIGHT_COLOR,     // color
+} nu_light_property_t;
+
+typedef enum
+{
+    NU_LIGHTENV_LIGHT0,
+    NU_LIGHTENV_LIGHT1,
+    NU_LIGHTENV_LIGHT2,
+    NU_LIGHTENV_LIGHT3,
+} nu_lightenv_property_t;
 
 typedef enum
 {
@@ -149,6 +172,18 @@ NU_API void          nu_material_mat3(nu_material_t          material,
 NU_API void          nu_material_wrap_mode(nu_material_t          material,
                                            nu_material_property_t prop,
                                            nu_texture_wrap_mode_t mode);
+
+NU_API nu_light_t nu_light_create(nu_light_type_t type);
+NU_API void       nu_light_delete(nu_light_t light);
+NU_API void       nu_light_vec3(nu_light_t          light,
+                                nu_light_property_t prop,
+                                nu_vec3_t           v);
+NU_API void       nu_light_color(nu_light_t          light,
+                                 nu_light_property_t prop,
+                                 nu_color_t          v);
+
+NU_API nu_lightenv_t nu_lightenv_create(void);
+NU_API void          nu_lightenv_delete(nu_lightenv_t env);
 
 NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
