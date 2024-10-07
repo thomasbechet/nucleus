@@ -13,7 +13,8 @@ typedef struct
 
 typedef struct
 {
-    GLuint texture;
+    GLuint   texture;
+    nu_u32_t size;
 } nugl__cubemap_t;
 
 typedef NU_VEC(nugl__texture_t) nugl__texture_vec_t;

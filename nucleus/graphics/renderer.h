@@ -43,10 +43,14 @@ typedef struct
 
     nu_texture_t (*texture_create)(nu_vec2u_t size, nu_texture_type_t usage);
     void (*texture_delete)(nu_texture_t texture);
-    void (*texture_colors)(nu_texture_t texture, const nu_color_t *colors);
+    void (*texture_write_colors)(nu_texture_t      texture,
+                                 const nu_color_t *colors);
 
-    nu_cubemap_t (*cubemap_create)(nu_u32_t size, const nu_color_t **colors);
+    nu_cubemap_t (*cubemap_create)(nu_u32_t size);
     void (*cubemap_delete)(nu_cubemap_t cubemap);
+    void (*cubemap_write_colors)(nu_cubemap_t      cubemap,
+                                 nu_cubemap_face_t face,
+                                 const nu_color_t *colors);
 
     nu_material_t (*material_create)(nu_material_type_t type);
     void (*material_delete)(nu_material_t material);

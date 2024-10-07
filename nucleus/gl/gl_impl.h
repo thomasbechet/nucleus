@@ -294,11 +294,12 @@ nugl__setup_api (nu__renderer_api_t *api)
     api->mesh_write_uvs       = nugl__mesh_write_uvs;
     api->mesh_write_positions = nugl__mesh_write_positions;
 
-    api->texture_create = nugl__texture_create;
-    api->texture_delete = nugl__texture_delete;
-    api->texture_colors = nugl__texture_colors;
+    api->texture_create       = nugl__texture_create;
+    api->texture_delete       = nugl__texture_delete;
+    api->texture_write_colors = nugl__texture_write_colors;
 
-    api->cubemap_create = nugl__cubemap_create;
+    api->cubemap_create       = nugl__cubemap_create;
+    api->cubemap_write_colors = nugl__cubemap_write_colors;
 
     api->material_create           = nugl__material_create;
     api->material_set_color        = nugl__material_set_color;

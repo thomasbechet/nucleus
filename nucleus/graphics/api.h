@@ -89,10 +89,14 @@ NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_mat4_t proj);
 NU_API nu_texture_t nu_texture_create(nu_vec2u_t size, nu_texture_type_t usage);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API void         nu_texture_delete(nu_texture_t texture);
-NU_API void nu_texture_colors(nu_texture_t texture, const nu_color_t *colors);
+NU_API void         nu_texture_write_colors(nu_texture_t      texture,
+                                            const nu_color_t *colors);
 
-NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size, const nu_color_t **colors);
+NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size);
 NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
+NU_API void         nu_cubemap_write_colors(nu_cubemap_t      cubemap,
+                                            nu_cubemap_face_t face,
+                                            const nu_color_t *colors);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);

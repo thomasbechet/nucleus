@@ -112,7 +112,7 @@ nu_texture_create_color (nu_color_t color)
 {
     nu_texture_t tex = nu_texture_create(NU_VEC2U_ONES, NU_TEXTURE_COLOR);
     NU_CHECK(tex, return tex);
-    nu_texture_colors(tex, &color);
+    nu_texture_write_colors(tex, &color);
     return tex;
 }
 nu_texture_t
@@ -121,7 +121,7 @@ nu_image_create_texture (nu_image_t image)
     nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
     nu_texture_t tex = nu_texture_create(ima->size, NU_TEXTURE_COLOR);
     NU_CHECK(tex, return tex);
-    nu_texture_colors(tex, ima->colors);
+    nu_texture_write_colors(tex, ima->colors);
     return tex;
 }
 void
@@ -131,23 +131,31 @@ nu_texture_delete (nu_texture_t texture)
     _ctx.graphics.renderer.api.texture_delete(texture);
 }
 void
-nu_texture_colors (nu_texture_t texture, const nu_color_t *colors)
+nu_texture_write_colors (nu_texture_t texture, const nu_color_t *colors)
 {
     CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.texture_colors(texture, colors);
+    _ctx.graphics.renderer.api.texture_write_colors(texture, colors);
 }
 
 NU_API nu_cubemap_t
-nu_cubemap_create (nu_u32_t size, const nu_color_t **colors)
+nu_cubemap_create (nu_u32_t size)
 {
     CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.cubemap_create(size, colors);
+    return _ctx.graphics.renderer.api.cubemap_create(size);
 }
 void
 nu_cubemap_delete (nu_cubemap_t cubemap)
 {
     CHECK_NULL_API_VOID
     _ctx.graphics.renderer.api.cubemap_delete(cubemap);
+}
+void
+nu_cubemap_write_colors (nu_cubemap_t      cubemap,
+                         nu_cubemap_face_t face,
+                         const nu_color_t *colors)
+{
+    CHECK_NULL_API_VOID
+    _ctx.graphics.renderer.api.cubemap_write_colors(cubemap, face, colors);
 }
 
 nu_material_t
