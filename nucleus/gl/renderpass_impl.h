@@ -205,14 +205,14 @@ static void
 nugl__renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    ppass->depth_target       = texture;
-}
-static void
-nugl__renderpass_set_shadow_target (nu_renderpass_t pass, nu_texture_t texture)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_SHADOW);
-    nugl__shadow_set_depth_map(&ppass->shadow, texture);
+    if (ppass->type == NU_RENDERPASS_SHADOW)
+    {
+        nugl__shadow_set_depth_map(&ppass->shadow, texture);
+    }
+    else
+    {
+        ppass->depth_target = texture;
+    }
 }
 static void
 nugl__renderpass_set_skybox (nu_renderpass_t pass,

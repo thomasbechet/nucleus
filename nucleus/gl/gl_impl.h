@@ -319,12 +319,11 @@ nugl__setup_api (nu__renderer_api_t *api)
 
     api->renderpass_set_reset_after_submit
         = nugl__renderpass_set_reset_after_submit;
-    api->renderpass_set_clear_color   = nugl__renderpass_set_clear_color;
-    api->renderpass_set_color_target  = nugl__renderpass_set_color_target;
-    api->renderpass_set_depth_target  = nugl__renderpass_set_depth_target;
-    api->renderpass_set_shadow_target = nugl__renderpass_set_shadow_target;
-    api->renderpass_set_camera        = nugl__renderpass_set_camera;
-    api->renderpass_set_skybox        = nugl__renderpass_set_skybox;
+    api->renderpass_set_clear_color  = nugl__renderpass_set_clear_color;
+    api->renderpass_set_color_target = nugl__renderpass_set_color_target;
+    api->renderpass_set_depth_target = nugl__renderpass_set_depth_target;
+    api->renderpass_set_camera       = nugl__renderpass_set_camera;
+    api->renderpass_set_skybox       = nugl__renderpass_set_skybox;
 
     api->bind_material          = nugl__bind_material;
     api->draw_submesh_instanced = nugl__draw_submesh_instanced;

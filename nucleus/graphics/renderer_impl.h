@@ -295,10 +295,8 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
     _ctx.graphics.renderer.api.renderpass_set_depth_target(pass, texture);
 }
 void
-nu_renderpass_set_shadow_target (nu_renderpass_t pass, nu_texture_t texture)
+nu_renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_shadow_target(pass, texture);
 }
 
 void

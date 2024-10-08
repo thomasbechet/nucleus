@@ -82,8 +82,7 @@ typedef struct
                                         nu_texture_t    texture);
     void (*renderpass_set_depth_target)(nu_renderpass_t pass,
                                         nu_texture_t    texture);
-    void (*renderpass_set_shadow_target)(nu_renderpass_t pass,
-                                         nu_texture_t    texture);
+    void (*renderpass_set_lightenv)(nu_renderpass_t pass, nu_lightenv_t env);
 
     void (*bind_material)(nu_renderpass_t pass, nu_material_t material);
     void (*draw_submesh_instanced)(nu_renderpass_t  pass,

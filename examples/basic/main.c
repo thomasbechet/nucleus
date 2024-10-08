@@ -178,7 +178,7 @@ main (void)
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
 
     nu_renderpass_t shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
-    nu_renderpass_set_shadow_target(shadow_pass, shadow_map);
+    nu_renderpass_set_depth_target(shadow_pass, shadow_map);
 
     // Create UI
     nu_ui_t       ui    = nu_ui_create();

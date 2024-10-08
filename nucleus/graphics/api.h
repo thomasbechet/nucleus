@@ -132,6 +132,14 @@ NU_API void       nu_light_set_color(nu_light_t light, nu_color_t v);
 
 NU_API nu_lightenv_t nu_lightenv_create(void);
 NU_API void          nu_lightenv_delete(nu_lightenv_t env);
+NU_API void          nu_lightenv_set_light(nu_lightenv_t env,
+                                           nu_size_t     index,
+                                           nu_light_t    light);
+NU_API void nu_lightenv_set_envmap(nu_lightenv_t env, nu_cubemap_t cubemap);
+NU_API void nu_lightenv_set_lightmap(nu_lightenv_t env, nu_texture_t lightmap);
+NU_API void nu_lightenv_set_shadowmap(nu_lightenv_t env,
+                                      nu_light_t    light,
+                                      nu_texture_t  shadowmap);
 
 NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
@@ -150,8 +158,7 @@ NU_API void nu_renderpass_set_color_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
 NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
-NU_API void nu_renderpass_set_shadow_target(nu_renderpass_t pass,
-                                            nu_texture_t    texture);
+NU_API void nu_renderpass_set_lightenv(nu_renderpass_t pass, nu_lightenv_t env);
 
 NU_API void nu_bind_material(nu_renderpass_t pass, nu_material_t material);
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
