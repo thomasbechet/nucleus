@@ -3716,7 +3716,7 @@ Start of Linux / Unix defines
 		monitor.physW = (monitor.rect.w * 25.4f / 96.f);
 		monitor.physH = (monitor.rect.h * 25.4f / 96.f);
 
-		strncpy(monitor.name, DisplayString(display), 128);
+		strncpy(monitor.name, DisplayString(display), 127);
 
 		XGetSystemContentScale(display, &monitor.scaleX, &monitor.scaleY);
 
