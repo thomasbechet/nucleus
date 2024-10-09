@@ -1,10 +1,10 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-// #define WIDTH  640
-// #define HEIGHT 400
-#define WIDTH  720
-#define HEIGHT 480
+#define WIDTH  640
+#define HEIGHT 400
+// #define WIDTH  720
+// #define HEIGHT 480
 // #define WIDTH  1920
 // #define HEIGHT 1080
 // #define HEIGHT 640
@@ -41,7 +41,6 @@ int
 main (void)
 {
     nu_config_surface_size(WIDTH, HEIGHT);
-    nu_config_renderer_api(NU_RENDERER_GL);
     nu_init();
 
     nuext_import_package("../../../assets/pkg.json");

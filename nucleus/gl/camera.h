@@ -1,7 +1,7 @@
 #ifndef NUGL_CAMERA_H
 #define NUGL_CAMERA_H
 
-#include <nucleus/core/core.h>
+#include <nucleus/graphics/api.h>
 #include <nucleus/external/glad/gl.h>
 
 typedef struct

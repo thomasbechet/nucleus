@@ -11,7 +11,11 @@ nugl__camera_create (void)
     return NU_HANDLE_MAKE(nu_camera_t, gl->cameras.size - 1);
 }
 static void
-nugl__camera_proj (nu_camera_t camera, nu_mat4_t proj)
+nugl__camera_delete (nu_camera_t camera)
+{
+}
+static void
+nugl__camera_set_proj (nu_camera_t camera, nu_mat4_t proj)
 {
     nu__gl_t       *gl   = &_ctx.gl;
     nugl__camera_t *pcam = gl->cameras.data + NU_HANDLE_INDEX(camera);
@@ -20,7 +24,7 @@ nugl__camera_proj (nu_camera_t camera, nu_mat4_t proj)
     pcam->vp         = nu_mat4_mul(proj, pcam->view);
 }
 static void
-nugl__camera_view (nu_camera_t camera, nu_mat4_t view)
+nugl__camera_set_view (nu_camera_t camera, nu_mat4_t view)
 {
     nu__gl_t       *gl   = &_ctx.gl;
     nugl__camera_t *pcam = gl->cameras.data + NU_HANDLE_INDEX(camera);

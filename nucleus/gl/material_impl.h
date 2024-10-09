@@ -86,6 +86,10 @@ nugl__material_create (nu_material_type_t type)
 
     return handle;
 }
+static void
+nugl__material_delete (nu_material_t mat)
+{
+}
 
 static nu_mat3_t
 nugl__material_surface_uv_transform (nu_material_t mat)

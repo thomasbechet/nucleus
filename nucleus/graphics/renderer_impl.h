@@ -3,39 +3,50 @@
 
 #include <nucleus/internal.h>
 
-#define CHECK_NULL_API_HANDLE            \
-    if (_ctx.graphics.renderer.null_api) \
-    {                                    \
-        return NU_NULL;                  \
-    }
-#define CHECK_NULL_API_ERROR             \
-    if (_ctx.graphics.renderer.null_api) \
-    {                                    \
-        return NU_ERROR_NONE;            \
-    }
-#define CHECK_NULL_API_VOID              \
-    if (_ctx.graphics.renderer.null_api) \
-    {                                    \
-        return;                          \
-    }
+#ifdef NU_BUILD_GL
+#include <nucleus/gl/gl_impl.h>
+#endif
 
-void
-nu_config_renderer_api (nu_renderer_api_t api)
+static void
+nu__renderer_init (void)
 {
-    nu__config()->graphics.api = api;
+#ifdef NU_BUILD_GL
+    nugl__init();
+#endif
+}
+static void
+nu__renderer_free (void)
+{
+#ifdef NU_BUILD_GL
+    nugl__free();
+#endif
+}
+static nu_texture_t
+nu__renderer_create_surface_color (nu_vec2u_t size)
+{
+#ifdef NU_BUILD_GL
+    return nugl__create_surface_color(size);
+#endif
+}
+static void
+nu__renderer_render (nu_box2i_t global_viewport, nu_box2i_t viewport)
+{
+#ifdef NU_BUILD_GL
+    nugl__render(global_viewport, viewport);
+#endif
 }
 
 nu_texture_t
 nu_surface_color_target (void)
 {
-    return _ctx.graphics.renderer.surface_color;
+    return _ctx.graphics.surface_color;
 }
 
 nu_camera_t
 nu_camera_create (void)
 {
-    CHECK_NULL_API_HANDLE
-    nu_camera_t handle = _ctx.graphics.renderer.api.camera_create();
+#ifdef NU_BUILD_GL
+    nu_camera_t handle = nugl__camera_create();
     NU_CHECK(handle, return handle);
     nu_camera_set_view(handle,
                        nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZEROS));
@@ -43,37 +54,43 @@ nu_camera_create (void)
     nu_camera_set_proj(handle,
                        nu_perspective(nu_radian(70), aspect, 0.01, 100));
     return handle;
+#endif
 }
 void
 nu_camera_delete (nu_camera_t camera)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.camera_delete(camera);
+#ifdef NU_BUILD_GL
+    nugl__camera_delete(camera);
+#endif
 }
 void
 nu_camera_set_view (nu_camera_t camera, nu_mat4_t view)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.camera_set_view(camera, view);
+#ifdef NU_BUILD_GL
+    nugl__camera_set_view(camera, view);
+#endif
 }
 void
 nu_camera_set_proj (nu_camera_t camera, nu_mat4_t proj)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.camera_set_proj(camera, proj);
+#ifdef NU_BUILD_GL
+    nugl__camera_set_proj(camera, proj);
+#endif
 }
 
 nu_mesh_t
 nu_mesh_create (nu_primitive_t primitive, nu_size_t count)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.mesh_create(primitive, count);
+#ifdef NU_BUILD_GL
+    return nugl__mesh_create(primitive, count);
+#endif
 }
 void
 nu_mesh_delete (nu_mesh_t mesh)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_delete(mesh);
+#ifdef NU_BUILD_GL
+    nugl__mesh_delete(mesh);
+#endif
 }
 void
 nu_mesh_write_uvs (nu_mesh_t        mesh,
@@ -81,8 +98,9 @@ nu_mesh_write_uvs (nu_mesh_t        mesh,
                    nu_size_t        count,
                    const nu_vec2_t *data)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_write_uvs(mesh, first, count, data);
+#ifdef NU_BUILD_GL
+    nugl__mesh_write_uvs(mesh, first, count, data);
+#endif
 }
 void
 nu_mesh_write_positions (nu_mesh_t        mesh,
@@ -90,8 +108,9 @@ nu_mesh_write_positions (nu_mesh_t        mesh,
                          nu_size_t        count,
                          const nu_vec3_t *data)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.mesh_write_positions(mesh, first, count, data);
+#ifdef NU_BUILD_GL
+    nugl__mesh_write_positions(mesh, first, count, data);
+#endif
 }
 void
 nu_mesh_write_colors (nu_mesh_t         mesh,
@@ -104,8 +123,9 @@ nu_mesh_write_colors (nu_mesh_t         mesh,
 nu_texture_t
 nu_texture_create (nu_vec2u_t size, nu_texture_type_t usage)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.texture_create(size, usage);
+#ifdef NU_BUILD_GL
+    return nugl__texture_create(size, usage);
+#endif
 }
 nu_texture_t
 nu_texture_create_color (nu_color_t color)
@@ -127,42 +147,48 @@ nu_image_create_texture (nu_image_t image)
 void
 nu_texture_delete (nu_texture_t texture)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.texture_delete(texture);
+#ifdef NU_BUILD_GL
+    nugl__texture_delete(texture);
+#endif
 }
 void
 nu_texture_write_colors (nu_texture_t texture, const nu_color_t *colors)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.texture_write_colors(texture, colors);
+#ifdef NU_BUILD_GL
+    nugl__texture_write_colors(texture, colors);
+#endif
 }
 
 NU_API nu_cubemap_t
 nu_cubemap_create (nu_u32_t size)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.cubemap_create(size);
+#ifdef NU_BUILD_GL
+    return nugl__cubemap_create(size);
+#endif
 }
 void
 nu_cubemap_delete (nu_cubemap_t cubemap)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.cubemap_delete(cubemap);
+#ifdef NU_BUILD_GL
+    nugl__cubemap_delete(cubemap);
+#endif
 }
 void
 nu_cubemap_write_colors (nu_cubemap_t      cubemap,
                          nu_cubemap_face_t face,
                          const nu_color_t *colors)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.cubemap_write_colors(cubemap, face, colors);
+#ifdef NU_BUILD_GL
+    nugl__cubemap_write_colors(cubemap, face, colors);
+#endif
 }
 
 nu_material_t
 nu_material_create (nu_material_type_t type)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.material_create(type);
+#ifdef NU_BUILD_GL
+    return nugl__material_create(type);
+#endif
 }
 nu_material_t
 nu_material_create_color (nu_material_type_t type, nu_color_t color)
@@ -174,83 +200,99 @@ nu_material_create_color (nu_material_type_t type, nu_color_t color)
 void
 nu_material_delete (nu_material_t material)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_delete(material);
+#ifdef NU_BUILD_GL
+    nugl__material_delete(material);
+#endif
 }
 void
 nu_material_set_color (nu_material_t material, nu_color_t color)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_set_color(material, color);
+#ifdef NU_BUILD_GL
+    nugl__material_set_color(material, color);
 }
+#endif
 void
 nu_material_set_texture (nu_material_t material, nu_texture_t texture)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_set_texture(material, texture);
+#ifdef NU_BUILD_GL
+    nugl__material_set_texture(material, texture);
+#endif
 }
 void
 nu_material_set_uv_transform (nu_material_t material, nu_mat3_t mat)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_set_uv_transform(material, mat);
+#ifdef NU_BUILD_GL
+    nugl__material_set_uv_transform(material, mat);
+#endif
 }
 void
 nu_material_set_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.material_set_wrap_mode(material, mode);
+#ifdef NU_BUILD_GL
+    nugl__material_set_wrap_mode(material, mode);
+#endif
 }
 
 nu_light_t
 nu_light_create (nu_light_type_t type)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.light_create(type);
+#ifdef NU_BUILD_GL
+    return nugl__light_create(type);
+#endif
 }
 void
 nu_light_delete (nu_light_t light)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.light_delete(light);
+#ifdef NU_BUILD_GL
+    nugl__light_delete(light);
+#endif
 }
 void
 nu_light_set_position (nu_light_t light, nu_vec3_t v)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.light_set_position(light, v);
+#ifdef NU_BUILD_GL
+    nugl__light_set_position(light, v);
+#endif
 }
 void
 nu_light_set_rotation (nu_light_t light, nu_quat_t q)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.light_set_rotation(light, q);
+#ifdef NU_BUILD_GL
+    nugl__light_set_rotation(light, q);
+#endif
 }
 void
-nu_light_set_color (nu_light_t light, nu_color_t v) { CHECK_NULL_API_VOID }
-
-nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type)
+nu_light_set_color (nu_light_t light, nu_color_t v)
 {
-    CHECK_NULL_API_HANDLE
-    return _ctx.graphics.renderer.api.renderpass_create(type);
+}
+
+nu_renderpass_t
+nu_renderpass_create (nu_renderpass_type_t type)
+{
+#ifdef NU_BUILD_GL
+    return nugl__renderpass_create(type);
+#endif
 }
 void
 nu_renderpass_delete (nu_renderpass_t pass)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_delete(pass);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_delete(pass);
+#endif
 }
 void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_reset(pass);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_reset(pass);
+#endif
 }
 void
 nu_renderpass_submit (nu_renderpass_t pass)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_submit(pass);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_submit(pass);
+#endif
 #ifdef NU_BUILD_UTILS
     _ctx.utils.stats.renderer_current.renderpass_count += 1;
 #endif
@@ -259,40 +301,46 @@ nu_renderpass_submit (nu_renderpass_t pass)
 void
 nu_renderpass_set_reset_after_submit (nu_renderpass_t pass, nu_bool_t bool)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_reset_after_submit(pass, bool);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_reset_after_submit(pass, bool);
+#endif
 }
 void
 nu_renderpass_set_clear_color (nu_renderpass_t pass, nu_color_t *color)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_clear_color(pass, color);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_clear_color(pass, color);
+#endif
 }
 void
 nu_renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_camera(pass, camera);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_camera(pass, camera);
+#endif
 }
 void
 nu_renderpass_set_skybox (nu_renderpass_t pass,
                           nu_cubemap_t    cubemap,
                           nu_quat_t       rotation)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_skybox(pass, cubemap, rotation);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_skybox(pass, cubemap, rotation);
+#endif
 }
 void
 nu_renderpass_set_color_target (nu_renderpass_t pass, nu_texture_t texture)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_color_target(pass, texture);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_color_target(pass, texture);
+#endif
 }
 void
 nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.renderpass_set_depth_target(pass, texture);
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_depth_target(pass, texture);
+#endif
 }
 void
 nu_renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
@@ -302,8 +350,9 @@ nu_renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
 void
 nu_bind_material (nu_renderpass_t pass, nu_material_t material)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.bind_material(pass, material);
+#ifdef NU_BUILD_GL
+    nugl__bind_material(pass, material);
+#endif
 }
 void
 nu_draw_submesh_instanced (nu_renderpass_t  pass,
@@ -313,11 +362,12 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
                            nu_size_t        instance_count,
                            const nu_mat4_t *transforms)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.draw_submesh_instanced(
+#ifdef NU_BUILD_GL
+    nugl__draw_submesh_instanced(
         pass, mesh, first, count, instance_count, transforms);
+#endif
 #ifdef NU_BUILD_UTILS
-    nu_primitive_t primitive = _ctx.graphics.renderer.api.mesh_primitive(mesh);
+    nu_primitive_t primitive = nugl__mesh_primitive(mesh);
     switch (primitive)
     {
         case NU_PRIMITIVE_POINTS:
@@ -338,8 +388,9 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
 void
 nu_draw_blit (nu_renderpass_t pass, nu_box2i_t extent, nu_box2i_t tex_extent)
 {
-    CHECK_NULL_API_VOID
-    _ctx.graphics.renderer.api.draw_blit(pass, extent, tex_extent);
+#ifdef NU_BUILD_GL
+    nugl__draw_blit(pass, extent, tex_extent);
+#endif
 }
 
 void
@@ -501,14 +552,11 @@ nu_draw_mesh_instanced (nu_renderpass_t  pass,
                         nu_size_t        instance_count,
                         const nu_mat4_t *transforms)
 {
-    CHECK_NULL_API_VOID
-    nu_size_t capacity = _ctx.graphics.renderer.api.mesh_capacity(mesh);
+#ifdef NU_BUILD_GL
+    nu_size_t capacity = nugl__mesh_capacity(mesh);
     nu_draw_submesh_instanced(
         pass, mesh, 0, capacity, instance_count, transforms);
+#endif
 }
-
-#undef CHECK_NULL_API_HANDLE
-#undef CHECK_NULL_API_ERROR
-#undef CHECK_NULL_API_VOID
 
 #endif

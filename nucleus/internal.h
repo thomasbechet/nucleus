@@ -32,9 +32,6 @@ typedef struct
 #ifdef NU_BUILD_PLATFORM
     nu__platform_config_t platform;
 #endif
-#ifdef NU_BUILD_GRAPHICS
-    nu__graphics_config_t graphics;
-#endif
     nu_bool_t initialized; // False by default (static memory)
 } nu__config_t;
 

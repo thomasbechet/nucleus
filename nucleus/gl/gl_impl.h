@@ -217,7 +217,7 @@ nugl__free (void)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__render (const nu_box2i_t *global_viewport, const nu_box2i_t *viewport)
+nugl__render (nu_box2i_t global_viewport, nu_box2i_t viewport)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -236,8 +236,8 @@ nugl__render (const nu_box2i_t *global_viewport, const nu_box2i_t *viewport)
         = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
     glUseProgram(gl->screen_blit_program);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    nu_vec2u_t size = nu_box2i_size(*viewport);
-    glViewport(viewport->min.x, viewport->min.y, size.x, size.y);
+    nu_vec2u_t size = nu_box2i_size(viewport);
+    glViewport(viewport.min.x, viewport.min.y, size.x, size.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D,
@@ -274,60 +274,6 @@ nugl__create_surface_color (nu_vec2u_t size)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     return NU_HANDLE_MAKE(nu_texture_t, (nu_size_t)gl->surface_color_index);
-}
-
-static void
-nugl__setup_api (nu__renderer_api_t *api)
-{
-    api->init                 = nugl__init;
-    api->free                 = nugl__free;
-    api->render               = nugl__render;
-    api->create_surface_color = nugl__create_surface_color;
-
-    api->camera_create   = nugl__camera_create;
-    api->camera_set_view = nugl__camera_view;
-    api->camera_set_proj = nugl__camera_proj;
-
-    api->mesh_create          = nugl__mesh_create;
-    api->mesh_delete          = nugl__mesh_delete;
-    api->mesh_capacity        = nugl__mesh_capacity;
-    api->mesh_primitive       = nugl__mesh_primitive;
-    api->mesh_write_uvs       = nugl__mesh_write_uvs;
-    api->mesh_write_positions = nugl__mesh_write_positions;
-
-    api->texture_create       = nugl__texture_create;
-    api->texture_delete       = nugl__texture_delete;
-    api->texture_write_colors = nugl__texture_write_colors;
-
-    api->cubemap_create       = nugl__cubemap_create;
-    api->cubemap_write_colors = nugl__cubemap_write_colors;
-
-    api->material_create           = nugl__material_create;
-    api->material_set_color        = nugl__material_set_color;
-    api->material_set_texture      = nugl__material_set_texture;
-    api->material_set_uv_transform = nugl__material_set_uv_transform;
-    api->material_set_wrap_mode    = nugl__material_set_wrap_mode;
-
-    api->light_create       = nugl__light_create;
-    api->light_delete       = nugl__light_delete;
-    api->light_set_position = nugl__light_set_position;
-    api->light_set_rotation = nugl__light_set_rotation;
-
-    api->renderpass_create = nugl__renderpass_create;
-    api->renderpass_reset  = nugl__renderpass_reset;
-    api->renderpass_submit = nugl__renderpass_submit;
-
-    api->renderpass_set_reset_after_submit
-        = nugl__renderpass_set_reset_after_submit;
-    api->renderpass_set_clear_color  = nugl__renderpass_set_clear_color;
-    api->renderpass_set_color_target = nugl__renderpass_set_color_target;
-    api->renderpass_set_depth_target = nugl__renderpass_set_depth_target;
-    api->renderpass_set_camera       = nugl__renderpass_set_camera;
-    api->renderpass_set_skybox       = nugl__renderpass_set_skybox;
-
-    api->bind_material          = nugl__bind_material;
-    api->draw_submesh_instanced = nugl__draw_submesh_instanced;
-    api->draw_blit              = nugl__draw_blit;
 }
 
 #endif

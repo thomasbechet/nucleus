@@ -130,6 +130,10 @@ nugl__cubemap_create (nu_u32_t size)
     return handle;
 }
 static void
+nugl__cubemap_delete (nu_cubemap_t cubemap)
+{
+}
+static void
 nugl__cubemap_write_colors (nu_cubemap_t      cubemap,
                             nu_cubemap_face_t face,
                             const nu_color_t *colors)

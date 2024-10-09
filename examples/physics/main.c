@@ -310,7 +310,6 @@ int
 main (void)
 {
     nu_config_surface_size(WIDTH, HEIGHT);
-    nu_config_renderer_api(NU_RENDERER_GL);
     nu_init();
 
     // Configure inputs

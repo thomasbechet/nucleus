@@ -9,12 +9,7 @@
 
 typedef struct
 {
-    nu_renderer_api_t api;
-} nu__graphics_config_t;
-
-typedef struct
-{
-    nu__renderer_t           renderer;
+    nu_texture_t             surface_color;
     nu__font_pool_t          fonts;
     nu__image_pool_t         images;
     nu__model_pool_t         models;

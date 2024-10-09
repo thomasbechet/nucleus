@@ -17,9 +17,6 @@ nu__config (void)
         cfg->platform.width  = 640;
         cfg->platform.height = 400;
 #endif
-#ifdef NU_BUILD_GRAPHICS
-        cfg->graphics.api = NU_RENDERER_GL;
-#endif
         cfg->initialized = NU_TRUE;
     }
     return cfg;

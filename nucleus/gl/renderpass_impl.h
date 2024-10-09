@@ -83,6 +83,10 @@ nugl__renderpass_create (nu_renderpass_type_t type)
 
     return NU_HANDLE_MAKE(nu_renderpass_t, index);
 }
+static void
+nugl__renderpass_delete (nu_renderpass_t renderpass)
+{
+}
 
 static GLuint
 nugl__find_or_create_framebuffer (GLuint color, GLuint depth)

@@ -33,9 +33,6 @@
 #ifdef NU_BUILD_GRAPHICS
 #include <nucleus/graphics/graphics_impl.h>
 #endif
-#ifdef NU_BUILD_GL
-#include <nucleus/gl/gl_impl.h>
-#endif
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils_impl.h>
 #endif
