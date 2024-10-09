@@ -91,9 +91,9 @@ nu_font_delete (nu_font_t handle)
 
 void
 nu_draw_text (nu_renderpass_t  pass,
-              nu_font_t        handle,
               const nu_char_t *text,
               nu_size_t        n,
+              nu_font_t        handle,
               nu_vec2i_t       pos)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
@@ -115,8 +115,7 @@ nu_draw_text (nu_renderpass_t  pass,
         }
         nu_size_t  gi         = c - font->min_char;
         nu_box2i_t tex_extent = font->glyphs[gi];
-        nu_bind_material(pass, font->material);
-        nu_draw_blit(pass, extent, tex_extent);
+        nu_draw_blit(pass, extent, tex_extent, font->material);
         extent = nu_box2i_translate(extent, nu_vec2i(font->glyph_size.x, 0));
     }
 }

@@ -22,8 +22,7 @@ nugl__canvas_reset (nugl__renderpass_canvas_t *pass)
 {
     NU_VEC_CLEAR(&pass->cmds);
     NU_VEC_CLEAR(&pass->blit_transfer);
-    pass->depth    = 0;
-    pass->material = NU_NULL;
+    pass->depth = 0;
 }
 static void
 nugl__canvas_create (nugl__renderpass_canvas_t *pass)
@@ -104,23 +103,18 @@ nugl__write_canvas_buffers (nugl__renderpass_canvas_t *pass)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 static void
-nugl__canvas_bind_material (nugl__renderpass_canvas_t *pass,
-                            nu_material_t              material)
-{
-    pass->material = material;
-}
-static void
 nugl__canvas_draw_blit (nugl__renderpass_t *pass,
+                        nu_material_t       material,
                         nu_box2i_t          extent,
                         nu_box2i_t          tex_extent)
 {
-    if (!pass->canvas.material)
+    if (!material)
     {
         NU_ERROR("no material bound");
         return;
     }
     const nugl__material_t *pmat
-        = _ctx.gl.materials.data + NU_HANDLE_INDEX(pass->canvas.material);
+        = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
     NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
 
     nu_u32_t blit_count = 0;

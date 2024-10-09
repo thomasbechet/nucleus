@@ -81,7 +81,8 @@ void
 nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_t      extent,
                      nu_box2i_t      tex_extent,
-                     nu_box2i_t      inner)
+                     nu_box2i_t      inner,
+                     nu_material_t   material)
 {
     nu_u32_t margin_left   = inner.min.x - tex_extent.min.x;
     nu_u32_t margin_right  = tex_extent.max.x - inner.max.x;
@@ -104,7 +105,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
             pass,
             nu_box2i_xywh(extent.min.x, extent.min.y, margin_left, margin_top),
             nu_box2i_xywh(
-                tex_extent.min.x, tex_extent.min.y, margin_left, margin_top));
+                tex_extent.min.x, tex_extent.min.y, margin_left, margin_top),
+            material);
     }
 
     // Top-Mid
@@ -118,7 +120,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.min.x + margin_left,
                                    tex_extent.min.y,
                                    tex_mid_width,
-                                   margin_top));
+                                   margin_top),
+                     material);
     }
 
     // Top-Right
@@ -132,7 +135,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.max.x - margin_right + 1,
                                    tex_extent.min.y,
                                    margin_right,
-                                   margin_top));
+                                   margin_top),
+                     material);
     }
 
     // Mid-Left
@@ -146,7 +150,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.min.x,
                                    tex_extent.min.y + margin_top,
                                    margin_right,
-                                   tex_mid_height));
+                                   tex_mid_height),
+                     material);
     }
 
     // Mid-Mid
@@ -158,7 +163,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                  nu_box2i_xywh(tex_extent.min.x + margin_left,
                                tex_extent.min.y + margin_top,
                                tex_mid_width,
-                               tex_mid_height));
+                               tex_mid_height),
+                 material);
 
     // Mid-Right
     if (margin_right)
@@ -171,7 +177,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.max.x - margin_right + 1,
                                    tex_extent.min.y + margin_top,
                                    margin_right,
-                                   tex_mid_height));
+                                   tex_mid_height),
+                     material);
     }
 
     // Bottom-Left
@@ -185,7 +192,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.min.x,
                                    tex_extent.max.y - margin_bottom + 1,
                                    margin_right,
-                                   margin_bottom));
+                                   margin_bottom),
+                     material);
     }
 
     // Bottom-Mid
@@ -199,7 +207,8 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.min.x + margin_left,
                                    tex_extent.max.y - margin_bottom + 1,
                                    tex_mid_width,
-                                   margin_bottom));
+                                   margin_bottom),
+                     material);
     }
 
     // Bottom-Right
@@ -213,33 +222,40 @@ nu_draw_blit_sliced (nu_renderpass_t pass,
                      nu_box2i_xywh(tex_extent.max.x - margin_right + 1,
                                    tex_extent.max.y - margin_bottom + 1,
                                    margin_right,
-                                   margin_bottom));
+                                   margin_bottom),
+                     material);
     }
 }
 void
-nu_draw_mesh (nu_renderpass_t pass, nu_mesh_t mesh, nu_mat4_t transform)
+nu_draw_mesh (nu_renderpass_t pass,
+              nu_mesh_t       mesh,
+              nu_material_t   material,
+              nu_mat4_t       transform)
 {
-    nu_draw_mesh_instanced(pass, mesh, 1, &transform);
+    nu_draw_mesh_instanced(pass, mesh, material, &transform, 1);
 }
 void
 nu_draw_submesh (nu_renderpass_t pass,
                  nu_mesh_t       mesh,
                  nu_size_t       first,
                  nu_size_t       count,
+                 nu_material_t   material,
                  nu_mat4_t       transform)
 {
-    nu_draw_submesh_instanced(pass, mesh, first, count, 1, &transform);
+    nu_draw_submesh_instanced(
+        pass, mesh, first, count, material, &transform, 1);
 }
 void
 nu_draw_mesh_instanced (nu_renderpass_t  pass,
                         nu_mesh_t        mesh,
-                        nu_size_t        instance_count,
-                        const nu_mat4_t *transforms)
+                        nu_material_t    material,
+                        const nu_mat4_t *transforms,
+                        nu_size_t        instance_count)
 {
 #ifdef NU_BUILD_GL
     nu_size_t capacity = nugl__mesh_capacity(mesh);
     nu_draw_submesh_instanced(
-        pass, mesh, 0, capacity, instance_count, transforms);
+        pass, mesh, 0, capacity, material, transforms, instance_count);
 #endif
 }
 

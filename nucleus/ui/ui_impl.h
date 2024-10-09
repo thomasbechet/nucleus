@@ -8,9 +8,11 @@ nu__draw_image (nu__ui_instance_t          *ui,
                 nu_box2i_t                  extent,
                 const nu__ui_image_style_t *style)
 {
-    nu_bind_material(ui->active_renderpass, style->material);
-    nu_draw_blit_sliced(
-        ui->active_renderpass, extent, style->extent, style->inner);
+    nu_draw_blit_sliced(ui->active_renderpass,
+                        extent,
+                        style->extent,
+                        style->inner,
+                        style->material);
 }
 
 nu_ui_style_t

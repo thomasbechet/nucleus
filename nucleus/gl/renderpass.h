@@ -66,14 +66,12 @@ typedef struct
 {
     nugl__mesh_command_vec_t cmds;
     nu_camera_t              camera;
-    nu_material_t            material;
 } nugl__renderpass_unlit_t;
 
 typedef struct
 {
     nugl__mesh_command_vec_t cmds;
     nu_camera_t              camera;
-    nu_material_t            material;
 } nugl__renderpass_lit_t;
 
 typedef struct
@@ -91,7 +89,6 @@ typedef struct
     nu_size_t                  blit_vbo_size;
     GLuint                     blit_vao;
     float                      depth;
-    nu_material_t              material;
 } nugl__renderpass_canvas_t;
 
 typedef struct
@@ -99,7 +96,6 @@ typedef struct
     nu_camera_t              camera;
     nugl__mesh_command_vec_t cmds;
     nu_color_t               color;
-    nu_material_t            material;
 } nugl__renderpass_wireframe_t;
 
 typedef struct
@@ -142,10 +138,10 @@ typedef NU_VEC(nugl__renderpass_t) nugl__renderpass_vec_t;
 
 static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
                                          const nugl__mesh_t       *pmesh,
-                                         nu_material_t             mat,
                                          nu_size_t                 first,
                                          nu_size_t                 count,
-                                         nu_size_t        instance_count,
-                                         const nu_mat4_t *transforms);
+                                         nu_material_t             mat,
+                                         const nu_mat4_t          *transforms,
+                                         nu_size_t instance_count);
 
 #endif

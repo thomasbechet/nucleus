@@ -262,11 +262,11 @@ main (void)
         nu_controller_update(controller, delta, camera);
 
         // Render loop
-        nu_bind_material(main_pass, material);
-        nu_draw_mesh(main_pass, custom_mesh, nu_mat4_identity());
-        nu_draw_mesh(shadow_pass, custom_mesh, nu_mat4_identity());
-        nu_draw_mesh(wireframe_pass, custom_mesh_normals, nu_mat4_identity());
-        nu_draw_box(wireframe_pass, bounds, nu_mat4_identity());
+        nu_draw_mesh(main_pass, custom_mesh, material, nu_mat4_identity());
+        nu_draw_mesh(shadow_pass, custom_mesh, material, nu_mat4_identity());
+        nu_draw_mesh(
+            wireframe_pass, custom_mesh_normals, material, nu_mat4_identity());
+        nu_draw_box(wireframe_pass, bounds, material, nu_mat4_identity());
         nu_draw_model(main_pass, castle, nu_mat4_identity());
         nu_draw_model(shadow_pass, castle, nu_mat4_identity());
 
@@ -283,10 +283,14 @@ main (void)
         const nu_vec3_t points[]
             = { NU_VEC3_ZEROS, NU_VEC3_UP,    NU_VEC3_ZEROS,
                 NU_VEC3_RIGHT, NU_VEC3_ZEROS, NU_VEC3_BACKWARD };
-        nu_draw_lines(
-            wireframe_pass, points, 3, nu_mat4_translate(nu_vec3(-5, 5, -5)));
+        nu_draw_lines(wireframe_pass,
+                      points,
+                      3,
+                      material,
+                      nu_mat4_translate(nu_vec3(-5, 5, -5)));
         nu_draw_box(wireframe_pass,
                     nu_box3(NU_VEC3_ZEROS, NU_VEC3_ONES),
+                    material,
                     nu_mat4_translate(nu_vec3(0, 5, -5)));
 
         // GUI

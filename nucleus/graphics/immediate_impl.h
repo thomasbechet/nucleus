@@ -47,6 +47,7 @@ void
 nu_draw_points (nu_renderpass_t  pass,
                 const nu_vec3_t *positions,
                 nu_size_t        count,
+                nu_material_t    material,
                 nu_mat4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
@@ -54,12 +55,13 @@ nu_draw_points (nu_renderpass_t  pass,
     nu_size_t first = im->points_count;
     im->points_count += count;
     nu_mesh_write_positions(im->points, first, count, positions);
-    nu_draw_submesh(pass, im->points, first, count, transform);
+    nu_draw_submesh(pass, im->points, first, count, material, transform);
 }
 void
 nu_draw_lines (nu_renderpass_t  pass,
                const nu_vec3_t *positions,
                nu_size_t        count,
+               nu_material_t    material,
                nu_mat4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
@@ -67,12 +69,13 @@ nu_draw_lines (nu_renderpass_t  pass,
     nu_size_t first = im->lines_count;
     im->lines_count += count;
     nu_mesh_write_positions(im->lines, first, count, positions);
-    nu_draw_submesh(pass, im->lines, first, count, transform);
+    nu_draw_submesh(pass, im->lines, first, count, material, transform);
 }
 void
 nu_draw_lines_strip (nu_renderpass_t  pass,
                      const nu_vec3_t *positions,
                      nu_size_t        count,
+                     nu_material_t    material,
                      nu_mat4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
@@ -80,10 +83,13 @@ nu_draw_lines_strip (nu_renderpass_t  pass,
     nu_size_t first = im->lines_strip_count;
     im->lines_strip_count += count;
     nu_mesh_write_positions(im->lines_strip, first, count, positions);
-    nu_draw_submesh(pass, im->lines_strip, first, count, transform);
+    nu_draw_submesh(pass, im->lines_strip, first, count, material, transform);
 }
 void
-nu_draw_box (nu_renderpass_t pass, nu_box3_t box, nu_mat4_t transform)
+nu_draw_box (nu_renderpass_t pass,
+             nu_box3_t       box,
+             nu_material_t   material,
+             nu_mat4_t       transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -101,7 +107,7 @@ nu_draw_box (nu_renderpass_t pass, nu_box3_t box, nu_mat4_t transform)
         = { v0, v1, v1, v2, v2, v3, v3, v0, v4, v5, v5, v6,
             v6, v7, v7, v4, v0, v4, v1, v5, v2, v6, v3, v7 };
 
-    nu_draw_lines(pass, positions, 12, transform);
+    nu_draw_lines(pass, positions, 12, material, transform);
 }
 
 #endif

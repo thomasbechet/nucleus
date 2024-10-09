@@ -7,7 +7,6 @@ static void
 nugl__lit_reset (nugl__renderpass_lit_t *pass)
 {
     NU_VEC_CLEAR(&pass->cmds);
-    pass->material = NU_NULL;
 }
 static void
 nugl__lit_create (nugl__renderpass_lit_t *pass)
@@ -15,11 +14,6 @@ nugl__lit_create (nugl__renderpass_lit_t *pass)
     NU_VEC_INIT(128, &pass->cmds);
     pass->camera = NU_NULL;
     nugl__lit_reset(pass);
-}
-static void
-nugl__lit_bind_material (nugl__renderpass_lit_t *pass, nu_material_t material)
-{
-    pass->material = material;
 }
 static void
 nugl__lit_render (nugl__renderpass_t *pass)

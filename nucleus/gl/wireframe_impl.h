@@ -7,7 +7,6 @@ static void
 nugl__wireframe_reset (nugl__renderpass_wireframe_t *pass)
 {
     NU_VEC_CLEAR(&pass->cmds);
-    pass->material = NU_NULL;
 }
 static void
 nugl__wireframe_create (nugl__renderpass_wireframe_t *pass)
@@ -16,12 +15,6 @@ nugl__wireframe_create (nugl__renderpass_wireframe_t *pass)
     pass->camera = NU_NULL;
     pass->color  = NU_COLOR_WHITE;
     nugl__wireframe_reset(pass);
-}
-static void
-nugl__wireframe_bind_material (nugl__renderpass_wireframe_t *pass,
-                               nu_material_t                 material)
-{
-    pass->material = material;
 }
 static void
 nugl__wireframe_render (nugl__renderpass_t *pass)

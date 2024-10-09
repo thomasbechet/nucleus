@@ -444,13 +444,12 @@ main (void)
         delta = nu_timer_elapsed(&timer);
         nu_timer_reset(&timer);
 
-        nu_bind_material(wireframe_pass, redmat);
         for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
         {
             point_mass_t *pm = ctx.point_masses.data + i;
-            nu_draw_mesh(wireframe_pass, cube, nu_mat4_translate(pm->x));
+            nu_draw_mesh(
+                wireframe_pass, cube, redmat, nu_mat4_translate(pm->x));
         }
-        nu_bind_material(wireframe_pass, greenmat);
         for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
         {
             nu_vec3_t p0
@@ -458,22 +457,19 @@ main (void)
             nu_vec3_t p1
                 = ctx.point_masses.data[ctx.distance_constraints.data[i].b].x;
             const nu_vec3_t points[] = { p0, p1 };
-            nu_draw_lines(wireframe_pass, points, 1, nu_mat4_identity());
+            nu_draw_lines(
+                wireframe_pass, points, 1, greenmat, nu_mat4_identity());
         }
-        nu_bind_material(wireframe_pass, NU_NULL);
 
         // Update camera controller
         nu_controller_update(controller, delta, camera);
 
-        nu_bind_material(wireframe_pass, NU_NULL);
-        nu_draw_mesh(wireframe_pass, grid, nu_mat4_identity());
+        nu_draw_mesh(wireframe_pass, grid, NU_NULL, nu_mat4_identity());
         nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
-        nu_bind_material(wireframe_pass, bluemat);
         for (nu_size_t i = 0; i < NU_ARRAY_SIZE(boxes); ++i)
         {
-            nu_draw_box(wireframe_pass, boxes[i], nu_mat4_identity());
+            nu_draw_box(wireframe_pass, boxes[i], bluemat, nu_mat4_identity());
         }
-        nu_bind_material(wireframe_pass, NU_NULL);
 
         // Submit renderpass
         nu_renderpass_submit(main_pass);

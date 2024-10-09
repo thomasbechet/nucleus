@@ -7,7 +7,6 @@ static void
 nugl__unlit_reset (nugl__renderpass_unlit_t *pass)
 {
     NU_VEC_CLEAR(&pass->cmds);
-    pass->material = NU_NULL;
 }
 static void
 nugl__unlit_create (nugl__renderpass_unlit_t *pass)
@@ -15,12 +14,6 @@ nugl__unlit_create (nugl__renderpass_unlit_t *pass)
     NU_VEC_INIT(128, &pass->cmds);
     pass->camera = NU_NULL;
     nugl__unlit_reset(pass);
-}
-static void
-nugl__unlit_bind_material (nugl__renderpass_unlit_t *pass,
-                           nu_material_t             material)
-{
-    pass->material = material;
 }
 static void
 nugl__unlit_render (nugl__renderpass_t *pass)
