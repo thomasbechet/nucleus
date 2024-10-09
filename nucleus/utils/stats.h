@@ -1,8 +1,7 @@
 #ifndef NU_UTILS_STATS_H
 #define NU_UTILS_STATS_H
 
-#include <nucleus/graphics/api.h>
-#include <nucleus/graphics/renderer.h>
+#include <nucleus/graphics/graphics.h>
 
 #define NU__STATS_FRAME_COUNT 10
 
@@ -14,8 +13,8 @@ typedef struct
     float      avg;
     nu_size_t  frame;
 
-    nu__renderer_stats_t renderer_current;
-    nu__renderer_stats_t renderer_frame;
+    nu__graphics_stats_t graphics_current;
+    nu__graphics_stats_t graphics_frame;
 } nu__stats_t;
 
 static void nu__stats_init(void);

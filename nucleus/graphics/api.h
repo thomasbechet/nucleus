@@ -64,12 +64,6 @@ typedef enum
 
 typedef enum
 {
-    NU_RENDERER_NULL,
-    NU_RENDERER_GL,
-} nu_renderer_api_t;
-
-typedef enum
-{
     NU_CUBEMAP_POSX = 0,
     NU_CUBEMAP_NEGX = 1,
     NU_CUBEMAP_POSY = 2,
@@ -78,25 +72,13 @@ typedef enum
     NU_CUBEMAP_NEGZ = 5
 } nu_cubemap_face_t;
 
-NU_API void         nu_config_renderer_api(nu_renderer_api_t api);
+// Backend api
 NU_API nu_texture_t nu_surface_color_target(void);
 
 NU_API nu_camera_t nu_camera_create(void);
 NU_API void        nu_camera_delete(nu_camera_t camera);
 NU_API void        nu_camera_set_view(nu_camera_t camera, nu_mat4_t view);
 NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_mat4_t proj);
-
-NU_API nu_texture_t nu_texture_create(nu_vec2u_t size, nu_texture_type_t usage);
-NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
-NU_API void         nu_texture_delete(nu_texture_t texture);
-NU_API void         nu_texture_write_colors(nu_texture_t      texture,
-                                            const nu_color_t *colors);
-
-NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size);
-NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
-NU_API void         nu_cubemap_write_colors(nu_cubemap_t      cubemap,
-                                            nu_cubemap_face_t face,
-                                            const nu_color_t *colors);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
@@ -112,6 +94,18 @@ NU_API void      nu_mesh_write_colors(nu_mesh_t         mesh,
                                       nu_size_t         first,
                                       nu_size_t         count,
                                       const nu_color_t *data);
+
+NU_API nu_texture_t nu_texture_create(nu_vec2u_t size, nu_texture_type_t usage);
+NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
+NU_API void         nu_texture_delete(nu_texture_t texture);
+NU_API void         nu_texture_write_colors(nu_texture_t      texture,
+                                            const nu_color_t *colors);
+
+NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size);
+NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
+NU_API void         nu_cubemap_write_colors(nu_cubemap_t      cubemap,
+                                            nu_cubemap_face_t face,
+                                            const nu_color_t *colors);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
@@ -170,7 +164,6 @@ NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
 NU_API void nu_draw_blit(nu_renderpass_t pass,
                          nu_box2i_t      extent,
                          nu_box2i_t      tex_extent);
-
 NU_API void nu_draw_blit_sliced(nu_renderpass_t pass,
                                 nu_box2i_t      extent,
                                 nu_box2i_t      tex_extent,
