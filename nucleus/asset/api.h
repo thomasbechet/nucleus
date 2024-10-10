@@ -10,15 +10,12 @@ NU_DEFINE_HANDLE(nu_bundle_t);
 
 #define NU_ASSET_TEXTURE(name) \
     ((nu_texture_t)nu_asset_data(nu_asset_find(NU_ASSET_TEXTURE, name)))
-#define NU_ASSET_CUBEMAP(name) \
-    ((nu_cubemap_t)nu_asset_data(nu_asset_find(NU_ASSET_CUBEMAP, name)))
 #define NU_ASSET_MODEL(name) \
     ((nu_model_t)nu_asset_data(nu_asset_find(NU_ASSET_MODEL, name)))
 
 typedef enum
 {
     NU_ASSET_TEXTURE,
-    NU_ASSET_CUBEMAP,
     NU_ASSET_MATERIAL,
     NU_ASSET_MODEL,
     NU_ASSET_INPUT,

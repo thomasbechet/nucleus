@@ -351,8 +351,8 @@ main (void)
     boxes[1] = BOX1;
 
     // Create depth buffer
-    nu_texture_t depth_buffer
-        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
+    nu_texture_t depth_buffer = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
+                                                  nu_vec3u(WIDTH, HEIGHT, 0));
     // Grid mesh
     nu_mesh_t grid;
     {

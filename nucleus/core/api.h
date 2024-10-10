@@ -41,6 +41,8 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_VEC2U_ZEROS nu_vec2u(0, 0)
 #define NU_VEC2U_ONES  nu_vec2u(1, 1)
 
+#define NU_VEC3U_ONES nu_vec3u(1, 1, 1)
+
 #define NU_VEC3_ZEROS    nu_vec3(0, 0, 0)
 #define NU_VEC3_ONES     nu_vec3(1, 1, 1)
 #define NU_VEC3_UP       nu_vec3(0, 1, 0)
@@ -236,6 +238,7 @@ typedef enum
     NUEXT_EXTENSION_GLTF,
     NUEXT_EXTENSION_PNG,
     NUEXT_EXTENSION_JPEG,
+    NUEXT_EXTENSION_JSON,
     NUEXT_EXTENSION_UNKNOWN,
 } nuext_extension_t;
 
@@ -364,7 +367,7 @@ typedef union
         nu_u32_t w;
     };
     nu_u32_t data[NU_VEC4_SIZE];
-} nu_uvec4_t;
+} nu_vec4u_t;
 
 typedef union
 {
@@ -584,7 +587,11 @@ NU_API nu_vec2i_t nu_vec2i_max(nu_vec2i_t a, nu_vec2i_t b);
 NU_API nu_vec2u_t nu_vec2u(nu_u32_t x, nu_u32_t y);
 NU_API nu_vec2u_t nu_vec2u_min(nu_vec2u_t a, nu_vec2u_t b);
 
-NU_API nu_uvec4_t nu_uvec4(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
+NU_API nu_vec3u_t nu_vec3u(nu_u32_t x, nu_u32_t y, nu_u32_t z);
+NU_API nu_vec3u_t nu_vec3u_v2u(nu_vec2u_t v, nu_u32_t z);
+NU_API nu_vec2u_t nu_vec3u_xy(nu_vec3u_t v);
+
+NU_API nu_vec4u_t nu_vec4u(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
 
 NU_API nu_quat_t nu_quat(float x, float y, float z, float w);
 NU_API nu_quat_t nu_quat_identity(void);

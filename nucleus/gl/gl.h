@@ -26,7 +26,6 @@ typedef struct
     nugl__camera_vec_t       cameras;
     nugl__mesh_vec_t         meshes;
     nugl__texture_vec_t      textures;
-    nugl__cubemap_vec_t      cubemaps;
     nugl__material_vec_t     materials;
     nugl__light_vec_t        lights;
     nugl__rendertarget_vec_t targets;

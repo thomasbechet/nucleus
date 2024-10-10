@@ -117,8 +117,8 @@ nugl__forward_render (nugl__renderpass_t *pass)
     // Render skybox
     if (pass->forward.skybox)
     {
-        nugl__cubemap_t *cubemap
-            = gl->cubemaps.data + NU_HANDLE_INDEX(pass->forward.skybox);
+        nugl__texture_t *cubemap
+            = gl->textures.data + NU_HANDLE_INDEX(pass->forward.skybox);
 
         // Bind program
         glUseProgram(gl->skybox_program);

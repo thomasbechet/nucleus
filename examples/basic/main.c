@@ -85,10 +85,10 @@ main (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer
-        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
-    nu_texture_t shadow_map = nu_texture_create(
-        nu_vec2u(SHADOW_WIDTH, SHADOW_HEIGHT), NU_TEXTURE_SHADOW_TARGET);
+    nu_texture_t depth_buffer = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
+                                                  nu_vec3u(WIDTH, HEIGHT, 0));
+    nu_texture_t shadow_map   = nu_texture_create(
+        NU_TEXTURE_SHADOW_TARGET, nu_vec3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
 
     // Create meshes
     nu_mesh_t custom_mesh;
@@ -141,7 +141,7 @@ main (void)
     nu_model_t castle = NU_ASSET_MODEL("castle");
 
     // Load cubemap
-    nu_cubemap_t skybox = NU_ASSET_CUBEMAP("skybox");
+    nu_texture_t skybox = NU_ASSET_TEXTURE("skybox");
 
     // Create font
     nu_font_t font = nu_font_create_default();

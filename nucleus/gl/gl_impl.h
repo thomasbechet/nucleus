@@ -142,7 +142,6 @@ nugl__init (void)
     NU_VEC_INIT(16, &gl->cameras);
     NU_VEC_INIT(16, &gl->meshes);
     NU_VEC_INIT(16, &gl->textures);
-    NU_VEC_INIT(16, &gl->cubemaps);
     NU_VEC_INIT(16, &gl->materials);
     NU_VEC_INIT(16, &gl->targets);
     NU_VEC_INIT(16, &gl->passes);
@@ -257,7 +256,7 @@ nugl__create_surface_color (nu_vec2u_t size)
 
     nugl__texture_t *ptex   = NU_VEC_PUSH(&gl->textures);
     gl->surface_color_index = gl->textures.size - 1;
-    ptex->size              = size;
+    ptex->size              = nu_vec3u(size.x, size.y, 0);
 
     glGenTextures(1, &ptex->texture);
     glBindTexture(GL_TEXTURE_2D, ptex->texture);

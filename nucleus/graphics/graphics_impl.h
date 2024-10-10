@@ -54,7 +54,7 @@ nu__graphics_render (void)
 nu_texture_t
 nu_texture_create_color (nu_color_t color)
 {
-    nu_texture_t tex = nu_texture_create(NU_VEC2U_ONES, NU_TEXTURE_COLOR);
+    nu_texture_t tex = nu_texture_create(NU_TEXTURE_COLOR, NU_VEC3U_ONES);
     NU_CHECK(tex, return tex);
     nu_texture_write_colors(tex, &color);
     return tex;
@@ -63,7 +63,8 @@ nu_texture_t
 nu_image_create_texture (nu_image_t image)
 {
     nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
-    nu_texture_t tex = nu_texture_create(ima->size, NU_TEXTURE_COLOR);
+    nu_texture_t tex
+        = nu_texture_create(NU_TEXTURE_COLOR, nu_vec3u_v2u(ima->size, 0));
     NU_CHECK(tex, return tex);
     nu_texture_write_colors(tex, ima->colors);
     return tex;

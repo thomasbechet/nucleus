@@ -133,7 +133,8 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
     {
         pass->fbo = nugl__find_or_create_framebuffer(
             color ? color->texture : 0, depth ? depth->texture : 0);
-        pass->fbo_size = color ? color->size : depth->size;
+        pass->fbo_size
+            = color ? nu_vec3u_xy(color->size) : nu_vec3u_xy(depth->size);
     }
     else
     {
@@ -217,7 +218,7 @@ nugl__renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 }
 static void
 nugl__renderpass_set_skybox (nu_renderpass_t pass,
-                             nu_cubemap_t    cubemap,
+                             nu_texture_t    cubemap,
                              nu_quat_t       rotation)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);

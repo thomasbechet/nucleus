@@ -368,10 +368,30 @@ nu_vec2u_min (nu_vec2u_t a, nu_vec2u_t b)
     return nu_vec2u(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
 }
 
-nu_uvec4_t
-nu_uvec4 (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
+nu_vec3u_t
+nu_vec3u (nu_u32_t x, nu_u32_t y, nu_u32_t z)
 {
-    nu_uvec4_t v;
+    nu_vec3u_t v;
+    v.x = x;
+    v.y = y;
+    v.z = z;
+    return v;
+}
+nu_vec3u_t
+nu_vec3u_v2u (nu_vec2u_t v, nu_u32_t z)
+{
+    return nu_vec3u(v.x, v.y, z);
+}
+nu_vec2u_t
+nu_vec3u_xy (nu_vec3u_t v)
+{
+    return nu_vec2u(v.x, v.y);
+}
+
+nu_vec4u_t
+nu_vec4u (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
+{
+    nu_vec4u_t v;
     v.x = x;
     v.y = y;
     v.z = z;

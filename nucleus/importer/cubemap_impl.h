@@ -3,11 +3,11 @@
 
 #include <nucleus/internal.h>
 
-nu_cubemap_t
+nu_texture_t
 nuext_cubemap_load_filename (const nu_char_t *filename)
 {
     nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
-    nu_cubemap_t cubemap = NU_NULL;
+    nu_texture_t cubemap = NU_NULL;
     NU_ARRAY_FILL(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
     nu_size_t  json_size;
@@ -54,10 +54,12 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         }
     }
 
-    cubemap = nu_cubemap_create(nu_image_size(images[0]).x);
+    nu_vec2u_t size = nu_image_size(images[0]);
+    cubemap         = nu_texture_create(NU_TEXTURE_CUBEMAP_COLOR,
+                                nu_vec3u(size.x, size.y, 0));
     for (nu_size_t i = 0; i < NU_CUBEMAP_FACE_COUNT; ++i)
     {
-        nu_cubemap_write_colors(cubemap, i, nu_image_colors(images[i]));
+        nu_texture_write_cubemap_colors(cubemap, i, nu_image_colors(images[i]));
     }
 
 cleanup2:

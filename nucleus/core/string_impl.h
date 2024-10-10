@@ -130,6 +130,10 @@ nuext_path_extension (const nu_char_t *filename)
     {
         return NUEXT_EXTENSION_JPEG;
     }
+    else if (NU_MATCH(ext, "json"))
+    {
+        return NUEXT_EXTENSION_JSON;
+    }
     return NUEXT_EXTENSION_UNKNOWN;
 }
 void

@@ -61,7 +61,7 @@ typedef struct
     nu_camera_t              camera;
     nu_shademode_t           mode;
     GLuint                   program;
-    nu_cubemap_t             skybox;
+    nu_texture_t             skybox;
     nu_mat3_t                skybox_rotation;
 } nugl__renderpass_forward_t;
 

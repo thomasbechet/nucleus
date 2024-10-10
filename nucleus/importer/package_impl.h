@@ -16,15 +16,18 @@ nuext_import_asset (nu_asset_type_t  type,
     switch (type)
     {
         case NU_ASSET_TEXTURE: {
-            nu_image_t image = nuext_image_load_filename(filename);
-            NU_CHECK(image, return NU_NULL);
-            entry->data = nu_image_create_texture(image);
-            nu_image_delete(image);
-        }
-        break;
-        case NU_ASSET_CUBEMAP: {
-            entry->data = nuext_cubemap_load_filename(filename);
-            NU_CHECK(entry->data, return NU_NULL);
+            if (nuext_path_extension(filename) == NUEXT_EXTENSION_JSON)
+            {
+                entry->data = nuext_cubemap_load_filename(filename);
+                NU_CHECK(entry->data, return NU_NULL);
+            }
+            else
+            {
+                nu_image_t image = nuext_image_load_filename(filename);
+                NU_CHECK(image, return NU_NULL);
+                entry->data = nu_image_create_texture(image);
+                nu_image_delete(image);
+            }
         }
         break;
         case NU_ASSET_MATERIAL:
@@ -118,10 +121,6 @@ nuext_import_package (const nu_char_t *filename)
             else if (nu__json_eq(json, ttype, "texture"))
             {
                 nuext_import_asset(NU_ASSET_TEXTURE, name, final_path);
-            }
-            else if (nu__json_eq(json, ttype, "cubemap"))
-            {
-                nuext_import_asset(NU_ASSET_CUBEMAP, name, final_path);
             }
             else
             {

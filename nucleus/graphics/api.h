@@ -6,7 +6,6 @@
 NU_DEFINE_HANDLE(nu_image_t);
 NU_DEFINE_HANDLE(nu_camera_t);
 NU_DEFINE_HANDLE(nu_texture_t);
-NU_DEFINE_HANDLE(nu_cubemap_t);
 NU_DEFINE_HANDLE(nu_model_t);
 NU_DEFINE_HANDLE(nu_font_t);
 NU_DEFINE_HANDLE(nu_mesh_t);
@@ -23,6 +22,7 @@ typedef enum
     NU_TEXTURE_COLOR_TARGET,
     NU_TEXTURE_DEPTH_TARGET,
     NU_TEXTURE_SHADOW_TARGET,
+    NU_TEXTURE_CUBEMAP_COLOR,
 } nu_texture_type_t;
 
 typedef enum
@@ -99,17 +99,14 @@ NU_API void      nu_mesh_write_colors(nu_mesh_t         mesh,
                                       nu_size_t         count,
                                       const nu_color_t *data);
 
-NU_API nu_texture_t nu_texture_create(nu_vec2u_t size, nu_texture_type_t usage);
+NU_API nu_texture_t nu_texture_create(nu_texture_type_t type, nu_vec3u_t size);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API void         nu_texture_delete(nu_texture_t texture);
 NU_API void         nu_texture_write_colors(nu_texture_t      texture,
                                             const nu_color_t *colors);
-
-NU_API nu_cubemap_t nu_cubemap_create(nu_u32_t size);
-NU_API void         nu_cubemap_delete(nu_cubemap_t cubemap);
-NU_API void         nu_cubemap_write_colors(nu_cubemap_t      cubemap,
-                                            nu_cubemap_face_t face,
-                                            const nu_color_t *colors);
+NU_API void         nu_texture_write_cubemap_colors(nu_texture_t      cubemap,
+                                                    nu_cubemap_face_t face,
+                                                    const nu_color_t *colors);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
@@ -133,7 +130,7 @@ NU_API void          nu_lightenv_delete(nu_lightenv_t env);
 NU_API void          nu_lightenv_set_light(nu_lightenv_t env,
                                            nu_size_t     index,
                                            nu_light_t    light);
-NU_API void nu_lightenv_set_envmap(nu_lightenv_t env, nu_cubemap_t cubemap);
+NU_API void nu_lightenv_set_envmap(nu_lightenv_t env, nu_texture_t cubemap);
 NU_API void nu_lightenv_set_lightmap(nu_lightenv_t env, nu_texture_t lightmap);
 NU_API void nu_lightenv_set_shadowmap(nu_lightenv_t env,
                                       nu_light_t    light,
@@ -155,7 +152,7 @@ NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
 NU_API void nu_renderpass_set_shade(nu_renderpass_t pass, nu_shademode_t mode);
 NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
-                                     nu_cubemap_t    cubemap,
+                                     nu_texture_t    cubemap,
                                      nu_quat_t       rotation);
 NU_API void nu_renderpass_set_lightenv(nu_renderpass_t pass, nu_lightenv_t env);
 

@@ -30,8 +30,8 @@ main (void)
                        nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
 
     // Renderpass
-    depth_buffer
-        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
+    depth_buffer               = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
+                                     nu_vec3u(WIDTH, HEIGHT, 0));
     nu_color_t   clear_color   = NU_COLOR_BLACK;
     nu_texture_t surface_color = nu_surface_color_target();
 

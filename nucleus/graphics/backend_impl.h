@@ -122,10 +122,10 @@ nu_mesh_write_colors (nu_mesh_t         mesh,
 }
 
 nu_texture_t
-nu_texture_create (nu_vec2u_t size, nu_texture_type_t usage)
+nu_texture_create (nu_texture_type_t type, nu_vec3u_t size)
 {
 #ifdef NU_BUILD_GL
-    return nugl__texture_create(size, usage);
+    return nugl__texture_create(type, size);
 #endif
 }
 void
@@ -142,28 +142,13 @@ nu_texture_write_colors (nu_texture_t texture, const nu_color_t *colors)
     nugl__texture_write_colors(texture, colors);
 #endif
 }
-
-NU_API nu_cubemap_t
-nu_cubemap_create (nu_u32_t size)
-{
-#ifdef NU_BUILD_GL
-    return nugl__cubemap_create(size);
-#endif
-}
 void
-nu_cubemap_delete (nu_cubemap_t cubemap)
+nu_texture_write_cubemap_colors (nu_texture_t      cubemap,
+                                 nu_cubemap_face_t face,
+                                 const nu_color_t *colors)
 {
 #ifdef NU_BUILD_GL
-    nugl__cubemap_delete(cubemap);
-#endif
-}
-void
-nu_cubemap_write_colors (nu_cubemap_t      cubemap,
-                         nu_cubemap_face_t face,
-                         const nu_color_t *colors)
-{
-#ifdef NU_BUILD_GL
-    nugl__cubemap_write_colors(cubemap, face, colors);
+    nugl__texture_write_cubemap_colors(cubemap, face, colors);
 #endif
 }
 
@@ -319,7 +304,7 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 }
 void
 nu_renderpass_set_skybox (nu_renderpass_t pass,
-                          nu_cubemap_t    cubemap,
+                          nu_texture_t    cubemap,
                           nu_quat_t       rotation)
 {
 #ifdef NU_BUILD_GL
