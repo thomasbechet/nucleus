@@ -82,13 +82,9 @@ nu_ui_create (void)
     ui->active_controller = 0;
     ui->hot_controller    = 0;
 
-    NU_VEC_INIT(1, &ui->passes);
-
     // Create main renderpass
     ui->active_renderpass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_reset_after_submit(ui->active_renderpass, NU_FALSE);
-    nu__ui_pass_t *pass = NU_VEC_PUSH(&ui->passes);
-    pass->renderpass    = ui->active_renderpass;
 
     // Initialize controllers
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
@@ -107,11 +103,6 @@ void
 nu_ui_delete (nu_ui_t handle)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    for (nu_size_t i = 0; i < ui->passes.size; ++i)
-    {
-        nu_renderpass_reset(ui->passes.data[i].renderpass);
-    }
-    NU_VEC_FREE(&ui->passes);
     NU_VEC_FREE(&ui->styles);
 }
 
@@ -129,18 +120,13 @@ nu_ui_set_pressed (nu_ui_t handle, nu_u32_t controller, nu_bool_t pressed)
 }
 
 void
-nu_ui_begin (nu_ui_t handle)
+nu_ui_begin (nu_ui_t handle, nu_renderpass_t renderpass)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    // Reset renderpass
-    for (nu_size_t i = 0; i < ui->passes.size; ++i)
-    {
-        nu_renderpass_reset(ui->passes.data[i].renderpass);
-    }
-
-    ui->next_id = 1;
-    ui->hot_id  = 0;
+    ui->next_id           = 1;
+    ui->hot_id            = 0;
     NU_ASSERT(ui->active_style);
+    ui->active_renderpass = renderpass;
 }
 void
 nu_ui_end (nu_ui_t handle)
@@ -152,17 +138,6 @@ nu_ui_end (nu_ui_t handle)
     nu_vec2i_t cursor = ui->controllers[0].cursor;
     nu__draw_image(
         ui, nu_box2i_xywh(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
-}
-void
-nu_ui_submit_renderpasses (nu_ui_t handle, nu_texture_t color_target)
-{
-    nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
-    for (nu_size_t i = ui->passes.size; i > 0; --i)
-    {
-        nu_renderpass_set_color_target(ui->passes.data[i - 1].renderpass,
-                                       color_target);
-        nu_renderpass_submit(ui->passes.data[i - 1].renderpass);
-    }
 }
 
 void

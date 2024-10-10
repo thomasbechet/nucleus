@@ -197,7 +197,7 @@ nugl__renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
     }
 }
 static void
-nugl__renderpass_set_shademode (nu_renderpass_t pass, nu_shademode_t mode)
+nugl__renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);

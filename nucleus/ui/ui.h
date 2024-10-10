@@ -43,21 +43,12 @@ typedef NU_POOL(nu__ui_style_t) nu__ui_style_data_pool_t;
 
 typedef NU_VEC(nu_ui_style_t) nu__ui_style_stack_t;
 
-typedef struct
-{
-    nu_renderpass_t renderpass;
-} nu__ui_pass_t;
-
-typedef NU_VEC(nu__ui_pass_t) nu__ui_pass_vec_t;
-
 #define NU_UI_MAX_CONTROLLER 4
 
 typedef struct
 {
     nu_renderpass_t    active_renderpass;
     nu_ui_controller_t controllers[NU_UI_MAX_CONTROLLER];
-
-    nu__ui_pass_vec_t passes;
 
     nu__ui_style_stack_t styles;
     nu_ui_style_t        active_style;

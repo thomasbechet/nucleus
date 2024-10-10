@@ -311,10 +311,10 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 #endif
 }
 void
-nu_renderpass_set_shademode (nu_renderpass_t pass, nu_shademode_t mode)
+nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 {
 #ifdef NU_BUILD_GL
-    nugl__renderpass_set_shademode(pass, mode);
+    nugl__renderpass_set_shade(pass, mode);
 #endif
 }
 void

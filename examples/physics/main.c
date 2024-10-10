@@ -386,7 +386,7 @@ main (void)
     // Create camera
     nu_camera_t camera = nu_camera_create();
     nu_camera_set_proj(
-        camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
+        camera, nu_perspective(nu_radian(70), nu_surface_aspect(), 0.01, 500));
 
     // Create renderpasses
     nu_texture_t surface_tex = nu_surface_color_target();
@@ -397,15 +397,16 @@ main (void)
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
-    nu_renderpass_set_shademode(main_pass, NU_SHADE_LIT);
+    nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
 
     nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    nu_renderpass_t wireframe_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    nu_renderpass_t wireframe_pass
+        = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
-    nu_renderpass_set_shademode(wireframe_pass, NU_SHADE_WIREFRAME);
+    nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
     // nu_renderpass_texture(
     //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 

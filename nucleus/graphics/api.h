@@ -153,8 +153,7 @@ NU_API void nu_renderpass_set_color_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
 NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
-NU_API void nu_renderpass_set_shademode(nu_renderpass_t pass,
-                                        nu_shademode_t  mode);
+NU_API void nu_renderpass_set_shade(nu_renderpass_t pass, nu_shademode_t mode);
 NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
                                      nu_cubemap_t    cubemap,
                                      nu_quat_t       rotation);

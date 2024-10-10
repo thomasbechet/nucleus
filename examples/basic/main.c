@@ -160,7 +160,7 @@ main (void)
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
-    nu_renderpass_set_shademode(main_pass, NU_SHADE_LIT);
+    nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
     nu_renderpass_set_skybox(main_pass, skybox, nu_quat_identity());
 
     nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
@@ -171,7 +171,7 @@ main (void)
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
-    nu_renderpass_set_shademode(wireframe_pass, NU_SHADE_WIREFRAME);
+    nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
 
     nu_renderpass_t shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
@@ -293,11 +293,11 @@ main (void)
         // GUI
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
-        nu_ui_begin(ui);
-        // if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
-        // {
-        //     NU_INFO("button pressed !");
-        // }
+        nu_ui_begin(ui, gui_pass);
+        if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
+        {
+            NU_INFO("button pressed !");
+        }
         // if (nu_ui_checkbox(ui, nu_box2i_xywh(300, 300, 14, 14), &bool_state))
         // {
         //     NU_INFO("checkbox changed %d", bool_state);
@@ -321,7 +321,6 @@ main (void)
         nu_renderpass_submit(main_pass);
         nu_renderpass_submit(wireframe_pass);
         nu_renderpass_submit(gui_pass);
-        nu_ui_submit_renderpasses(ui, surface_tex);
 
         // Refresh surface
         nu_swap_buffers();

@@ -36,7 +36,7 @@ main (void)
     nu_texture_t surface_color = nu_surface_color_target();
 
     renderpass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
-    nu_renderpass_set_shademode(renderpass, NU_SHADE_WIREFRAME);
+    nu_renderpass_set_shade(renderpass, NU_SHADE_WIREFRAME);
     nu_renderpass_set_camera(renderpass, camera);
     nu_renderpass_set_clear_color(renderpass, &clear_color);
     nu_renderpass_set_color_target(renderpass, surface_color);
