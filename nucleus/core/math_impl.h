@@ -814,13 +814,13 @@ nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 }
 nu_mat4_t
 nu_ortho (
-    float left, float right, float bottom, float top, float near, float far)
+    float left, float right, float bottom, float top, float nnear, float far)
 {
     nu_mat4_t m;
 
     float rl = 1.0 / (right - left);
     float tb = 1.0 / (top - bottom);
-    float fn = -1.0 / (far - near);
+    float fn = -1.0 / (far - nnear);
 
     m.data[0] = 2.0 * rl;
     m.data[1] = 0;
@@ -839,7 +839,7 @@ nu_ortho (
 
     m.data[12] = -(right + left) * rl;
     m.data[13] = -(top + bottom) * tb;
-    m.data[14] = (far + near) * fn;
+    m.data[14] = (far + nnear) * fn;
     m.data[15] = 1;
 
     return m;
