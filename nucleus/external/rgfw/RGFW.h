@@ -192,7 +192,7 @@
 	typedef u32 b32;
 #endif
 
-#define RGFW_TRUE 1
+#define RGFW_TRUE (!(0))
 #define RGFW_FALSE 0
 
 /* thse OS macros looks better & are standardized */
@@ -1611,9 +1611,6 @@ RGFW_window* RGFW_window_basic_init(RGFW_rect rect, u16 args) {
 	if (args & RGFW_FULLSCREEN)
 		rect = RGFW_RECT(0, 0, screenR.w, screenR.h);
 
-	if (args & RGFW_CENTER)
-		rect = RGFW_RECT((screenR.w - rect.w) / 2, (screenR.h - rect.h) / 2, rect.w, rect.h);
-
 	/* set and init the new window's data */
 	win->r = rect;
 	win->event.inFocus = 1;
@@ -1629,7 +1626,7 @@ RGFW_window* RGFW_window_basic_init(RGFW_rect rect, u16 args) {
 void RGFW_window_scaleToMonitor(RGFW_window* win) {
 	RGFW_monitor monitor = RGFW_window_getMonitor(win);
 	
-	RGFW_window_resize(win, RGFW_AREA(((u32) monitor.scaleX) * win->r.w, ((u32) monitor.scaleX) * win->r.h));
+	RGFW_window_resize(win, RGFW_AREA((u32)(monitor.scaleX * (float)win->r.w), (u32)(monitor.scaleX * (float)win->r.h)));
 }
 #endif
 
@@ -2633,6 +2630,11 @@ Start of Linux / Unix defines
 		if (args & RGFW_SCALE_TO_MONITOR)
 			RGFW_window_scaleToMonitor(win);
 		#endif
+
+		if (args & RGFW_CENTER) {
+			RGFW_area screenR = RGFW_getScreenSize();
+			RGFW_window_move(win, RGFW_POINT((screenR.w - win->r.w) / 2, (screenR.h - win->r.h) / 2));
+		}
 
 		if (args & RGFW_NO_RESIZE) { /* make it so the user can't resize the window*/
 			XSizeHints* sh = XAllocSizeHints();
@@ -3711,32 +3713,54 @@ Start of Linux / Unix defines
 		RGFW_monitor monitor;
 
 		Display* display = XOpenDisplay(NULL);
+		
+		RGFW_area size = RGFW_getScreenSize();
 
-		monitor.rect = RGFW_RECT(0, 0, DisplayWidth(display, screen), DisplayHeight(display, screen));
-		monitor.physW = (monitor.rect.w * 25.4f / 96.f);
-		monitor.physH = (monitor.rect.h * 25.4f / 96.f);
-
-		strncpy(monitor.name, DisplayString(display), 127);
-
+		monitor.rect = RGFW_RECT(0, 0, size.w, size.h);
+		monitor.physW = DisplayWidthMM(display, screen);
+		monitor.physH = DisplayHeightMM(display, screen);
+		
 		XGetSystemContentScale(display, &monitor.scaleX, &monitor.scaleY);
-
 		XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, RootWindow(display, screen));
 
 		XRRCrtcInfo* ci = NULL;
-		int crtc = 0;
+		int crtc = screen;
 
 		if (sr->ncrtc > crtc) {
 			ci = XRRGetCrtcInfo(display, sr, sr->crtcs[crtc]);
 		}
-
+		
 		if (ci == NULL) {
+			float dpi_width = round((double)monitor.rect.w/(((double)monitor.physW)/25.4));
+			float dpi_height = round((double)monitor.rect.h/(((double)monitor.physH)/25.4));
+		
+			monitor.scaleX = (float) (dpi_width) / (float) 96;
+			monitor.scaleY = (float) (dpi_height) / (float) 96;
 			XRRFreeScreenResources(sr);
 			XCloseDisplay(display);
 			return monitor;
 		}
+	    
+		XRROutputInfo* info = XRRGetOutputInfo (display, sr, sr->outputs[screen]);
+		monitor.physW = info->mm_width;
+		monitor.physH = info->mm_height;
 
 		monitor.rect.x = ci->x;
 		monitor.rect.y = ci->y;
+		monitor.rect.w = ci->width;
+		monitor.rect.h = ci->height;
+		
+		float dpi_width = round((double)monitor.rect.w/(((double)monitor.physW)/25.4));
+		float dpi_height = round((double)monitor.rect.h/(((double)monitor.physH)/25.4));
+
+		monitor.scaleX = (float) (dpi_width) / (float) 96;
+		monitor.scaleY = (float) (dpi_height) / (float) 96;		
+
+		if (monitor.scaleX > 1 && monitor.scaleX < 1.1)
+			monitor.scaleX = 1;
+
+		if (monitor.scaleY > 1 && monitor.scaleY < 1.1)
+			monitor.scaleY = 1;
 
 		XRRFreeCrtcInfo(ci);
 		XRRFreeScreenResources(sr);
@@ -4134,9 +4158,6 @@ RGFW_Event RGFW_eventPipe_pop(RGFW_window* win) {
 	
 	if (win->src.eventLen >= 0)  
 		ev = win->src.events[win->src.eventLen];
-	else {
-		printf("H2\n");
-	}
 
 	return ev;	
 }
@@ -4659,6 +4680,10 @@ static const struct wl_callback_listener wl_surface_frame_listener = {
 						decoration_manager, win->src.xdg_toplevel);
 		}
 
+		if (args & RGFW_CENTER) {
+			RGFW_area screenR = RGFW_getScreenSize();
+			RGFW_window_move(win, RGFW_POINT((screenR.w - win->r.w) / 2, (screenR.h - win->r.h) / 2));
+		}
 
 		if (args & RGFW_OPENGL_SOFTWARE)
 			setenv("LIBGL_ALWAYS_SOFTWARE", "1", 1);
@@ -5241,6 +5266,7 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		if (RGFW_Shcore_dll == NULL) {
 			RGFW_Shcore_dll = LoadLibraryA("shcore.dll");
 			GetDpiForMonitorSRC = (PFN_GetDpiForMonitor)(void*)GetProcAddress(RGFW_Shcore_dll, "GetDpiForMonitor");
+			SetProcessDPIAware();
 		}
 		#endif
 
@@ -5491,6 +5517,11 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		if (args & RGFW_SCALE_TO_MONITOR)
 			RGFW_window_scaleToMonitor(win);
 		#endif
+	
+		if (args & RGFW_CENTER) {
+			RGFW_area screenR = RGFW_getScreenSize();
+			RGFW_window_move(win, RGFW_POINT((screenR.w - win->r.w) / 2, (screenR.h - win->r.h) / 2));
+		}
 
 #ifdef RGFW_EGL
 		if ((args & RGFW_NO_INIT_API) == 0)
@@ -6092,7 +6123,8 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 
 		if (GetDpiForMonitor != NULL) {
 			u32 x, y;
-			GetDpiForMonitor(src, MDT_ANGULAR_DPI, &x, &y);
+			GetDpiForMonitor(src, MDT_EFFECTIVE_DPI, &x, &y);
+			
 			monitor.scaleX = (float) (x) / (float) USER_DEFAULT_SCREEN_DPI;
 			monitor.scaleY = (float) (y) / (float) USER_DEFAULT_SCREEN_DPI;
 		}
@@ -6107,7 +6139,7 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		/* Calculate physical height in inches */
 		monitor.physW = GetSystemMetrics(SM_CYSCREEN) / (float) ppiX;
 		monitor.physH = GetSystemMetrics(SM_CXSCREEN) / (float) ppiY;
-
+		
 		return monitor;
 	}
 	#endif /* RGFW_NO_MONITOR */
@@ -6142,7 +6174,7 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		RGFW_mInfo info;
 		info.iIndex = 0;
 		while (EnumDisplayMonitors(NULL, NULL, GetMonitorHandle, (LPARAM) &info));
-
+			
 		return RGFW_monitors;
 	}
 
@@ -7094,7 +7126,6 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		for (int i = 0; i < count; i++) {
 			id fileURL = objc_msgSend_arr(fileURLs, sel_registerName("objectAtIndex:"), i);
 			const char *filePath = ((const char* (*)(id, SEL))objc_msgSend)(fileURL, sel_registerName("UTF8String"));
-			// printf("File: %s\n", filePath);
 			strncpy(win->event.droppedFiles[i], filePath, RGFW_MAX_PATH);
 			win->event.droppedFiles[i][RGFW_MAX_PATH - 1] = '\0';
 		}
@@ -7333,6 +7364,11 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		if (args & RGFW_SCALE_TO_MONITOR)
 			RGFW_window_scaleToMonitor(win);
 		#endif
+
+		if (args & RGFW_CENTER) {
+			RGFW_area screenR = RGFW_getScreenSize();
+			RGFW_window_move(win, RGFW_POINT((screenR.w - win->r.w) / 2, (screenR.h - win->r.h) / 2));
+		}
 
 		if (args & RGFW_HIDE_MOUSE)
 			RGFW_window_showMouse(win, 0);
@@ -8000,13 +8036,11 @@ RGFW_UNUSED(win); /*!< if buffer rendering is not being used */
 		monitor.rect = RGFW_RECT((int) bounds.origin.x, (int) bounds.origin.y, (int) bounds.size.width, (int) bounds.size.height);
 
 		CGSize screenSizeMM = CGDisplayScreenSize(display);
-		monitor.physW = screenSizeMM.width / 25.4;
-		monitor.physH = screenSizeMM.height / 25.4;
+		monitor.physW = screenSizeMM.width;
+		monitor.physH = screenSizeMM.height;
 
-		monitor.scaleX = (monitor.rect.w / (screenSizeMM.width)) / 2.6;
-		monitor.scaleY = (monitor.rect.h / (screenSizeMM.height)) / 2.6;
-
-		snprintf(monitor.name, 128, "%i %i %i", CGDisplayModelNumber(display), CGDisplayVendorNumber(display), CGDisplaySerialNumber(display));
+		monitor.scaleX = ((monitor.rect.w / (screenSizeMM.width / 25.4)) / 96) + 0.25;
+		monitor.scaleY = ((monitor.rect.h / (screenSizeMM.height / 25.4)) / 96) + 0.25;
 
 		return monitor;
 	}
