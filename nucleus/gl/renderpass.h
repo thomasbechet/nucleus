@@ -10,21 +10,14 @@
 #define NUGL__MAX_DEPTH       1000.0
 #define NUGL__DEPTH_INCREMENT 0.05
 
-typedef enum
-{
-    NUGL__DRAW,
-    NUGL__DRAW_INSTANCED,
-} nugl__mesh_command_type_t;
-
 typedef struct
 {
-    nugl__mesh_command_type_t type;
-    GLuint                    vao;
-    nu_size_t                 vfirst;
-    nu_size_t                 vcount;
-    nu_mat4_t                 transform; // TODO: use indexed UBO
-    GLuint                    primitive;
-    nu_material_t             material;
+    GLuint        vao;
+    nu_size_t     vfirst;
+    nu_size_t     vcount;
+    nu_mat4_t     transform; // TODO: use indexed UBO
+    GLuint        primitive;
+    nu_material_t material;
 } nugl__mesh_command_t;
 
 typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;
@@ -66,20 +59,11 @@ typedef struct
 {
     nugl__mesh_command_vec_t cmds;
     nu_camera_t              camera;
-} nugl__renderpass_unlit_t;
-
-typedef struct
-{
-    nugl__mesh_command_vec_t cmds;
-    nu_camera_t              camera;
-} nugl__renderpass_lit_t;
-
-typedef struct
-{
-    nu_camera_t  camera;
-    nu_cubemap_t cubemap;
-    nu_mat3_t    rotation;
-} nugl__renderpass_skybox_t;
+    nu_shademode_t           mode;
+    GLuint                   program;
+    nu_cubemap_t             skybox;
+    nu_mat3_t                skybox_rotation;
+} nugl__renderpass_forward_t;
 
 typedef struct
 {
@@ -90,13 +74,6 @@ typedef struct
     GLuint                     blit_vao;
     float                      depth;
 } nugl__renderpass_canvas_t;
-
-typedef struct
-{
-    nu_camera_t              camera;
-    nugl__mesh_command_vec_t cmds;
-    nu_color_t               color;
-} nugl__renderpass_wireframe_t;
 
 typedef struct
 {
@@ -117,12 +94,9 @@ typedef struct
     nu_bool_t            reset_after_submit;
     union
     {
-        nugl__renderpass_unlit_t     unlit;
-        nugl__renderpass_lit_t       lit;
-        nugl__renderpass_skybox_t    skybox;
-        nugl__renderpass_canvas_t    canvas;
-        nugl__renderpass_wireframe_t wireframe;
-        nugl__renderpass_shadow_t    shadow;
+        nugl__renderpass_forward_t forward;
+        nugl__renderpass_canvas_t  canvas;
+        nugl__renderpass_shadow_t  shadow;
     };
 } nugl__renderpass_t;
 

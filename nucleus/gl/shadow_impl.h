@@ -73,30 +73,21 @@ nugl__shadow_render (nugl__renderpass_t *pass)
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
         const nugl__mesh_command_t *cmd = &cmds->data[i];
-        switch (cmds->data[i].type)
-        {
-            case NUGL__DRAW: {
-                glUniformMatrix4fv(
-                    glGetUniformLocation(gl->shadow_program, "model"),
-                    1,
-                    GL_FALSE,
-                    cmd->transform.data);
 
-                glUniformMatrix4fv(
-                    glGetUniformLocation(gl->shadow_program, "view_projection"),
-                    1,
-                    GL_FALSE,
-                    view_projection.data);
+        glUniformMatrix4fv(glGetUniformLocation(gl->shadow_program, "model"),
+                           1,
+                           GL_FALSE,
+                           cmd->transform.data);
 
-                glBindVertexArray(cmd->vao);
-                glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);
-                glBindVertexArray(0);
-            }
-            break;
-            case NUGL__DRAW_INSTANCED: {
-            }
-            break;
-        }
+        glUniformMatrix4fv(
+            glGetUniformLocation(gl->shadow_program, "view_projection"),
+            1,
+            GL_FALSE,
+            view_projection.data);
+
+        glBindVertexArray(cmd->vao);
+        glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);
+        glBindVertexArray(0);
     }
 
     glUseProgram(0);

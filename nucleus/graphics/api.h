@@ -54,13 +54,17 @@ typedef enum
 
 typedef enum
 {
-    NU_RENDERPASS_UNLIT,
-    NU_RENDERPASS_LIT,
-    NU_RENDERPASS_SKYBOX,
+    NU_RENDERPASS_FORWARD,
     NU_RENDERPASS_CANVAS,
-    NU_RENDERPASS_WIREFRAME,
     NU_RENDERPASS_SHADOW
 } nu_renderpass_type_t;
+
+typedef enum
+{
+    NU_SHADE_UNLIT,
+    NU_SHADE_LIT,
+    NU_SHADE_WIREFRAME,
+} nu_shademode_t;
 
 typedef enum
 {
@@ -145,13 +149,15 @@ NU_API void nu_renderpass_set_reset_after_submit(nu_renderpass_t pass,
 NU_API void nu_renderpass_set_clear_color(nu_renderpass_t pass,
                                           nu_color_t     *color);
 NU_API void nu_renderpass_set_camera(nu_renderpass_t pass, nu_camera_t camera);
-NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
-                                     nu_cubemap_t    cubemap,
-                                     nu_quat_t       rotation);
 NU_API void nu_renderpass_set_color_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
 NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
+NU_API void nu_renderpass_set_shademode(nu_renderpass_t pass,
+                                        nu_shademode_t  mode);
+NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
+                                     nu_cubemap_t    cubemap,
+                                     nu_quat_t       rotation);
 NU_API void nu_renderpass_set_lightenv(nu_renderpass_t pass, nu_lightenv_t env);
 
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,

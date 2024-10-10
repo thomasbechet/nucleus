@@ -1,6 +1,7 @@
 #ifndef NU_BACKEND_IMPL_H
 #define NU_BACKEND_IMPL_H
 
+#include "nucleus/graphics/api.h"
 #include <nucleus/internal.h>
 
 #ifdef NU_BUILD_GL
@@ -296,15 +297,6 @@ nu_renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
 #endif
 }
 void
-nu_renderpass_set_skybox (nu_renderpass_t pass,
-                          nu_cubemap_t    cubemap,
-                          nu_quat_t       rotation)
-{
-#ifdef NU_BUILD_GL
-    nugl__renderpass_set_skybox(pass, cubemap, rotation);
-#endif
-}
-void
 nu_renderpass_set_color_target (nu_renderpass_t pass, nu_texture_t texture)
 {
 #ifdef NU_BUILD_GL
@@ -316,6 +308,22 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 {
 #ifdef NU_BUILD_GL
     nugl__renderpass_set_depth_target(pass, texture);
+#endif
+}
+void
+nu_renderpass_set_shademode (nu_renderpass_t pass, nu_shademode_t mode)
+{
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_shademode(pass, mode);
+#endif
+}
+void
+nu_renderpass_set_skybox (nu_renderpass_t pass,
+                          nu_cubemap_t    cubemap,
+                          nu_quat_t       rotation)
+{
+#ifdef NU_BUILD_GL
+    nugl__renderpass_set_skybox(pass, cubemap, rotation);
 #endif
 }
 void

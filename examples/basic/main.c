@@ -155,26 +155,23 @@ main (void)
     nu_texture_t surface_tex = nu_surface_color_target();
     nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
 
-    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_LIT);
+    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
-
-    nu_renderpass_t skybox_pass = nu_renderpass_create(NU_RENDERPASS_SKYBOX);
-    nu_renderpass_set_color_target(skybox_pass, surface_tex);
-    nu_renderpass_set_depth_target(skybox_pass, depth_buffer);
-    nu_renderpass_set_skybox(skybox_pass, skybox, nu_quat_identity());
-    nu_renderpass_set_camera(skybox_pass, camera);
+    nu_renderpass_set_shademode(main_pass, NU_SHADE_LIT);
+    nu_renderpass_set_skybox(main_pass, skybox, nu_quat_identity());
 
     nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
     nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_WIREFRAME);
+        = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
+    nu_renderpass_set_shademode(wireframe_pass, NU_SHADE_WIREFRAME);
 
     nu_renderpass_t shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
@@ -322,7 +319,6 @@ main (void)
         // Submit renderpass
         nu_renderpass_submit(shadow_pass);
         nu_renderpass_submit(main_pass);
-        nu_renderpass_submit(skybox_pass);
         nu_renderpass_submit(wireframe_pass);
         nu_renderpass_submit(gui_pass);
         nu_ui_submit_renderpasses(ui, surface_tex);

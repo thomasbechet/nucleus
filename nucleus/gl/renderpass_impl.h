@@ -3,11 +3,8 @@
 
 #include <nucleus/internal.h>
 
-#include <nucleus/gl/unlit_impl.h>
-#include <nucleus/gl/lit_impl.h>
-#include <nucleus/gl/skybox_impl.h>
+#include <nucleus/gl/forward_impl.h>
 #include <nucleus/gl/canvas_impl.h>
-#include <nucleus/gl/wireframe_impl.h>
 #include <nucleus/gl/shadow_impl.h>
 
 static void
@@ -22,7 +19,6 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
-        cmd->type                 = NUGL__DRAW;
         cmd->transform            = transforms[i];
         cmd->vao                  = pmesh->vao;
         switch (pmesh->primitive)
@@ -61,20 +57,11 @@ nugl__renderpass_create (nu_renderpass_type_t type)
     // Allocate command buffer
     switch (pass->type)
     {
-        case NU_RENDERPASS_UNLIT:
-            nugl__unlit_create(&pass->unlit);
-            break;
-        case NU_RENDERPASS_LIT:
-            nugl__lit_create(&pass->lit);
-            break;
-        case NU_RENDERPASS_SKYBOX:
-            nugl__skybox_create(&pass->skybox);
+        case NU_RENDERPASS_FORWARD:
+            nugl__forward_create(&pass->forward);
             break;
         case NU_RENDERPASS_CANVAS:
             nugl__canvas_create(&pass->canvas);
-            break;
-        case NU_RENDERPASS_WIREFRAME:
-            nugl__wireframe_create(&pass->wireframe);
             break;
         case NU_RENDERPASS_SHADOW:
             nugl__shadow_create(&pass->shadow);
@@ -182,17 +169,8 @@ nugl__renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)
     {
-        case NU_RENDERPASS_UNLIT:
-            ppass->unlit.camera = camera;
-            break;
-        case NU_RENDERPASS_LIT:
-            ppass->lit.camera = camera;
-            break;
-        case NU_RENDERPASS_WIREFRAME:
-            ppass->wireframe.camera = camera;
-            break;
-        case NU_RENDERPASS_SKYBOX:
-            ppass->skybox.camera = camera;
+        case NU_RENDERPASS_FORWARD:
+            ppass->forward.camera = camera;
             break;
         default:
             NU_ERROR("invalid");
@@ -219,13 +197,32 @@ nugl__renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
     }
 }
 static void
+nugl__renderpass_set_shademode (nu_renderpass_t pass, nu_shademode_t mode)
+{
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
+    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
+    switch (mode)
+    {
+        case NU_SHADE_UNLIT:
+            ppass->forward.program = _ctx.gl.unlit_program;
+            break;
+        case NU_SHADE_LIT:
+            ppass->forward.program = _ctx.gl.lit_program;
+            break;
+        case NU_SHADE_WIREFRAME:
+            ppass->forward.program = _ctx.gl.wireframe_program;
+            break;
+    }
+    ppass->forward.mode = mode;
+}
+static void
 nugl__renderpass_set_skybox (nu_renderpass_t pass,
                              nu_cubemap_t    cubemap,
                              nu_quat_t       rotation)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_SKYBOX);
-    ppass->skybox.cubemap = cubemap;
+    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
+    ppass->forward.skybox = cubemap;
 }
 
 static void
@@ -233,20 +230,11 @@ nugl__reset_renderpass (nugl__renderpass_t *pass)
 {
     switch (pass->type)
     {
-        case NU_RENDERPASS_UNLIT:
-            nugl__unlit_reset(&pass->unlit);
-            break;
-        case NU_RENDERPASS_LIT:
-            nugl__lit_reset(&pass->lit);
-            break;
-        case NU_RENDERPASS_SKYBOX:
-            nugl__skybox_reset(&pass->skybox);
+        case NU_RENDERPASS_FORWARD:
+            nugl__forward_reset(&pass->forward);
             break;
         case NU_RENDERPASS_CANVAS:
             nugl__canvas_reset(&pass->canvas);
-            break;
-        case NU_RENDERPASS_WIREFRAME:
-            nugl__wireframe_reset(&pass->wireframe);
             break;
         case NU_RENDERPASS_SHADOW:
             nugl__shadow_reset(&pass->shadow);
@@ -269,20 +257,8 @@ nugl__renderpass_submit (nu_renderpass_t pass)
     nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
     switch (ppass->type)
     {
-        case NU_RENDERPASS_UNLIT: {
-            NU_ASSERT(ppass->color_target && ppass->depth_target);
-            nugl__prepare_color_depth(
-                ppass, ppass->color_target, ppass->depth_target);
-        }
-        break;
-        case NU_RENDERPASS_LIT: {
-            NU_ASSERT(ppass->color_target && ppass->depth_target);
-            nugl__prepare_color_depth(
-                ppass, ppass->color_target, ppass->depth_target);
-        }
-        break;
-        case NU_RENDERPASS_SKYBOX: {
-            NU_ASSERT(ppass->color_target && ppass->depth_target);
+        case NU_RENDERPASS_FORWARD: {
+            NU_ASSERT(ppass->color_target);
             nugl__prepare_color_depth(
                 ppass, ppass->color_target, ppass->depth_target);
         }
@@ -290,12 +266,6 @@ nugl__renderpass_submit (nu_renderpass_t pass)
         case NU_RENDERPASS_CANVAS: {
             NU_ASSERT(ppass->color_target);
             nugl__prepare_color_depth(ppass, ppass->color_target, NU_NULL);
-        }
-        break;
-        case NU_RENDERPASS_WIREFRAME: {
-            NU_ASSERT(ppass->color_target);
-            nugl__prepare_color_depth(
-                ppass, ppass->color_target, ppass->depth_target);
         }
         break;
         case NU_RENDERPASS_SHADOW: {
@@ -318,18 +288,8 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
     // TODO: check command validity ?
     switch (ppass->type)
     {
-        case NU_RENDERPASS_UNLIT:
-            nugl__submesh_draw_instanced(&ppass->unlit.cmds,
-                                         pmesh,
-                                         first,
-                                         count,
-                                         material,
-                                         transforms,
-                                         instance_count);
-            break;
-        case NU_RENDERPASS_LIT: {
-            NU_ASSERT(pmesh->primitive == NU_PRIMITIVE_TRIANGLES);
-            nugl__submesh_draw_instanced(&ppass->lit.cmds,
+        case NU_RENDERPASS_FORWARD: {
+            nugl__submesh_draw_instanced(&ppass->forward.cmds,
                                          pmesh,
                                          first,
                                          count,
@@ -338,15 +298,6 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                                          instance_count);
         }
         break;
-        case NU_RENDERPASS_WIREFRAME:
-            nugl__submesh_draw_instanced(&ppass->wireframe.cmds,
-                                         pmesh,
-                                         first,
-                                         count,
-                                         material,
-                                         transforms,
-                                         instance_count);
-            break;
         case NU_RENDERPASS_SHADOW:
             nugl__submesh_draw_instanced(&ppass->shadow.cmds,
                                          pmesh,
@@ -405,20 +356,11 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
         // Render
         switch (pass->type)
         {
-            case NU_RENDERPASS_UNLIT:
-                nugl__unlit_render(pass);
-                break;
-            case NU_RENDERPASS_LIT:
-                nugl__lit_render(pass);
-                break;
-            case NU_RENDERPASS_SKYBOX:
-                nugl__skybox_render(pass);
+            case NU_RENDERPASS_FORWARD:
+                nugl__forward_render(pass);
                 break;
             case NU_RENDERPASS_CANVAS:
                 nugl__canvas_render(pass);
-                break;
-            case NU_RENDERPASS_WIREFRAME:
-                nugl__wireframe_render(pass);
                 break;
             default:
                 NU_ASSERT(NU_FALSE);

@@ -30,11 +30,13 @@ main (void)
                        nu_lookat(nu_vec3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
 
     // Renderpass
-    depth_buffer = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
+    depth_buffer
+        = nu_texture_create(nu_vec2u(WIDTH, HEIGHT), NU_TEXTURE_DEPTH_TARGET);
     nu_color_t   clear_color   = NU_COLOR_BLACK;
     nu_texture_t surface_color = nu_surface_color_target();
 
-    renderpass = nu_renderpass_create(NU_RENDERPASS_WIREFRAME);
+    renderpass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    nu_renderpass_set_shademode(renderpass, NU_SHADE_WIREFRAME);
     nu_renderpass_set_camera(renderpass, camera);
     nu_renderpass_set_clear_color(renderpass, &clear_color);
     nu_renderpass_set_color_target(renderpass, surface_color);
@@ -67,11 +69,13 @@ main (void)
             = nu_mat4_translate(nu_vec3(0, nu_sin(time / 500) * 0.1, 0));
         model = nu_mat4_mul(model, nu_mat4_rotate_y(time / 1000));
 
-        nu_bind_material(renderpass, material);
-        nu_draw_box(renderpass, nu_box3(nu_vec3s(-0.5), nu_vec3s(0.5)), model);
+        nu_draw_box(renderpass,
+                    nu_box3(nu_vec3s(-0.5), nu_vec3s(0.5)),
+                    material,
+                    model);
         const nu_vec3_t points[]
             = { nu_vec3s(0.0), nu_vec3s(0.1), nu_vec3s(0.2), nu_vec3s(0.3) };
-        nu_draw_points(renderpass, points, 4, model);
+        nu_draw_points(renderpass, points, 4, material, model);
 
         nu_draw_stats(guipass, font, nu_vec2i(10, 10));
 
