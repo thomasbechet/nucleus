@@ -149,89 +149,6 @@ update_context (float dt)
     // Convert to seconds
     dt *= 0.001;
 
-    // (8) generate collision constraints
-    NU_VEC_CLEAR(&ctx.collision_constraints);
-    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
-    {
-        point_mass_t *pm = ctx.point_masses.data + i;
-
-        // ground collision
-        const float ground = 0;
-        if (pm->x.y < ground)
-        {
-            collision_constraint_t *c = NU_VEC_PUSH(&ctx.collision_constraints);
-            c->q                      = nu_vec3(pm->x.x, ground, pm->x.z);
-            c->n                      = NU_VEC3_UP;
-            c->a                      = i;
-        }
-
-        // box collision
-        for (nu_size_t b = 0; b < NU_ARRAY_SIZE(boxes); ++b)
-        {
-            nu_box3_t box = boxes[b];
-            if (nu_box3_contains(box, pm->x))
-            {
-                nu_vec3_t rel = pm->x;
-
-                // Left
-                float     d, maxd = NU_FLT_MAX;
-                nu_vec3_t q, n;
-                q = n = NU_VEC3_ZEROS;
-
-                d = box.max.x - rel.x;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(box.max.x, rel.y, rel.z);
-                    n    = NU_VEC3_RIGHT;
-                }
-                d = rel.x - box.min.x;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(box.min.x, rel.y, rel.z);
-                    n    = NU_VEC3_LEFT;
-                }
-
-                d = box.max.y - rel.y;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(rel.x, box.max.y, rel.z);
-                    n    = NU_VEC3_UP;
-                }
-                d = rel.y - box.min.y;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(rel.x, box.min.y, rel.z);
-                    n    = NU_VEC3_DOWN;
-                }
-
-                d = box.max.z - rel.z;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(rel.x, rel.y, box.max.z);
-                    n    = NU_VEC3_BACKWARD;
-                }
-                d = rel.z - box.min.z;
-                if (d < maxd)
-                {
-                    maxd = d;
-                    q    = nu_vec3(rel.x, rel.y, box.min.z);
-                    n    = NU_VEC3_FORWARD;
-                }
-
-                collision_constraint_t *c
-                    = NU_VEC_PUSH(&ctx.collision_constraints);
-                c->q = q;
-                c->n = n;
-                c->a = i;
-            }
-        }
-    }
-
     const nu_size_t substep = 10;
     float           subdt   = dt / substep;
     for (nu_size_t n = 0; n < substep; ++n)
@@ -250,6 +167,91 @@ update_context (float dt)
             pm->x = nu_vec3_add(pm->x,
                                 nu_vec3_muls(sum_force, subdt * subdt * pm->w));
         }
+
+        // (8) generate collision constraints
+        NU_VEC_CLEAR(&ctx.collision_constraints);
+        for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+        {
+            point_mass_t *pm = ctx.point_masses.data + i;
+
+            // ground collision
+            const float ground = 0;
+            if (pm->x.y < ground)
+            {
+                collision_constraint_t *c
+                    = NU_VEC_PUSH(&ctx.collision_constraints);
+                c->q = nu_vec3(pm->x.x, ground, pm->x.z);
+                c->n = NU_VEC3_UP;
+                c->a = i;
+            }
+
+            // box collision
+            for (nu_size_t b = 0; b < NU_ARRAY_SIZE(boxes); ++b)
+            {
+                nu_box3_t box = boxes[b];
+                if (nu_box3_contains(box, pm->x))
+                {
+                    nu_vec3_t rel = pm->x;
+
+                    // Left
+                    float     d, maxd = NU_FLT_MAX;
+                    nu_vec3_t q, n;
+                    q = n = NU_VEC3_ZEROS;
+
+                    d = box.max.x - rel.x;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(box.max.x, rel.y, rel.z);
+                        n    = NU_VEC3_RIGHT;
+                    }
+                    d = rel.x - box.min.x;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(box.min.x, rel.y, rel.z);
+                        n    = NU_VEC3_LEFT;
+                    }
+
+                    d = box.max.y - rel.y;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(rel.x, box.max.y, rel.z);
+                        n    = NU_VEC3_UP;
+                    }
+                    d = rel.y - box.min.y;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(rel.x, box.min.y, rel.z);
+                        n    = NU_VEC3_DOWN;
+                    }
+
+                    d = box.max.z - rel.z;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(rel.x, rel.y, box.max.z);
+                        n    = NU_VEC3_BACKWARD;
+                    }
+                    d = rel.z - box.min.z;
+                    if (d < maxd)
+                    {
+                        maxd = d;
+                        q    = nu_vec3(rel.x, rel.y, box.min.z);
+                        n    = NU_VEC3_FORWARD;
+                    }
+
+                    collision_constraint_t *c
+                        = NU_VEC_PUSH(&ctx.collision_constraints);
+                    c->q = q;
+                    c->n = n;
+                    c->a = i;
+                }
+            }
+        }
+
         // (9) solve constraints
         // solve collision constraints
         for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
@@ -291,7 +293,7 @@ update_context (float dt)
         // (16) solve velocities
         for (nu_size_t i = 0; i < ctx.collision_constraints.size; ++i)
         {
-            const float elasticity = 0.5;
+            const float elasticity = 0.1;
             const float friction   = 30;
 
             collision_constraint_t *c  = ctx.collision_constraints.data + i;
