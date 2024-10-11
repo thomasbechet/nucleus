@@ -26,37 +26,37 @@ NU_DEFINE_HANDLE(nu_table_t);
 #define NU_CLAMP(x, min, max) (NU_MAX(min, NU_MIN(max, x)))
 #define NU_CLAMP01(x)         (NU_CLAMP(x, 0, 1))
 
-#define NU_VEC2_SIZE 2
-#define NU_VEC3_SIZE 3
-#define NU_VEC4_SIZE 4
-#define NU_QUAT_SIZE 4
-#define NU_MAT3_SIZE 9
-#define NU_MAT4_SIZE 16
+#define NU_V2_SIZE 2
+#define NU_V3_SIZE 3
+#define NU_V4_SIZE 4
+#define NU_Q4_SIZE 4
+#define NU_M3_SIZE 9
+#define NU_M4_SIZE 16
 
-#define NU_VEC2_ZEROS nu_v2(0, 0)
-#define NU_VEC2_ONES  nu_v2(1, 1)
+#define NU_V2_ZEROS nu_v2(0, 0)
+#define NU_V2_ONES  nu_v2(1, 1)
 
-#define NU_VEC2I_ZEROS nu_v2i(0, 0)
+#define NU_V2I_ZEROS nu_v2i(0, 0)
 
-#define NU_VEC2U_ZEROS nu_v2u(0, 0)
-#define NU_VEC2U_ONES  nu_v2u(1, 1)
+#define NU_V2U_ZEROS nu_v2u(0, 0)
+#define NU_V2U_ONES  nu_v2u(1, 1)
 
-#define NU_VEC3U_ONES nu_v3u(1, 1, 1)
+#define NU_V3U_ONES nu_v3u(1, 1, 1)
 
-#define NU_VEC3_ZEROS    nu_v3(0, 0, 0)
-#define NU_VEC3_ONES     nu_v3(1, 1, 1)
-#define NU_VEC3_UP       nu_v3(0, 1, 0)
-#define NU_VEC3_DOWN     nu_v3(0, -1, 0)
-#define NU_VEC3_FORWARD  nu_v3(0, 0, -1)
-#define NU_VEC3_BACKWARD nu_v3(0, 0, 1)
-#define NU_VEC3_LEFT     nu_v3(-1, 0, 0)
-#define NU_VEC3_RIGHT    nu_v3(1, 0, 0)
+#define NU_V3_ZEROS    nu_v3(0, 0, 0)
+#define NU_V3_ONES     nu_v3(1, 1, 1)
+#define NU_V3_UP       nu_v3(0, 1, 0)
+#define NU_V3_DOWN     nu_v3(0, -1, 0)
+#define NU_V3_FORWARD  nu_v3(0, 0, -1)
+#define NU_V3_BACKWARD nu_v3(0, 0, 1)
+#define NU_V3_LEFT     nu_v3(-1, 0, 0)
+#define NU_V3_RIGHT    nu_v3(1, 0, 0)
 
-#define NU_VEC4_ZEROS nu_vec4(0, 0, 0, 0)
+#define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_VEC2_FORMAT "%lf %lf"
-#define NU_VEC3_FORMAT "%lf %lf %lf"
-#define NU_VEC4_FORMAT "%lf %lf %lf %lf"
+#define NU_V2_FORMAT "%lf %lf"
+#define NU_V3_FORMAT "%lf %lf %lf"
+#define NU_V4_FORMAT "%lf %lf %lf %lf"
 
 #define NU_DEBUG(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
 #define NU_INFO(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
@@ -197,6 +197,8 @@ typedef unsigned int   nu_u32_t;
 typedef signed int     nu_i32_t;
 typedef unsigned long  nu_u64_t;
 typedef signed long    nu_i64_t;
+typedef float          nu_f32_t;
+typedef double         nu_f64_t;
 
 typedef char          nu_char_t;
 typedef int           nu_bool_t;
@@ -289,7 +291,7 @@ typedef union
         float x;
         float y;
     };
-    float data[NU_VEC2_SIZE];
+    float data[NU_V2_SIZE];
 } nu_v2_t;
 
 typedef union
@@ -300,7 +302,7 @@ typedef union
         float y;
         float z;
     };
-    float data[NU_VEC3_SIZE];
+    float data[NU_V3_SIZE];
 } nu_v3_t;
 
 typedef union
@@ -312,7 +314,7 @@ typedef union
         float z;
         float w;
     };
-    float data[NU_VEC4_SIZE];
+    float data[NU_V4_SIZE];
 } nu_v4_t;
 
 typedef union
@@ -322,7 +324,7 @@ typedef union
         nu_u32_t x;
         nu_u32_t y;
     };
-    nu_u32_t data[NU_VEC2_SIZE];
+    nu_u32_t data[NU_V2_SIZE];
 } nu_v2u_t;
 
 typedef union
@@ -332,7 +334,7 @@ typedef union
         nu_i32_t x;
         nu_i32_t y;
     };
-    nu_i32_t data[NU_VEC2_SIZE];
+    nu_i32_t data[NU_V2_SIZE];
 } nu_v2i_t;
 
 typedef union
@@ -343,7 +345,7 @@ typedef union
         nu_i32_t y;
         nu_i32_t z;
     };
-    nu_i32_t data[NU_VEC3_SIZE];
+    nu_i32_t data[NU_V3_SIZE];
 } nu_v3i_t;
 
 typedef union
@@ -354,7 +356,7 @@ typedef union
         nu_u32_t y;
         nu_u32_t z;
     };
-    nu_u32_t data[NU_VEC3_SIZE];
+    nu_u32_t data[NU_V3_SIZE];
 } nu_v3u_t;
 
 typedef union
@@ -366,7 +368,7 @@ typedef union
         nu_u32_t z;
         nu_u32_t w;
     };
-    nu_u32_t data[NU_VEC4_SIZE];
+    nu_u32_t data[NU_V4_SIZE];
 } nu_v4u_t;
 
 typedef union
@@ -378,7 +380,7 @@ typedef union
         float z;
         float w;
     };
-    float data[NU_QUAT_SIZE];
+    float data[NU_Q4_SIZE];
 } nu_q4_t;
 
 typedef union
@@ -396,7 +398,7 @@ typedef union
         float z2;
         float z3;
     };
-    float data[NU_MAT3_SIZE];
+    float data[NU_M3_SIZE];
 } nu_m3_t;
 
 typedef union
@@ -420,7 +422,7 @@ typedef union
         float w3;
         float w4;
     };
-    float data[NU_MAT4_SIZE];
+    float data[NU_M4_SIZE];
 } nu_m4_t;
 
 typedef struct

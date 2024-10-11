@@ -49,8 +49,7 @@ nu_camera_create (void)
 #ifdef NU_BUILD_GL
     nu_camera_t handle = nugl__camera_create();
     NU_CHECK(handle, return handle);
-    nu_camera_set_view(handle,
-                       nu_lookat(NU_VEC3_UP, NU_VEC3_FORWARD, NU_VEC3_ZEROS));
+    nu_camera_set_view(handle, nu_lookat(NU_V3_UP, NU_V3_FORWARD, NU_V3_ZEROS));
     float aspect = (float)_ctx.platform.size.x / (float)_ctx.platform.size.y;
     nu_camera_set_proj(handle,
                        nu_perspective(nu_radian(70), aspect, 0.01, 100));
@@ -94,9 +93,9 @@ nu_mesh_delete (nu_mesh_t mesh)
 #endif
 }
 void
-nu_mesh_write_uvs (nu_mesh_t        mesh,
-                   nu_size_t        first,
-                   nu_size_t        count,
+nu_mesh_write_uvs (nu_mesh_t      mesh,
+                   nu_size_t      first,
+                   nu_size_t      count,
                    const nu_v2_t *data)
 {
 #ifdef NU_BUILD_GL
@@ -104,9 +103,9 @@ nu_mesh_write_uvs (nu_mesh_t        mesh,
 #endif
 }
 void
-nu_mesh_write_positions (nu_mesh_t        mesh,
-                         nu_size_t        first,
-                         nu_size_t        count,
+nu_mesh_write_positions (nu_mesh_t      mesh,
+                         nu_size_t      first,
+                         nu_size_t      count,
                          const nu_v3_t *data)
 {
 #ifdef NU_BUILD_GL
@@ -305,7 +304,7 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 void
 nu_renderpass_set_skybox (nu_renderpass_t pass,
                           nu_texture_t    cubemap,
-                          nu_q4_t       rotation)
+                          nu_q4_t         rotation)
 {
 #ifdef NU_BUILD_GL
     nugl__renderpass_set_skybox(pass, cubemap, rotation);
@@ -317,13 +316,13 @@ nu_renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
 }
 
 void
-nu_draw_submesh_instanced (nu_renderpass_t  pass,
-                           nu_mesh_t        mesh,
-                           nu_size_t        first,
-                           nu_size_t        count,
-                           nu_material_t    material,
-                           const nu_m4_t *transforms,
-                           nu_size_t        instance_count)
+nu_draw_submesh_instanced (nu_renderpass_t pass,
+                           nu_mesh_t       mesh,
+                           nu_size_t       first,
+                           nu_size_t       count,
+                           nu_material_t   material,
+                           const nu_m4_t  *transforms,
+                           nu_size_t       instance_count)
 {
 #ifdef NU_BUILD_GL
     nugl__draw_submesh_instanced(
@@ -350,8 +349,8 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
 }
 void
 nu_draw_blit (nu_renderpass_t pass,
-              nu_b2i_t      extent,
-              nu_b2i_t      tex_extent,
+              nu_b2i_t        extent,
+              nu_b2i_t        tex_extent,
               nu_material_t   material)
 {
 #ifdef NU_BUILD_GL

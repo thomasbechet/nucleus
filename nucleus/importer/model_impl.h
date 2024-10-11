@@ -13,8 +13,8 @@ nu__emplace_vertex (const nu_v3_t *positions,
                     const nu_v2_t *uvs,
                     nu_v3_t       *buf_positions,
                     nu_v2_t       *buf_uvs,
-                    nu_u32_t         vertex_index,
-                    nu_u32_t         index)
+                    nu_u32_t       vertex_index,
+                    nu_u32_t       index)
 {
 
     buf_positions[vertex_index] = positions[index];
@@ -24,7 +24,7 @@ nu__emplace_vertex (const nu_v3_t *positions,
     }
     else
     {
-        buf_uvs[vertex_index] = NU_VEC2_ZEROS;
+        buf_uvs[vertex_index] = NU_V2_ZEROS;
     }
 }
 
@@ -288,26 +288,26 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             nu_m4_t transform = nu_m4_identity();
             if (node->has_scale)
             {
-                transform = nu_m4_mul(nu_m4_scale(nu_v3(node->scale[0],
-                                                              node->scale[1],
-                                                              node->scale[2])),
-                                        transform);
+                transform = nu_m4_mul(
+                    nu_m4_scale(
+                        nu_v3(node->scale[0], node->scale[1], node->scale[2])),
+                    transform);
             }
             if (node->has_rotation)
             {
                 nu_q4_t q = nu_q4(node->rotation[0],
-                                      node->rotation[1],
-                                      node->rotation[2],
-                                      node->rotation[3]);
-                transform   = nu_q4_mulm4(q, transform);
+                                  node->rotation[1],
+                                  node->rotation[2],
+                                  node->rotation[3]);
+                transform = nu_q4_mulm4(q, transform);
             }
             if (node->has_translation)
             {
-                transform = nu_m4_mul(
-                    nu_m4_translate(nu_v3(node->translation[0],
-                                              node->translation[1],
-                                              node->translation[2])),
-                    transform);
+                transform
+                    = nu_m4_mul(nu_m4_translate(nu_v3(node->translation[0],
+                                                      node->translation[1],
+                                                      node->translation[2])),
+                                transform);
             }
 
             if (node->mesh)

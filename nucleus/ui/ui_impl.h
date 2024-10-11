@@ -5,7 +5,7 @@
 
 static void
 nu__draw_image (nu__ui_instance_t          *ui,
-                nu_b2i_t                  extent,
+                nu_b2i_t                    extent,
                 const nu__ui_image_style_t *style)
 {
     nu_draw_blit_sliced(ui->active_renderpass,
@@ -30,8 +30,8 @@ void
 nu_ui_style (nu_ui_style_t          style,
              nu_ui_style_property_t property,
              nu_material_t          material,
-             nu_b2i_t             extent,
-             nu_b2i_t             inner)
+             nu_b2i_t               extent,
+             nu_b2i_t               inner)
 {
     nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(style);
     switch (property)
@@ -90,7 +90,7 @@ nu_ui_create (void)
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
         ui->controllers[i].active       = NU_FALSE;
-        ui->controllers[i].cursor       = NU_VEC2I_ZEROS;
+        ui->controllers[i].cursor       = NU_V2I_ZEROS;
         ui->controllers[i].main_pressed = NU_FALSE;
         ui->controllers[i].mode         = NU_UI_CONTROLLER_CURSOR;
     }

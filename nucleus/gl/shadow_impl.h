@@ -65,8 +65,8 @@ nugl__shadow_render (nugl__renderpass_t *pass)
     glUseProgram(gl->shadow_program);
 
     // Compute light view projection matrix
-    nu_m4_t projection = nu_ortho(-50, 50, -50, 50, 1, 500);
-    nu_m4_t view = nu_lookat(nu_v3s(100.0), NU_VEC3_ZEROS, NU_VEC3_UP);
+    nu_m4_t projection      = nu_ortho(-50, 50, -50, 50, 1, 500);
+    nu_m4_t view            = nu_lookat(nu_v3s(100.0), NU_V3_ZEROS, NU_V3_UP);
     nu_m4_t view_projection = nu_m4_mul(projection, view);
 
     const nugl__mesh_command_vec_t *cmds = &pass->shadow.cmds;

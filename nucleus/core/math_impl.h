@@ -235,7 +235,7 @@ nu_v3_normalize (nu_v3_t v)
     float norm = nu_v3_norm(v);
     if (norm == 0)
     {
-        return NU_VEC3_ZEROS;
+        return NU_V3_ZEROS;
     }
     nu_v3_t ret;
     ret.x = v.x / norm;
@@ -554,7 +554,7 @@ nu_m3_t
 nu_m3_zero (void)
 {
     nu_m3_t m;
-    for (nu_size_t i = 0; i < NU_MAT3_SIZE; ++i)
+    for (nu_size_t i = 0; i < NU_M3_SIZE; ++i)
     {
         m.data[i] = 0;
     }
@@ -564,25 +564,25 @@ nu_m3_t
 nu_m3_identity (void)
 {
     nu_m3_t m = nu_m3_zero();
-    m.x1        = 1;
-    m.y2        = 1;
-    m.z3        = 1;
+    m.x1      = 1;
+    m.y2      = 1;
+    m.z3      = 1;
     return m;
 }
 nu_m3_t
 nu_m3_translate (nu_v2_t v)
 {
     nu_m3_t m = nu_m3_identity();
-    m.z1        = v.x;
-    m.z2        = v.y;
+    m.z1      = v.x;
+    m.z2      = v.y;
     return m;
 }
 nu_m3_t
 nu_m3_scale (nu_v2_t v)
 {
     nu_m3_t m = nu_m3_identity();
-    m.x1        = v.x;
-    m.y2        = v.y;
+    m.x1      = v.x;
+    m.y2      = v.y;
     return m;
 }
 nu_m3_t
@@ -606,7 +606,7 @@ nu_m4_t
 nu_m4_zero (void)
 {
     nu_m4_t m;
-    for (nu_size_t i = 0; i < NU_MAT4_SIZE; ++i)
+    for (nu_size_t i = 0; i < NU_M4_SIZE; ++i)
     {
         m.data[i] = 0;
     }
@@ -616,38 +616,38 @@ nu_m4_t
 nu_m4_identity (void)
 {
     nu_m4_t m = nu_m4_zero();
-    m.x1        = 1;
-    m.y2        = 1;
-    m.z3        = 1;
-    m.w4        = 1;
+    m.x1      = 1;
+    m.y2      = 1;
+    m.z3      = 1;
+    m.w4      = 1;
     return m;
 }
 nu_m4_t
 nu_m4_translate (nu_v3_t v)
 {
     nu_m4_t m = nu_m4_identity();
-    m.w1        = v.x;
-    m.w2        = v.y;
-    m.w3        = v.z;
+    m.w1      = v.x;
+    m.w2      = v.y;
+    m.w3      = v.z;
     return m;
 }
 nu_m4_t
 nu_m4_scale (nu_v3_t v)
 {
     nu_m4_t m = nu_m4_identity();
-    m.x1        = v.x;
-    m.y2        = v.y;
-    m.z3        = v.z;
+    m.x1      = v.x;
+    m.y2      = v.y;
+    m.z3      = v.z;
     return m;
 }
 nu_m4_t
 nu_m4_rotate_y (float angle)
 {
     nu_m4_t m = nu_m4_identity();
-    m.x1        = nu_cos(angle);
-    m.z1        = nu_sin(angle);
-    m.x3        = -nu_sin(angle);
-    m.z3        = nu_cos(angle);
+    m.x1      = nu_cos(angle);
+    m.z1      = nu_sin(angle);
+    m.x3      = -nu_sin(angle);
+    m.z3      = nu_cos(angle);
     return m;
 }
 nu_m4_t
@@ -680,7 +680,7 @@ nu_v3_t
 nu_m4_mulv3 (nu_m4_t a, nu_v3_t v)
 {
     nu_v4_t v4 = nu_v4(v.x, v.y, v.z, 1);
-    v4           = nu_m4_mulv(a, v4);
+    v4         = nu_m4_mulv(a, v4);
     return nu_v3(v4.x, v4.y, v4.z);
 }
 
@@ -711,8 +711,7 @@ nu_b2i_t
 nu_b2i_resize (nu_b2i_t b, nu_v2u_t size)
 {
     NU_ASSERT(size.x && size.y);
-    return nu_b2i(b.min,
-                    nu_v2i(b.min.x + size.x - 1, b.min.y + size.y - 1));
+    return nu_b2i(b.min, nu_v2i(b.min.x + size.x - 1, b.min.y + size.y - 1));
 }
 nu_v2i_t
 nu_b2i_tr (nu_b2i_t b)
@@ -756,8 +755,8 @@ nu_b2i_normalize (nu_b2i_t b, nu_v2_t p)
 {
     nu_v2_t  ret;
     nu_v2u_t size = nu_b2i_size(b);
-    ret.x           = (p.x - (float)b.min.x) / (float)(size.x);
-    ret.y           = (p.y - (float)b.min.y) / (float)(size.y);
+    ret.x         = (p.x - (float)b.min.x) / (float)(size.x);
+    ret.y         = (p.y - (float)b.min.y) / (float)(size.y);
     return ret;
 }
 
@@ -786,9 +785,9 @@ nu_m4_t
 nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 {
     nu_m4_t m;
-    float     y_scale  = 1.0f / nu_tan(fov / 2.0f);
-    float     x_scale  = y_scale / aspect_ratio;
-    float     near_far = z_near - z_far;
+    float   y_scale  = 1.0f / nu_tan(fov / 2.0f);
+    float   x_scale  = y_scale / aspect_ratio;
+    float   near_far = z_near - z_far;
 
     m.data[0] = x_scale;
     m.data[1] = 0;
@@ -848,12 +847,12 @@ nu_m4_t
 nu_lookat (nu_v3_t eye, nu_v3_t center, nu_v3_t up)
 {
     nu_v3_t f = nu_v3(center.x - eye.x, center.y - eye.y, center.z - eye.z);
-    f           = nu_v3_normalize(f);
+    f         = nu_v3_normalize(f);
 
     nu_v3_t u = nu_v3_normalize(up);
 
     nu_v3_t s = nu_v3_cross(f, u);
-    s           = nu_v3_normalize(s);
+    s         = nu_v3_normalize(s);
 
     nu_v3_t u_prime = nu_v3_cross(s, f);
 
@@ -905,8 +904,7 @@ nu_axis3d (float     pos_x,
 nu_v3_t
 nu_triangle_normal (nu_v3_t p0, nu_v3_t p1, nu_v3_t p2)
 {
-    return nu_v3_normalize(
-        nu_v3_cross(nu_v3_sub(p2, p0), nu_v3_sub(p0, p1)));
+    return nu_v3_normalize(nu_v3_cross(nu_v3_sub(p2, p0), nu_v3_sub(p0, p1)));
 }
 
 #endif

@@ -97,9 +97,8 @@ static void
 nu__generate_cube (nu__geometry_t *g, float unit)
 {
     const nu_v3_t positions[8] = {
-        nu_v3(0, 0, unit),    nu_v3(unit, 0, unit),
-        nu_v3(unit, 0, 0),    nu_v3(0, 0, 0),
-        nu_v3(0, unit, unit), nu_v3(unit, unit, unit),
+        nu_v3(0, 0, unit),    nu_v3(unit, 0, unit), nu_v3(unit, 0, 0),
+        nu_v3(0, 0, 0),       nu_v3(0, unit, unit), nu_v3(unit, unit, unit),
         nu_v3(unit, unit, 0), nu_v3(0, unit, 0),
     };
     const nu_v2_t uvs[4]
@@ -336,7 +335,7 @@ nu__geometry_create_mesh_triangles (nu__geometry_t *g)
 
     nu_v3_vec_t positions;
     nu_v2_vec_t uvs;
-    nu_size_t     vertex_count = triangle_count * 3;
+    nu_size_t   vertex_count = triangle_count * 3;
     NU_VEC_INIT(vertex_count, &positions);
     NU_VEC_INIT(vertex_count, &uvs);
     NU_VEC_RESIZE(&positions, vertex_count);
@@ -426,11 +425,11 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
             for (nu_size_t f = 0; f < p->positions.size; f += p->count)
             {
                 // Computer the face center of mass
-                nu_v3_t center = NU_VEC3_ZEROS;
+                nu_v3_t center = NU_V3_ZEROS;
                 for (nu_size_t i = f; i < f + p->count; ++i)
                 {
-                    center = nu_v3_add(
-                        center, g->positions.data[p->positions.data[i]]);
+                    center = nu_v3_add(center,
+                                       g->positions.data[p->positions.data[i]]);
                 }
                 center = nu_v3_divs(center, p->count);
                 // Compute normal (expect all points to be coplanar)

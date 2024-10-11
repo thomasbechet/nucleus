@@ -17,8 +17,8 @@ typedef struct
     nu_v3_t vel;
     nu_v3_t acc;
     nu_q4_t rot;
-    float     yaw;
-    float     pitch;
+    float   yaw;
+    float   pitch;
 
     nu_controller_mode_t mode;
 

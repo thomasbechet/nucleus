@@ -85,24 +85,23 @@ main (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
-                                                  nu_v3u(WIDTH, HEIGHT, 0));
-    nu_texture_t shadow_map   = nu_texture_create(
+    nu_texture_t depth_buffer
+        = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
+    nu_texture_t shadow_map = nu_texture_create(
         NU_TEXTURE_SHADOW_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
 
     // Create meshes
     nu_mesh_t custom_mesh;
     nu_mesh_t custom_mesh_normals;
-    nu_b3_t bounds;
+    nu_b3_t   bounds;
     {
         nu_geometry_t final = nu_geometry_create();
         nu_geometry_t sub   = nu_geometry_create();
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_geometry_cube(sub, 1);
-            nu_m4_t transform
-                = nu_m4_mul(nu_m4_translate(nu_v3s(i * 5)),
-                              nu_m4_scale(nu_v3s(2 * i)));
+            nu_m4_t transform = nu_m4_mul(nu_m4_translate(nu_v3s(i * 5)),
+                                          nu_m4_scale(nu_v3s(2 * i)));
             nu_geometry_transform(sub, transform);
             nu_geometry_merge(final, sub);
         }
@@ -272,21 +271,19 @@ main (void)
         nu_draw_model(wireframe_pass, ariane_model, transform);
 
         transform = nu_m4_scale(nu_v3(4, 4, 4));
-        transform
-            = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
+        transform = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
         nu_draw_model(shadow_pass, temple_model, transform);
 
-        const nu_v3_t points[]
-            = { NU_VEC3_ZEROS, NU_VEC3_UP,    NU_VEC3_ZEROS,
-                NU_VEC3_RIGHT, NU_VEC3_ZEROS, NU_VEC3_BACKWARD };
+        const nu_v3_t points[] = { NU_V3_ZEROS, NU_V3_UP,    NU_V3_ZEROS,
+                                   NU_V3_RIGHT, NU_V3_ZEROS, NU_V3_BACKWARD };
         nu_draw_lines(wireframe_pass,
                       points,
                       3,
                       material,
                       nu_m4_translate(nu_v3(-5, 5, -5)));
         nu_draw_box(wireframe_pass,
-                    nu_b3(NU_VEC3_ZEROS, NU_VEC3_ONES),
+                    nu_b3(NU_V3_ZEROS, NU_V3_ONES),
                     material,
                     nu_m4_translate(nu_v3(0, 5, -5)));
 

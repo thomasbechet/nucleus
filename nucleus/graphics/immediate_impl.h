@@ -44,11 +44,11 @@ nu__graphics_immediate_reset (void)
 }
 
 void
-nu_draw_points (nu_renderpass_t  pass,
-                const nu_v3_t *positions,
-                nu_size_t        count,
-                nu_material_t    material,
-                nu_m4_t        transform)
+nu_draw_points (nu_renderpass_t pass,
+                const nu_v3_t  *positions,
+                nu_size_t       count,
+                nu_material_t   material,
+                nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -58,11 +58,11 @@ nu_draw_points (nu_renderpass_t  pass,
     nu_draw_submesh(pass, im->points, first, count, material, transform);
 }
 void
-nu_draw_lines (nu_renderpass_t  pass,
-               const nu_v3_t *positions,
-               nu_size_t        count,
-               nu_material_t    material,
-               nu_m4_t        transform)
+nu_draw_lines (nu_renderpass_t pass,
+               const nu_v3_t  *positions,
+               nu_size_t       count,
+               nu_material_t   material,
+               nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -72,11 +72,11 @@ nu_draw_lines (nu_renderpass_t  pass,
     nu_draw_submesh(pass, im->lines, first, count, material, transform);
 }
 void
-nu_draw_lines_strip (nu_renderpass_t  pass,
-                     const nu_v3_t *positions,
-                     nu_size_t        count,
-                     nu_material_t    material,
-                     nu_m4_t        transform)
+nu_draw_lines_strip (nu_renderpass_t pass,
+                     const nu_v3_t  *positions,
+                     nu_size_t       count,
+                     nu_material_t   material,
+                     nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -87,9 +87,9 @@ nu_draw_lines_strip (nu_renderpass_t  pass,
 }
 void
 nu_draw_box (nu_renderpass_t pass,
-             nu_b3_t       box,
+             nu_b3_t         box,
              nu_material_t   material,
-             nu_m4_t       transform)
+             nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 

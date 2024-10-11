@@ -5,9 +5,9 @@
 
 typedef struct
 {
-    nu_u16_t  mesh;
-    nu_u16_t  material;
-    nu_m4_t transform;
+    nu_u16_t mesh;
+    nu_u16_t material;
+    nu_m4_t  transform;
 } nu__model_node_t;
 
 typedef union

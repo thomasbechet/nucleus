@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    nu_v3u_t        size;
+    nu_v3u_t          size;
     GLuint            texture;
     nu_texture_type_t type;
 } nugl__texture_t;

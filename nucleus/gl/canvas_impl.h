@@ -5,9 +5,9 @@
 
 static void
 nugl__canvas_add_blit (nugl__renderpass_canvas_t *pass,
-                       nu_v2i_t                 pos,
-                       nu_v2u_t                 tex,
-                       nu_v2u_t                 size)
+                       nu_v2i_t                   pos,
+                       nu_v2u_t                   tex,
+                       nu_v2u_t                   size)
 {
     nugl__gpu_blit_t *blit = NU_VEC_PUSH(&pass->blit_transfer);
     blit->pos              = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
@@ -105,8 +105,8 @@ nugl__write_canvas_buffers (nugl__renderpass_canvas_t *pass)
 static void
 nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                         nu_material_t       material,
-                        nu_b2i_t          extent,
-                        nu_b2i_t          tex_extent)
+                        nu_b2i_t            extent,
+                        nu_b2i_t            tex_extent)
 {
     if (!material)
     {
@@ -162,9 +162,8 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                 {
                     nu_i32_t pos_x
                         = extent.min.x + (full_hblit_count * tex_extent_s.x);
-                    nu_i32_t   pos_y = extent.min.y + (y * tex_extent_s.y);
-                    nu_v2u_t size
-                        = nu_v2u(partial_hblit_size, tex_extent_s.y);
+                    nu_i32_t pos_y = extent.min.y + (y * tex_extent_s.y);
+                    nu_v2u_t size  = nu_v2u(partial_hblit_size, tex_extent_s.y);
                     nugl__canvas_add_blit(
                         &pass->canvas,
                         nu_v2i(pos_x, pos_y),
@@ -180,8 +179,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                     nu_i32_t pos_x = extent.min.x + (x * tex_extent_s.x);
                     nu_i32_t pos_y
                         = extent.min.y + (full_vblit_count * tex_extent_s.y);
-                    nu_v2u_t size
-                        = nu_v2u(tex_extent_s.x, partial_vblit_size);
+                    nu_v2u_t size = nu_v2u(tex_extent_s.x, partial_vblit_size);
                     nugl__canvas_add_blit(
                         &pass->canvas,
                         nu_v2i(pos_x, pos_y),
@@ -196,8 +194,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                     = extent.min.x + (full_hblit_count * tex_extent_s.x);
                 nu_i32_t pos_y
                     = extent.min.y + (full_vblit_count * tex_extent_s.y);
-                nu_v2u_t size
-                    = nu_v2u(partial_hblit_size, partial_vblit_size);
+                nu_v2u_t size = nu_v2u(partial_hblit_size, partial_vblit_size);
                 nugl__canvas_add_blit(
                     &pass->canvas,
                     nu_v2i(pos_x, pos_y),

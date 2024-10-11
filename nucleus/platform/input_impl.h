@@ -171,7 +171,7 @@ static void
 nu__viewport_cursor (const nu__viewport_t *v, nu_v2_t pos, nu_v2_t *cursor)
 {
     nu_v2_t relpos = nu_b2i_normalize(v->viewport, pos);
-    *cursor = nu_v2_mul(*cursor, nu_v2_v2u(nu_b2i_size(v->viewport)));
+    *cursor        = nu_v2_mul(*cursor, nu_v2_v2u(nu_b2i_size(v->viewport)));
 }
 
 static void
@@ -227,9 +227,9 @@ nu__mouse_position_callback (RGFW_window *window, RGFW_point point)
 {
     if (_ctx.platform.capture_mouse)
     {
-        _ctx.platform.mouse_motion = nu_v2_add(
-            _ctx.platform.mouse_motion,
-            nu_v2_divs(nu_v2((float)point.x, (float)point.y), 200));
+        _ctx.platform.mouse_motion
+            = nu_v2_add(_ctx.platform.mouse_motion,
+                        nu_v2_divs(nu_v2((float)point.x, (float)point.y), 200));
     }
     else
     {
@@ -383,7 +383,7 @@ nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
     float cx = nu_input_value(cursor_x);
     float cy = nu_input_value(cursor_y);
     return nu_v2i((nu_i32_t)(cx * (float)_ctx.platform.size.x),
-                    (nu_i32_t)(cy * (float)_ctx.platform.size.y));
+                  (nu_i32_t)(cy * (float)_ctx.platform.size.y));
 }
 
 #endif

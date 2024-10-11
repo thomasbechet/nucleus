@@ -27,11 +27,11 @@ main (void)
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 100));
     nu_camera_set_view(camera,
-                       nu_lookat(nu_v3(2, 1, 2), NU_VEC3_ZEROS, NU_VEC3_UP));
+                       nu_lookat(nu_v3(2, 1, 2), NU_V3_ZEROS, NU_V3_UP));
 
     // Renderpass
-    depth_buffer               = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
-                                     nu_v3u(WIDTH, HEIGHT, 0));
+    depth_buffer
+        = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
     nu_color_t   clear_color   = NU_COLOR_BLACK;
     nu_texture_t surface_color = nu_surface_color_target();
 
@@ -65,14 +65,11 @@ main (void)
         }
         nu_poll_events();
 
-        nu_m4_t model
-            = nu_m4_translate(nu_v3(0, nu_sin(time / 500) * 0.1, 0));
-        model = nu_m4_mul(model, nu_m4_rotate_y(time / 1000));
+        nu_m4_t model = nu_m4_translate(nu_v3(0, nu_sin(time / 500) * 0.1, 0));
+        model         = nu_m4_mul(model, nu_m4_rotate_y(time / 1000));
 
-        nu_draw_box(renderpass,
-                    nu_b3(nu_v3s(-0.5), nu_v3s(0.5)),
-                    material,
-                    model);
+        nu_draw_box(
+            renderpass, nu_b3(nu_v3s(-0.5), nu_v3s(0.5)), material, model);
         const nu_v3_t points[]
             = { nu_v3s(0.0), nu_v3s(0.1), nu_v3s(0.2), nu_v3s(0.3) };
         nu_draw_points(renderpass, points, 4, material, model);

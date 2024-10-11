@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    GLuint    ubo;
+    GLuint  ubo;
     nu_m4_t view;
     nu_m4_t projection;
     nu_m4_t vp;

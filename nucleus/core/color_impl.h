@@ -55,20 +55,20 @@ nu_color_t
 nu_color_to_srgb (nu_color_t c)
 {
     nu_v4_t v = nu_color_to_vec4(c);
-    v.x         = nu__color_to_srgb(v.x);
-    v.y         = nu__color_to_srgb(v.y);
-    v.z         = nu__color_to_srgb(v.z);
-    v.w         = nu__color_to_srgb(v.w);
+    v.x       = nu__color_to_srgb(v.x);
+    v.y       = nu__color_to_srgb(v.y);
+    v.z       = nu__color_to_srgb(v.z);
+    v.w       = nu__color_to_srgb(v.w);
     return nu_color_from_vec4(v);
 }
 nu_color_t
 nu_color_to_linear (nu_color_t c)
 {
     nu_v4_t v = nu_color_to_vec4(c);
-    v.x         = nu__color_to_linear(v.x);
-    v.y         = nu__color_to_linear(v.y);
-    v.z         = nu__color_to_linear(v.z);
-    v.w         = nu__color_to_linear(v.w);
+    v.x       = nu__color_to_linear(v.x);
+    v.y       = nu__color_to_linear(v.y);
+    v.z       = nu__color_to_linear(v.z);
+    v.w       = nu__color_to_linear(v.w);
     return nu_color_from_vec4(v);
 }
 

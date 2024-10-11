@@ -53,10 +53,10 @@ add_pm (nu_v3_t pos, nu_v3_t vel)
     point_mass_t *pm = NU_VEC_PUSH(&ctx.point_masses);
     pm->x            = pos;
     pm->v            = vel;
-    pm->f            = NU_VEC3_ZEROS;
+    pm->f            = NU_V3_ZEROS;
     pm->m            = 1;
     pm->w            = 1.0 / pm->m;
-    pm->p            = NU_VEC3_ZEROS;
+    pm->p            = NU_V3_ZEROS;
     return ctx.point_masses.size - 1;
 }
 static void
@@ -181,7 +181,7 @@ update_context (float dt)
                 collision_constraint_t *c
                     = NU_VEC_PUSH(&ctx.collision_constraints);
                 c->q = nu_v3(pm->x.x, ground, pm->x.z);
-                c->n = NU_VEC3_UP;
+                c->n = NU_V3_UP;
                 c->a = i;
             }
 
@@ -196,21 +196,21 @@ update_context (float dt)
                     // Left
                     float   d, maxd = NU_FLT_MAX;
                     nu_v3_t q, n;
-                    q = n = NU_VEC3_ZEROS;
+                    q = n = NU_V3_ZEROS;
 
                     d = box.max.x - rel.x;
                     if (d < maxd)
                     {
                         maxd = d;
                         q    = nu_v3(box.max.x, rel.y, rel.z);
-                        n    = NU_VEC3_RIGHT;
+                        n    = NU_V3_RIGHT;
                     }
                     d = rel.x - box.min.x;
                     if (d < maxd)
                     {
                         maxd = d;
                         q    = nu_v3(box.min.x, rel.y, rel.z);
-                        n    = NU_VEC3_LEFT;
+                        n    = NU_V3_LEFT;
                     }
 
                     d = box.max.y - rel.y;
@@ -218,14 +218,14 @@ update_context (float dt)
                     {
                         maxd = d;
                         q    = nu_v3(rel.x, box.max.y, rel.z);
-                        n    = NU_VEC3_UP;
+                        n    = NU_V3_UP;
                     }
                     d = rel.y - box.min.y;
                     if (d < maxd)
                     {
                         maxd = d;
                         q    = nu_v3(rel.x, box.min.y, rel.z);
-                        n    = NU_VEC3_DOWN;
+                        n    = NU_V3_DOWN;
                     }
 
                     d = box.max.z - rel.z;
@@ -233,14 +233,14 @@ update_context (float dt)
                     {
                         maxd = d;
                         q    = nu_v3(rel.x, rel.y, box.max.z);
-                        n    = NU_VEC3_BACKWARD;
+                        n    = NU_V3_BACKWARD;
                     }
                     d = rel.z - box.min.z;
                     if (d < maxd)
                     {
                         maxd = d;
                         q    = nu_v3(rel.x, rel.y, box.min.z);
-                        n    = NU_VEC3_FORWARD;
+                        n    = NU_V3_FORWARD;
                     }
 
                     collision_constraint_t *c
@@ -429,7 +429,7 @@ main (void)
         if (nu_input_just_pressed(shoot))
         {
             nu_m4_t transform = nu_controller_transform(controller);
-            nu_v3_t pos       = nu_m4_mulv3(transform, NU_VEC3_ZEROS);
+            nu_v3_t pos       = nu_m4_mulv3(transform, NU_V3_ZEROS);
             nu_v4_t dir0      = nu_m4_mulv(transform, nu_v4(0, 0, -1, 0));
             nu_v3_t dir       = nu_v3(dir0.x, dir0.y, dir0.z);
             shoot_context(pos, dir);

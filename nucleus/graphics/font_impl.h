@@ -26,8 +26,7 @@ nu_font_create_default (void)
 
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_v2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
-    font->glyphs
-        = (nu_b2i_t *)nu_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
+    font->glyphs = (nu_b2i_t *)nu_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
@@ -94,11 +93,11 @@ nu_draw_text (nu_renderpass_t  pass,
               const nu_char_t *text,
               nu_size_t        n,
               nu_font_t        handle,
-              nu_v2i_t       pos)
+              nu_v2i_t         pos)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_b2i_t  extent
+    nu_b2i_t    extent
         = nu_b2i_xywh(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)
     {
@@ -113,8 +112,8 @@ nu_draw_text (nu_renderpass_t  pass,
         {
             continue;
         }
-        nu_size_t  gi         = c - font->min_char;
-        nu_b2i_t tex_extent = font->glyphs[gi];
+        nu_size_t gi         = c - font->min_char;
+        nu_b2i_t  tex_extent = font->glyphs[gi];
         nu_draw_blit(pass, extent, tex_extent, font->material);
         extent = nu_b2i_translate(extent, nu_v2i(font->glyph_size.x, 0));
     }

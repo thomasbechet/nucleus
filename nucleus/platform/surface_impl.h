@@ -11,12 +11,12 @@ nu__update_viewport (nu__viewport_t *v)
 
     float aspect_ratio = (float)v->screen.x / (float)v->screen.y;
 
-    nu_v2_t size = NU_VEC2_ZEROS;
+    nu_v2_t size = NU_V2_ZEROS;
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
             size = nu_v2((float)v->screen.x * v->scale_factor,
-                           (float)v->screen.y * v->scale_factor);
+                         (float)v->screen.y * v->scale_factor);
         };
         break;
         case NUEXT_VIEWPORT_FIXED_BEST_FIT: {
@@ -46,9 +46,9 @@ nu__update_viewport (nu__viewport_t *v)
     }
 
     nu_v2_t vpos = nu_v2_sub(global_size, size);
-    vpos           = nu_v2_divs(vpos, 2);
-    vpos           = nu_v2_add(vpos, global_pos);
-    v->viewport    = nu_b2i_xywh(vpos.x, vpos.y, size.x, size.y);
+    vpos         = nu_v2_divs(vpos, 2);
+    vpos         = nu_v2_add(vpos, global_pos);
+    v->viewport  = nu_b2i_xywh(vpos.x, vpos.y, size.x, size.y);
 }
 
 static void
