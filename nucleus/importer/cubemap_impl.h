@@ -54,9 +54,9 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         }
     }
 
-    nu_vec2u_t size = nu_image_size(images[0]);
+    nu_v2u_t size = nu_image_size(images[0]);
     cubemap         = nu_texture_create(NU_TEXTURE_CUBEMAP_COLOR,
-                                nu_vec3u(size.x, size.y, 0));
+                                nu_v3u(size.x, size.y, 0));
     for (nu_size_t i = 0; i < NU_CUBEMAP_FACE_COUNT; ++i)
     {
         nu_texture_write_cubemap_colors(cubemap, i, nu_image_colors(images[i]));

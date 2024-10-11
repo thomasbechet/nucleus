@@ -32,7 +32,7 @@ nugl__material_set_texture (nu_material_t material, nu_texture_t texture)
     }
 }
 static void
-nugl__material_set_uv_transform (nu_material_t material, nu_mat3_t matrix)
+nugl__material_set_uv_transform (nu_material_t material, nu_m3_t matrix)
 {
     nugl__material_t *mat = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
     switch (mat->type)
@@ -76,7 +76,7 @@ nugl__material_create (nu_material_type_t type)
             p->surface.color        = NU_COLOR_WHITE;
             p->surface.texture0     = NU_NULL;
             p->surface.texture1     = NU_NULL;
-            p->surface.uv_transform = nu_mat3_identity();
+            p->surface.uv_transform = nu_m3_identity();
             break;
         case NU_MATERIAL_CANVAS:
             p->canvas.texture0  = NU_NULL;
@@ -91,7 +91,7 @@ nugl__material_delete (nu_material_t mat)
 {
 }
 
-static nu_mat3_t
+static nu_m3_t
 nugl__material_surface_uv_transform (nu_material_t mat)
 {
     if (mat)
@@ -99,7 +99,7 @@ nugl__material_surface_uv_transform (nu_material_t mat)
         return _ctx.gl.materials.data[NU_HANDLE_INDEX(mat)]
             .surface.uv_transform;
     }
-    return nu_mat3_identity();
+    return nu_m3_identity();
 }
 static GLuint
 nugl__material_surface_texture0 (nu_material_t mat)

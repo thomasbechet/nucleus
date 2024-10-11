@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 nu_image_t
-nu_image_create (nu_vec2u_t size)
+nu_image_create (nu_v2u_t size)
 {
     nu_size_t    index;
     nu__image_t *im = NU_POOL_ADD(&_ctx.graphics.images, &index);
@@ -23,7 +23,7 @@ nu_image_colors (nu_image_t image)
 {
     return _ctx.graphics.images.data[NU_HANDLE_INDEX(image)].colors;
 }
-nu_vec2u_t
+nu_v2u_t
 nu_image_size (nu_image_t image)
 {
     return _ctx.graphics.images.data[NU_HANDLE_INDEX(image)].size;

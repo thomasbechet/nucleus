@@ -168,10 +168,10 @@ nu__find_binding (nu_u32_t binding, nu_input_t input)
 }
 
 static void
-nu__viewport_cursor (const nu__viewport_t *v, nu_vec2_t pos, nu_vec2_t *cursor)
+nu__viewport_cursor (const nu__viewport_t *v, nu_v2_t pos, nu_v2_t *cursor)
 {
-    nu_vec2_t relpos = nu_box2i_normalize(v->viewport, pos);
-    *cursor = nu_vec2_mul(*cursor, nu_vec2_v2u(nu_box2i_size(v->viewport)));
+    nu_v2_t relpos = nu_b2i_normalize(v->viewport, pos);
+    *cursor = nu_v2_mul(*cursor, nu_v2_v2u(nu_b2i_size(v->viewport)));
 }
 
 static void
@@ -219,7 +219,7 @@ nu__mouse_button_callback (RGFW_window *window,
     }
     else if (_ctx.platform.capture_mouse)
     {
-        _ctx.platform.mouse_scroll = nu_vec2((float)scroll, (float)scroll);
+        _ctx.platform.mouse_scroll = nu_v2((float)scroll, (float)scroll);
     }
 }
 static void
@@ -227,13 +227,13 @@ nu__mouse_position_callback (RGFW_window *window, RGFW_point point)
 {
     if (_ctx.platform.capture_mouse)
     {
-        _ctx.platform.mouse_motion = nu_vec2_add(
+        _ctx.platform.mouse_motion = nu_v2_add(
             _ctx.platform.mouse_motion,
-            nu_vec2_divs(nu_vec2((float)point.x, (float)point.y), 200));
+            nu_v2_divs(nu_v2((float)point.x, (float)point.y), 200));
     }
     else
     {
-        _ctx.platform.mouse_position = nu_vec2((float)point.x, (float)point.y);
+        _ctx.platform.mouse_position = nu_v2((float)point.x, (float)point.y);
     }
 }
 
@@ -377,12 +377,12 @@ nuext_input_bind_axis (nu_input_t input, nuext_axis_t axis)
     return NU_ERROR_NONE;
 }
 
-nu_vec2i_t
+nu_v2i_t
 nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
 {
     float cx = nu_input_value(cursor_x);
     float cy = nu_input_value(cursor_y);
-    return nu_vec2i((nu_i32_t)(cx * (float)_ctx.platform.size.x),
+    return nu_v2i((nu_i32_t)(cx * (float)_ctx.platform.size.x),
                     (nu_i32_t)(cy * (float)_ctx.platform.size.y));
 }
 

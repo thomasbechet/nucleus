@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 static nu_texture_t
-nugl__texture_create (nu_texture_type_t type, nu_vec3u_t size)
+nugl__texture_create (nu_texture_type_t type, nu_v3u_t size)
 {
     nu__gl_t *gl = &_ctx.gl;
 

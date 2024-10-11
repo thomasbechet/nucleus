@@ -13,10 +13,10 @@ typedef struct
     nu_input_t move_z;
     nu_input_t switch_mode;
 
-    nu_vec3_t pos;
-    nu_vec3_t vel;
-    nu_vec3_t acc;
-    nu_quat_t rot;
+    nu_v3_t pos;
+    nu_v3_t vel;
+    nu_v3_t acc;
+    nu_q4_t rot;
     float     yaw;
     float     pitch;
 

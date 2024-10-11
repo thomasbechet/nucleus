@@ -7,7 +7,7 @@ typedef struct
 {
     nu_ui_controller_mode_t mode;
     nu_bool_t               active;
-    nu_vec2i_t              cursor;
+    nu_v2i_t              cursor;
     nu_bool_t               main_pressed;
 } nu_ui_controller_t;
 
@@ -16,8 +16,8 @@ typedef NU_VEC(nu_ui_controller_t *) nu__ui_controller_vec_t;
 typedef struct
 {
     nu_material_t material;
-    nu_box2i_t    extent;
-    nu_box2i_t    inner;
+    nu_b2i_t    extent;
+    nu_b2i_t    inner;
 } nu__ui_image_style_t;
 
 typedef struct

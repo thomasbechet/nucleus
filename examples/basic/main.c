@@ -86,23 +86,23 @@ main (void)
 
     // Create depth buffer
     nu_texture_t depth_buffer = nu_texture_create(NU_TEXTURE_DEPTH_TARGET,
-                                                  nu_vec3u(WIDTH, HEIGHT, 0));
+                                                  nu_v3u(WIDTH, HEIGHT, 0));
     nu_texture_t shadow_map   = nu_texture_create(
-        NU_TEXTURE_SHADOW_TARGET, nu_vec3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
+        NU_TEXTURE_SHADOW_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
 
     // Create meshes
     nu_mesh_t custom_mesh;
     nu_mesh_t custom_mesh_normals;
-    nu_box3_t bounds;
+    nu_b3_t bounds;
     {
         nu_geometry_t final = nu_geometry_create();
         nu_geometry_t sub   = nu_geometry_create();
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_geometry_cube(sub, 1);
-            nu_mat4_t transform
-                = nu_mat4_mul(nu_mat4_translate(nu_vec3s(i * 5)),
-                              nu_mat4_scale(nu_vec3s(2 * i)));
+            nu_m4_t transform
+                = nu_m4_mul(nu_m4_translate(nu_v3s(i * 5)),
+                              nu_m4_scale(nu_v3s(2 * i)));
             nu_geometry_transform(sub, transform);
             nu_geometry_merge(final, sub);
         }
@@ -161,7 +161,7 @@ main (void)
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
-    nu_renderpass_set_skybox(main_pass, skybox, nu_quat_identity());
+    nu_renderpass_set_skybox(main_pass, skybox, nu_q4_identity());
 
     nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
@@ -183,33 +183,33 @@ main (void)
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_PRESSED,
                 material_gui_repeat,
-                nu_box2i_xywh(113, 97, 30, 14),
-                nu_box2i_xywh(115, 100, 26, 8));
+                nu_b2i_xywh(113, 97, 30, 14),
+                nu_b2i_xywh(115, 100, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_RELEASED,
                 material_gui_repeat,
-                nu_box2i_xywh(113, 81, 30, 14),
-                nu_box2i_xywh(115, 83, 26, 8));
+                nu_b2i_xywh(113, 81, 30, 14),
+                nu_b2i_xywh(115, 83, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_HOVERED,
                 material_gui_repeat,
-                nu_box2i_xywh(113, 113, 30, 14),
-                nu_box2i_xywh(115, 115, 26, 8));
+                nu_b2i_xywh(113, 113, 30, 14),
+                nu_b2i_xywh(115, 115, 26, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CHECKBOX_CHECKED,
                 material_gui_repeat,
-                nu_box2i_xywh(97, 257, 14, 14),
-                nu_box2i_xywh(99, 260, 10, 8));
+                nu_b2i_xywh(97, 257, 14, 14),
+                nu_b2i_xywh(99, 260, 10, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CHECKBOX_UNCHECKED,
                 material_gui_repeat,
-                nu_box2i_xywh(81, 257, 14, 14),
-                nu_box2i_xywh(99, 261, 10, 8));
+                nu_b2i_xywh(81, 257, 14, 14),
+                nu_b2i_xywh(99, 261, 10, 8));
     nu_ui_style(style,
                 NU_UI_STYLE_CURSOR,
                 material_gui_repeat,
-                nu_box2i_xywh(52, 83, 8, 7),
-                nu_box2i_xywh(52, 83, 8, 7));
+                nu_b2i_xywh(52, 83, 8, 7),
+                nu_b2i_xywh(52, 83, 8, 7));
 
     nu_ui_push_style(ui, style);
 
@@ -259,42 +259,42 @@ main (void)
         nu_controller_update(controller, delta, camera);
 
         // Render loop
-        nu_draw_mesh(main_pass, custom_mesh, material, nu_mat4_identity());
-        nu_draw_mesh(shadow_pass, custom_mesh, material, nu_mat4_identity());
+        nu_draw_mesh(main_pass, custom_mesh, material, nu_m4_identity());
+        nu_draw_mesh(shadow_pass, custom_mesh, material, nu_m4_identity());
         nu_draw_mesh(
-            wireframe_pass, custom_mesh_normals, material, nu_mat4_identity());
-        nu_draw_box(wireframe_pass, bounds, material, nu_mat4_identity());
-        nu_draw_model(main_pass, castle, nu_mat4_identity());
-        nu_draw_model(shadow_pass, castle, nu_mat4_identity());
+            wireframe_pass, custom_mesh_normals, material, nu_m4_identity());
+        nu_draw_box(wireframe_pass, bounds, material, nu_m4_identity());
+        nu_draw_model(main_pass, castle, nu_m4_identity());
+        nu_draw_model(shadow_pass, castle, nu_m4_identity());
 
         // Render custom mesh
-        nu_mat4_t transform = nu_mat4_identity();
+        nu_m4_t transform = nu_m4_identity();
         nu_draw_model(wireframe_pass, ariane_model, transform);
 
-        transform = nu_mat4_scale(nu_vec3(4, 4, 4));
+        transform = nu_m4_scale(nu_v3(4, 4, 4));
         transform
-            = nu_mat4_mul(nu_mat4_translate(nu_vec3(10, -50, 0)), transform);
+            = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
         nu_draw_model(main_pass, temple_model, transform);
         nu_draw_model(shadow_pass, temple_model, transform);
 
-        const nu_vec3_t points[]
+        const nu_v3_t points[]
             = { NU_VEC3_ZEROS, NU_VEC3_UP,    NU_VEC3_ZEROS,
                 NU_VEC3_RIGHT, NU_VEC3_ZEROS, NU_VEC3_BACKWARD };
         nu_draw_lines(wireframe_pass,
                       points,
                       3,
                       material,
-                      nu_mat4_translate(nu_vec3(-5, 5, -5)));
+                      nu_m4_translate(nu_v3(-5, 5, -5)));
         nu_draw_box(wireframe_pass,
-                    nu_box3(NU_VEC3_ZEROS, NU_VEC3_ONES),
+                    nu_b3(NU_VEC3_ZEROS, NU_VEC3_ONES),
                     material,
-                    nu_mat4_translate(nu_vec3(0, 5, -5)));
+                    nu_m4_translate(nu_v3(0, 5, -5)));
 
         // GUI
         nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
         nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
         nu_ui_begin(ui, gui_pass);
-        if (nu_ui_button(ui, nu_box2i_xywh(300, 100, 200, 200)))
+        if (nu_ui_button(ui, nu_b2i_xywh(300, 100, 200, 200)))
         {
             NU_INFO("button pressed !");
         }
@@ -314,7 +314,7 @@ main (void)
         // NU_INFO("stop");
 
         // Print FPS
-        nu_draw_stats(gui_pass, font, nu_vec2i(10, 10));
+        nu_draw_stats(gui_pass, font, nu_v2i(10, 10));
 
         // Submit renderpass
         nu_renderpass_submit(shadow_pass);

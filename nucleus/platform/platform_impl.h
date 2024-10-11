@@ -15,7 +15,7 @@ nu__platform_init (void)
     // Initialize context
     NU_POOL_INIT(10, &_ctx.platform.entries);
     _ctx.platform.size
-        = nu_vec2u(_ctx.config.platform.width, _ctx.config.platform.height);
+        = nu_v2u(_ctx.config.platform.width, _ctx.config.platform.height);
     _ctx.platform.close_requested = NU_FALSE;
 
     NU_INFO("initialize platform context (%dx%d)",
@@ -40,8 +40,8 @@ nu__platform_init (void)
     // Initialize viewport
     _ctx.platform.viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;
     _ctx.platform.viewport.screen   = _ctx.platform.size;
-    _ctx.platform.viewport.extent   = nu_box2i_xywh(0, 0, width, height);
-    _ctx.platform.viewport.viewport = nu_box2i_xywh(0, 0, width, height);
+    _ctx.platform.viewport.extent   = nu_b2i_xywh(0, 0, width, height);
+    _ctx.platform.viewport.viewport = nu_b2i_xywh(0, 0, width, height);
     nu__update_viewport(&_ctx.platform.viewport);
 
     // Bind callbacks
@@ -50,7 +50,7 @@ nu__platform_init (void)
 
     // Get initial mouse position
     RGFW_point p                 = RGFW_window_getMousePoint(_ctx.platform.win);
-    _ctx.platform.mouse_position = nu_vec2((float)p.x, (float)p.y);
+    _ctx.platform.mouse_position = nu_v2((float)p.x, (float)p.y);
     _ctx.platform.mouse_old_position    = _ctx.platform.mouse_position;
     _ctx.platform.mouse_motion          = NU_VEC2_ZEROS;
     _ctx.platform.mouse_motion_previous = NU_VEC2_ZEROS;
@@ -226,11 +226,11 @@ nu_poll_events (void)
                 || _ctx.platform.mouse_position.y
                        != _ctx.platform.mouse_old_position.y)
             {
-                if (nu_box2i_contains(_ctx.platform.viewport.viewport,
+                if (nu_b2i_contains(_ctx.platform.viewport.viewport,
                                       _ctx.platform.mouse_position))
                 {
-                    nu_vec2_t relpos
-                        = nu_box2i_normalize(_ctx.platform.viewport.viewport,
+                    nu_v2_t relpos
+                        = nu_b2i_normalize(_ctx.platform.viewport.viewport,
                                              _ctx.platform.mouse_position);
                     nu__dispatch_binding_axis(
                         _ctx.platform.mouse_x_first_binding, relpos.x);

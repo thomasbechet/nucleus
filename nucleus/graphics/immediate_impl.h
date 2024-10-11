@@ -45,10 +45,10 @@ nu__graphics_immediate_reset (void)
 
 void
 nu_draw_points (nu_renderpass_t  pass,
-                const nu_vec3_t *positions,
+                const nu_v3_t *positions,
                 nu_size_t        count,
                 nu_material_t    material,
-                nu_mat4_t        transform)
+                nu_m4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -59,10 +59,10 @@ nu_draw_points (nu_renderpass_t  pass,
 }
 void
 nu_draw_lines (nu_renderpass_t  pass,
-               const nu_vec3_t *positions,
+               const nu_v3_t *positions,
                nu_size_t        count,
                nu_material_t    material,
-               nu_mat4_t        transform)
+               nu_m4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -73,10 +73,10 @@ nu_draw_lines (nu_renderpass_t  pass,
 }
 void
 nu_draw_lines_strip (nu_renderpass_t  pass,
-                     const nu_vec3_t *positions,
+                     const nu_v3_t *positions,
                      nu_size_t        count,
                      nu_material_t    material,
-                     nu_mat4_t        transform)
+                     nu_m4_t        transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
@@ -87,23 +87,23 @@ nu_draw_lines_strip (nu_renderpass_t  pass,
 }
 void
 nu_draw_box (nu_renderpass_t pass,
-             nu_box3_t       box,
+             nu_b3_t       box,
              nu_material_t   material,
-             nu_mat4_t       transform)
+             nu_m4_t       transform)
 {
     nu__graphics_immediate_t *im = &_ctx.graphics.im;
 
-    const nu_vec3_t v0 = nu_vec3(box.min.x, box.min.y, box.min.z);
-    const nu_vec3_t v1 = nu_vec3(box.max.x, box.min.y, box.min.z);
-    const nu_vec3_t v2 = nu_vec3(box.max.x, box.min.y, box.max.z);
-    const nu_vec3_t v3 = nu_vec3(box.min.x, box.min.y, box.max.z);
+    const nu_v3_t v0 = nu_v3(box.min.x, box.min.y, box.min.z);
+    const nu_v3_t v1 = nu_v3(box.max.x, box.min.y, box.min.z);
+    const nu_v3_t v2 = nu_v3(box.max.x, box.min.y, box.max.z);
+    const nu_v3_t v3 = nu_v3(box.min.x, box.min.y, box.max.z);
 
-    const nu_vec3_t v4 = nu_vec3(box.min.x, box.max.y, box.min.z);
-    const nu_vec3_t v5 = nu_vec3(box.max.x, box.max.y, box.min.z);
-    const nu_vec3_t v6 = nu_vec3(box.max.x, box.max.y, box.max.z);
-    const nu_vec3_t v7 = nu_vec3(box.min.x, box.max.y, box.max.z);
+    const nu_v3_t v4 = nu_v3(box.min.x, box.max.y, box.min.z);
+    const nu_v3_t v5 = nu_v3(box.max.x, box.max.y, box.min.z);
+    const nu_v3_t v6 = nu_v3(box.max.x, box.max.y, box.max.z);
+    const nu_v3_t v7 = nu_v3(box.min.x, box.max.y, box.max.z);
 
-    const nu_vec3_t positions[]
+    const nu_v3_t positions[]
         = { v0, v1, v1, v2, v2, v3, v3, v0, v4, v5, v5, v6,
             v6, v7, v7, v4, v0, v4, v1, v5, v2, v6, v3, v7 };
 

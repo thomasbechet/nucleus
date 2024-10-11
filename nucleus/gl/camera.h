@@ -7,10 +7,10 @@
 typedef struct
 {
     GLuint    ubo;
-    nu_mat4_t view;
-    nu_mat4_t projection;
-    nu_mat4_t vp;
-    nu_mat4_t ivp;
+    nu_m4_t view;
+    nu_m4_t projection;
+    nu_m4_t vp;
+    nu_m4_t ivp;
 } nugl__camera_t;
 
 typedef NU_VEC(nugl__camera_t) nugl__camera_vec_t;

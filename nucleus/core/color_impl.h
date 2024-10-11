@@ -13,13 +13,13 @@ nu_color (nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a)
     c.a = a;
     return c;
 }
-nu_vec4_t
+nu_v4_t
 nu_color_to_vec4 (nu_color_t c)
 {
-    return nu_vec4(c.r / 255.0, c.g / 255.0, c.b / 255.0, c.a / 255.0);
+    return nu_v4(c.r / 255.0, c.g / 255.0, c.b / 255.0, c.a / 255.0);
 }
 nu_color_t
-nu_color_from_vec4 (nu_vec4_t v)
+nu_color_from_vec4 (nu_v4_t v)
 {
     return nu_color((nu_u8_t)(v.x * 255.0),
                     (nu_u8_t)(v.y * 255.0),
@@ -54,7 +54,7 @@ nu__color_to_linear (float x)
 nu_color_t
 nu_color_to_srgb (nu_color_t c)
 {
-    nu_vec4_t v = nu_color_to_vec4(c);
+    nu_v4_t v = nu_color_to_vec4(c);
     v.x         = nu__color_to_srgb(v.x);
     v.y         = nu__color_to_srgb(v.y);
     v.z         = nu__color_to_srgb(v.z);
@@ -64,7 +64,7 @@ nu_color_to_srgb (nu_color_t c)
 nu_color_t
 nu_color_to_linear (nu_color_t c)
 {
-    nu_vec4_t v = nu_color_to_vec4(c);
+    nu_v4_t v = nu_color_to_vec4(c);
     v.x         = nu__color_to_linear(v.x);
     v.y         = nu__color_to_linear(v.y);
     v.z         = nu__color_to_linear(v.z);

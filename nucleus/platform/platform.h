@@ -28,9 +28,9 @@ typedef struct
 {
     nuext_viewport_mode_t mode;
     float                 scale_factor;
-    nu_vec2u_t            screen;
-    nu_box2i_t            extent;
-    nu_box2i_t            viewport;
+    nu_v2u_t            screen;
+    nu_b2i_t            extent;
+    nu_b2i_t            viewport;
 } nu__viewport_t;
 
 typedef struct
@@ -82,11 +82,11 @@ typedef struct
     nu_u32_t  mouse_y_first_binding;
     nu_u32_t  mouse_motion_x_first_binding;
     nu_u32_t  mouse_motion_y_first_binding;
-    nu_vec2_t mouse_position;
-    nu_vec2_t mouse_old_position;
-    nu_vec2_t mouse_scroll;
-    nu_vec2_t mouse_motion;
-    nu_vec2_t mouse_motion_previous;
+    nu_v2_t mouse_position;
+    nu_v2_t mouse_old_position;
+    nu_v2_t mouse_scroll;
+    nu_v2_t mouse_motion;
+    nu_v2_t mouse_motion_previous;
 
     RGFW_window   *win;
     nu__viewport_t viewport;
@@ -96,7 +96,7 @@ typedef struct
     RGFW_rect      previous_rect;
     nu_timer_t     last_mouse_click;
     nu_bool_t      switch_capture_mouse;
-    nu_vec2u_t     size;
+    nu_v2u_t     size;
 } nu__platform_t;
 
 static nu_error_t nu__platform_init(void);

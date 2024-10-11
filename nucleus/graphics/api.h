@@ -81,25 +81,25 @@ NU_API nu_texture_t nu_surface_color_target(void);
 
 NU_API nu_camera_t nu_camera_create(void);
 NU_API void        nu_camera_delete(nu_camera_t camera);
-NU_API void        nu_camera_set_view(nu_camera_t camera, nu_mat4_t view);
-NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_mat4_t proj);
+NU_API void        nu_camera_set_view(nu_camera_t camera, nu_m4_t view);
+NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_m4_t proj);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
 NU_API void      nu_mesh_write_uvs(nu_mesh_t        mesh,
                                    nu_size_t        first,
                                    nu_size_t        count,
-                                   const nu_vec2_t *data);
+                                   const nu_v2_t *data);
 NU_API void      nu_mesh_write_positions(nu_mesh_t        mesh,
                                          nu_size_t        first,
                                          nu_size_t        count,
-                                         const nu_vec3_t *data);
+                                         const nu_v3_t *data);
 NU_API void      nu_mesh_write_colors(nu_mesh_t         mesh,
                                       nu_size_t         first,
                                       nu_size_t         count,
                                       const nu_color_t *data);
 
-NU_API nu_texture_t nu_texture_create(nu_texture_type_t type, nu_vec3u_t size);
+NU_API nu_texture_t nu_texture_create(nu_texture_type_t type, nu_v3u_t size);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API void         nu_texture_delete(nu_texture_t texture);
 NU_API void         nu_texture_write_colors(nu_texture_t      texture,
@@ -115,14 +115,14 @@ NU_API void          nu_material_delete(nu_material_t material);
 NU_API void nu_material_set_color(nu_material_t material, nu_color_t color);
 NU_API void nu_material_set_texture(nu_material_t material,
                                     nu_texture_t  texture);
-NU_API void nu_material_set_uv_transform(nu_material_t material, nu_mat3_t mat);
+NU_API void nu_material_set_uv_transform(nu_material_t material, nu_m3_t mat);
 NU_API void nu_material_set_wrap_mode(nu_material_t          material,
                                       nu_texture_wrap_mode_t mode);
 
 NU_API nu_light_t nu_light_create(nu_light_type_t type);
 NU_API void       nu_light_delete(nu_light_t light);
-NU_API void       nu_light_set_position(nu_light_t light, nu_vec3_t v);
-NU_API void       nu_light_set_rotation(nu_light_t light, nu_quat_t q);
+NU_API void       nu_light_set_position(nu_light_t light, nu_v3_t v);
+NU_API void       nu_light_set_rotation(nu_light_t light, nu_q4_t q);
 NU_API void       nu_light_set_color(nu_light_t light, nu_color_t v);
 
 NU_API nu_lightenv_t nu_lightenv_create(void);
@@ -153,7 +153,7 @@ NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
 NU_API void nu_renderpass_set_shade(nu_renderpass_t pass, nu_shademode_t mode);
 NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
                                      nu_texture_t    cubemap,
-                                     nu_quat_t       rotation);
+                                     nu_q4_t       rotation);
 NU_API void nu_renderpass_set_lightenv(nu_renderpass_t pass, nu_lightenv_t env);
 
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
@@ -161,64 +161,64 @@ NU_API void nu_draw_submesh_instanced(nu_renderpass_t  pass,
                                       nu_size_t        first,
                                       nu_size_t        count,
                                       nu_material_t    material,
-                                      const nu_mat4_t *transforms,
+                                      const nu_m4_t *transforms,
                                       nu_size_t        instance_count);
 NU_API void nu_draw_blit(nu_renderpass_t pass,
-                         nu_box2i_t      extent,
-                         nu_box2i_t      tex_extent,
+                         nu_b2i_t      extent,
+                         nu_b2i_t      tex_extent,
                          nu_material_t   material);
 NU_API void nu_draw_blit_sliced(nu_renderpass_t pass,
-                                nu_box2i_t      extent,
-                                nu_box2i_t      tex_extent,
-                                nu_box2i_t      inner,
+                                nu_b2i_t      extent,
+                                nu_b2i_t      tex_extent,
+                                nu_b2i_t      inner,
                                 nu_material_t   material);
 NU_API void nu_draw_mesh(nu_renderpass_t pass,
                          nu_mesh_t       mesh,
                          nu_material_t   material,
-                         nu_mat4_t       transform);
+                         nu_m4_t       transform);
 NU_API void nu_draw_submesh(nu_renderpass_t pass,
                             nu_mesh_t       mesh,
                             nu_size_t       first,
                             nu_size_t       count,
                             nu_material_t   material,
-                            nu_mat4_t       transform);
+                            nu_m4_t       transform);
 NU_API void nu_draw_mesh_instanced(nu_renderpass_t  pass,
                                    nu_mesh_t        mesh,
                                    nu_material_t    material,
-                                   const nu_mat4_t *transforms,
+                                   const nu_m4_t *transforms,
                                    nu_size_t        instance_count);
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,
-                          nu_mat4_t       transform);
+                          nu_m4_t       transform);
 NU_API void nu_draw_text(nu_renderpass_t  pass,
                          const nu_char_t *text,
                          nu_size_t        n,
                          nu_font_t        font,
-                         nu_vec2i_t       pos);
+                         nu_v2i_t       pos);
 NU_API void nu_draw_points(nu_renderpass_t  pass,
-                           const nu_vec3_t *positions,
+                           const nu_v3_t *positions,
                            nu_size_t        count,
                            nu_material_t    material,
-                           nu_mat4_t        transform);
+                           nu_m4_t        transform);
 NU_API void nu_draw_lines(nu_renderpass_t  pass,
-                          const nu_vec3_t *positions,
+                          const nu_v3_t *positions,
                           nu_size_t        count,
                           nu_material_t    material,
-                          nu_mat4_t        transform);
+                          nu_m4_t        transform);
 NU_API void nu_draw_lines_strip(nu_renderpass_t  pass,
-                                const nu_vec3_t *positions,
+                                const nu_v3_t *positions,
                                 nu_size_t        count,
                                 nu_material_t    material,
-                                nu_mat4_t        transform);
+                                nu_m4_t        transform);
 NU_API void nu_draw_box(nu_renderpass_t pass,
-                        nu_box3_t       box,
+                        nu_b3_t       box,
                         nu_material_t   material,
-                        nu_mat4_t       transform);
+                        nu_m4_t       transform);
 
-NU_API nu_image_t   nu_image_create(nu_vec2u_t size);
+NU_API nu_image_t   nu_image_create(nu_v2u_t size);
 NU_API void         nu_image_delete(nu_image_t image);
 NU_API nu_color_t  *nu_image_colors(nu_image_t image);
-NU_API nu_vec2u_t   nu_image_size(nu_image_t image);
+NU_API nu_v2u_t   nu_image_size(nu_image_t image);
 NU_API nu_texture_t nu_image_create_texture(nu_image_t image);
 
 NU_API nu_model_t nu_model_create(void);

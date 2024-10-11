@@ -15,7 +15,7 @@ nugl__forward_create (nugl__renderpass_forward_t *pass)
     pass->camera          = NU_NULL;
     pass->mode            = NU_SHADE_LIT;
     pass->skybox          = NU_NULL;
-    pass->skybox_rotation = nu_mat3_identity();
+    pass->skybox_rotation = nu_m3_identity();
     nugl__forward_reset(pass);
 }
 static void
@@ -79,14 +79,14 @@ nugl__forward_render (nugl__renderpass_t *pass)
 
         if (pass->forward.mode == NU_SHADE_WIREFRAME)
         {
-            nu_vec4_t color = nu_color_to_vec4(
+            nu_v4_t color = nu_color_to_vec4(
                 nugl__material_surface_color(cmd->material, NU_COLOR_WHITE));
             glUniform3fv(glGetUniformLocation(gl->wireframe_program, "color"),
                          1,
                          color.data);
         }
 
-        nu_mat3_t uv_transform
+        nu_m3_t uv_transform
             = nugl__material_surface_uv_transform(cmd->material);
         GLuint texture0 = nugl__material_surface_texture0(cmd->material);
 

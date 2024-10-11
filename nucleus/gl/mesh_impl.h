@@ -43,7 +43,7 @@ static void
 nugl__mesh_write_uvs (nu_mesh_t        mesh,
                       nu_size_t        first,
                       nu_size_t        count,
-                      const nu_vec2_t *data)
+                      const nu_v2_t *data)
 {
     NU_ASSERT(mesh);
     nugl__mesh_t *p = _ctx.gl.meshes.data + NU_HANDLE_INDEX(mesh);
@@ -86,7 +86,7 @@ static void
 nugl__mesh_write_positions (nu_mesh_t        mesh,
                             nu_size_t        first,
                             nu_size_t        count,
-                            const nu_vec3_t *data)
+                            const nu_v3_t *data)
 {
     NU_ASSERT(mesh);
     nugl__mesh_t *p = _ctx.gl.meshes.data + NU_HANDLE_INDEX(mesh);
@@ -150,10 +150,10 @@ nugl__mesh_write_positions (nu_mesh_t        mesh,
         for (nu_size_t p = 0; p < count; ++p)
         {
             const nu_size_t index = p * 3;
-            nu_vec3_t       p0    = data[index + 0];
-            nu_vec3_t       p1    = data[index + 1];
-            nu_vec3_t       p2    = data[index + 2];
-            nu_vec3_t       n     = nu_triangle_normal(p0, p1, p2);
+            nu_v3_t       p0    = data[index + 0];
+            nu_v3_t       p1    = data[index + 1];
+            nu_v3_t       p2    = data[index + 2];
+            nu_v3_t       n     = nu_triangle_normal(p0, p1, p2);
 
             for (nu_size_t i = 0; i < 3; ++i)
             {

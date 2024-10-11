@@ -86,200 +86,200 @@ nu_exp (float x)
 #endif
 }
 
-nu_vec2_t
-nu_vec2 (float x, float y)
+nu_v2_t
+nu_v2 (float x, float y)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = x;
     ret.y = y;
     return ret;
 }
-nu_vec2_t
-nu_vec2_v2u (nu_vec2u_t v)
+nu_v2_t
+nu_v2_v2u (nu_v2u_t v)
 {
-    return nu_vec2(v.x, v.y);
+    return nu_v2(v.x, v.y);
 }
-nu_vec2_t
-nu_vec2_add (nu_vec2_t a, nu_vec2_t b)
+nu_v2_t
+nu_v2_add (nu_v2_t a, nu_v2_t b)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x + b.x;
     ret.y = a.y + b.y;
     return ret;
 }
-nu_vec2_t
-nu_vec2_sub (nu_vec2_t a, nu_vec2_t b)
+nu_v2_t
+nu_v2_sub (nu_v2_t a, nu_v2_t b)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x - b.x;
     ret.y = a.y - b.y;
     return ret;
 }
-nu_vec2_t
-nu_vec2_mul (nu_vec2_t a, nu_vec2_t b)
+nu_v2_t
+nu_v2_mul (nu_v2_t a, nu_v2_t b)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x * b.x;
     ret.y = a.y * b.y;
     return ret;
 }
-nu_vec2_t
-nu_vec2_muls (nu_vec2_t a, float s)
+nu_v2_t
+nu_v2_muls (nu_v2_t a, float s)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x * s;
     ret.y = a.y * s;
     return ret;
 }
-nu_vec2_t
-nu_vec2_div (nu_vec2_t a, nu_vec2_t b)
+nu_v2_t
+nu_v2_div (nu_v2_t a, nu_v2_t b)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x / b.x;
     ret.y = a.y / b.y;
     return ret;
 }
-nu_vec2_t
-nu_vec2_divs (nu_vec2_t a, float s)
+nu_v2_t
+nu_v2_divs (nu_v2_t a, float s)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = a.x / s;
     ret.y = a.y / s;
     return ret;
 }
-nu_vec2_t
-nu_vec2_floor (nu_vec2_t a)
+nu_v2_t
+nu_v2_floor (nu_v2_t a)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = nu_floor(a.x);
     ret.y = nu_floor(a.y);
     return ret;
 }
 
-nu_vec3_t
-nu_vec3 (float x, float y, float z)
+nu_v3_t
+nu_v3 (float x, float y, float z)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = x;
     ret.y = y;
     ret.z = z;
     return ret;
 }
-nu_vec3_t
-nu_vec3s (float s)
+nu_v3_t
+nu_v3s (float s)
 {
-    return nu_vec3(s, s, s);
+    return nu_v3(s, s, s);
 }
-nu_vec3_t
-nu_vec3_add (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_add (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x + b.x;
     ret.y = a.y + b.y;
     ret.z = a.z + b.z;
     return ret;
 }
-nu_vec3_t
-nu_vec3_sub (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_sub (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x - b.x;
     ret.y = a.y - b.y;
     ret.z = a.z - b.z;
     return ret;
 }
-nu_vec3_t
-nu_vec3_mul (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_mul (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x * b.x;
     ret.y = a.y * b.y;
     ret.z = a.z * b.z;
     return ret;
 }
-nu_vec3_t
-nu_vec3_muls (nu_vec3_t a, float s)
+nu_v3_t
+nu_v3_muls (nu_v3_t a, float s)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x * s;
     ret.y = a.y * s;
     ret.z = a.z * s;
     return ret;
 }
-nu_vec3_t
-nu_vec3_div (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_div (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x / b.x;
     ret.y = a.y / b.y;
     ret.z = a.z / b.z;
     return ret;
 }
-nu_vec3_t
-nu_vec3_divs (nu_vec3_t a, float s)
+nu_v3_t
+nu_v3_divs (nu_v3_t a, float s)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.x / s;
     ret.y = a.y / s;
     ret.z = a.z / s;
     return ret;
 }
 float
-nu_vec3_norm (nu_vec3_t a)
+nu_v3_norm (nu_v3_t a)
 {
-    return nu_sqrt(nu_vec3_dot(a, a));
+    return nu_sqrt(nu_v3_dot(a, a));
 }
-nu_vec3_t
-nu_vec3_normalize (nu_vec3_t v)
+nu_v3_t
+nu_v3_normalize (nu_v3_t v)
 {
-    float norm = nu_vec3_norm(v);
+    float norm = nu_v3_norm(v);
     if (norm == 0)
     {
         return NU_VEC3_ZEROS;
     }
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = v.x / norm;
     ret.y = v.y / norm;
     ret.z = v.z / norm;
     return ret;
 }
-nu_vec3_t
-nu_vec3_cross (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_cross (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t ret;
+    nu_v3_t ret;
     ret.x = a.y * b.z - a.z * b.y;
     ret.y = a.z * b.x - a.x * b.z;
     ret.z = a.x * b.y - a.y * b.x;
     return ret;
 }
 float
-nu_vec3_dot (nu_vec3_t a, nu_vec3_t b)
+nu_v3_dot (nu_v3_t a, nu_v3_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-nu_vec3_t
-nu_vec3_min (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_min (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t v;
+    nu_v3_t v;
     v.x = NU_MIN(a.x, b.x);
     v.y = NU_MIN(a.y, b.y);
     v.z = NU_MIN(a.z, b.z);
     return v;
 }
-nu_vec3_t
-nu_vec3_max (nu_vec3_t a, nu_vec3_t b)
+nu_v3_t
+nu_v3_max (nu_v3_t a, nu_v3_t b)
 {
-    nu_vec3_t v;
+    nu_v3_t v;
     v.x = NU_MAX(a.x, b.x);
     v.y = NU_MAX(a.y, b.y);
     v.z = NU_MAX(a.z, b.z);
     return v;
 }
 
-nu_vec4_t
-nu_vec4 (float x, float y, float z, float w)
+nu_v4_t
+nu_v4 (float x, float y, float z, float w)
 {
-    nu_vec4_t v;
+    nu_v4_t v;
     v.x = x;
     v.y = y;
     v.z = z;
@@ -287,111 +287,111 @@ nu_vec4 (float x, float y, float z, float w)
     return v;
 }
 float
-nu_vec4_dot (nu_vec4_t a, nu_vec4_t b)
+nu_v4_dot (nu_v4_t a, nu_v4_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 float
-nu_vec4_norm (nu_vec4_t v)
+nu_v4_norm (nu_v4_t v)
 {
-    return nu_sqrt(nu_vec4_dot(v, v));
+    return nu_sqrt(nu_v4_dot(v, v));
 }
-nu_vec2_t
-nu_vec4_xy (nu_vec4_t v)
+nu_v2_t
+nu_v4_xy (nu_v4_t v)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = v.x;
     ret.y = v.y;
     return ret;
 }
-nu_vec2_t
-nu_vec4_zw (nu_vec4_t v)
+nu_v2_t
+nu_v4_zw (nu_v4_t v)
 {
-    nu_vec2_t ret;
+    nu_v2_t ret;
     ret.x = v.z;
     ret.y = v.w;
     return ret;
 }
 
-nu_vec2i_t
-nu_vec2i (nu_i32_t x, nu_i32_t y)
+nu_v2i_t
+nu_v2i (nu_i32_t x, nu_i32_t y)
 {
-    nu_vec2i_t v;
+    nu_v2i_t v;
     v.x = x;
     v.y = y;
     return v;
 }
-nu_vec2i_t
-nu_vec2i_add (nu_vec2i_t a, nu_vec2i_t b)
+nu_v2i_t
+nu_v2i_add (nu_v2i_t a, nu_v2i_t b)
 {
-    nu_vec2i_t ret;
+    nu_v2i_t ret;
     ret.x = a.x + b.x;
     ret.y = a.y + b.y;
     return ret;
 }
-nu_vec2i_t
-nu_vec2i_sub (nu_vec2i_t a, nu_vec2i_t b)
+nu_v2i_t
+nu_v2i_sub (nu_v2i_t a, nu_v2i_t b)
 {
-    nu_vec2i_t ret;
+    nu_v2i_t ret;
     ret.x = a.x - b.x;
     ret.y = a.y - b.y;
     return ret;
 }
-nu_vec2i_t
-nu_vec2i_min (nu_vec2i_t a, nu_vec2i_t b)
+nu_v2i_t
+nu_v2i_min (nu_v2i_t a, nu_v2i_t b)
 {
-    nu_vec2i_t ret;
+    nu_v2i_t ret;
     ret.x = NU_MIN(a.x, b.x);
     ret.y = NU_MIN(a.y, b.y);
     return ret;
 }
-nu_vec2i_t
-nu_vec2i_max (nu_vec2i_t a, nu_vec2i_t b)
+nu_v2i_t
+nu_v2i_max (nu_v2i_t a, nu_v2i_t b)
 {
-    nu_vec2i_t ret;
+    nu_v2i_t ret;
     ret.x = NU_MAX(a.x, b.x);
     ret.y = NU_MAX(a.y, b.y);
     return ret;
 }
 
-nu_vec2u_t
-nu_vec2u (nu_u32_t x, nu_u32_t y)
+nu_v2u_t
+nu_v2u (nu_u32_t x, nu_u32_t y)
 {
-    nu_vec2u_t v;
+    nu_v2u_t v;
     v.x = x;
     v.y = y;
     return v;
 }
-nu_vec2u_t
-nu_vec2u_min (nu_vec2u_t a, nu_vec2u_t b)
+nu_v2u_t
+nu_v2u_min (nu_v2u_t a, nu_v2u_t b)
 {
-    return nu_vec2u(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
+    return nu_v2u(NU_MIN(a.x, b.x), NU_MIN(a.y, b.y));
 }
 
-nu_vec3u_t
-nu_vec3u (nu_u32_t x, nu_u32_t y, nu_u32_t z)
+nu_v3u_t
+nu_v3u (nu_u32_t x, nu_u32_t y, nu_u32_t z)
 {
-    nu_vec3u_t v;
+    nu_v3u_t v;
     v.x = x;
     v.y = y;
     v.z = z;
     return v;
 }
-nu_vec3u_t
-nu_vec3u_v2u (nu_vec2u_t v, nu_u32_t z)
+nu_v3u_t
+nu_v3u_v2u (nu_v2u_t v, nu_u32_t z)
 {
-    return nu_vec3u(v.x, v.y, z);
+    return nu_v3u(v.x, v.y, z);
 }
-nu_vec2u_t
-nu_vec3u_xy (nu_vec3u_t v)
+nu_v2u_t
+nu_v3u_xy (nu_v3u_t v)
 {
-    return nu_vec2u(v.x, v.y);
+    return nu_v2u(v.x, v.y);
 }
 
-nu_vec4u_t
-nu_vec4u (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
+nu_v4u_t
+nu_v4u (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
 {
-    nu_vec4u_t v;
+    nu_v4u_t v;
     v.x = x;
     v.y = y;
     v.z = z;
@@ -399,72 +399,72 @@ nu_vec4u (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
     return v;
 }
 
-nu_quat_t
-nu_quat (float x, float y, float z, float w)
+nu_q4_t
+nu_q4 (float x, float y, float z, float w)
 {
-    nu_quat_t q;
+    nu_q4_t q;
     q.x = x;
     q.y = y;
     q.z = z;
     q.w = w;
     return q;
 }
-nu_quat_t
-nu_quat_identity (void)
+nu_q4_t
+nu_q4_identity (void)
 {
-    return nu_quat(0, 0, 0, 1);
+    return nu_q4(0, 0, 0, 1);
 }
-nu_vec4_t
-nu_quat_vec4 (nu_quat_t a)
+nu_v4_t
+nu_q4_vec4 (nu_q4_t a)
 {
-    return nu_vec4(a.x, a.y, a.z, a.w);
+    return nu_v4(a.x, a.y, a.z, a.w);
 }
 float
-nu_quat_norm (nu_quat_t a)
+nu_q4_norm (nu_q4_t a)
 {
-    return nu_vec4_norm(nu_quat_vec4(a));
+    return nu_v4_norm(nu_q4_vec4(a));
 }
-nu_quat_t
-nu_quat_axis (nu_vec3_t axis, float angle)
+nu_q4_t
+nu_q4_axis (nu_v3_t axis, float angle)
 {
     float a = angle * 0.5;
     float c = nu_cos(a);
     float s = nu_sin(a);
 
-    nu_vec3_t k = nu_vec3_normalize(axis);
+    nu_v3_t k = nu_v3_normalize(axis);
 
-    return nu_quat(s * k.x, s * k.y, s * k.z, c);
+    return nu_q4(s * k.x, s * k.y, s * k.z, c);
 }
-nu_quat_t
-nu_quat_mul (nu_quat_t a, nu_quat_t b)
+nu_q4_t
+nu_q4_mul (nu_q4_t a, nu_q4_t b)
 {
-    nu_quat_t q;
+    nu_q4_t q;
     q.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y;
     q.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
     q.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
     q.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
     return q;
 }
-nu_vec3_t
-nu_quat_mulv3 (nu_quat_t a, nu_vec3_t v)
+nu_v3_t
+nu_q4_mulv3 (nu_q4_t a, nu_v3_t v)
 {
-    nu_vec3_t u = nu_vec3(a.x, a.y, a.z);
+    nu_v3_t u = nu_v3(a.x, a.y, a.z);
 
-    nu_vec3_t v1 = nu_vec3_muls(u, 2 * nu_vec3_dot(u, v));
-    nu_vec3_t v2 = nu_vec3_muls(v, a.w * a.w - nu_vec3_dot(u, u));
-    nu_vec3_t v3 = nu_vec3_muls(nu_vec3_cross(u, v), 2 * a.w);
+    nu_v3_t v1 = nu_v3_muls(u, 2 * nu_v3_dot(u, v));
+    nu_v3_t v2 = nu_v3_muls(v, a.w * a.w - nu_v3_dot(u, u));
+    nu_v3_t v3 = nu_v3_muls(nu_v3_cross(u, v), 2 * a.w);
 
-    return nu_vec3_add(v1, nu_vec3_add(v2, v3));
+    return nu_v3_add(v1, nu_v3_add(v2, v3));
 }
-nu_quat_t
-nu_quat_mul_axis (nu_quat_t q, nu_vec3_t axis, float angle)
+nu_q4_t
+nu_q4_mul_axis (nu_q4_t q, nu_v3_t axis, float angle)
 {
-    return nu_quat_mul(q, nu_quat_axis(axis, angle));
+    return nu_q4_mul(q, nu_q4_axis(axis, angle));
 }
-nu_mat3_t
-nu_quat_mat3 (nu_quat_t q)
+nu_m3_t
+nu_q4_mat3 (nu_q4_t q)
 {
-    float norm = nu_quat_norm(q);
+    float norm = nu_q4_norm(q);
     float s    = norm > 0.0 ? 2.0 / norm : 0.0;
 
     float x = q.x;
@@ -482,7 +482,7 @@ nu_quat_mat3 (nu_quat_t q)
     float xz = s * x * z;
     float wz = s * w * z;
 
-    nu_mat3_t m;
+    nu_m3_t m;
 
     m.x1 = 1.0 - yy - zz;
     m.y2 = 1.0 - xx - zz;
@@ -498,10 +498,10 @@ nu_quat_mat3 (nu_quat_t q)
 
     return m;
 }
-nu_mat4_t
-nu_quat_mat4 (nu_quat_t q)
+nu_m4_t
+nu_q4_mat4 (nu_q4_t q)
 {
-    float norm = nu_quat_norm(q);
+    float norm = nu_q4_norm(q);
     float s    = norm > 0.0 ? 2.0 / norm : 0.0;
 
     float x = q.x;
@@ -519,7 +519,7 @@ nu_quat_mat4 (nu_quat_t q)
     float xz = s * x * z;
     float wz = s * w * z;
 
-    nu_mat4_t m;
+    nu_m4_t m;
 
     m.x1 = 1.0 - yy - zz;
     m.y2 = 1.0 - xx - zz;
@@ -543,52 +543,52 @@ nu_quat_mat4 (nu_quat_t q)
 
     return m;
 }
-nu_mat4_t
-nu_quat_mulm4 (nu_quat_t a, nu_mat4_t m)
+nu_m4_t
+nu_q4_mulm4 (nu_q4_t a, nu_m4_t m)
 {
     // TODO: allow mat4 multiplication on rotation only
-    return nu_mat4_mul(nu_quat_mat4(a), m);
+    return nu_m4_mul(nu_q4_mat4(a), m);
 }
 
-nu_mat3_t
-nu_mat3_zero (void)
+nu_m3_t
+nu_m3_zero (void)
 {
-    nu_mat3_t m;
+    nu_m3_t m;
     for (nu_size_t i = 0; i < NU_MAT3_SIZE; ++i)
     {
         m.data[i] = 0;
     }
     return m;
 }
-nu_mat3_t
-nu_mat3_identity (void)
+nu_m3_t
+nu_m3_identity (void)
 {
-    nu_mat3_t m = nu_mat3_zero();
+    nu_m3_t m = nu_m3_zero();
     m.x1        = 1;
     m.y2        = 1;
     m.z3        = 1;
     return m;
 }
-nu_mat3_t
-nu_mat3_translate (nu_vec2_t v)
+nu_m3_t
+nu_m3_translate (nu_v2_t v)
 {
-    nu_mat3_t m = nu_mat3_identity();
+    nu_m3_t m = nu_m3_identity();
     m.z1        = v.x;
     m.z2        = v.y;
     return m;
 }
-nu_mat3_t
-nu_mat3_scale (nu_vec2_t v)
+nu_m3_t
+nu_m3_scale (nu_v2_t v)
 {
-    nu_mat3_t m = nu_mat3_identity();
+    nu_m3_t m = nu_m3_identity();
     m.x1        = v.x;
     m.y2        = v.y;
     return m;
 }
-nu_mat3_t
-nu_mat3_mul (nu_mat3_t a, nu_mat3_t b)
+nu_m3_t
+nu_m3_mul (nu_m3_t a, nu_m3_t b)
 {
-    nu_mat3_t m = nu_mat3_zero();
+    nu_m3_t m = nu_m3_zero();
     for (int i = 0; i < 3; ++i)
     {
         for (int j = 0; j < 3; ++j)
@@ -602,58 +602,58 @@ nu_mat3_mul (nu_mat3_t a, nu_mat3_t b)
     return m;
 }
 
-nu_mat4_t
-nu_mat4_zero (void)
+nu_m4_t
+nu_m4_zero (void)
 {
-    nu_mat4_t m;
+    nu_m4_t m;
     for (nu_size_t i = 0; i < NU_MAT4_SIZE; ++i)
     {
         m.data[i] = 0;
     }
     return m;
 }
-nu_mat4_t
-nu_mat4_identity (void)
+nu_m4_t
+nu_m4_identity (void)
 {
-    nu_mat4_t m = nu_mat4_zero();
+    nu_m4_t m = nu_m4_zero();
     m.x1        = 1;
     m.y2        = 1;
     m.z3        = 1;
     m.w4        = 1;
     return m;
 }
-nu_mat4_t
-nu_mat4_translate (nu_vec3_t v)
+nu_m4_t
+nu_m4_translate (nu_v3_t v)
 {
-    nu_mat4_t m = nu_mat4_identity();
+    nu_m4_t m = nu_m4_identity();
     m.w1        = v.x;
     m.w2        = v.y;
     m.w3        = v.z;
     return m;
 }
-nu_mat4_t
-nu_mat4_scale (nu_vec3_t v)
+nu_m4_t
+nu_m4_scale (nu_v3_t v)
 {
-    nu_mat4_t m = nu_mat4_identity();
+    nu_m4_t m = nu_m4_identity();
     m.x1        = v.x;
     m.y2        = v.y;
     m.z3        = v.z;
     return m;
 }
-nu_mat4_t
-nu_mat4_rotate_y (float angle)
+nu_m4_t
+nu_m4_rotate_y (float angle)
 {
-    nu_mat4_t m = nu_mat4_identity();
+    nu_m4_t m = nu_m4_identity();
     m.x1        = nu_cos(angle);
     m.z1        = nu_sin(angle);
     m.x3        = -nu_sin(angle);
     m.z3        = nu_cos(angle);
     return m;
 }
-nu_mat4_t
-nu_mat4_mul (nu_mat4_t a, nu_mat4_t b)
+nu_m4_t
+nu_m4_mul (nu_m4_t a, nu_m4_t b)
 {
-    nu_mat4_t m = nu_mat4_zero();
+    nu_m4_t m = nu_m4_zero();
     for (nu_size_t i = 0; i < 4; ++i)
     {
         for (nu_size_t j = 0; j < 4; ++j)
@@ -666,126 +666,126 @@ nu_mat4_mul (nu_mat4_t a, nu_mat4_t b)
     }
     return m;
 }
-nu_vec4_t
-nu_mat4_mulv (nu_mat4_t m, nu_vec4_t v)
+nu_v4_t
+nu_m4_mulv (nu_m4_t m, nu_v4_t v)
 {
-    nu_vec4_t ret;
+    nu_v4_t ret;
     ret.x = m.x1 * v.x + m.y1 * v.y + m.z1 * v.z + m.w1 * v.w;
     ret.y = m.x2 * v.x + m.y2 * v.y + m.z2 * v.z + m.w2 * v.w;
     ret.z = m.x3 * v.x + m.y3 * v.y + m.z3 * v.z + m.w3 * v.w;
     ret.w = m.x4 * v.x + m.y4 * v.y + m.z4 * v.z + m.w4 * v.w;
     return ret;
 }
-nu_vec3_t
-nu_mat4_mulv3 (nu_mat4_t a, nu_vec3_t v)
+nu_v3_t
+nu_m4_mulv3 (nu_m4_t a, nu_v3_t v)
 {
-    nu_vec4_t v4 = nu_vec4(v.x, v.y, v.z, 1);
-    v4           = nu_mat4_mulv(a, v4);
-    return nu_vec3(v4.x, v4.y, v4.z);
+    nu_v4_t v4 = nu_v4(v.x, v.y, v.z, 1);
+    v4           = nu_m4_mulv(a, v4);
+    return nu_v3(v4.x, v4.y, v4.z);
 }
 
-nu_box2i_t
-nu_box2i (nu_vec2i_t min, nu_vec2i_t max)
+nu_b2i_t
+nu_b2i (nu_v2i_t min, nu_v2i_t max)
 {
-    nu_box2i_t ret;
+    nu_b2i_t ret;
     ret.min = min;
     ret.max = max;
     return ret;
 }
-nu_box2i_t
-nu_box2i_xywh (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
+nu_b2i_t
+nu_b2i_xywh (nu_i32_t x, nu_i32_t y, nu_u32_t w, nu_u32_t h)
 {
     NU_ASSERT(w && h);
-    nu_box2i_t ret;
-    ret.min = nu_vec2i(x, y);
-    ret.max = nu_vec2i(x + w - 1, y + h - 1);
+    nu_b2i_t ret;
+    ret.min = nu_v2i(x, y);
+    ret.max = nu_v2i(x + w - 1, y + h - 1);
     return ret;
 }
-nu_vec2u_t
-nu_box2i_size (nu_box2i_t b)
+nu_v2u_t
+nu_b2i_size (nu_b2i_t b)
 {
     NU_ASSERT((b.max.x - b.min.x) >= 0 && (b.max.y - b.min.y) >= 0);
-    return nu_vec2u(b.max.x - b.min.x + 1, b.max.y - b.min.y + 1);
+    return nu_v2u(b.max.x - b.min.x + 1, b.max.y - b.min.y + 1);
 }
-nu_box2i_t
-nu_box2i_resize (nu_box2i_t b, nu_vec2u_t size)
+nu_b2i_t
+nu_b2i_resize (nu_b2i_t b, nu_v2u_t size)
 {
     NU_ASSERT(size.x && size.y);
-    return nu_box2i(b.min,
-                    nu_vec2i(b.min.x + size.x - 1, b.min.y + size.y - 1));
+    return nu_b2i(b.min,
+                    nu_v2i(b.min.x + size.x - 1, b.min.y + size.y - 1));
 }
-nu_vec2i_t
-nu_box2i_tr (nu_box2i_t b)
+nu_v2i_t
+nu_b2i_tr (nu_b2i_t b)
 {
-    return nu_vec2i(b.max.x, b.min.y);
+    return nu_v2i(b.max.x, b.min.y);
 }
-nu_vec2i_t
-nu_box2i_bl (nu_box2i_t b)
+nu_v2i_t
+nu_b2i_bl (nu_b2i_t b)
 {
-    return nu_vec2i(b.min.x, b.max.y);
+    return nu_v2i(b.min.x, b.max.y);
 }
 
-nu_box2i_t
-nu_box2i_translate (nu_box2i_t b, nu_vec2i_t t)
+nu_b2i_t
+nu_b2i_translate (nu_b2i_t b, nu_v2i_t t)
 {
-    return nu_box2i(nu_vec2i_add(b.min, t), nu_vec2i_add(b.max, t));
+    return nu_b2i(nu_v2i_add(b.min, t), nu_v2i_add(b.max, t));
 }
-nu_box2i_t
-nu_box2i_moveto (nu_box2i_t b, nu_vec2i_t p)
+nu_b2i_t
+nu_b2i_moveto (nu_b2i_t b, nu_v2i_t p)
 {
-    return nu_box2i_translate(b, nu_vec2i_sub(p, b.min));
+    return nu_b2i_translate(b, nu_v2i_sub(p, b.min));
 }
-nu_box2i_t
-nu_box2i_union (nu_box2i_t a, nu_box2i_t b)
+nu_b2i_t
+nu_b2i_union (nu_b2i_t a, nu_b2i_t b)
 {
-    return nu_box2i(nu_vec2i_max(a.min, b.min), nu_vec2i_min(a.max, b.max));
+    return nu_b2i(nu_v2i_max(a.min, b.min), nu_v2i_min(a.max, b.max));
 }
 nu_bool_t
-nu_box2i_containsi (nu_box2i_t b, nu_vec2i_t p)
+nu_b2i_containsi (nu_b2i_t b, nu_v2i_t p)
 {
     return (p.x >= b.min.x && p.x <= b.max.x && p.y >= b.min.y
             && p.y <= b.max.y);
 }
 nu_bool_t
-nu_box2i_contains (nu_box2i_t b, nu_vec2_t p)
+nu_b2i_contains (nu_b2i_t b, nu_v2_t p)
 {
-    return nu_box2i_containsi(b, nu_vec2i(p.x, p.y));
+    return nu_b2i_containsi(b, nu_v2i(p.x, p.y));
 }
-nu_vec2_t
-nu_box2i_normalize (nu_box2i_t b, nu_vec2_t p)
+nu_v2_t
+nu_b2i_normalize (nu_b2i_t b, nu_v2_t p)
 {
-    nu_vec2_t  ret;
-    nu_vec2u_t size = nu_box2i_size(b);
+    nu_v2_t  ret;
+    nu_v2u_t size = nu_b2i_size(b);
     ret.x           = (p.x - (float)b.min.x) / (float)(size.x);
     ret.y           = (p.y - (float)b.min.y) / (float)(size.y);
     return ret;
 }
 
-nu_box3_t
-nu_box3 (nu_vec3_t min, nu_vec3_t max)
+nu_b3_t
+nu_b3 (nu_v3_t min, nu_v3_t max)
 {
     NU_ASSERT(max.x >= min.x && max.y >= min.y && max.z >= min.z);
-    nu_box3_t b;
+    nu_b3_t b;
     b.min = min;
     b.max = max;
     return b;
 }
-nu_vec3_t
-nu_box3_center (nu_box3_t b)
+nu_v3_t
+nu_b3_center (nu_b3_t b)
 {
-    return nu_vec3_muls(nu_vec3_sub(b.max, b.min), 0.5);
+    return nu_v3_muls(nu_v3_sub(b.max, b.min), 0.5);
 }
 nu_bool_t
-nu_box3_contains (nu_box3_t b, nu_vec3_t p)
+nu_b3_contains (nu_b3_t b, nu_v3_t p)
 {
     return (p.x >= b.min.x && p.y >= b.min.y && p.z >= b.min.z && p.x <= b.max.x
             && p.y <= b.max.y && p.z <= b.max.z);
 }
 
-nu_mat4_t
+nu_m4_t
 nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 {
-    nu_mat4_t m;
+    nu_m4_t m;
     float     y_scale  = 1.0f / nu_tan(fov / 2.0f);
     float     x_scale  = y_scale / aspect_ratio;
     float     near_far = z_near - z_far;
@@ -812,11 +812,11 @@ nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
 
     return m;
 }
-nu_mat4_t
+nu_m4_t
 nu_ortho (
     float left, float right, float bottom, float top, float nnear, float far)
 {
-    nu_mat4_t m;
+    nu_m4_t m;
 
     float rl = 1.0 / (right - left);
     float tb = 1.0 / (top - bottom);
@@ -844,20 +844,20 @@ nu_ortho (
 
     return m;
 }
-nu_mat4_t
-nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
+nu_m4_t
+nu_lookat (nu_v3_t eye, nu_v3_t center, nu_v3_t up)
 {
-    nu_vec3_t f = nu_vec3(center.x - eye.x, center.y - eye.y, center.z - eye.z);
-    f           = nu_vec3_normalize(f);
+    nu_v3_t f = nu_v3(center.x - eye.x, center.y - eye.y, center.z - eye.z);
+    f           = nu_v3_normalize(f);
 
-    nu_vec3_t u = nu_vec3_normalize(up);
+    nu_v3_t u = nu_v3_normalize(up);
 
-    nu_vec3_t s = nu_vec3_cross(f, u);
-    s           = nu_vec3_normalize(s);
+    nu_v3_t s = nu_v3_cross(f, u);
+    s           = nu_v3_normalize(s);
 
-    nu_vec3_t u_prime = nu_vec3_cross(s, f);
+    nu_v3_t u_prime = nu_v3_cross(s, f);
 
-    nu_mat4_t m;
+    nu_m4_t m;
     m.data[0] = s.x;
     m.data[1] = u_prime.x;
     m.data[2] = -f.x;
@@ -880,7 +880,7 @@ nu_lookat (nu_vec3_t eye, nu_vec3_t center, nu_vec3_t up)
     return m;
 }
 
-nu_vec3_t
+nu_v3_t
 nu_axis3d (float     pos_x,
            float     neg_x,
            float     pos_y,
@@ -889,24 +889,24 @@ nu_axis3d (float     pos_x,
            float     neg_z,
            nu_bool_t normalize)
 {
-    nu_vec3_t ax;
+    nu_v3_t ax;
 
     ax.x = neg_x - pos_x;
     ax.y = pos_y - neg_y;
     ax.z = pos_z - neg_z;
     if (normalize)
     {
-        ax = nu_vec3_normalize(ax);
+        ax = nu_v3_normalize(ax);
     }
 
     return ax;
 }
 
-nu_vec3_t
-nu_triangle_normal (nu_vec3_t p0, nu_vec3_t p1, nu_vec3_t p2)
+nu_v3_t
+nu_triangle_normal (nu_v3_t p0, nu_v3_t p1, nu_v3_t p2)
 {
-    return nu_vec3_normalize(
-        nu_vec3_cross(nu_vec3_sub(p2, p0), nu_vec3_sub(p0, p1)));
+    return nu_v3_normalize(
+        nu_v3_cross(nu_v3_sub(p2, p0), nu_v3_sub(p0, p1)));
 }
 
 #endif

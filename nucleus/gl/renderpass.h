@@ -15,7 +15,7 @@ typedef struct
     GLuint        vao;
     nu_size_t     vfirst;
     nu_size_t     vcount;
-    nu_mat4_t     transform; // TODO: use indexed UBO
+    nu_m4_t     transform; // TODO: use indexed UBO
     GLuint        primitive;
     nu_material_t material;
 } nugl__mesh_command_t;
@@ -62,7 +62,7 @@ typedef struct
     nu_shademode_t           mode;
     GLuint                   program;
     nu_texture_t             skybox;
-    nu_mat3_t                skybox_rotation;
+    nu_m3_t                skybox_rotation;
 } nugl__renderpass_forward_t;
 
 typedef struct
@@ -90,7 +90,7 @@ typedef struct
     nu_color_t           clear_color;
     nu_bool_t            has_clear_color;
     GLuint               fbo;
-    nu_vec2u_t           fbo_size;
+    nu_v2u_t           fbo_size;
     nu_bool_t            reset_after_submit;
     union
     {
@@ -115,7 +115,7 @@ static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
                                          nu_size_t                 first,
                                          nu_size_t                 count,
                                          nu_material_t             mat,
-                                         const nu_mat4_t          *transforms,
+                                         const nu_m4_t          *transforms,
                                          nu_size_t instance_count);
 
 #endif

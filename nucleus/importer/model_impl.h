@@ -9,10 +9,10 @@
 #endif
 
 static void
-nu__emplace_vertex (const nu_vec3_t *positions,
-                    const nu_vec2_t *uvs,
-                    nu_vec3_t       *buf_positions,
-                    nu_vec2_t       *buf_uvs,
+nu__emplace_vertex (const nu_v3_t *positions,
+                    const nu_v2_t *uvs,
+                    nu_v3_t       *buf_positions,
+                    nu_v2_t       *buf_uvs,
                     nu_u32_t         vertex_index,
                     nu_u32_t         index)
 {
@@ -49,8 +49,8 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
         cgltf_primitive *primitive = mesh->primitives + p;
 
         // Access attributes
-        const nu_vec3_t *positions = NU_NULL;
-        const nu_vec2_t *uvs       = NU_NULL;
+        const nu_v3_t *positions = NU_NULL;
+        const nu_v2_t *uvs       = NU_NULL;
         for (nu_size_t a = 0; a < primitive->attributes_count; ++a)
         {
             cgltf_attribute   *attribute = primitive->attributes + a;
@@ -61,10 +61,10 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             {
                 case cgltf_attribute_type_position:
                     positions
-                        = (nu_vec3_t *)(data + accessor->offset + view->offset);
+                        = (nu_v3_t *)(data + accessor->offset + view->offset);
                     break;
                 case cgltf_attribute_type_texcoord:
-                    uvs = (nu_vec2_t *)(data + accessor->offset + view->offset);
+                    uvs = (nu_v2_t *)(data + accessor->offset + view->offset);
                     break;
                 default:
                     break;
@@ -78,12 +78,12 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_byte_t         *data         = (nu_byte_t *)view->buffer->data;
             nu_size_t          indice_count = accessor->count;
 
-            nu_vec3_t *buf_positions = NU_NULL;
-            nu_vec2_t *buf_uvs       = NU_NULL;
-            nu_vec3_t *buf_normals   = NU_NULL;
+            nu_v3_t *buf_positions = NU_NULL;
+            nu_v2_t *buf_uvs       = NU_NULL;
+            nu_v3_t *buf_normals   = NU_NULL;
             buf_positions
-                = (nu_vec3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
-            buf_uvs = (nu_vec2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
+                = (nu_v3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
+            buf_uvs = (nu_v2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
 
             switch (accessor->component_type)
             {
@@ -285,26 +285,26 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
             cgltf_node *node = scene->nodes[n];
             NU_DEBUG("loading node: %s", node->name);
 
-            nu_mat4_t transform = nu_mat4_identity();
+            nu_m4_t transform = nu_m4_identity();
             if (node->has_scale)
             {
-                transform = nu_mat4_mul(nu_mat4_scale(nu_vec3(node->scale[0],
+                transform = nu_m4_mul(nu_m4_scale(nu_v3(node->scale[0],
                                                               node->scale[1],
                                                               node->scale[2])),
                                         transform);
             }
             if (node->has_rotation)
             {
-                nu_quat_t q = nu_quat(node->rotation[0],
+                nu_q4_t q = nu_q4(node->rotation[0],
                                       node->rotation[1],
                                       node->rotation[2],
                                       node->rotation[3]);
-                transform   = nu_quat_mulm4(q, transform);
+                transform   = nu_q4_mulm4(q, transform);
             }
             if (node->has_translation)
             {
-                transform = nu_mat4_mul(
-                    nu_mat4_translate(nu_vec3(node->translation[0],
+                transform = nu_m4_mul(
+                    nu_m4_translate(nu_v3(node->translation[0],
                                               node->translation[1],
                                               node->translation[2])),
                     transform);

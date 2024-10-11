@@ -45,27 +45,27 @@ nu__stats_update (void)
 }
 
 void
-nu_draw_stats (nu_renderpass_t pass, nu_font_t font, nu_vec2i_t pos)
+nu_draw_stats (nu_renderpass_t pass, nu_font_t font, nu_v2i_t pos)
 {
     nu__stats_t *s = &_ctx.utils.stats;
     nu_char_t    string[256];
     nu_size_t    n;
 
     n = nu_snprintf(string, 256, "FPS:%d", (nu_u32_t)s->avg);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 0)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 0)));
     n = nu_snprintf(string, 256, "FRA:%d", s->frame);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 10)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 10)));
     n = nu_snprintf(
         string, 256, "RES:%dx%d", _ctx.platform.size.x, _ctx.platform.size.y);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 20)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 20)));
     n = nu_snprintf(string, 256, "TRI:%d", s->graphics_frame.triangle_count);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 30)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 30)));
     n = nu_snprintf(string, 256, "LIN:%d", s->graphics_frame.line_count);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 40)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 40)));
     n = nu_snprintf(string, 256, "PTS:%d", s->graphics_frame.point_count);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 50)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 50)));
     n = nu_snprintf(string, 256, "RDP:%d", s->graphics_frame.renderpass_count);
-    nu_draw_text(pass, string, n, font, nu_vec2i_add(pos, nu_vec2i(0, 60)));
+    nu_draw_text(pass, string, n, font, nu_v2i_add(pos, nu_v2i(0, 60)));
 }
 
 #endif

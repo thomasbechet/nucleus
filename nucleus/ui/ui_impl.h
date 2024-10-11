@@ -5,7 +5,7 @@
 
 static void
 nu__draw_image (nu__ui_instance_t          *ui,
-                nu_box2i_t                  extent,
+                nu_b2i_t                  extent,
                 const nu__ui_image_style_t *style)
 {
     nu_draw_blit_sliced(ui->active_renderpass,
@@ -30,8 +30,8 @@ void
 nu_ui_style (nu_ui_style_t          style,
              nu_ui_style_property_t property,
              nu_material_t          material,
-             nu_box2i_t             extent,
-             nu_box2i_t             inner)
+             nu_b2i_t             extent,
+             nu_b2i_t             inner)
 {
     nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(style);
     switch (property)
@@ -107,7 +107,7 @@ nu_ui_delete (nu_ui_t handle)
 }
 
 void
-nu_ui_set_cursor (nu_ui_t handle, nu_u32_t controller, nu_vec2i_t pos)
+nu_ui_set_cursor (nu_ui_t handle, nu_u32_t controller, nu_v2i_t pos)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     ui->controllers[controller].cursor = pos;
@@ -135,9 +135,9 @@ nu_ui_end (nu_ui_t handle)
     nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);
 
     // Draw cursor
-    nu_vec2i_t cursor = ui->controllers[0].cursor;
+    nu_v2i_t cursor = ui->controllers[0].cursor;
     nu__draw_image(
-        ui, nu_box2i_xywh(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
+        ui, nu_b2i_xywh(cursor.x - 4, cursor.y - 4, 8, 7), &s->cursor.image);
 }
 
 void
@@ -162,11 +162,11 @@ nu_ui_controller (nu_ui_t handle)
 }
 
 static nu_bool_t
-nu__ui_hit (nu__ui_instance_t *ui, nu_box2i_t extent, nu_u32_t *controller)
+nu__ui_hit (nu__ui_instance_t *ui, nu_b2i_t extent, nu_u32_t *controller)
 {
     for (nu_size_t i = 0; i < NU_UI_MAX_CONTROLLER; ++i)
     {
-        if (nu_box2i_containsi(extent, ui->controllers[i].cursor))
+        if (nu_b2i_containsi(extent, ui->controllers[i].cursor))
         {
             *controller = i;
             return NU_TRUE;
@@ -176,7 +176,7 @@ nu__ui_hit (nu__ui_instance_t *ui, nu_box2i_t extent, nu_u32_t *controller)
 }
 
 nu_bool_t
-nu_ui_button (nu_ui_t handle, nu_box2i_t extent)
+nu_ui_button (nu_ui_t handle, nu_b2i_t extent)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);
@@ -234,7 +234,7 @@ nu_ui_button (nu_ui_t handle, nu_box2i_t extent)
     return result;
 }
 nu_bool_t
-nu_ui_checkbox (nu_ui_t handle, nu_box2i_t extent, nu_bool_t *state)
+nu_ui_checkbox (nu_ui_t handle, nu_b2i_t extent, nu_bool_t *state)
 {
     nu__ui_instance_t *ui = &_ctx.ui.uis.data[NU_HANDLE_INDEX(handle)];
     nu__ui_style_t *s = _ctx.ui.styles.data + NU_HANDLE_INDEX(ui->active_style);

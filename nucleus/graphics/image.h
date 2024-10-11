@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    nu_vec2u_t     size;
+    nu_v2u_t     size;
     nu_color_t    *colors;
     nu_allocator_t allocator;
 } nu__image_t;

@@ -34,9 +34,9 @@ nu__generate_grid (nu__geometry_t *g,
     {
         for (nu_u32_t w = 0; w <= width; ++w)
         {
-            nu_vec3_t pos = nu_vec3(w * unit, 0, h * unit);
-            nu_vec2_t uv  = nu_vec2_muls(
-                nu_vec2((float)w / (float)width, (float)h / (float)height),
+            nu_v3_t pos = nu_v3(w * unit, 0, h * unit);
+            nu_v2_t uv  = nu_v2_muls(
+                nu_v2((float)w / (float)width, (float)h / (float)height),
                 uv_scale);
             *NU_VEC_PUSH(&g->positions) = pos;
             *NU_VEC_PUSH(&g->uvs)       = uv;
@@ -68,14 +68,14 @@ static void
 nu__generate_plane (nu__geometry_t *g, float width, float height)
 
 {
-    const nu_vec3_t positions[4] = {
-        nu_vec3(0, 0, height),
-        nu_vec3(width, 0, height),
-        nu_vec3(width, 0, 0),
-        nu_vec3(0, 0, 0),
+    const nu_v3_t positions[4] = {
+        nu_v3(0, 0, height),
+        nu_v3(width, 0, height),
+        nu_v3(width, 0, 0),
+        nu_v3(0, 0, 0),
     };
-    const nu_vec2_t uvs[4]
-        = { nu_vec2(0, 1), nu_vec2(1, 1), nu_vec2(1, 0), nu_vec2(0, 0) };
+    const nu_v2_t uvs[4]
+        = { nu_v2(0, 1), nu_v2(1, 1), nu_v2(1, 0), nu_v2(0, 0) };
     nu_size_t pos_offset = g->positions.size;
     nu_size_t uv_offset  = g->uvs.size;
     for (nu_size_t i = 0; i < NU_ARRAY_SIZE(positions); ++i)
@@ -96,14 +96,14 @@ nu__generate_plane (nu__geometry_t *g, float width, float height)
 static void
 nu__generate_cube (nu__geometry_t *g, float unit)
 {
-    const nu_vec3_t positions[8] = {
-        nu_vec3(0, 0, unit),    nu_vec3(unit, 0, unit),
-        nu_vec3(unit, 0, 0),    nu_vec3(0, 0, 0),
-        nu_vec3(0, unit, unit), nu_vec3(unit, unit, unit),
-        nu_vec3(unit, unit, 0), nu_vec3(0, unit, 0),
+    const nu_v3_t positions[8] = {
+        nu_v3(0, 0, unit),    nu_v3(unit, 0, unit),
+        nu_v3(unit, 0, 0),    nu_v3(0, 0, 0),
+        nu_v3(0, unit, unit), nu_v3(unit, unit, unit),
+        nu_v3(unit, unit, 0), nu_v3(0, unit, 0),
     };
-    const nu_vec2_t uvs[4]
-        = { nu_vec2(0, 0), nu_vec2(1, 0), nu_vec2(1, 1), nu_vec2(0, 1) };
+    const nu_v2_t uvs[4]
+        = { nu_v2(0, 0), nu_v2(1, 0), nu_v2(1, 1), nu_v2(0, 1) };
     const nu_u32_t position_indices[4 * 6]
         = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
             3, 0, 4, 7, 4, 5, 6, 7, 3, 2, 1, 0 };
@@ -195,12 +195,12 @@ nu_geometry_grid (nu_geometry_t geometry,
     nu__generate_grid(g, width, height, unit, uv_scale);
 }
 void
-nu_geometry_transform (nu_geometry_t geometry, nu_mat4_t m)
+nu_geometry_transform (nu_geometry_t geometry, nu_m4_t m)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     for (nu_size_t i = 0; i < g->positions.size; ++i)
     {
-        g->positions.data[i] = nu_mat4_mulv3(m, g->positions.data[i]);
+        g->positions.data[i] = nu_m4_mulv3(m, g->positions.data[i]);
     }
 }
 void
@@ -302,7 +302,7 @@ nu__geometry_create_mesh_lines (nu__geometry_t *g)
     }
 
     // Generate mesh
-    nu_vec3_vec_t positions;
+    nu_v3_vec_t positions;
     NU_VEC_INIT(edges.size, &positions);
     NU_VEC_RESIZE(&positions, edges.size);
 
@@ -334,8 +334,8 @@ nu__geometry_create_mesh_triangles (nu__geometry_t *g)
     }
     NU_ASSERT(triangle_count);
 
-    nu_vec3_vec_t positions;
-    nu_vec2_vec_t uvs;
+    nu_v3_vec_t positions;
+    nu_v2_vec_t uvs;
     nu_size_t     vertex_count = triangle_count * 3;
     NU_VEC_INIT(vertex_count, &positions);
     NU_VEC_INIT(vertex_count, &uvs);
@@ -415,7 +415,7 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
     }
     NU_ASSERT(face_count);
 
-    nu_vec3_vec_t positions;
+    nu_v3_vec_t positions;
     NU_VEC_INIT(face_count * 2, &positions);
 
     for (nu_size_t i = 0; i < g->primitives.size; ++i)
@@ -426,20 +426,20 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
             for (nu_size_t f = 0; f < p->positions.size; f += p->count)
             {
                 // Computer the face center of mass
-                nu_vec3_t center = NU_VEC3_ZEROS;
+                nu_v3_t center = NU_VEC3_ZEROS;
                 for (nu_size_t i = f; i < f + p->count; ++i)
                 {
-                    center = nu_vec3_add(
+                    center = nu_v3_add(
                         center, g->positions.data[p->positions.data[i]]);
                 }
-                center = nu_vec3_divs(center, p->count);
+                center = nu_v3_divs(center, p->count);
                 // Compute normal (expect all points to be coplanar)
-                nu_vec3_t p0 = g->positions.data[p->positions.data[f + 0]];
-                nu_vec3_t p1 = g->positions.data[p->positions.data[f + 1]];
-                nu_vec3_t p2 = g->positions.data[p->positions.data[f + 2]];
-                nu_vec3_t n  = nu_triangle_normal(p0, p1, p2);
+                nu_v3_t p0 = g->positions.data[p->positions.data[f + 0]];
+                nu_v3_t p1 = g->positions.data[p->positions.data[f + 1]];
+                nu_v3_t p2 = g->positions.data[p->positions.data[f + 2]];
+                nu_v3_t n  = nu_triangle_normal(p0, p1, p2);
                 *NU_VEC_PUSH(&positions) = center;
-                *NU_VEC_PUSH(&positions) = nu_vec3_add(center, n);
+                *NU_VEC_PUSH(&positions) = nu_v3_add(center, n);
             }
         }
     }
@@ -451,19 +451,19 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
 
     return mesh;
 }
-nu_box3_t
+nu_b3_t
 nu_geometry_bounds (nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     NU_ASSERT(g->positions.size);
-    nu_vec3_t min, max;
+    nu_v3_t min, max;
     min = max = g->positions.data[0];
     for (nu_size_t i = 1; i < g->positions.size; ++i)
     {
-        min = nu_vec3_min(min, g->positions.data[i]);
-        max = nu_vec3_max(max, g->positions.data[i]);
+        min = nu_v3_min(min, g->positions.data[i]);
+        max = nu_v3_max(max, g->positions.data[i]);
     }
-    return nu_box3(min, max);
+    return nu_b3(min, max);
 }
 
 #endif

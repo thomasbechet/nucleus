@@ -15,22 +15,22 @@ nugl__camera_delete (nu_camera_t camera)
 {
 }
 static void
-nugl__camera_set_proj (nu_camera_t camera, nu_mat4_t proj)
+nugl__camera_set_proj (nu_camera_t camera, nu_m4_t proj)
 {
     nu__gl_t       *gl   = &_ctx.gl;
     nugl__camera_t *pcam = gl->cameras.data + NU_HANDLE_INDEX(camera);
 
     pcam->projection = proj;
-    pcam->vp         = nu_mat4_mul(proj, pcam->view);
+    pcam->vp         = nu_m4_mul(proj, pcam->view);
 }
 static void
-nugl__camera_set_view (nu_camera_t camera, nu_mat4_t view)
+nugl__camera_set_view (nu_camera_t camera, nu_m4_t view)
 {
     nu__gl_t       *gl   = &_ctx.gl;
     nugl__camera_t *pcam = gl->cameras.data + NU_HANDLE_INDEX(camera);
 
     pcam->view = view;
-    pcam->vp   = nu_mat4_mul(pcam->projection, view);
+    pcam->vp   = nu_m4_mul(pcam->projection, view);
 }
 
 #endif

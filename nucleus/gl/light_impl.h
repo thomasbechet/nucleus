@@ -17,11 +17,11 @@ nugl__light_delete (nu_light_t light)
 {
 }
 static void
-nugl__light_set_position (nu_light_t light, nu_vec3_t v)
+nugl__light_set_position (nu_light_t light, nu_v3_t v)
 {
 }
 static void
-nugl__light_set_rotation (nu_light_t light, nu_quat_t q)
+nugl__light_set_rotation (nu_light_t light, nu_q4_t q)
 {
 }
 static void

@@ -23,14 +23,14 @@ nu__renderer_free (void)
 #endif
 }
 static nu_texture_t
-nu__renderer_create_surface_color (nu_vec2u_t size)
+nu__renderer_create_surface_color (nu_v2u_t size)
 {
 #ifdef NU_BUILD_GL
     return nugl__create_surface_color(size);
 #endif
 }
 static void
-nu__renderer_render (nu_box2i_t global_viewport, nu_box2i_t viewport)
+nu__renderer_render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 {
 #ifdef NU_BUILD_GL
     nugl__render(global_viewport, viewport);
@@ -65,14 +65,14 @@ nu_camera_delete (nu_camera_t camera)
 #endif
 }
 void
-nu_camera_set_view (nu_camera_t camera, nu_mat4_t view)
+nu_camera_set_view (nu_camera_t camera, nu_m4_t view)
 {
 #ifdef NU_BUILD_GL
     nugl__camera_set_view(camera, view);
 #endif
 }
 void
-nu_camera_set_proj (nu_camera_t camera, nu_mat4_t proj)
+nu_camera_set_proj (nu_camera_t camera, nu_m4_t proj)
 {
 #ifdef NU_BUILD_GL
     nugl__camera_set_proj(camera, proj);
@@ -97,7 +97,7 @@ void
 nu_mesh_write_uvs (nu_mesh_t        mesh,
                    nu_size_t        first,
                    nu_size_t        count,
-                   const nu_vec2_t *data)
+                   const nu_v2_t *data)
 {
 #ifdef NU_BUILD_GL
     nugl__mesh_write_uvs(mesh, first, count, data);
@@ -107,7 +107,7 @@ void
 nu_mesh_write_positions (nu_mesh_t        mesh,
                          nu_size_t        first,
                          nu_size_t        count,
-                         const nu_vec3_t *data)
+                         const nu_v3_t *data)
 {
 #ifdef NU_BUILD_GL
     nugl__mesh_write_positions(mesh, first, count, data);
@@ -122,7 +122,7 @@ nu_mesh_write_colors (nu_mesh_t         mesh,
 }
 
 nu_texture_t
-nu_texture_create (nu_texture_type_t type, nu_vec3u_t size)
+nu_texture_create (nu_texture_type_t type, nu_v3u_t size)
 {
 #ifdef NU_BUILD_GL
     return nugl__texture_create(type, size);
@@ -181,7 +181,7 @@ nu_material_set_texture (nu_material_t material, nu_texture_t texture)
 #endif
 }
 void
-nu_material_set_uv_transform (nu_material_t material, nu_mat3_t mat)
+nu_material_set_uv_transform (nu_material_t material, nu_m3_t mat)
 {
 #ifdef NU_BUILD_GL
     nugl__material_set_uv_transform(material, mat);
@@ -210,14 +210,14 @@ nu_light_delete (nu_light_t light)
 #endif
 }
 void
-nu_light_set_position (nu_light_t light, nu_vec3_t v)
+nu_light_set_position (nu_light_t light, nu_v3_t v)
 {
 #ifdef NU_BUILD_GL
     nugl__light_set_position(light, v);
 #endif
 }
 void
-nu_light_set_rotation (nu_light_t light, nu_quat_t q)
+nu_light_set_rotation (nu_light_t light, nu_q4_t q)
 {
 #ifdef NU_BUILD_GL
     nugl__light_set_rotation(light, q);
@@ -305,7 +305,7 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 void
 nu_renderpass_set_skybox (nu_renderpass_t pass,
                           nu_texture_t    cubemap,
-                          nu_quat_t       rotation)
+                          nu_q4_t       rotation)
 {
 #ifdef NU_BUILD_GL
     nugl__renderpass_set_skybox(pass, cubemap, rotation);
@@ -322,7 +322,7 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
                            nu_size_t        first,
                            nu_size_t        count,
                            nu_material_t    material,
-                           const nu_mat4_t *transforms,
+                           const nu_m4_t *transforms,
                            nu_size_t        instance_count)
 {
 #ifdef NU_BUILD_GL
@@ -350,8 +350,8 @@ nu_draw_submesh_instanced (nu_renderpass_t  pass,
 }
 void
 nu_draw_blit (nu_renderpass_t pass,
-              nu_box2i_t      extent,
-              nu_box2i_t      tex_extent,
+              nu_b2i_t      extent,
+              nu_b2i_t      tex_extent,
               nu_material_t   material)
 {
 #ifdef NU_BUILD_GL

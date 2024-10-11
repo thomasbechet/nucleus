@@ -13,7 +13,7 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
                               nu_size_t                 first,
                               nu_size_t                 count,
                               nu_material_t             mat,
-                              const nu_mat4_t          *transforms,
+                              const nu_m4_t          *transforms,
                               nu_size_t                 instance_count)
 {
     for (nu_size_t i = 0; i < instance_count; ++i)
@@ -134,7 +134,7 @@ nugl__prepare_color_depth (nugl__renderpass_t *pass,
         pass->fbo = nugl__find_or_create_framebuffer(
             color ? color->texture : 0, depth ? depth->texture : 0);
         pass->fbo_size
-            = color ? nu_vec3u_xy(color->size) : nu_vec3u_xy(depth->size);
+            = color ? nu_v3u_xy(color->size) : nu_v3u_xy(depth->size);
     }
     else
     {
@@ -219,7 +219,7 @@ nugl__renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 static void
 nugl__renderpass_set_skybox (nu_renderpass_t pass,
                              nu_texture_t    cubemap,
-                             nu_quat_t       rotation)
+                             nu_q4_t       rotation)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
@@ -281,7 +281,7 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
                               nu_size_t        first,
                               nu_size_t        count,
                               nu_material_t    material,
-                              const nu_mat4_t *transforms,
+                              const nu_m4_t *transforms,
                               nu_size_t        instance_count)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
@@ -315,8 +315,8 @@ nugl__draw_submesh_instanced (nu_renderpass_t  pass,
 }
 static void
 nugl__draw_blit (nu_renderpass_t pass,
-                 nu_box2i_t      extent,
-                 nu_box2i_t      tex_extent,
+                 nu_b2i_t      extent,
+                 nu_b2i_t      tex_extent,
                  nu_material_t   material)
 {
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
@@ -348,7 +348,7 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
         // Clear color
         if (pass->has_clear_color)
         {
-            nu_vec4_t clear_color = nu_color_to_vec4(pass->clear_color);
+            nu_v4_t clear_color = nu_color_to_vec4(pass->clear_color);
             glClearColor(
                 clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

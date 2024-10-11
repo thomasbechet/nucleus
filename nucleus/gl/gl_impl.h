@@ -216,7 +216,7 @@ nugl__free (void)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nugl__render (nu_box2i_t global_viewport, nu_box2i_t viewport)
+nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 {
     nu__gl_t *gl = &_ctx.gl;
 
@@ -231,11 +231,11 @@ nugl__render (nu_box2i_t global_viewport, nu_box2i_t viewport)
     glDisable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_FRAMEBUFFER_SRGB);
-    nu_vec4_t clear
+    nu_v4_t clear
         = nu_color_to_vec4(nu_color_to_linear(nu_color(25, 27, 43, 255)));
     glUseProgram(gl->screen_blit_program);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    nu_vec2u_t size = nu_box2i_size(viewport);
+    nu_v2u_t size = nu_b2i_size(viewport);
     glViewport(viewport.min.x, viewport.min.y, size.x, size.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -250,13 +250,13 @@ nugl__render (nu_box2i_t global_viewport, nu_box2i_t viewport)
     return NU_ERROR_NONE;
 }
 static nu_texture_t
-nugl__create_surface_color (nu_vec2u_t size)
+nugl__create_surface_color (nu_v2u_t size)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     nugl__texture_t *ptex   = NU_VEC_PUSH(&gl->textures);
     gl->surface_color_index = gl->textures.size - 1;
-    ptex->size              = nu_vec3u(size.x, size.y, 0);
+    ptex->size              = nu_v3u(size.x, size.y, 0);
 
     glGenTextures(1, &ptex->texture);
     glBindTexture(GL_TEXTURE_2D, ptex->texture);

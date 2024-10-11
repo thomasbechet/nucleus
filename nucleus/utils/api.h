@@ -24,7 +24,7 @@ NU_API void            nu_controller_delete(nu_controller_t controller);
 NU_API void            nu_controller_update(nu_controller_t controller,
                                             float           dt,
                                             nu_camera_t     camera);
-NU_API nu_mat4_t       nu_controller_transform(nu_controller_t controller);
+NU_API nu_m4_t       nu_controller_transform(nu_controller_t controller);
 
 NU_API nu_geometry_t nu_geometry_create(void);
 NU_API void          nu_geometry_delete(nu_geometry_t geometry);
@@ -38,13 +38,13 @@ NU_API void          nu_geometry_grid(nu_geometry_t geometry,
                                       nu_u32_t      height,
                                       float         unit,
                                       float         uv_scale);
-NU_API void          nu_geometry_transform(nu_geometry_t geometry, nu_mat4_t m);
+NU_API void          nu_geometry_transform(nu_geometry_t geometry, nu_m4_t m);
 NU_API void          nu_geometry_merge(nu_geometry_t dst, nu_geometry_t src);
 NU_API nu_mesh_t     nu_geometry_create_mesh(nu_geometry_t  geometry,
                                              nu_primitive_t primitive);
 NU_API nu_mesh_t     nu_geometry_create_mesh_normals(nu_geometry_t geometry);
-NU_API nu_box3_t     nu_geometry_bounds(nu_geometry_t geometry);
+NU_API nu_b3_t     nu_geometry_bounds(nu_geometry_t geometry);
 
-NU_API void nu_draw_stats(nu_renderpass_t pass, nu_font_t font, nu_vec2i_t pos);
+NU_API void nu_draw_stats(nu_renderpass_t pass, nu_font_t font, nu_v2i_t pos);
 
 #endif

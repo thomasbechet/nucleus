@@ -25,21 +25,21 @@ nu_font_create_default (void)
         = NU__FONT_DATA_WIDTH * NU__FONT_DATA_HEIGHT;
 
     font->glyphs_count = font->max_char - font->min_char + 1;
-    font->glyph_size   = nu_vec2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
+    font->glyph_size   = nu_v2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
-        = (nu_box2i_t *)nu_alloc(sizeof(nu_box2i_t) * font->glyphs_count);
+        = (nu_b2i_t *)nu_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
     // Load default font data into image
-    nu_vec2u_t image_size
-        = nu_vec2u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
+    nu_v2u_t image_size
+        = nu_v2u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT);
     nu_image_t  image      = nu_image_create(image_size);
     nu_color_t *image_data = nu_image_colors(image);
 
-    nu_box2i_t extent
-        = nu_box2i_xywh(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
+    nu_b2i_t extent
+        = nu_b2i_xywh(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     for (nu_size_t ci = 0; ci < char_count; ++ci)
     {
         for (nu_size_t p = 0; p < pixel_per_glyph; ++p)
@@ -63,7 +63,7 @@ nu_font_create_default (void)
         nu_size_t gi = nu__font_data_chars[ci] - font->min_char;
         NU_ASSERT(gi < font->glyphs_count);
         font->glyphs[gi] = extent;
-        extent = nu_box2i_translate(extent, nu_vec2i(NU__FONT_DATA_WIDTH, 0));
+        extent = nu_b2i_translate(extent, nu_v2i(NU__FONT_DATA_WIDTH, 0));
     }
 
     // Create renderer image
@@ -84,7 +84,7 @@ nu_font_delete (nu_font_t handle)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_free(font->glyphs, sizeof(nu_box2i_t) * font->glyphs_count);
+    nu_free(font->glyphs, sizeof(nu_b2i_t) * font->glyphs_count);
     nu_texture_delete(font->texture);
     nu_material_delete(font->material);
 }
@@ -94,19 +94,19 @@ nu_draw_text (nu_renderpass_t  pass,
               const nu_char_t *text,
               nu_size_t        n,
               nu_font_t        handle,
-              nu_vec2i_t       pos)
+              nu_v2i_t       pos)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_box2i_t  extent
-        = nu_box2i_xywh(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
+    nu_b2i_t  extent
+        = nu_b2i_xywh(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     for (nu_size_t i = 0; i < n; ++i)
     {
         nu_char_t c = text[i];
         if (c == '\n')
         {
-            extent = nu_box2i_moveto(
-                extent, nu_vec2i(pos.x, extent.min.y + font->glyph_size.y));
+            extent = nu_b2i_moveto(
+                extent, nu_v2i(pos.x, extent.min.y + font->glyph_size.y));
             continue;
         }
         if (c < font->min_char || c > font->max_char)
@@ -114,9 +114,9 @@ nu_draw_text (nu_renderpass_t  pass,
             continue;
         }
         nu_size_t  gi         = c - font->min_char;
-        nu_box2i_t tex_extent = font->glyphs[gi];
+        nu_b2i_t tex_extent = font->glyphs[gi];
         nu_draw_blit(pass, extent, tex_extent, font->material);
-        extent = nu_box2i_translate(extent, nu_vec2i(font->glyph_size.x, 0));
+        extent = nu_b2i_translate(extent, nu_v2i(font->glyph_size.x, 0));
     }
 }
 

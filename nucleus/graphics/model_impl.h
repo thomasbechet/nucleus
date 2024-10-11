@@ -21,7 +21,7 @@ nu_model_delete (nu_model_t model)
     NU_VEC_FREE(&m->nodes);
 }
 void
-nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_mat4_t transform)
+nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
 {
     nu_size_t               index = NU_HANDLE_INDEX(model);
     nu__model_t            *m     = &_ctx.graphics.models.data[index];
@@ -30,7 +30,7 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_mat4_t transform)
     {
         nu_material_t material = m->resources.data[nodes[i].material].material;
         nu_mesh_t     mesh     = m->resources.data[nodes[i].mesh].mesh;
-        nu_mat4_t global_transform = nu_mat4_mul(transform, nodes[i].transform);
+        nu_m4_t global_transform = nu_m4_mul(transform, nodes[i].transform);
         nu_draw_mesh(pass, mesh, material, global_transform);
     }
 }

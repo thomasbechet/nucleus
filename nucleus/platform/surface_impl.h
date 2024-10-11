@@ -6,16 +6,16 @@
 static void
 nu__update_viewport (nu__viewport_t *v)
 {
-    nu_vec2_t global_pos  = nu_vec2(v->extent.min.x, v->extent.min.y);
-    nu_vec2_t global_size = nu_vec2_v2u(nu_box2i_size(v->extent));
+    nu_v2_t global_pos  = nu_v2(v->extent.min.x, v->extent.min.y);
+    nu_v2_t global_size = nu_v2_v2u(nu_b2i_size(v->extent));
 
     float aspect_ratio = (float)v->screen.x / (float)v->screen.y;
 
-    nu_vec2_t size = NU_VEC2_ZEROS;
+    nu_v2_t size = NU_VEC2_ZEROS;
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
-            size = nu_vec2((float)v->screen.x * v->scale_factor,
+            size = nu_v2((float)v->screen.x * v->scale_factor,
                            (float)v->screen.y * v->scale_factor);
         };
         break;
@@ -45,17 +45,17 @@ nu__update_viewport (nu__viewport_t *v)
             break;
     }
 
-    nu_vec2_t vpos = nu_vec2_sub(global_size, size);
-    vpos           = nu_vec2_divs(vpos, 2);
-    vpos           = nu_vec2_add(vpos, global_pos);
-    v->viewport    = nu_box2i_xywh(vpos.x, vpos.y, size.x, size.y);
+    nu_v2_t vpos = nu_v2_sub(global_size, size);
+    vpos           = nu_v2_divs(vpos, 2);
+    vpos           = nu_v2_add(vpos, global_pos);
+    v->viewport    = nu_b2i_xywh(vpos.x, vpos.y, size.x, size.y);
 }
 
 static void
 nu__window_size_callback (RGFW_window *window, RGFW_rect r)
 {
     _ctx.platform.viewport.extent
-        = nu_box2i_resize(_ctx.platform.viewport.extent, nu_vec2u(r.w, r.h));
+        = nu_b2i_resize(_ctx.platform.viewport.extent, nu_v2u(r.w, r.h));
     nu__update_viewport(&_ctx.platform.viewport);
 }
 
