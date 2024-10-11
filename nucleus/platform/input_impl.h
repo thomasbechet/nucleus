@@ -128,7 +128,7 @@ nu__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
         const nu__binding_t *binding = &_ctx.platform.bindings.data[current];
         NU_ASSERT(binding->input_index < _ctx.platform.entries.capacity);
 
-        float value = NU_INPUT_RELEASED;
+        nu_f32_t value = NU_INPUT_RELEASED;
         if (pressed)
         {
             value = binding->button.pressed;
@@ -139,7 +139,7 @@ nu__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
     }
 }
 static void
-nu__dispatch_binding_axis (nu_u32_t binding, float value)
+nu__dispatch_binding_axis (nu_u32_t binding, nu_f32_t value)
 {
     nu_u32_t current = binding;
     while (current != NU__ID_NONE)
@@ -195,7 +195,7 @@ nu__key_callback (RGFW_window *window,
 static void
 nu__mouse_button_callback (RGFW_window *window,
                            u8           button,
-                           double       scroll,
+                           nu_f64_t     scroll,
                            u8           pressed)
 {
     if (button < RGFW_mouseScrollUp)
@@ -219,7 +219,7 @@ nu__mouse_button_callback (RGFW_window *window,
     }
     else if (_ctx.platform.capture_mouse)
     {
-        _ctx.platform.mouse_scroll = nu_v2((float)scroll, (float)scroll);
+        _ctx.platform.mouse_scroll = nu_v2((nu_f32_t)scroll, (nu_f32_t)scroll);
     }
 }
 static void
@@ -227,13 +227,14 @@ nu__mouse_position_callback (RGFW_window *window, RGFW_point point)
 {
     if (_ctx.platform.capture_mouse)
     {
-        _ctx.platform.mouse_motion
-            = nu_v2_add(_ctx.platform.mouse_motion,
-                        nu_v2_divs(nu_v2((float)point.x, (float)point.y), 200));
+        _ctx.platform.mouse_motion = nu_v2_add(
+            _ctx.platform.mouse_motion,
+            nu_v2_divs(nu_v2((nu_f32_t)point.x, (nu_f32_t)point.y), 200));
     }
     else
     {
-        _ctx.platform.mouse_position = nu_v2((float)point.x, (float)point.y);
+        _ctx.platform.mouse_position
+            = nu_v2((nu_f32_t)point.x, (nu_f32_t)point.y);
     }
 }
 
@@ -327,7 +328,7 @@ nu_input_just_released (nu_input_t input)
     return !NU_INPUT_IS_PRESSED(state->value)
            && NU_INPUT_IS_PRESSED(state->previous);
 }
-float
+nu_f32_t
 nu_input_value (nu_input_t input)
 {
     nu_size_t          index = NU_HANDLE_INDEX(input);
@@ -343,7 +344,7 @@ nuext_input_bind_button (nu_input_t input, nuext_button_t button)
 nu_error_t
 nuext_input_bind_button_value (nu_input_t     input,
                                nuext_button_t button,
-                               float          pressed_value)
+                               nu_f32_t       pressed_value)
 {
     // Check duplicated binding
     nu_u32_t *first_binding = nu__first_binding_from_button(button);
@@ -380,10 +381,10 @@ nuext_input_bind_axis (nu_input_t input, nuext_axis_t axis)
 nu_v2i_t
 nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
 {
-    float cx = nu_input_value(cursor_x);
-    float cy = nu_input_value(cursor_y);
-    return nu_v2i((nu_i32_t)(cx * (float)_ctx.platform.size.x),
-                  (nu_i32_t)(cy * (float)_ctx.platform.size.y));
+    nu_f32_t cx = nu_input_value(cursor_x);
+    nu_f32_t cy = nu_input_value(cursor_y);
+    return nu_v2i((nu_i32_t)(cx * (nu_f32_t)_ctx.platform.size.x),
+                  (nu_i32_t)(cy * (nu_f32_t)_ctx.platform.size.y));
 }
 
 #endif

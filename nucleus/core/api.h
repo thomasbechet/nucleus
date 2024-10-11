@@ -268,8 +268,8 @@ typedef struct
 {
     nu_bool_t active;
     nu_u32_t  id;
-    float     timestep;
-    float     _acc;
+    nu_f32_t  timestep;
+    nu_f32_t  _acc;
 } nu_fixed_loop_t;
 
 typedef union
@@ -288,33 +288,33 @@ typedef union
 {
     struct
     {
-        float x;
-        float y;
+        nu_f32_t x;
+        nu_f32_t y;
     };
-    float data[NU_V2_SIZE];
+    nu_f32_t data[NU_V2_SIZE];
 } nu_v2_t;
 
 typedef union
 {
     struct
     {
-        float x;
-        float y;
-        float z;
+        nu_f32_t x;
+        nu_f32_t y;
+        nu_f32_t z;
     };
-    float data[NU_V3_SIZE];
+    nu_f32_t data[NU_V3_SIZE];
 } nu_v3_t;
 
 typedef union
 {
     struct
     {
-        float x;
-        float y;
-        float z;
-        float w;
+        nu_f32_t x;
+        nu_f32_t y;
+        nu_f32_t z;
+        nu_f32_t w;
     };
-    float data[NU_V4_SIZE];
+    nu_f32_t data[NU_V4_SIZE];
 } nu_v4_t;
 
 typedef union
@@ -375,12 +375,12 @@ typedef union
 {
     struct
     {
-        float x;
-        float y;
-        float z;
-        float w;
+        nu_f32_t x;
+        nu_f32_t y;
+        nu_f32_t z;
+        nu_f32_t w;
     };
-    float data[NU_Q4_SIZE];
+    nu_f32_t data[NU_Q4_SIZE];
 } nu_q4_t;
 
 typedef union
@@ -388,41 +388,41 @@ typedef union
 
     struct
     {
-        float x1;
-        float x2;
-        float x3;
-        float y1;
-        float y2;
-        float y3;
-        float z1;
-        float z2;
-        float z3;
+        nu_f32_t x1;
+        nu_f32_t x2;
+        nu_f32_t x3;
+        nu_f32_t y1;
+        nu_f32_t y2;
+        nu_f32_t y3;
+        nu_f32_t z1;
+        nu_f32_t z2;
+        nu_f32_t z3;
     };
-    float data[NU_M3_SIZE];
+    nu_f32_t data[NU_M3_SIZE];
 } nu_m3_t;
 
 typedef union
 {
     struct
     {
-        float x1;
-        float x2;
-        float x3;
-        float x4;
-        float y1;
-        float y2;
-        float y3;
-        float y4;
-        float z1;
-        float z2;
-        float z3;
-        float z4;
-        float w1;
-        float w2;
-        float w3;
-        float w4;
+        nu_f32_t x1;
+        nu_f32_t x2;
+        nu_f32_t x3;
+        nu_f32_t x4;
+        nu_f32_t y1;
+        nu_f32_t y2;
+        nu_f32_t y3;
+        nu_f32_t y4;
+        nu_f32_t z1;
+        nu_f32_t z2;
+        nu_f32_t z3;
+        nu_f32_t z4;
+        nu_f32_t w1;
+        nu_f32_t w2;
+        nu_f32_t w3;
+        nu_f32_t w4;
     };
-    float data[NU_M4_SIZE];
+    nu_f32_t data[NU_M4_SIZE];
 } nu_m4_t;
 
 typedef struct
@@ -485,16 +485,16 @@ NU_API nu_u32_t  nu_time_hours(const nu_time_t *time);
 NU_API nu_u32_t  nu_time_minutes(const nu_time_t *time);
 NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
 
-NU_API void  nu_timer_reset(nu_timer_t *timer);
-NU_API float nu_timer_elapsed(nu_timer_t *timer);
+NU_API void     nu_timer_reset(nu_timer_t *timer);
+NU_API nu_f32_t nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API nu_fixed_loop_t nu_fixed_loop(nu_u32_t id, float timestep);
+NU_API nu_fixed_loop_t nu_fixed_loop(nu_u32_t id, nu_f32_t timestep);
 NU_API nu_bool_t       nu_fixed_loop_next(nu_fixed_loop_t *loops,
                                           nu_size_t        count,
                                           nu_u32_t        *id);
 NU_API void            nu_fixed_loop_update(nu_fixed_loop_t *loops,
                                             nu_size_t        count,
-                                            float            dt);
+                                            nu_f32_t         dt);
 
 NU_API nu_size_t  nu_strnlen(const nu_char_t *str, nu_size_t maxlen);
 NU_API nu_size_t  nu_strlen(const nu_char_t *str);
@@ -539,46 +539,46 @@ NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 
 NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
 NU_API nu_size_t nu_log2(nu_size_t n);
-NU_API float     nu_fabs(float f);
-NU_API float     nu_floor(float f);
-NU_API float     nu_radian(float d);
-NU_API float     nu_sqrt(float x);
-NU_API float     nu_pow(float b, float e);
-NU_API float     nu_cos(float x);
-NU_API float     nu_sin(float x);
-NU_API float     nu_tan(float x);
-NU_API float     nu_exp(float x);
+NU_API nu_f32_t  nu_fabs(nu_f32_t f);
+NU_API nu_f32_t  nu_floor(nu_f32_t f);
+NU_API nu_f32_t  nu_radian(nu_f32_t d);
+NU_API nu_f32_t  nu_sqrt(nu_f32_t x);
+NU_API nu_f32_t  nu_pow(nu_f32_t b, nu_f32_t e);
+NU_API nu_f32_t  nu_cos(nu_f32_t x);
+NU_API nu_f32_t  nu_sin(nu_f32_t x);
+NU_API nu_f32_t  nu_tan(nu_f32_t x);
+NU_API nu_f32_t  nu_exp(nu_f32_t x);
 
-NU_API nu_v2_t nu_v2(float x, float y);
+NU_API nu_v2_t nu_v2(nu_f32_t x, nu_f32_t y);
 NU_API nu_v2_t nu_v2_v2u(nu_v2u_t v);
 NU_API nu_v2_t nu_v2_add(nu_v2_t a, nu_v2_t b);
 NU_API nu_v2_t nu_v2_sub(nu_v2_t a, nu_v2_t b);
 NU_API nu_v2_t nu_v2_mul(nu_v2_t a, nu_v2_t b);
-NU_API nu_v2_t nu_v2_muls(nu_v2_t a, float s);
+NU_API nu_v2_t nu_v2_muls(nu_v2_t a, nu_f32_t s);
 NU_API nu_v2_t nu_v2_div(nu_v2_t a, nu_v2_t b);
-NU_API nu_v2_t nu_v2_divs(nu_v2_t a, float s);
+NU_API nu_v2_t nu_v2_divs(nu_v2_t a, nu_f32_t s);
 NU_API nu_v2_t nu_v2_floor(nu_v2_t a);
 
-NU_API nu_v3_t nu_v3(float x, float y, float z);
-NU_API nu_v3_t nu_v3s(float s);
-NU_API nu_v3_t nu_v3_add(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_sub(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_mul(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_muls(nu_v3_t a, float s);
-NU_API nu_v3_t nu_v3_div(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_divs(nu_v3_t a, float s);
-NU_API float   nu_v3_norm(nu_v3_t a);
-NU_API nu_v3_t nu_v3_normalize(nu_v3_t a);
-NU_API nu_v3_t nu_v3_cross(nu_v3_t a, nu_v3_t b);
-NU_API float   nu_v3_dot(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_min(nu_v3_t a, nu_v3_t b);
-NU_API nu_v3_t nu_v3_max(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3(nu_f32_t x, nu_f32_t y, nu_f32_t z);
+NU_API nu_v3_t  nu_v3s(nu_f32_t s);
+NU_API nu_v3_t  nu_v3_add(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_sub(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_mul(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_muls(nu_v3_t a, nu_f32_t s);
+NU_API nu_v3_t  nu_v3_div(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_divs(nu_v3_t a, nu_f32_t s);
+NU_API nu_f32_t nu_v3_norm(nu_v3_t a);
+NU_API nu_v3_t  nu_v3_normalize(nu_v3_t a);
+NU_API nu_v3_t  nu_v3_cross(nu_v3_t a, nu_v3_t b);
+NU_API nu_f32_t nu_v3_dot(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_min(nu_v3_t a, nu_v3_t b);
+NU_API nu_v3_t  nu_v3_max(nu_v3_t a, nu_v3_t b);
 
-NU_API nu_v4_t nu_v4(float x, float y, float z, float w);
-NU_API float   nu_v4_dot(nu_v4_t a, nu_v4_t b);
-NU_API float   nu_v4_norm(nu_v4_t v);
-NU_API nu_v2_t nu_v4_xy(nu_v4_t v);
-NU_API nu_v2_t nu_v4_zw(nu_v4_t v);
+NU_API nu_v4_t  nu_v4(nu_f32_t x, nu_f32_t y, nu_f32_t z, nu_f32_t w);
+NU_API nu_f32_t nu_v4_dot(nu_v4_t a, nu_v4_t b);
+NU_API nu_f32_t nu_v4_norm(nu_v4_t v);
+NU_API nu_v2_t  nu_v4_xy(nu_v4_t v);
+NU_API nu_v2_t  nu_v4_zw(nu_v4_t v);
 
 NU_API nu_v2i_t nu_v2i(nu_i32_t x, nu_i32_t y);
 NU_API nu_v2i_t nu_v2i_add(nu_v2i_t a, nu_v2i_t b);
@@ -595,17 +595,17 @@ NU_API nu_v2u_t nu_v3u_xy(nu_v3u_t v);
 
 NU_API nu_v4u_t nu_v4u(nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w);
 
-NU_API nu_q4_t nu_q4(float x, float y, float z, float w);
-NU_API nu_q4_t nu_q4_identity(void);
-NU_API nu_v4_t nu_q4_vec4(nu_q4_t a);
-NU_API float   nu_q4_norm(nu_q4_t a);
-NU_API nu_q4_t nu_q4_axis(nu_v3_t axis, float angle);
-NU_API nu_q4_t nu_q4_mul(nu_q4_t a, nu_q4_t b);
-NU_API nu_v3_t nu_q4_mulv3(nu_q4_t a, nu_v3_t v);
-NU_API nu_q4_t nu_q4_mul_axis(nu_q4_t q, nu_v3_t axis, float angle);
-NU_API nu_m3_t nu_q4_mat3(nu_q4_t q);
-NU_API nu_m4_t nu_q4_mat4(nu_q4_t q);
-NU_API nu_m4_t nu_q4_mulm4(nu_q4_t a, nu_m4_t m);
+NU_API nu_q4_t  nu_q4(nu_f32_t x, nu_f32_t y, nu_f32_t z, nu_f32_t w);
+NU_API nu_q4_t  nu_q4_identity(void);
+NU_API nu_v4_t  nu_q4_vec4(nu_q4_t a);
+NU_API nu_f32_t nu_q4_norm(nu_q4_t a);
+NU_API nu_q4_t  nu_q4_axis(nu_v3_t axis, nu_f32_t angle);
+NU_API nu_q4_t  nu_q4_mul(nu_q4_t a, nu_q4_t b);
+NU_API nu_v3_t  nu_q4_mulv3(nu_q4_t a, nu_v3_t v);
+NU_API nu_q4_t  nu_q4_mul_axis(nu_q4_t q, nu_v3_t axis, nu_f32_t angle);
+NU_API nu_m3_t  nu_q4_mat3(nu_q4_t q);
+NU_API nu_m4_t  nu_q4_mat4(nu_q4_t q);
+NU_API nu_m4_t  nu_q4_mulm4(nu_q4_t a, nu_m4_t m);
 
 NU_API nu_m3_t nu_m3_zero(void);
 NU_API nu_m3_t nu_m3_identity(void);
@@ -617,7 +617,7 @@ NU_API nu_m4_t nu_m4_zero(void);
 NU_API nu_m4_t nu_m4_identity(void);
 NU_API nu_m4_t nu_m4_translate(nu_v3_t v);
 NU_API nu_m4_t nu_m4_scale(nu_v3_t v);
-NU_API nu_m4_t nu_m4_rotate_y(float angle);
+NU_API nu_m4_t nu_m4_rotate_y(nu_f32_t angle);
 NU_API nu_m4_t nu_m4_mul(nu_m4_t a, nu_m4_t b);
 NU_API nu_v4_t nu_m4_mulv(nu_m4_t a, nu_v4_t v);
 NU_API nu_v3_t nu_m4_mulv3(nu_m4_t a, nu_v3_t v);
@@ -639,20 +639,24 @@ NU_API nu_b3_t   nu_b3(nu_v3_t p, nu_v3_t s);
 NU_API nu_v3_t   nu_b3_center(nu_b3_t b);
 NU_API nu_bool_t nj_b3_contains(nu_b3_t b, nu_v3_t p);
 
-NU_API nu_m4_t nu_perspective(float fov,
-                              float aspect_ratio,
-                              float z_near,
-                              float z_far);
-NU_API nu_m4_t nu_ortho(
-    float left, float right, float bottom, float top, float near, float far);
+NU_API nu_m4_t nu_perspective(nu_f32_t fov,
+                              nu_f32_t aspect_ratio,
+                              nu_f32_t z_near,
+                              nu_f32_t z_far);
+NU_API nu_m4_t nu_ortho(nu_f32_t left,
+                        nu_f32_t right,
+                        nu_f32_t bottom,
+                        nu_f32_t top,
+                        nu_f32_t near,
+                        nu_f32_t far);
 NU_API nu_m4_t nu_lookat(nu_v3_t eye, nu_v3_t center, nu_v3_t up);
 
-NU_API nu_v3_t nu_axis3d(float     pos_x,
-                         float     neg_x,
-                         float     pos_y,
-                         float     neg_y,
-                         float     pos_z,
-                         float     neg_z,
+NU_API nu_v3_t nu_axis3d(nu_f32_t  pos_x,
+                         nu_f32_t  neg_x,
+                         nu_f32_t  pos_y,
+                         nu_f32_t  neg_y,
+                         nu_f32_t  pos_z,
+                         nu_f32_t  neg_z,
                          nu_bool_t normalize);
 
 NU_API nu_v3_t nu_triangle_normal(nu_v3_t p0, nu_v3_t p1, nu_v3_t p2);

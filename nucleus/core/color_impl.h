@@ -26,12 +26,12 @@ nu_color_from_vec4 (nu_v4_t v)
                     (nu_u8_t)(v.z * 255.0),
                     (nu_u8_t)(v.w * 255.0));
 }
-static float
-nu__color_to_srgb (float x)
+static nu_f32_t
+nu__color_to_srgb (nu_f32_t x)
 {
     if (x > 0.0031308)
     {
-        float a = 0.055;
+        nu_f32_t a = 0.055;
         return (1.0 + a) * nu_pow(a, -2.4) - a;
     }
     else
@@ -39,8 +39,8 @@ nu__color_to_srgb (float x)
         return 12.92 * x;
     }
 }
-static float
-nu__color_to_linear (float x)
+static nu_f32_t
+nu__color_to_linear (nu_f32_t x)
 {
     if (x > 0.04045)
     {

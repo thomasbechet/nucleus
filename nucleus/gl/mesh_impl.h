@@ -54,16 +54,16 @@ nugl__mesh_write_uvs (nu_mesh_t      mesh,
         glBindVertexArray(p->vao);
         glBindBuffer(GL_ARRAY_BUFFER, p->uvs);
         nu_size_t bsize = nu__primitive_vertex_count(p->primitive, p->capacity)
-                          * NU_V2_SIZE * sizeof(float);
+                          * NU_V2_SIZE * sizeof(nu_f32_t);
         glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(
-            1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * NU_V2_SIZE, (void *)0);
+            1, 2, GL_FLOAT, GL_FALSE, sizeof(nu_f32_t) * NU_V2_SIZE, (void *)0);
         glEnableVertexAttribArray(1);
         glBindVertexArray(0);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, p->uvs);
-    float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    nu_f32_t *ptr = (nu_f32_t *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     NU_ASSERT(ptr && data);
     NU_ASSERT(first + count <= p->capacity);
     const nu_size_t vertex_per_primitive
@@ -99,10 +99,10 @@ nugl__mesh_write_positions (nu_mesh_t      mesh,
         glGenBuffers(1, &p->positions);
         glBindBuffer(GL_ARRAY_BUFFER, p->positions);
         nu_size_t bsize = nu__primitive_vertex_count(p->primitive, p->capacity)
-                          * NU_V3_SIZE * sizeof(float);
+                          * NU_V3_SIZE * sizeof(nu_f32_t);
         glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(
-            0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * NU_V3_SIZE, (void *)0);
+            0, 3, GL_FLOAT, GL_FALSE, sizeof(nu_f32_t) * NU_V3_SIZE, (void *)0);
         glEnableVertexAttribArray(0);
 
         if (p->primitive == NU_PRIMITIVE_TRIANGLES)
@@ -111,13 +111,13 @@ nugl__mesh_write_positions (nu_mesh_t      mesh,
             glBindBuffer(GL_ARRAY_BUFFER, p->normals);
             bsize = nu__primitive_vertex_count(NU_PRIMITIVE_TRIANGLES,
                                                p->capacity)
-                    * NU_V3_SIZE * sizeof(float);
+                    * NU_V3_SIZE * sizeof(nu_f32_t);
             glBufferData(GL_ARRAY_BUFFER, bsize, NU_NULL, GL_DYNAMIC_DRAW);
             glVertexAttribPointer(2,
                                   3,
                                   GL_FLOAT,
                                   GL_FALSE,
-                                  sizeof(float) * NU_V3_SIZE,
+                                  sizeof(nu_f32_t) * NU_V3_SIZE,
                                   (void *)0);
             glEnableVertexAttribArray(2);
         }
@@ -130,7 +130,7 @@ nugl__mesh_write_positions (nu_mesh_t      mesh,
 
     // Update positions
     glBindBuffer(GL_ARRAY_BUFFER, p->positions);
-    float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    nu_f32_t *ptr = (nu_f32_t *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     NU_ASSERT(ptr);
     for (nu_size_t v = 0; v < vcount; ++v)
     {
@@ -144,7 +144,7 @@ nugl__mesh_write_positions (nu_mesh_t      mesh,
     if (p->primitive == NU_PRIMITIVE_TRIANGLES)
     {
         glBindBuffer(GL_ARRAY_BUFFER, p->normals);
-        float *ptr = (float *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        nu_f32_t *ptr = (nu_f32_t *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
         NU_ASSERT(ptr);
         nu_size_t vfirst = nu__primitive_vertex_first(p->primitive, first);
         for (nu_size_t p = 0; p < count; ++p)

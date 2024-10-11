@@ -24,62 +24,62 @@ nu_log2 (nu_size_t n)
     }
     return result;
 }
-float
-nu_fabs (float f)
+nu_f32_t
+nu_fabs (nu_f32_t f)
 {
 #ifdef NU_STDLIB
     return fabsf(f);
 #endif
 }
-float
-nu_floor (float f)
+nu_f32_t
+nu_floor (nu_f32_t f)
 {
 #ifdef NU_STDLIB
     return floorf(f);
 #endif
 }
-float
-nu_radian (float d)
+nu_f32_t
+nu_radian (nu_f32_t d)
 {
     return d * (NU_PI / 180.0f);
 }
-float
-nu_sqrt (float x)
+nu_f32_t
+nu_sqrt (nu_f32_t x)
 {
 #ifdef NU_STDLIB
     return sqrtf(x);
 #endif
 }
-float
-nu_pow (float b, float e)
+nu_f32_t
+nu_pow (nu_f32_t b, nu_f32_t e)
 {
 #ifdef NU_STDLIB
     return powf(b, e);
 #endif
 }
-float
-nu_cos (float x)
+nu_f32_t
+nu_cos (nu_f32_t x)
 {
 #ifdef NU_STDLIB
     return cosf(x);
 #endif
 }
-float
-nu_sin (float x)
+nu_f32_t
+nu_sin (nu_f32_t x)
 {
 #ifdef NU_STDLIB
     return sinf(x);
 #endif
 }
-float
-nu_tan (float x)
+nu_f32_t
+nu_tan (nu_f32_t x)
 {
 #ifdef NU_STDLIB
     return tanf(x);
 #endif
 }
-float
-nu_exp (float x)
+nu_f32_t
+nu_exp (nu_f32_t x)
 {
 #ifdef NU_STDLIB
     return expf(x);
@@ -87,7 +87,7 @@ nu_exp (float x)
 }
 
 nu_v2_t
-nu_v2 (float x, float y)
+nu_v2 (nu_f32_t x, nu_f32_t y)
 {
     nu_v2_t ret;
     ret.x = x;
@@ -124,7 +124,7 @@ nu_v2_mul (nu_v2_t a, nu_v2_t b)
     return ret;
 }
 nu_v2_t
-nu_v2_muls (nu_v2_t a, float s)
+nu_v2_muls (nu_v2_t a, nu_f32_t s)
 {
     nu_v2_t ret;
     ret.x = a.x * s;
@@ -140,7 +140,7 @@ nu_v2_div (nu_v2_t a, nu_v2_t b)
     return ret;
 }
 nu_v2_t
-nu_v2_divs (nu_v2_t a, float s)
+nu_v2_divs (nu_v2_t a, nu_f32_t s)
 {
     nu_v2_t ret;
     ret.x = a.x / s;
@@ -157,7 +157,7 @@ nu_v2_floor (nu_v2_t a)
 }
 
 nu_v3_t
-nu_v3 (float x, float y, float z)
+nu_v3 (nu_f32_t x, nu_f32_t y, nu_f32_t z)
 {
     nu_v3_t ret;
     ret.x = x;
@@ -166,7 +166,7 @@ nu_v3 (float x, float y, float z)
     return ret;
 }
 nu_v3_t
-nu_v3s (float s)
+nu_v3s (nu_f32_t s)
 {
     return nu_v3(s, s, s);
 }
@@ -198,7 +198,7 @@ nu_v3_mul (nu_v3_t a, nu_v3_t b)
     return ret;
 }
 nu_v3_t
-nu_v3_muls (nu_v3_t a, float s)
+nu_v3_muls (nu_v3_t a, nu_f32_t s)
 {
     nu_v3_t ret;
     ret.x = a.x * s;
@@ -216,7 +216,7 @@ nu_v3_div (nu_v3_t a, nu_v3_t b)
     return ret;
 }
 nu_v3_t
-nu_v3_divs (nu_v3_t a, float s)
+nu_v3_divs (nu_v3_t a, nu_f32_t s)
 {
     nu_v3_t ret;
     ret.x = a.x / s;
@@ -224,7 +224,7 @@ nu_v3_divs (nu_v3_t a, float s)
     ret.z = a.z / s;
     return ret;
 }
-float
+nu_f32_t
 nu_v3_norm (nu_v3_t a)
 {
     return nu_sqrt(nu_v3_dot(a, a));
@@ -232,7 +232,7 @@ nu_v3_norm (nu_v3_t a)
 nu_v3_t
 nu_v3_normalize (nu_v3_t v)
 {
-    float norm = nu_v3_norm(v);
+    nu_f32_t norm = nu_v3_norm(v);
     if (norm == 0)
     {
         return NU_V3_ZEROS;
@@ -252,7 +252,7 @@ nu_v3_cross (nu_v3_t a, nu_v3_t b)
     ret.z = a.x * b.y - a.y * b.x;
     return ret;
 }
-float
+nu_f32_t
 nu_v3_dot (nu_v3_t a, nu_v3_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -277,7 +277,7 @@ nu_v3_max (nu_v3_t a, nu_v3_t b)
 }
 
 nu_v4_t
-nu_v4 (float x, float y, float z, float w)
+nu_v4 (nu_f32_t x, nu_f32_t y, nu_f32_t z, nu_f32_t w)
 {
     nu_v4_t v;
     v.x = x;
@@ -286,12 +286,12 @@ nu_v4 (float x, float y, float z, float w)
     v.w = w;
     return v;
 }
-float
+nu_f32_t
 nu_v4_dot (nu_v4_t a, nu_v4_t b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
-float
+nu_f32_t
 nu_v4_norm (nu_v4_t v)
 {
     return nu_sqrt(nu_v4_dot(v, v));
@@ -400,7 +400,7 @@ nu_v4u (nu_u32_t x, nu_u32_t y, nu_u32_t z, nu_u32_t w)
 }
 
 nu_q4_t
-nu_q4 (float x, float y, float z, float w)
+nu_q4 (nu_f32_t x, nu_f32_t y, nu_f32_t z, nu_f32_t w)
 {
     nu_q4_t q;
     q.x = x;
@@ -419,17 +419,17 @@ nu_q4_vec4 (nu_q4_t a)
 {
     return nu_v4(a.x, a.y, a.z, a.w);
 }
-float
+nu_f32_t
 nu_q4_norm (nu_q4_t a)
 {
     return nu_v4_norm(nu_q4_vec4(a));
 }
 nu_q4_t
-nu_q4_axis (nu_v3_t axis, float angle)
+nu_q4_axis (nu_v3_t axis, nu_f32_t angle)
 {
-    float a = angle * 0.5;
-    float c = nu_cos(a);
-    float s = nu_sin(a);
+    nu_f32_t a = angle * 0.5;
+    nu_f32_t c = nu_cos(a);
+    nu_f32_t s = nu_sin(a);
 
     nu_v3_t k = nu_v3_normalize(axis);
 
@@ -457,30 +457,30 @@ nu_q4_mulv3 (nu_q4_t a, nu_v3_t v)
     return nu_v3_add(v1, nu_v3_add(v2, v3));
 }
 nu_q4_t
-nu_q4_mul_axis (nu_q4_t q, nu_v3_t axis, float angle)
+nu_q4_mul_axis (nu_q4_t q, nu_v3_t axis, nu_f32_t angle)
 {
     return nu_q4_mul(q, nu_q4_axis(axis, angle));
 }
 nu_m3_t
 nu_q4_mat3 (nu_q4_t q)
 {
-    float norm = nu_q4_norm(q);
-    float s    = norm > 0.0 ? 2.0 / norm : 0.0;
+    nu_f32_t norm = nu_q4_norm(q);
+    nu_f32_t s    = norm > 0.0 ? 2.0 / norm : 0.0;
 
-    float x = q.x;
-    float y = q.y;
-    float z = q.z;
-    float w = q.w;
+    nu_f32_t x = q.x;
+    nu_f32_t y = q.y;
+    nu_f32_t z = q.z;
+    nu_f32_t w = q.w;
 
-    float xx = s * x * x;
-    float xy = s * x * y;
-    float wx = s * w * x;
-    float yy = s * y * y;
-    float yz = s * y * z;
-    float wy = s * w * y;
-    float zz = s * z * z;
-    float xz = s * x * z;
-    float wz = s * w * z;
+    nu_f32_t xx = s * x * x;
+    nu_f32_t xy = s * x * y;
+    nu_f32_t wx = s * w * x;
+    nu_f32_t yy = s * y * y;
+    nu_f32_t yz = s * y * z;
+    nu_f32_t wy = s * w * y;
+    nu_f32_t zz = s * z * z;
+    nu_f32_t xz = s * x * z;
+    nu_f32_t wz = s * w * z;
 
     nu_m3_t m;
 
@@ -501,23 +501,23 @@ nu_q4_mat3 (nu_q4_t q)
 nu_m4_t
 nu_q4_mat4 (nu_q4_t q)
 {
-    float norm = nu_q4_norm(q);
-    float s    = norm > 0.0 ? 2.0 / norm : 0.0;
+    nu_f32_t norm = nu_q4_norm(q);
+    nu_f32_t s    = norm > 0.0 ? 2.0 / norm : 0.0;
 
-    float x = q.x;
-    float y = q.y;
-    float z = q.z;
-    float w = q.w;
+    nu_f32_t x = q.x;
+    nu_f32_t y = q.y;
+    nu_f32_t z = q.z;
+    nu_f32_t w = q.w;
 
-    float xx = s * x * x;
-    float xy = s * x * y;
-    float wx = s * w * x;
-    float yy = s * y * y;
-    float yz = s * y * z;
-    float wy = s * w * y;
-    float zz = s * z * z;
-    float xz = s * x * z;
-    float wz = s * w * z;
+    nu_f32_t xx = s * x * x;
+    nu_f32_t xy = s * x * y;
+    nu_f32_t wx = s * w * x;
+    nu_f32_t yy = s * y * y;
+    nu_f32_t yz = s * y * z;
+    nu_f32_t wy = s * w * y;
+    nu_f32_t zz = s * z * z;
+    nu_f32_t xz = s * x * z;
+    nu_f32_t wz = s * w * z;
 
     nu_m4_t m;
 
@@ -641,7 +641,7 @@ nu_m4_scale (nu_v3_t v)
     return m;
 }
 nu_m4_t
-nu_m4_rotate_y (float angle)
+nu_m4_rotate_y (nu_f32_t angle)
 {
     nu_m4_t m = nu_m4_identity();
     m.x1      = nu_cos(angle);
@@ -755,8 +755,8 @@ nu_b2i_normalize (nu_b2i_t b, nu_v2_t p)
 {
     nu_v2_t  ret;
     nu_v2u_t size = nu_b2i_size(b);
-    ret.x         = (p.x - (float)b.min.x) / (float)(size.x);
-    ret.y         = (p.y - (float)b.min.y) / (float)(size.y);
+    ret.x         = (p.x - (nu_f32_t)b.min.x) / (nu_f32_t)(size.x);
+    ret.y         = (p.y - (nu_f32_t)b.min.y) / (nu_f32_t)(size.y);
     return ret;
 }
 
@@ -782,12 +782,15 @@ nu_b3_contains (nu_b3_t b, nu_v3_t p)
 }
 
 nu_m4_t
-nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
+nu_perspective (nu_f32_t fov,
+                nu_f32_t aspect_ratio,
+                nu_f32_t z_near,
+                nu_f32_t z_far)
 {
-    nu_m4_t m;
-    float   y_scale  = 1.0f / nu_tan(fov / 2.0f);
-    float   x_scale  = y_scale / aspect_ratio;
-    float   near_far = z_near - z_far;
+    nu_m4_t  m;
+    nu_f32_t y_scale  = 1.0f / nu_tan(fov / 2.0f);
+    nu_f32_t x_scale  = y_scale / aspect_ratio;
+    nu_f32_t near_far = z_near - z_far;
 
     m.data[0] = x_scale;
     m.data[1] = 0;
@@ -812,14 +815,18 @@ nu_perspective (float fov, float aspect_ratio, float z_near, float z_far)
     return m;
 }
 nu_m4_t
-nu_ortho (
-    float left, float right, float bottom, float top, float nnear, float far)
+nu_ortho (nu_f32_t left,
+          nu_f32_t right,
+          nu_f32_t bottom,
+          nu_f32_t top,
+          nu_f32_t nnear,
+          nu_f32_t far)
 {
     nu_m4_t m;
 
-    float rl = 1.0 / (right - left);
-    float tb = 1.0 / (top - bottom);
-    float fn = -1.0 / (far - nnear);
+    nu_f32_t rl = 1.0 / (right - left);
+    nu_f32_t tb = 1.0 / (top - bottom);
+    nu_f32_t fn = -1.0 / (far - nnear);
 
     m.data[0] = 2.0 * rl;
     m.data[1] = 0;
@@ -880,12 +887,12 @@ nu_lookat (nu_v3_t eye, nu_v3_t center, nu_v3_t up)
 }
 
 nu_v3_t
-nu_axis3d (float     pos_x,
-           float     neg_x,
-           float     pos_y,
-           float     neg_y,
-           float     pos_z,
-           float     neg_z,
+nu_axis3d (nu_f32_t  pos_x,
+           nu_f32_t  neg_x,
+           nu_f32_t  pos_y,
+           nu_f32_t  neg_y,
+           nu_f32_t  pos_z,
+           nu_f32_t  neg_z,
            nu_bool_t normalize)
 {
     nu_v3_t ax;

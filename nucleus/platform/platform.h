@@ -27,7 +27,7 @@ typedef struct
 typedef struct
 {
     nuext_viewport_mode_t mode;
-    float                 scale_factor;
+    nu_f32_t              scale_factor;
     nu_v2u_t              screen;
     nu_b2i_t              extent;
     nu_b2i_t              viewport;
@@ -35,12 +35,12 @@ typedef struct
 
 typedef struct
 {
-    float pressed;
+    nu_f32_t pressed;
 } nu__binding_button_t;
 
 typedef struct
 {
-    float scale;
+    nu_f32_t scale;
 } nu__binding_axis_t;
 
 typedef struct
@@ -58,8 +58,8 @@ typedef NU_POOL(nu__binding_t) nu__binding_pool_t;
 
 typedef struct
 {
-    float value;
-    float previous;
+    nu_f32_t value;
+    nu_f32_t previous;
 } nu__input_state_t;
 
 typedef struct

@@ -50,7 +50,7 @@ typedef struct
     nu_u32_t pos;
     nu_u32_t tex;
     nu_u32_t size;
-    float    depth;
+    nu_f32_t depth;
 } nugl__gpu_blit_t;
 
 typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
@@ -72,7 +72,7 @@ typedef struct
     GLuint                     blit_vbo;
     nu_size_t                  blit_vbo_size;
     GLuint                     blit_vao;
-    float                      depth;
+    nu_f32_t                   depth;
 } nugl__renderpass_canvas_t;
 
 typedef struct

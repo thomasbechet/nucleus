@@ -8,9 +8,9 @@
 typedef struct
 {
     nu_timer_t timer;
-    float      frames[NU__STATS_FRAME_COUNT];
+    nu_f32_t   frames[NU__STATS_FRAME_COUNT];
     nu_size_t  head;
-    float      avg;
+    nu_f32_t   avg;
     nu_size_t  frame;
 
     nu__graphics_stats_t graphics_current;

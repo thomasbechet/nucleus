@@ -50,7 +50,8 @@ nu_camera_create (void)
     nu_camera_t handle = nugl__camera_create();
     NU_CHECK(handle, return handle);
     nu_camera_set_view(handle, nu_lookat(NU_V3_UP, NU_V3_FORWARD, NU_V3_ZEROS));
-    float aspect = (float)_ctx.platform.size.x / (float)_ctx.platform.size.y;
+    nu_f32_t aspect
+        = (nu_f32_t)_ctx.platform.size.x / (nu_f32_t)_ctx.platform.size.y;
     nu_camera_set_proj(handle,
                        nu_perspective(nu_radian(70), aspect, 0.01, 100));
     return handle;

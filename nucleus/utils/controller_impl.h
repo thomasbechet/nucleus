@@ -40,7 +40,9 @@ nu_controller_create (nu_input_t view_pitch,
     return NU_HANDLE_MAKE(nu_controller_t, index);
 }
 void
-nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
+nu_controller_update (nu_controller_t controller,
+                      nu_f32_t        dt,
+                      nu_camera_t     camera)
 {
     nu__camera_controller_t *ctrl
         = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
@@ -129,8 +131,8 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     dt = dt * 0.001;
 
     // Compute sum of forces
-    const float mass  = 10.0;
-    nu_v3_t     force = NU_V3_ZEROS;
+    const nu_f32_t mass  = 10.0;
+    nu_v3_t        force = NU_V3_ZEROS;
 
     // Apply movement
     if (nu_v3_norm(direction) > 0.001)
@@ -179,7 +181,7 @@ nu_controller_update (nu_controller_t controller, float dt, nu_camera_t camera)
     // Collision detection and resolution
     if (ctrl->mode == NU_CONTROLLER_CHARACTER)
     {
-        const float height = 1.75;
+        const nu_f32_t height = 1.75;
         if (ctrl->pos.y - height <= 0)
         {
             ctrl->pos.y     = height;

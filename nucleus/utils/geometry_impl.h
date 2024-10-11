@@ -24,8 +24,8 @@ static void
 nu__generate_grid (nu__geometry_t *g,
                    nu_u32_t        width,
                    nu_u32_t        height,
-                   float           unit,
-                   float           uv_scale)
+                   nu_f32_t        unit,
+                   nu_f32_t        uv_scale)
 {
     // Generate positions and uvs
     nu_size_t pos_offset = g->positions.size;
@@ -35,9 +35,9 @@ nu__generate_grid (nu__geometry_t *g,
         for (nu_u32_t w = 0; w <= width; ++w)
         {
             nu_v3_t pos = nu_v3(w * unit, 0, h * unit);
-            nu_v2_t uv  = nu_v2_muls(
-                nu_v2((float)w / (float)width, (float)h / (float)height),
-                uv_scale);
+            nu_v2_t uv  = nu_v2_muls(nu_v2((nu_f32_t)w / (nu_f32_t)width,
+                                          (nu_f32_t)h / (nu_f32_t)height),
+                                    uv_scale);
             *NU_VEC_PUSH(&g->positions) = pos;
             *NU_VEC_PUSH(&g->uvs)       = uv;
         }
@@ -65,7 +65,7 @@ nu__generate_grid (nu__geometry_t *g,
     }
 }
 static void
-nu__generate_plane (nu__geometry_t *g, float width, float height)
+nu__generate_plane (nu__geometry_t *g, nu_f32_t width, nu_f32_t height)
 
 {
     const nu_v3_t positions[4] = {
@@ -94,7 +94,7 @@ nu__generate_plane (nu__geometry_t *g, float width, float height)
     }
 }
 static void
-nu__generate_cube (nu__geometry_t *g, float unit)
+nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
 {
     const nu_v3_t positions[8] = {
         nu_v3(0, 0, unit),    nu_v3(unit, 0, unit), nu_v3(unit, 0, 0),
@@ -169,14 +169,14 @@ nu_geometry_reset (nu_geometry_t geometry)
 }
 
 void
-nu_geometry_cube (nu_geometry_t geometry, float side_length)
+nu_geometry_cube (nu_geometry_t geometry, nu_f32_t side_length)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_geometry_reset(geometry);
     nu__generate_cube(g, side_length);
 }
 void
-nu_geometry_plane (nu_geometry_t geometry, float width, float height)
+nu_geometry_plane (nu_geometry_t geometry, nu_f32_t width, nu_f32_t height)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_geometry_reset(geometry);
@@ -186,8 +186,8 @@ void
 nu_geometry_grid (nu_geometry_t geometry,
                   nu_u32_t      width,
                   nu_u32_t      height,
-                  float         unit,
-                  float         uv_scale)
+                  nu_f32_t      unit,
+                  nu_f32_t      uv_scale)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_geometry_reset(geometry);

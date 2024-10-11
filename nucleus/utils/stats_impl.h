@@ -23,9 +23,9 @@ nu__stats_update (void)
 {
     nu__stats_t *s = &_ctx.utils.stats;
 
-    float delta = nu_timer_elapsed(&s->timer);
+    nu_f32_t delta = nu_timer_elapsed(&s->timer);
     nu_timer_reset(&s->timer);
-    float frame_fps    = nu_floor((1.0 / delta) * 1000.0);
+    nu_f32_t frame_fps = nu_floor((1.0 / delta) * 1000.0);
     s->frames[s->head] = frame_fps;
     s->head            = (s->head + 1) % NU__STATS_FRAME_COUNT;
     s->avg             = 0;

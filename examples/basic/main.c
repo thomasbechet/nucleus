@@ -222,7 +222,7 @@ main (void)
 
     nu_timer_t timer;
     nu_timer_reset(&timer);
-    float     delta      = 0.0f;
+    nu_f32_t  delta      = 0.0f;
     nu_bool_t bool_state = NU_TRUE;
 
     while (!nu_exit_requested() && running)

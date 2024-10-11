@@ -9,7 +9,7 @@ typedef struct
     union
     {
         nu_u32_t *ints;
-        float    *floats;
+        nu_f32_t *nu_f32_ts;
     };
 } nu__table_entry_t;
 

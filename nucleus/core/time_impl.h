@@ -92,7 +92,7 @@ nu_timer_reset (nu_timer_t *timer)
     clock_gettime(CLOCK_MONOTONIC, &timer->start);
 #endif
 }
-float
+nu_f32_t
 nu_timer_elapsed (nu_timer_t *timer)
 {
     struct timespec end;
@@ -105,11 +105,11 @@ nu_timer_elapsed (nu_timer_t *timer)
     struct timespec diff;
     timespec_diff(&timer->start, &end, &diff);
 
-    return (double)diff.tv_nsec / 1.0e6;
+    return (nu_f64_t)diff.tv_nsec / 1.0e6;
 }
 
 nu_fixed_loop_t
-nu_fixed_loop (nu_u32_t id, float timestep)
+nu_fixed_loop (nu_u32_t id, nu_f32_t timestep)
 {
     nu_fixed_loop_t loop;
     loop.id       = id;
@@ -119,7 +119,7 @@ nu_fixed_loop (nu_u32_t id, float timestep)
     return loop;
 }
 void
-nu_fixed_loop_update (nu_fixed_loop_t *loops, nu_size_t count, float dt)
+nu_fixed_loop_update (nu_fixed_loop_t *loops, nu_size_t count, nu_f32_t dt)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {

@@ -9,22 +9,22 @@ nu__update_viewport (nu__viewport_t *v)
     nu_v2_t global_pos  = nu_v2(v->extent.min.x, v->extent.min.y);
     nu_v2_t global_size = nu_v2_v2u(nu_b2i_size(v->extent));
 
-    float aspect_ratio = (float)v->screen.x / (float)v->screen.y;
+    nu_f32_t aspect_ratio = (nu_f32_t)v->screen.x / (nu_f32_t)v->screen.y;
 
     nu_v2_t size = NU_V2_ZEROS;
     switch (v->mode)
     {
         case NUEXT_VIEWPORT_FIXED: {
-            size = nu_v2((float)v->screen.x * v->scale_factor,
-                         (float)v->screen.y * v->scale_factor);
+            size = nu_v2((nu_f32_t)v->screen.x * v->scale_factor,
+                         (nu_f32_t)v->screen.y * v->scale_factor);
         };
         break;
         case NUEXT_VIEWPORT_FIXED_BEST_FIT: {
-            float w_factor = global_size.x / (float)v->screen.x;
-            float h_factor = global_size.y / (float)v->screen.y;
-            float min      = NU_MAX(1.0f, nu_floor(NU_MIN(w_factor, h_factor)));
-            size.x         = v->screen.x * min;
-            size.y         = v->screen.y * min;
+            nu_f32_t w_factor = global_size.x / (nu_f32_t)v->screen.x;
+            nu_f32_t h_factor = global_size.y / (nu_f32_t)v->screen.y;
+            nu_f32_t min = NU_MAX(1.0f, nu_floor(NU_MIN(w_factor, h_factor)));
+            size.x       = v->screen.x * min;
+            size.y       = v->screen.y * min;
         }
         break;
         case NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT: {
@@ -77,10 +77,10 @@ nu_swap_buffers (void)
 #endif
     RGFW_window_swapBuffers(_ctx.platform.win);
 }
-float
+nu_f32_t
 nu_surface_aspect (void)
 {
-    return (float)_ctx.platform.size.x / (float)_ctx.platform.size.y;
+    return (nu_f32_t)_ctx.platform.size.x / (nu_f32_t)_ctx.platform.size.y;
 }
 
 nu_error_t

@@ -50,7 +50,7 @@ nu__platform_init (void)
 
     // Get initial mouse position
     RGFW_point p                 = RGFW_window_getMousePoint(_ctx.platform.win);
-    _ctx.platform.mouse_position = nu_v2((float)p.x, (float)p.y);
+    _ctx.platform.mouse_position = nu_v2((nu_f32_t)p.x, (nu_f32_t)p.y);
     _ctx.platform.mouse_old_position    = _ctx.platform.mouse_position;
     _ctx.platform.mouse_motion          = NU_V2_ZEROS;
     _ctx.platform.mouse_motion_previous = NU_V2_ZEROS;
