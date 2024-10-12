@@ -9,6 +9,7 @@
 #define NU_NOOP
 
 NU_DEFINE_HANDLE(nu_table_t);
+NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 #define NU_DEFAULT_ALIGN  16
 #define NU_COLOR_WHITE    nu_color(255, 255, 255, 0)
@@ -186,7 +187,7 @@ NU_DEFINE_HANDLE(nu_table_t);
          ? (p)->data + (*(pindex))                              \
          : NU_NULL)
 
-#define NU_POOL_REMOVE(s, index) (*nu_vec_push_checked(&(s)->_freelist) = index)
+#define NU_POOL_REMOVE(s, index) ((*NU_VEC_PUSH(&(s)->_freelist)) = (index))
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
@@ -208,6 +209,8 @@ typedef intptr_t      nu_intptr_t;
 typedef unsigned char nu_byte_t;
 typedef int           nu_word_t;
 typedef nu_u32_t      nu_uid_t;
+
+typedef void (*nu_fixedloop_callback_t)(nu_f32_t timestep);
 
 typedef enum
 {
@@ -263,14 +266,6 @@ typedef struct
 {
     struct timespec start;
 } nu_timer_t;
-
-typedef struct
-{
-    nu_bool_t active;
-    nu_u32_t  id;
-    nu_f32_t  timestep;
-    nu_f32_t  _acc;
-} nu_fixed_loop_t;
 
 typedef union
 {
@@ -449,13 +444,18 @@ typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
 typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
 typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
-NU_API nu_error_t nu_init(void);
-NU_API void       nu_terminate(void);
+typedef void (*nu_app_callback_t)(void);
+
+NU_API void nu_app_init_callback(nu_app_callback_t callback);
+NU_API void nu_app_free_callback(nu_app_callback_t callback);
+NU_API void nu_app_update_callback(nu_app_callback_t callback);
 
 NU_API void nu__panic(const nu_char_t *source, const nu_char_t *format, ...);
 NU_API void nu__vpanic(const nu_char_t *source,
                        const nu_char_t *format,
                        va_list          args);
+
+NU_API float nu_deltatime(void);
 
 NU_API void nu_log(nu_log_level_t   level,
                    const nu_char_t *source,
@@ -488,13 +488,10 @@ NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
 NU_API void     nu_timer_reset(nu_timer_t *timer);
 NU_API nu_f32_t nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API nu_fixed_loop_t nu_fixed_loop(nu_u32_t id, nu_f32_t timestep);
-NU_API nu_bool_t       nu_fixed_loop_next(nu_fixed_loop_t *loops,
-                                          nu_size_t        count,
-                                          nu_u32_t        *id);
-NU_API void            nu_fixed_loop_update(nu_fixed_loop_t *loops,
-                                            nu_size_t        count,
-                                            nu_f32_t         dt);
+NU_API nu_fixedloop_t nu_fixedloop_create(nu_fixedloop_callback_t callback,
+                                          nu_f32_t                timestep);
+NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
+NU_API void           nu_fixedloop_update(nu_f32_t dt);
 
 NU_API nu_size_t  nu_strnlen(const nu_char_t *str, nu_size_t maxlen);
 NU_API nu_size_t  nu_strlen(const nu_char_t *str);

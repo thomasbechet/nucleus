@@ -34,6 +34,31 @@ typedef NU_VEC(point_mass_t) point_mass_vec_t;
 typedef NU_VEC(collision_constraint_t) collision_constraint_vec_t;
 typedef NU_VEC(distance_constraint_t) distance_constraint_vec_t;
 
+static nu_input_t quit;
+static nu_input_t move_x;
+static nu_input_t move_y;
+static nu_input_t move_z;
+static nu_input_t view_yaw;
+static nu_input_t view_pitch;
+static nu_input_t view_roll;
+static nu_input_t switch_mode;
+static nu_input_t shoot;
+
+static nu_controller_t controller;
+static nu_texture_t    depth_buffer;
+static nu_mesh_t       grid;
+static nu_mesh_t       cube;
+static nu_material_t   redmat;
+static nu_material_t   greenmat;
+static nu_material_t   bluemat;
+static nu_font_t       font;
+static nu_camera_t     camera;
+static nu_texture_t    surface_tex;
+static nu_color_t      clear_color;
+static nu_renderpass_t main_pass;
+static nu_renderpass_t gui_pass;
+static nu_renderpass_t wireframe_pass;
+
 typedef struct
 {
     point_mass_vec_t           point_masses;
@@ -308,25 +333,22 @@ update_context (float dt)
     }
 }
 
-int
-main (void)
+void
+init (void)
 {
-    nu_config_surface_size(WIDTH, HEIGHT);
-    nu_init();
-
     // Configure inputs
-    nu_input_t quit        = nu_input_create();
-    nu_input_t move_x      = nu_input_create();
-    nu_input_t move_y      = nu_input_create();
-    nu_input_t move_z      = nu_input_create();
-    nu_input_t view_yaw    = nu_input_create();
-    nu_input_t view_pitch  = nu_input_create();
-    nu_input_t view_roll   = nu_input_create();
-    nu_input_t switch_mode = nu_input_create();
-    nu_input_t shoot       = nu_input_create();
+    quit        = nu_input_create();
+    move_x      = nu_input_create();
+    move_y      = nu_input_create();
+    move_z      = nu_input_create();
+    view_yaw    = nu_input_create();
+    view_pitch  = nu_input_create();
+    view_roll   = nu_input_create();
+    switch_mode = nu_input_create();
+    shoot       = nu_input_create();
 
     // Create camera controller
-    nu_controller_t controller = nu_controller_create(
+    controller = nu_controller_create(
         view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs
@@ -353,10 +375,9 @@ main (void)
     boxes[1] = BOX1;
 
     // Create depth buffer
-    nu_texture_t depth_buffer
+    depth_buffer
         = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
     // Grid mesh
-    nu_mesh_t grid;
     {
         nu_geometry_t g = nu_geometry_create();
         nu_geometry_grid(g, 30, 30, 1, 1);
@@ -366,7 +387,6 @@ main (void)
     }
 
     // Cube mesh
-    nu_mesh_t cube;
     {
         nu_geometry_t g = nu_geometry_create();
         nu_geometry_cube(g, 0.1);
@@ -375,116 +395,94 @@ main (void)
         nu_geometry_delete(g);
     }
 
-    nu_material_t redmat
-        = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_RED);
-    nu_material_t greenmat
-        = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
-    nu_material_t bluemat
-        = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
+    redmat   = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_RED);
+    greenmat = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
+    bluemat  = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
-    nu_font_t font = nu_font_create_default();
+    font = nu_font_create_default();
 
     // Create camera
-    nu_camera_t camera = nu_camera_create();
+    camera = nu_camera_create();
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(70), nu_surface_aspect(), 0.01, 500));
 
     // Create renderpasses
-    nu_texture_t surface_tex = nu_surface_color_target();
-    nu_color_t   clear_color = NU_COLOR_BLACK;
+    surface_tex = nu_surface_color_target();
+    clear_color = NU_COLOR_BLACK;
 
-    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
 
-    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
     // nu_renderpass_texture(
     //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
-    // Main loop
-    nu_timer_t timer;
-    nu_timer_reset(&timer);
-    float delta = 0.0f;
-
     init_context();
+    nu_fixedloop_create(update_context, 1.0 / 60.0 * 1000.0);
+}
 
-    nu_fixed_loop_t loop = nu_fixed_loop(0, 1.0 / 60.0 * 1000.0);
-
-    while (!nu_exit_requested())
+void
+update (void)
+{
+    if (nu_input_just_pressed(shoot))
     {
-        // Poll events
-        nu_poll_events();
-
-        if (nu_input_just_pressed(shoot))
-        {
-            nu_m4_t transform = nu_controller_transform(controller);
-            nu_v3_t pos       = nu_m4_mulv3(transform, NU_V3_ZEROS);
-            nu_v4_t dir0      = nu_m4_mulv(transform, nu_v4(0, 0, -1, 0));
-            nu_v3_t dir       = nu_v3(dir0.x, dir0.y, dir0.z);
-            shoot_context(pos, dir);
-        }
-
-        nu_fixed_loop_update(&loop, 1, delta);
-        nu_u32_t id;
-        while (nu_fixed_loop_next(&loop, 1, &id))
-        {
-            if (id == 0)
-            {
-                update_context(loop.timestep);
-            }
-        }
-
-        delta = nu_timer_elapsed(&timer);
-        nu_timer_reset(&timer);
-
-        for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
-        {
-            point_mass_t *pm = ctx.point_masses.data + i;
-            nu_draw_mesh(wireframe_pass, cube, redmat, nu_m4_translate(pm->x));
-        }
-        for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
-        {
-            nu_v3_t p0
-                = ctx.point_masses.data[ctx.distance_constraints.data[i].a].x;
-            nu_v3_t p1
-                = ctx.point_masses.data[ctx.distance_constraints.data[i].b].x;
-            const nu_v3_t points[] = { p0, p1 };
-            nu_draw_lines(
-                wireframe_pass, points, 1, greenmat, nu_m4_identity());
-        }
-
-        // Update camera controller
-        nu_controller_update(controller, delta, camera);
-
-        nu_draw_mesh(wireframe_pass, grid, NU_NULL, nu_m4_identity());
-        nu_draw_stats(gui_pass, font, nu_v2i(10, 10));
-        for (nu_size_t i = 0; i < NU_ARRAY_SIZE(boxes); ++i)
-        {
-            nu_draw_box(wireframe_pass, boxes[i], bluemat, nu_m4_identity());
-        }
-
-        // Submit renderpass
-        nu_renderpass_submit(main_pass);
-        nu_renderpass_submit(wireframe_pass);
-        nu_renderpass_submit(gui_pass);
-
-        // Refresh surface
-        nu_swap_buffers();
+        nu_m4_t transform = nu_controller_transform(controller);
+        nu_v3_t pos       = nu_m4_mulv3(transform, NU_V3_ZEROS);
+        nu_v4_t dir0      = nu_m4_mulv(transform, nu_v4(0, 0, -1, 0));
+        nu_v3_t dir       = nu_v3(dir0.x, dir0.y, dir0.z);
+        shoot_context(pos, dir);
     }
 
-    free_context();
-    nu_terminate();
+    nu_f32_t delta = nu_deltatime();
+    nu_fixedloop_update(delta);
 
-    return 0;
+    for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
+    {
+        point_mass_t *pm = ctx.point_masses.data + i;
+        nu_draw_mesh(wireframe_pass, cube, redmat, nu_m4_translate(pm->x));
+    }
+    for (nu_size_t i = 0; i < ctx.distance_constraints.size; ++i)
+    {
+        nu_v3_t p0
+            = ctx.point_masses.data[ctx.distance_constraints.data[i].a].x;
+        nu_v3_t p1
+            = ctx.point_masses.data[ctx.distance_constraints.data[i].b].x;
+        const nu_v3_t points[] = { p0, p1 };
+        nu_draw_lines(wireframe_pass, points, 1, greenmat, nu_m4_identity());
+    }
+
+    // Update camera controller
+    nu_controller_update(controller, delta, camera);
+
+    nu_draw_mesh(wireframe_pass, grid, NU_NULL, nu_m4_identity());
+    nu_draw_stats(gui_pass, font, nu_v2i(10, 10));
+    for (nu_size_t i = 0; i < NU_ARRAY_SIZE(boxes); ++i)
+    {
+        nu_draw_box(wireframe_pass, boxes[i], bluemat, nu_m4_identity());
+    }
+
+    // Submit renderpass
+    nu_renderpass_submit(main_pass);
+    nu_renderpass_submit(wireframe_pass);
+    nu_renderpass_submit(gui_pass);
+}
+
+void
+nu_main (void)
+{
+    nu_app_surface_size(WIDTH, HEIGHT);
+    nu_app_init_callback(init);
+    nu_app_update_callback(update);
+    nu_app_free_callback(free_context);
 }

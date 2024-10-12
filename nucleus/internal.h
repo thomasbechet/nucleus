@@ -27,20 +27,9 @@
 #include <nucleus/physics/physics.h>
 #endif
 
-typedef struct
-{
-#ifdef NU_BUILD_PLATFORM
-    nu__platform_config_t platform;
-#endif
-    nu_bool_t initialized; // False by default (static memory)
-} nu__config_t;
-
-static nu__config_t *nu__config(void);
-
 static struct nu__context
 {
-    nu__config_t config;
-    nu__core_t   core;
+    nu__core_t core;
 #ifdef NU_BUILD_PLATFORM
     nu__platform_t platform;
 #endif

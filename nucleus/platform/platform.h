@@ -20,12 +20,6 @@
 
 typedef struct
 {
-    nu_u32_t width;
-    nu_u32_t height;
-} nu__platform_config_t;
-
-typedef struct
-{
     nuext_viewport_mode_t mode;
     nu_f32_t              scale_factor;
     nu_v2u_t              screen;
@@ -101,5 +95,7 @@ typedef struct
 
 static nu_error_t nu__platform_init(void);
 static nu_error_t nu__platform_free(void);
+static void       nu__platform_poll_events(void);
+static void       nu__platform_swap_buffers(void);
 
 #endif

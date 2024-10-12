@@ -60,14 +60,12 @@ nu__window_size_callback (RGFW_window *window, RGFW_rect r)
 }
 
 void
-nu_config_surface_size (nu_u32_t width, nu_u32_t height)
+nu_app_surface_size (nu_u32_t width, nu_u32_t height)
 {
-    nu__config_t *cfg    = nu__config();
-    cfg->platform.width  = width;
-    cfg->platform.height = height;
+    _ctx.platform.size = nu_v2u(width, height);
 }
-void
-nu_swap_buffers (void)
+static void
+nu__platform_swap_buffers (void)
 {
 #ifdef NU_BUILD_GRAPHICS
     nu__graphics_render();

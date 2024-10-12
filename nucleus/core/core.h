@@ -3,13 +3,17 @@
 
 #include <nucleus/core/logger.h>
 #include <nucleus/core/memory.h>
+#include <nucleus/core/fixedloop.h>
 #include <nucleus/core/table.h>
+#include <nucleus/core/app.h>
 
 typedef struct
 {
-    nu__logger_t     logger;
-    nu_allocator_t   allocator;
-    nu__table_pool_t tables;
+    nu__app_t            app;
+    nu__logger_t         logger;
+    nu_allocator_t       allocator;
+    nu__fixedloop_pool_t fixedloops;
+    nu__table_pool_t     tables;
 } nu__core_t;
 
 static nu_error_t nu__core_init(void);

@@ -144,12 +144,11 @@ typedef enum
     NUEXT_AXIS_MOUSE_MOTION_Y,
 } nuext_axis_t;
 
-NU_API void      nu_poll_events(void);
-NU_API nu_bool_t nu_exit_requested(void);
+NU_API void nu_app_surface_size(nu_u32_t width, nu_u32_t height);
 
-NU_API void     nu_config_surface_size(nu_u32_t width, nu_u32_t height);
-NU_API void     nu_swap_buffers(void);
-NU_API nu_f32_t nu_surface_aspect(void);
+NU_API nu_bool_t nu_exit_requested(void);
+NU_API void      nu_request_stop(void);
+NU_API nu_f32_t  nu_surface_aspect(void);
 
 NU_API nu_error_t nuext_viewport_mode(nuext_viewport_mode_t mode);
 

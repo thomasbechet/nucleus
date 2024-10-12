@@ -108,47 +108,4 @@ nu_timer_elapsed (nu_timer_t *timer)
     return (nu_f64_t)diff.tv_nsec / 1.0e6;
 }
 
-nu_fixed_loop_t
-nu_fixed_loop (nu_u32_t id, nu_f32_t timestep)
-{
-    nu_fixed_loop_t loop;
-    loop.id       = id;
-    loop.timestep = timestep;
-    loop.active   = NU_TRUE;
-    loop._acc     = 0.0f;
-    return loop;
-}
-void
-nu_fixed_loop_update (nu_fixed_loop_t *loops, nu_size_t count, nu_f32_t dt)
-{
-    for (nu_size_t i = 0; i < count; ++i)
-    {
-        nu_fixed_loop_t *loop = &loops[i];
-        if (!loop->active)
-        {
-            continue;
-        }
-        loop->_acc += dt;
-    }
-}
-nu_bool_t
-nu_fixed_loop_next (nu_fixed_loop_t *loops, nu_size_t count, nu_u32_t *id)
-{
-    for (nu_size_t i = 0; i < count; ++i)
-    {
-        nu_fixed_loop_t *loop = &loops[i];
-        if (!loop->active)
-        {
-            continue;
-        }
-        if (loop->_acc >= loop->timestep)
-        {
-            loop->_acc -= loop->timestep;
-            *id = loop->id;
-            return NU_TRUE;
-        }
-    }
-    return NU_FALSE;
-}
-
 #endif

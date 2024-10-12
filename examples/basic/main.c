@@ -34,15 +34,113 @@ static nu_input_t switch_mode;
 static nu_model_t temple_model;
 static nu_model_t ariane_model;
 
-#define LOOP_TICK    0
-#define LOOP_PHYSICS 1
+static nu_controller_t controller;
+static nu_texture_t    depth_buffer;
+static nu_texture_t    shadow_map;
+static nu_mesh_t       custom_mesh;
+static nu_mesh_t       custom_mesh_normals;
+static nu_b3_t         bounds;
+static nu_texture_t    texture;
+static nu_texture_t    texture_gui;
+static nu_material_t   material;
+static nu_material_t   material_gui_repeat;
+static nu_material_t   material_gui;
+static nu_model_t      castle;
+static nu_texture_t    skybox;
+static nu_font_t       font;
+static nu_camera_t     camera;
+static nu_texture_t    surface_tex;
+static nu_color_t      clear_color;
+static nu_renderpass_t main_pass;
+static nu_renderpass_t gui_pass;
+static nu_renderpass_t wireframe_pass;
+static nu_renderpass_t shadow_pass;
+static nu_ui_t         ui;
+static nu_ui_style_t   style;
+static nu_fixedloop_t  physics_loop_handle;
 
-int
-main (void)
+void
+update (void)
 {
-    nu_config_surface_size(WIDTH, HEIGHT);
-    nu_init();
+    nu_fixedloop_update(nu_deltatime());
 
+    // Check exit
+    if (nu_input_just_pressed(quit))
+    {
+        nu_request_stop();
+    }
+
+    // Update camera controller
+    nu_controller_update(controller, nu_deltatime(), camera);
+
+    // Render loop
+    nu_draw_mesh(main_pass, custom_mesh, material, nu_m4_identity());
+    nu_draw_mesh(shadow_pass, custom_mesh, material, nu_m4_identity());
+    nu_draw_mesh(
+        wireframe_pass, custom_mesh_normals, material, nu_m4_identity());
+    nu_draw_box(wireframe_pass, bounds, material, nu_m4_identity());
+    nu_draw_model(main_pass, castle, nu_m4_identity());
+    nu_draw_model(shadow_pass, castle, nu_m4_identity());
+
+    // Render custom mesh
+    nu_m4_t transform = nu_m4_identity();
+    nu_draw_model(wireframe_pass, ariane_model, transform);
+
+    transform = nu_m4_scale(nu_v3(4, 4, 4));
+    transform = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
+    nu_draw_model(main_pass, temple_model, transform);
+    nu_draw_model(shadow_pass, temple_model, transform);
+
+    const nu_v3_t points[] = { NU_V3_ZEROS, NU_V3_UP,    NU_V3_ZEROS,
+                               NU_V3_RIGHT, NU_V3_ZEROS, NU_V3_BACKWARD };
+    nu_draw_lines(
+        wireframe_pass, points, 3, material, nu_m4_translate(nu_v3(-5, 5, -5)));
+    nu_draw_box(wireframe_pass,
+                nu_b3(NU_V3_ZEROS, NU_V3_ONES),
+                material,
+                nu_m4_translate(nu_v3(0, 5, -5)));
+
+    // GUI
+    nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
+    nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
+    nu_ui_begin(ui, gui_pass);
+    if (nu_ui_button(ui, nu_b2i_xywh(300, 100, 200, 200)))
+    {
+        NU_INFO("button pressed !");
+    }
+    // if (nu_ui_checkbox(ui, nu_box2i_xywh(300, 300, 14, 14), &bool_state))
+    // {
+    //     NU_INFO("checkbox changed %d", bool_state);
+    // }
+    // nu_ui_end(ui);
+
+    // nu_bind_material(gui_pass, material_gui_repeat);
+    // nu_bind_material(gui_pass, material_gui_repeat);
+    // NU_INFO("start");
+    // nu_draw_blit_sliced(gui_pass,
+    //                     nu_box2i_xywh(0, 0, 50, 50),
+    //                     nu_box2i(nu_vec2i(145, 65), nu_vec2i(190, 78)),
+    //                     nu_box2i(nu_vec2i(146, 66), nu_vec2i(189, 77)));
+    // NU_INFO("stop");
+
+    // Print FPS
+    nu_draw_stats(gui_pass, font, nu_v2i(10, 10));
+
+    // Submit renderpass
+    nu_renderpass_submit(shadow_pass);
+    nu_renderpass_submit(main_pass);
+    nu_renderpass_submit(wireframe_pass);
+    nu_renderpass_submit(gui_pass);
+}
+
+void
+physics_loop (nu_f32_t timestep)
+{
+}
+
+void
+init (void)
+{
     nuext_import_package("../../../assets/pkg.json");
 
     // Configure inputs
@@ -60,7 +158,7 @@ main (void)
     switch_mode = nu_input_create();
 
     // Create camera controller
-    nu_controller_t controller = nu_controller_create(
+    controller = nu_controller_create(
         view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs
@@ -85,15 +183,12 @@ main (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    nu_texture_t depth_buffer
+    depth_buffer
         = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
-    nu_texture_t shadow_map = nu_texture_create(
-        NU_TEXTURE_SHADOW_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
+    shadow_map = nu_texture_create(NU_TEXTURE_SHADOW_TARGET,
+                                   nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
 
     // Create meshes
-    nu_mesh_t custom_mesh;
-    nu_mesh_t custom_mesh_normals;
-    nu_b3_t   bounds;
     {
         nu_geometry_t final = nu_geometry_create();
         nu_geometry_t sub   = nu_geometry_create();
@@ -121,40 +216,40 @@ main (void)
     }
 
     // Load resources
-    nu_texture_t texture     = NU_ASSET_TEXTURE("brick");
-    nu_texture_t texture_gui = NU_ASSET_TEXTURE("GUI");
+    texture     = NU_ASSET_TEXTURE("brick");
+    texture_gui = NU_ASSET_TEXTURE("GUI");
 
     // Create material
-    nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);
+    material = nu_material_create(NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
-    nu_material_t material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
+    material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui_repeat, texture_gui);
     nu_material_set_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
-    nu_material_t material_gui = nu_material_create(NU_MATERIAL_CANVAS);
+    material_gui = nu_material_create(NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui, texture_gui);
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    temple_model      = NU_ASSET_MODEL("temple");
-    ariane_model      = NU_ASSET_MODEL("ariane");
-    nu_model_t castle = NU_ASSET_MODEL("castle");
+    temple_model = NU_ASSET_MODEL("temple");
+    ariane_model = NU_ASSET_MODEL("ariane");
+    castle       = NU_ASSET_MODEL("castle");
 
     // Load cubemap
-    nu_texture_t skybox = NU_ASSET_TEXTURE("skybox");
+    skybox = NU_ASSET_TEXTURE("skybox");
 
     // Create font
-    nu_font_t font = nu_font_create_default();
+    font = nu_font_create_default();
 
     // Create camera
-    nu_camera_t camera = nu_camera_create();
+    camera = nu_camera_create();
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
 
     // Create renderpasses
-    nu_texture_t surface_tex = nu_surface_color_target();
-    nu_color_t   clear_color = NU_COLOR_BLUE_SKY;
+    surface_tex = nu_surface_color_target();
+    clear_color = NU_COLOR_BLUE_SKY;
 
-    nu_renderpass_t main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
@@ -162,22 +257,21 @@ main (void)
     nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
     nu_renderpass_set_skybox(main_pass, skybox, nu_q4_identity());
 
-    nu_renderpass_t gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    nu_renderpass_t wireframe_pass
-        = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
 
-    nu_renderpass_t shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
+    shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
 
     // Create UI
-    nu_ui_t       ui    = nu_ui_create();
-    nu_ui_style_t style = nu_ui_style_create();
+    ui    = nu_ui_create();
+    style = nu_ui_style_create();
 
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_PRESSED,
@@ -216,114 +310,14 @@ main (void)
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
 
-    nu_fixed_loop_t loops[2];
-    loops[0] = nu_fixed_loop(LOOP_TICK, 1.0 / 60.0 * 1000.0);
-    loops[1] = nu_fixed_loop(LOOP_PHYSICS, 1.0 / 20.0 * 1000.0);
+    physics_loop_handle
+        = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
+}
 
-    nu_timer_t timer;
-    nu_timer_reset(&timer);
-    nu_f32_t  delta      = 0.0f;
-    nu_bool_t bool_state = NU_TRUE;
-
-    while (!nu_exit_requested() && running)
-    {
-        nu_fixed_loop_update(loops, 2, delta);
-        nu_u32_t id;
-        while (nu_fixed_loop_next(loops, 2, &id))
-        {
-            switch (id)
-            {
-                case LOOP_TICK:
-                    break;
-                case LOOP_PHYSICS:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        delta = nu_timer_elapsed(&timer);
-        nu_timer_reset(&timer);
-
-        // Poll events
-        nu_poll_events();
-
-        // Check exit
-        if (nu_input_just_pressed(quit))
-        {
-            running = NU_FALSE;
-        }
-
-        // Update camera controller
-        nu_controller_update(controller, delta, camera);
-
-        // Render loop
-        nu_draw_mesh(main_pass, custom_mesh, material, nu_m4_identity());
-        nu_draw_mesh(shadow_pass, custom_mesh, material, nu_m4_identity());
-        nu_draw_mesh(
-            wireframe_pass, custom_mesh_normals, material, nu_m4_identity());
-        nu_draw_box(wireframe_pass, bounds, material, nu_m4_identity());
-        nu_draw_model(main_pass, castle, nu_m4_identity());
-        nu_draw_model(shadow_pass, castle, nu_m4_identity());
-
-        // Render custom mesh
-        nu_m4_t transform = nu_m4_identity();
-        nu_draw_model(wireframe_pass, ariane_model, transform);
-
-        transform = nu_m4_scale(nu_v3(4, 4, 4));
-        transform = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
-        nu_draw_model(main_pass, temple_model, transform);
-        nu_draw_model(shadow_pass, temple_model, transform);
-
-        const nu_v3_t points[] = { NU_V3_ZEROS, NU_V3_UP,    NU_V3_ZEROS,
-                                   NU_V3_RIGHT, NU_V3_ZEROS, NU_V3_BACKWARD };
-        nu_draw_lines(wireframe_pass,
-                      points,
-                      3,
-                      material,
-                      nu_m4_translate(nu_v3(-5, 5, -5)));
-        nu_draw_box(wireframe_pass,
-                    nu_b3(NU_V3_ZEROS, NU_V3_ONES),
-                    material,
-                    nu_m4_translate(nu_v3(0, 5, -5)));
-
-        // GUI
-        nu_ui_set_cursor(ui, 0, nuext_platform_cursor(cursor_x, cursor_y));
-        nu_ui_set_pressed(ui, 0, nu_input_pressed(main_button));
-        nu_ui_begin(ui, gui_pass);
-        if (nu_ui_button(ui, nu_b2i_xywh(300, 100, 200, 200)))
-        {
-            NU_INFO("button pressed !");
-        }
-        // if (nu_ui_checkbox(ui, nu_box2i_xywh(300, 300, 14, 14), &bool_state))
-        // {
-        //     NU_INFO("checkbox changed %d", bool_state);
-        // }
-        // nu_ui_end(ui);
-
-        // nu_bind_material(gui_pass, material_gui_repeat);
-        // nu_bind_material(gui_pass, material_gui_repeat);
-        // NU_INFO("start");
-        // nu_draw_blit_sliced(gui_pass,
-        //                     nu_box2i_xywh(0, 0, 50, 50),
-        //                     nu_box2i(nu_vec2i(145, 65), nu_vec2i(190, 78)),
-        //                     nu_box2i(nu_vec2i(146, 66), nu_vec2i(189, 77)));
-        // NU_INFO("stop");
-
-        // Print FPS
-        nu_draw_stats(gui_pass, font, nu_v2i(10, 10));
-
-        // Submit renderpass
-        nu_renderpass_submit(shadow_pass);
-        nu_renderpass_submit(main_pass);
-        nu_renderpass_submit(wireframe_pass);
-        nu_renderpass_submit(gui_pass);
-
-        // Refresh surface
-        nu_swap_buffers();
-    }
-
-    nu_terminate();
-
-    return 0;
+void
+nu_main (void)
+{
+    nu_app_surface_size(WIDTH, HEIGHT);
+    nu_app_init_callback(init);
+    nu_app_update_callback(update);
 }

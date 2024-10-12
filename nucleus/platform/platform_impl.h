@@ -14,13 +14,11 @@ nu__platform_init (void)
 
     // Initialize context
     NU_POOL_INIT(10, &_ctx.platform.entries);
-    _ctx.platform.size
-        = nu_v2u(_ctx.config.platform.width, _ctx.config.platform.height);
     _ctx.platform.close_requested = NU_FALSE;
 
     NU_INFO("initialize platform context (%dx%d)",
-            _ctx.config.platform.width,
-            _ctx.config.platform.height);
+            _ctx.platform.size.x,
+            _ctx.platform.size.y);
 
     // Initialize surface (and inputs)
     const nu_int_t width  = NU__DEFAULT_WINDOW_WIDTH;
@@ -86,8 +84,8 @@ nu__platform_free (void)
 
     return NU_ERROR_NONE;
 }
-void
-nu_poll_events (void)
+static void
+nu__platform_poll_events (void)
 {
     if (_ctx.platform.win)
     {
@@ -246,6 +244,11 @@ nu_bool_t
 nu_exit_requested (void)
 {
     return _ctx.platform.close_requested;
+}
+void
+nu_request_stop (void)
+{
+    _ctx.platform.close_requested = NU_TRUE;
 }
 
 #endif
