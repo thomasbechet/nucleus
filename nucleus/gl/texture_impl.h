@@ -71,7 +71,7 @@ nugl__texture_create (nu_texture_type_t type, nu_v3u_t size)
                              GL_UNSIGNED_INT_24_8,
                              NU_NULL);
                 break;
-            case NU_TEXTURE_SHADOW_TARGET:
+            case NU_TEXTURE_SHADOW_TARGET: {
                 glTexImage2D(GL_TEXTURE_2D,
                              0,
                              GL_DEPTH_COMPONENT,
@@ -81,7 +81,15 @@ nugl__texture_create (nu_texture_type_t type, nu_v3u_t size)
                              GL_DEPTH_COMPONENT,
                              GL_FLOAT,
                              NU_NULL);
-                break;
+                glTexParameteri(
+                    GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+                glTexParameteri(
+                    GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+                float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+                glTexParameterfv(
+                    GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+            }
+            break;
             case NU_TEXTURE_CUBEMAP_COLOR:
                 NU_ASSERT(NU_FALSE);
                 break;
@@ -89,8 +97,8 @@ nugl__texture_create (nu_texture_type_t type, nu_v3u_t size)
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }

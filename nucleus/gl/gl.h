@@ -28,6 +28,7 @@ typedef struct
     nugl__texture_vec_t      textures;
     nugl__material_vec_t     materials;
     nugl__light_vec_t        lights;
+    nugl__lightenv_vec_t     lightenvs;
     nugl__rendertarget_vec_t targets;
     nugl__renderpass_vec_t   passes;
     nu_u32_vec_t             passes_order;

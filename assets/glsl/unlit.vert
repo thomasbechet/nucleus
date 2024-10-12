@@ -7,20 +7,25 @@ uniform uvec2 viewport_size;
 uniform mat4 model;
 uniform mat4 view_projection;
 uniform mat3 uv_transform;
-
 uniform sampler2D texture0;
 
-out vec2 uv;
+out VS_OUT {
+    vec2 uv;
+} vs_out;
 
-void main()
+vec4 snap_vertex(in vec4 position)
 {
-    vec4 position = view_projection * model * vec4(in_position, 1);
-
     vec2 grid = vec2(viewport_size);
     position.xy = position.xy / position.w;
     position.xy = (floor(grid * position.xy) + 0.5) / grid;
     position.xy *= position.w;
-    gl_Position = position;
+    return position;
+}
 
-    uv = (uv_transform * vec3(in_uv, 1)).xy;
+void main()
+{
+    vec4 position = view_projection * model * vec4(in_position, 1);
+    gl_Position = snap_vertex(position);
+
+    vs_out.uv = (uv_transform * vec3(in_uv, 1)).xy;
 }

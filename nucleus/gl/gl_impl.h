@@ -143,6 +143,8 @@ nugl__init (void)
     NU_VEC_INIT(16, &gl->meshes);
     NU_VEC_INIT(16, &gl->textures);
     NU_VEC_INIT(16, &gl->materials);
+    NU_VEC_INIT(16, &gl->lights);
+    NU_VEC_INIT(8, &gl->lightenvs);
     NU_VEC_INIT(16, &gl->targets);
     NU_VEC_INIT(16, &gl->passes);
     NU_VEC_INIT(16, &gl->passes_order);
@@ -176,6 +178,9 @@ nugl__init (void)
     error = nugl__compile_shader(
         nugl__shader_lit_vert, nugl__shader_lit_frag, &gl->lit_program);
     NU_ERROR_CHECK(error, return error);
+    glUseProgram(gl->lit_program);
+    glUniform1i(glGetUniformLocation(gl->lit_program, "texture0"), 0);
+    glUniform1i(glGetUniformLocation(gl->lit_program, "shadow_map"), 1);
 
     error = nugl__compile_shader(nugl__shader_skybox_vert,
                                  nugl__shader_skybox_frag,

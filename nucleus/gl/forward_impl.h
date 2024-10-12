@@ -16,6 +16,7 @@ nugl__forward_create (nugl__renderpass_forward_t *pass)
     pass->mode            = NU_SHADE_LIT;
     pass->skybox          = NU_NULL;
     pass->skybox_rotation = nu_m3_identity();
+    pass->lightenv        = NU_NULL;
     nugl__forward_reset(pass);
 }
 static void
@@ -65,6 +66,28 @@ nugl__forward_render (nugl__renderpass_t *pass)
     glUniform2uiv(glGetUniformLocation(pass->forward.program, "viewport_size"),
                   1,
                   pass->fbo_size.data);
+
+    if (pass->forward.lightenv)
+    {
+        const nugl__lightenv_t *penv
+            = gl->lightenvs.data + NU_HANDLE_INDEX(pass->forward.lightenv);
+        NU_ASSERT(penv->shadowmap && penv->shadowmap_camera);
+        const nugl__texture_t *shadowmap
+            = gl->textures.data + NU_HANDLE_INDEX(penv->shadowmap);
+        const nugl__camera_t *shadowmap_camera
+            = gl->cameras.data + NU_HANDLE_INDEX(penv->shadowmap_camera);
+        NU_ASSERT(shadowmap->type == NU_TEXTURE_SHADOW_TARGET);
+
+        glUniformMatrix4fv(
+            glGetUniformLocation(pass->forward.program, "shadowmap_view_proj"),
+            1,
+            GL_FALSE,
+            shadowmap_camera->vp.data);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, shadowmap->texture);
+    }
+
     const nugl__mesh_command_vec_t *cmds = &pass->forward.cmds;
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
@@ -107,6 +130,7 @@ nugl__forward_render (nugl__renderpass_t *pass)
             GL_FALSE,
             uv_transform.data);
 
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture0);
 
         glBindVertexArray(cmd->vao);

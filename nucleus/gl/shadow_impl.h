@@ -12,8 +12,9 @@ static void
 nugl__shadow_create (nugl__renderpass_shadow_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
-    pass->fbo       = 0;
-    pass->depth_map = NU_NULL;
+    pass->fbo      = 0;
+    pass->depthmap = NU_NULL;
+    pass->camera   = NU_NULL;
     nugl__shadow_reset(pass);
 }
 static void
@@ -23,9 +24,9 @@ nugl__shadow_set_depth_map (nugl__renderpass_shadow_t *pass,
     nu__gl_t        *gl   = &_ctx.gl;
     nugl__texture_t *ptex = gl->textures.data + NU_HANDLE_INDEX(texture);
 
-    if (pass->depth_map != texture)
+    if (pass->depthmap != texture)
     {
-        pass->depth_map = texture;
+        pass->depthmap = texture;
         if (pass->fbo)
         {
             glDeleteFramebuffers(1, &pass->fbo);
@@ -46,11 +47,14 @@ nugl__shadow_set_depth_map (nugl__renderpass_shadow_t *pass,
 static void
 nugl__shadow_render (nugl__renderpass_t *pass)
 {
-    nu__gl_t        *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.gl;
+    NU_ASSERT(pass->shadow.camera && pass->shadow.depthmap);
+    nugl__camera_t *pcam
+        = gl->cameras.data + NU_HANDLE_INDEX(pass->shadow.camera);
     nugl__texture_t *ptex
-        = gl->textures.data + NU_HANDLE_INDEX(pass->shadow.depth_map);
+        = gl->textures.data + NU_HANDLE_INDEX(pass->shadow.depthmap);
 
-    if (!pass->fbo)
+    if (!pass->shadow.fbo)
     {
         return;
     }
@@ -64,11 +68,11 @@ nugl__shadow_render (nugl__renderpass_t *pass)
 
     glUseProgram(gl->shadow_program);
 
-    // Compute light view projection matrix
-    nu_m4_t projection      = nu_ortho(-50, 50, -50, 50, 1, 500);
-    nu_m4_t view            = nu_lookat(nu_v3s(100.0), NU_V3_ZEROS, NU_V3_UP);
-    nu_m4_t view_projection = nu_m4_mul(projection, view);
+    glUniform2uiv(glGetUniformLocation(gl->shadow_program, "viewport_size"),
+                  1,
+                  ptex->size.data);
 
+    // Compute light view projection matrix
     const nugl__mesh_command_vec_t *cmds = &pass->shadow.cmds;
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
@@ -83,7 +87,7 @@ nugl__shadow_render (nugl__renderpass_t *pass)
             glGetUniformLocation(gl->shadow_program, "view_projection"),
             1,
             GL_FALSE,
-            view_projection.data);
+            pcam->vp.data);
 
         glBindVertexArray(cmd->vao);
         glDrawArrays(cmd->primitive, cmd->vfirst, cmd->vcount);

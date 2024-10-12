@@ -173,6 +173,9 @@ nugl__renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
         case NU_RENDERPASS_FORWARD:
             ppass->forward.camera = camera;
             break;
+        case NU_RENDERPASS_SHADOW:
+            ppass->shadow.camera = camera;
+            break;
         default:
             NU_ERROR("invalid");
             break;
@@ -224,6 +227,13 @@ nugl__renderpass_set_skybox (nu_renderpass_t pass,
     nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
     ppass->forward.skybox = cubemap;
+}
+static void
+nugl__renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
+{
+    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
+    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
+    ppass->forward.lightenv = env;
 }
 
 static void

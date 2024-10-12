@@ -127,14 +127,10 @@ NU_API void       nu_light_set_color(nu_light_t light, nu_color_t v);
 
 NU_API nu_lightenv_t nu_lightenv_create(void);
 NU_API void          nu_lightenv_delete(nu_lightenv_t env);
-NU_API void          nu_lightenv_set_light(nu_lightenv_t env,
-                                           nu_size_t     index,
-                                           nu_light_t    light);
-NU_API void nu_lightenv_set_envmap(nu_lightenv_t env, nu_texture_t cubemap);
-NU_API void nu_lightenv_set_lightmap(nu_lightenv_t env, nu_texture_t lightmap);
-NU_API void nu_lightenv_set_shadowmap(nu_lightenv_t env,
-                                      nu_light_t    light,
-                                      nu_texture_t  shadowmap);
+NU_API void          nu_lightenv_add_light(nu_lightenv_t env, nu_light_t light);
+NU_API void          nu_lightenv_add_shadowmap(nu_lightenv_t env,
+                                               nu_texture_t  shadowmap,
+                                               nu_camera_t   camera);
 
 NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
