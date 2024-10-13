@@ -9,22 +9,20 @@ nugl__shadow_reset (nugl__renderpass_shadow_t *pass)
     NU_VEC_CLEAR(&pass->cmds);
 }
 static void
-nugl__shadow_create (nugl__renderpass_shadow_t *pass)
+nugl__shadow_init (nugl__renderpass_shadow_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
-    pass->fbo      = 0;
-    pass->depthmap = NU_NULL;
-    pass->camera   = NU_NULL;
+    pass->fbo = 0;
     nugl__shadow_reset(pass);
 }
 static void
-nugl__shadow_set_depth_map (nugl__renderpass_shadow_t *pass,
-                            nu_texture_t               texture)
+nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
 {
-    nu__gl_t        *gl   = &_ctx.gl;
-    nugl__texture_t *ptex = gl->textures.data + NU_HANDLE_INDEX(texture);
+    nu__gl_t      *gl = &_ctx.gl;
+    nu__texture_t *ptex
+        = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
 
-    if (pass->depthmap != texture)
+    if (pass->shadow.depthmap != texture)
     {
         pass->depthmap = texture;
         if (pass->fbo)

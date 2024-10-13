@@ -9,7 +9,7 @@
 
 static void
 nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
-                              const nugl__mesh_t       *pmesh,
+                              const nu__mesh_t         *pmesh,
                               nu_size_t                 first,
                               nu_size_t                 count,
                               nu_material_t             mat,
@@ -20,7 +20,7 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
         cmd->transform            = transforms[i];
-        cmd->vao                  = pmesh->vao;
+        cmd->vao                  = pmesh->gl.vao;
         switch (pmesh->primitive)
         {
             case NU_PRIMITIVE_POINTS:
@@ -42,36 +42,24 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
     }
 }
 
-static nu_renderpass_t
-nugl__renderpass_create (nu_renderpass_type_t type)
+static void
+nugl__renderpass_init (nu__renderpass_t *pass)
 {
-    nugl__renderpass_t *pass  = NU_VEC_PUSH(&_ctx.gl.passes);
-    nu_size_t           index = _ctx.gl.passes.size - 1;
-    pass->type                = type;
-    pass->reset_after_submit  = NU_TRUE;
-    pass->has_clear_color     = NU_FALSE;
-    pass->clear_color         = NU_COLOR_BLACK;
-    pass->color_target        = NU_NULL;
-    pass->depth_target        = NU_NULL;
-
-    // Allocate command buffer
     switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD:
-            nugl__forward_create(&pass->forward);
+            nugl__forward_create(&pass->gl.forward);
             break;
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_create(&pass->canvas);
+            nugl__canvas_create(&pass->gl.canvas);
             break;
         case NU_RENDERPASS_SHADOW:
-            nugl__shadow_create(&pass->shadow);
+            nugl__shadow_create(&pass->gl.shadow);
             break;
     }
-
-    return NU_HANDLE_MAKE(nu_renderpass_t, index);
 }
 static void
-nugl__renderpass_delete (nu_renderpass_t renderpass)
+nugl__renderpass_free (nu__renderpass_t *pass)
 {
 }
 
@@ -119,155 +107,81 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
     return target->fbo;
 }
 static void
-nugl__prepare_color_depth (nugl__renderpass_t *pass,
-                           nu_texture_t        color_target,
-                           nu_texture_t        depth_target)
+nugl__prepare_color_depth (nu__renderpass_t *pass,
+                           nu_texture_t      color_target,
+                           nu_texture_t      depth_target)
 {
-    nugl__texture_t *color
-        = color_target ? _ctx.gl.textures.data + NU_HANDLE_INDEX(color_target)
-                       : NU_NULL;
-    nugl__texture_t *depth
-        = depth_target ? _ctx.gl.textures.data + NU_HANDLE_INDEX(depth_target)
-                       : NU_NULL;
+    nu__texture_t *color = color_target ? _ctx.graphics.textures.data
+                                              + NU_HANDLE_INDEX(color_target)
+                                        : NU_NULL;
+    nu__texture_t *depth = depth_target ? _ctx.graphics.textures.data
+                                              + NU_HANDLE_INDEX(depth_target)
+                                        : NU_NULL;
     if (color_target || depth_target)
     {
-        pass->fbo = nugl__find_or_create_framebuffer(
-            color ? color->texture : 0, depth ? depth->texture : 0);
-        pass->fbo_size
+        pass->gl.fbo = nugl__find_or_create_framebuffer(
+            color ? color->gl.texture : 0, depth ? depth->gl.texture : 0);
+        pass->gl.fbo_size
             = color ? nu_v3u_xy(color->size) : nu_v3u_xy(depth->size);
     }
     else
     {
-        pass->fbo      = 0;
-        pass->fbo_size = NU_V2U_ZEROS;
+        pass->gl.fbo      = 0;
+        pass->gl.fbo_size = NU_V2U_ZEROS;
     }
 }
 
 static void
-nugl__renderpass_set_reset_after_submit (nu_renderpass_t pass, nu_bool_t bool)
+nugl__renderpass_set_shade (nu__renderpass_t *pass)
 {
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    ppass->reset_after_submit = bool;
-}
-static void
-nugl__renderpass_set_clear_color (nu_renderpass_t pass, nu_color_t *color)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    if (color)
-    {
-        ppass->clear_color     = *color;
-        ppass->has_clear_color = NU_TRUE;
-    }
-    else
-    {
-        ppass->has_clear_color = NU_FALSE;
-    }
-}
-static void
-nugl__renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
-{
-    NU_ASSERT(camera);
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    switch (ppass->type)
-    {
-        case NU_RENDERPASS_FORWARD:
-            ppass->forward.camera = camera;
-            break;
-        case NU_RENDERPASS_SHADOW:
-            ppass->shadow.camera = camera;
-            break;
-        default:
-            NU_ERROR("invalid");
-            break;
-    }
-}
-static void
-nugl__renderpass_set_color_target (nu_renderpass_t pass, nu_texture_t texture)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    ppass->color_target       = texture;
-}
-static void
-nugl__renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    if (ppass->type == NU_RENDERPASS_SHADOW)
-    {
-        nugl__shadow_set_depth_map(&ppass->shadow, texture);
-    }
-    else
-    {
-        ppass->depth_target = texture;
-    }
-}
-static void
-nugl__renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
-    switch (mode)
+    switch (pass->forward.mode)
     {
         case NU_SHADE_UNLIT:
-            ppass->forward.program = _ctx.gl.unlit_program;
+            pass->gl.forward.program = _ctx.gl.unlit_program;
             break;
         case NU_SHADE_LIT:
-            ppass->forward.program = _ctx.gl.lit_program;
+            pass->gl.forward.program = _ctx.gl.lit_program;
             break;
         case NU_SHADE_WIREFRAME:
-            ppass->forward.program = _ctx.gl.wireframe_program;
+            pass->gl.forward.program = _ctx.gl.wireframe_program;
             break;
     }
-    ppass->forward.mode = mode;
-}
-static void
-nugl__renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
-    ppass->forward.lightenv = env;
 }
 
 static void
-nugl__reset_renderpass (nugl__renderpass_t *pass)
+nugl__reset_renderpass (nu__renderpass_t *pass)
 {
     switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD:
-            nugl__forward_reset(&pass->forward);
+            nugl__forward_reset(&pass->gl.forward);
             break;
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_reset(&pass->canvas);
+            nugl__canvas_reset(&pass->gl.canvas);
             break;
         case NU_RENDERPASS_SHADOW:
-            nugl__shadow_reset(&pass->shadow);
+            nugl__shadow_reset(&pass->gl.shadow);
             break;
     }
 }
 static void
-nugl__renderpass_reset (nu_renderpass_t pass)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    nugl__reset_renderpass(ppass);
-}
-static void
-nugl__renderpass_submit (nu_renderpass_t pass)
+nugl__renderpass_submit (nu__renderpass_t *pass)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     *NU_VEC_PUSH(&gl->passes_order) = NU_HANDLE_INDEX(pass);
 
-    nugl__renderpass_t *ppass = gl->passes.data + NU_HANDLE_INDEX(pass);
-    switch (ppass->type)
+    switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD: {
-            NU_ASSERT(ppass->color_target);
+            NU_ASSERT(pass->color_target);
             nugl__prepare_color_depth(
-                ppass, ppass->color_target, ppass->depth_target);
+                pass, pass->color_target, pass->depth_target);
         }
         break;
         case NU_RENDERPASS_CANVAS: {
-            NU_ASSERT(ppass->color_target);
-            nugl__prepare_color_depth(ppass, ppass->color_target, NU_NULL);
+            NU_ASSERT(pass->color_target);
+            nugl__prepare_color_depth(pass, pass->color_target, NU_NULL);
         }
         break;
         case NU_RENDERPASS_SHADOW: {
@@ -277,21 +191,20 @@ nugl__renderpass_submit (nu_renderpass_t pass)
 }
 
 static void
-nugl__draw_submesh_instanced (nu_renderpass_t pass,
-                              nu_mesh_t       mesh,
-                              nu_size_t       first,
-                              nu_size_t       count,
-                              nu_material_t   material,
-                              const nu_m4_t  *transforms,
-                              nu_size_t       instance_count)
+nugl__draw_submesh_instanced (nu__renderpass_t *pass,
+                              nu_mesh_t         mesh,
+                              nu_size_t         first,
+                              nu_size_t         count,
+                              nu_material_t     material,
+                              const nu_m4_t    *transforms,
+                              nu_size_t         instance_count)
 {
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    const nugl__mesh_t *pmesh = _ctx.gl.meshes.data + NU_HANDLE_INDEX(mesh);
+    const nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
     // TODO: check command validity ?
-    switch (ppass->type)
+    switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD: {
-            nugl__submesh_draw_instanced(&ppass->forward.cmds,
+            nugl__submesh_draw_instanced(&pass->gl.forward.cmds,
                                          pmesh,
                                          first,
                                          count,
@@ -301,7 +214,7 @@ nugl__draw_submesh_instanced (nu_renderpass_t pass,
         }
         break;
         case NU_RENDERPASS_SHADOW:
-            nugl__submesh_draw_instanced(&ppass->shadow.cmds,
+            nugl__submesh_draw_instanced(&pass->gl.shadow.cmds,
                                          pmesh,
                                          first,
                                          count,
@@ -315,16 +228,15 @@ nugl__draw_submesh_instanced (nu_renderpass_t pass,
     }
 }
 static void
-nugl__draw_blit (nu_renderpass_t pass,
-                 nu_b2i_t        extent,
-                 nu_b2i_t        tex_extent,
-                 nu_material_t   material)
+nugl__draw_blit (nu__renderpass_t *pass,
+                 nu_b2i_t          extent,
+                 nu_b2i_t          tex_extent,
+                 nu_material_t     material)
 {
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    switch (ppass->type)
+    switch (pass->type)
     {
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_draw_blit(ppass, material, extent, tex_extent);
+            nugl__canvas_draw_blit(pass, material, extent, tex_extent);
             break;
         default:
             NU_ASSERT(NU_FALSE);
@@ -333,7 +245,7 @@ nugl__draw_blit (nu_renderpass_t pass,
 }
 
 static void
-nugl__execute_renderpass (nugl__renderpass_t *pass)
+nugl__execute_renderpass (nu__renderpass_t *pass)
 {
 
     if (pass->type == NU_RENDERPASS_SHADOW)
@@ -343,8 +255,8 @@ nugl__execute_renderpass (nugl__renderpass_t *pass)
     else
     {
         // Bind surface
-        glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
-        glViewport(0, 0, pass->fbo_size.x, pass->fbo_size.y);
+        glBindFramebuffer(GL_FRAMEBUFFER, pass->gl.fbo);
+        glViewport(0, 0, pass->gl.fbo_size.x, pass->gl.fbo_size.y);
 
         // Clear color
         if (pass->has_clear_color)

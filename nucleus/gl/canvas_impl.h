@@ -113,8 +113,8 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
         NU_ERROR("no material bound");
         return;
     }
-    const nugl__material_t *pmat
-        = _ctx.gl.materials.data + NU_HANDLE_INDEX(material);
+    const nu__material_t *pmat
+        = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
     NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);
 
     nu_u32_t blit_count = 0;
@@ -212,7 +212,8 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
     nugl__canvas_command_t *last = NU_VEC_LAST(&pass->canvas.cmds);
     NU_ASSERT(pmat->canvas.texture0);
     GLuint texture
-        = _ctx.gl.textures.data[NU_HANDLE_INDEX(pmat->canvas.texture0)].texture;
+        = _ctx.graphics.textures.data[NU_HANDLE_INDEX(pmat->canvas.texture0)]
+              .gl.texture;
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)
     {
@@ -230,11 +231,11 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
 }
 
 static void
-nugl__canvas_render (nugl__renderpass_t *pass)
+nugl__canvas_render (nu__renderpass_t *pass)
 {
     nu__gl_t *gl = &_ctx.gl;
     // Update buffers
-    nugl__write_canvas_buffers(&pass->canvas);
+    nugl__write_canvas_buffers(&pass->gl.canvas);
     glUseProgram(gl->canvas_blit_program);
 
     glDisable(GL_DEPTH_TEST);
@@ -244,11 +245,11 @@ nugl__canvas_render (nugl__renderpass_t *pass)
     glUniform2uiv(
         glGetUniformLocation(gl->canvas_blit_program, "viewport_size"),
         1,
-        pass->fbo_size.data);
-    glBindVertexArray(pass->canvas.blit_vao);
-    for (nu_size_t c = 0; c < pass->canvas.cmds.size; ++c)
+        pass->gl.fbo_size.data);
+    glBindVertexArray(pass->gl.canvas.blit_vao);
+    for (nu_size_t c = 0; c < pass->gl.canvas.cmds.size; ++c)
     {
-        nugl__canvas_command_t *cmd = pass->canvas.cmds.data + c;
+        nugl__canvas_command_t *cmd = pass->gl.canvas.cmds.data + c;
         switch (cmd->type)
         {
             case NUGL__CANVAS_BLIT: {

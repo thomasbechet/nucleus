@@ -5,9 +5,6 @@
 
 typedef struct
 {
-#ifdef NU_BUILD_GL
-    nugl__camera_t gl;
-#endif
     nu_m4_t view;
     nu_m4_t projection;
     nu_m4_t vp;
