@@ -1,16 +1,17 @@
-#ifndef NUGL_LIGHT_H
-#define NUGL_LIGHT_H
+#ifndef NU_LIGHT_H
+#define NU_LIGHT_H
 
-#include <nucleus/graphics/graphics.h>
+#include <nucleus/graphics/api.h>
+#include <nucleus/graphics/backend.h>
 
 typedef struct
 {
     nu_light_type_t type;
     nu_v3_t         position;
     nu_q4_t         rotation;
-} nugl__light_t;
+} nu__light_t;
 
-typedef NU_VEC(nugl__light_t) nugl__light_vec_t;
+typedef NU_VEC(nu__light_t) nu__light_vec_t;
 
 typedef struct
 {
@@ -18,8 +19,8 @@ typedef struct
     nu_camera_t  shadowmap_camera;
     nu_texture_t skybox;
     nu_m3_t      skybox_rotation;
-} nugl__lightenv_t;
+} nu__lightenv_t;
 
-typedef NU_VEC(nugl__lightenv_t) nugl__lightenv_vec_t;
+typedef NU_VEC(nu__lightenv_t) nu__lightenv_vec_t;
 
 #endif

@@ -5,6 +5,12 @@
 #include <nucleus/graphics/image.h>
 #include <nucleus/graphics/model.h>
 #include <nucleus/graphics/immediate.h>
+#include <nucleus/graphics/camera.h>
+#include <nucleus/graphics/texture.h>
+#include <nucleus/graphics/material.h>
+#include <nucleus/graphics/mesh.h>
+#include <nucleus/graphics/light.h>
+#include <nucleus/graphics/renderpass.h>
 
 typedef struct
 {
@@ -21,6 +27,11 @@ typedef struct
     nu__image_pool_t         images;
     nu__model_pool_t         models;
     nu__graphics_immediate_t im;
+
+    nu__camera_vec_t   cameras;
+    nu__texture_vec_t  textures;
+    nu__material_vec_t materias;
+    nu__mesh_vec_t     meshes;
 } nu__graphics_t;
 
 static nu_error_t nu__graphics_init(void);

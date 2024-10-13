@@ -1,0 +1,15 @@
+#ifndef NU_MESH_H
+#define NU_MESH_H
+
+#include <nucleus/graphics/backend.h>
+
+typedef struct
+{
+#ifndef NU_BUILD_GL
+    nugl__mesh_t gl;
+#endif
+    nu_size_t      capacity;
+    nu_primitive_t primitive;
+} nu__mesh_t;
+
+#endif
