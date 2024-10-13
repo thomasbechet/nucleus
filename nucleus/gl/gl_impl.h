@@ -2,6 +2,7 @@
 #define NUGL_IMPL_H
 
 #include <nucleus/internal.h>
+#include <nucleus/gl/shader_data.h>
 #include <nucleus/gl/texture_impl.h>
 #include <nucleus/gl/material_impl.h>
 #include <nucleus/gl/light_impl.h>
@@ -148,14 +149,7 @@ nugl__init (void)
     nu__gl_t *gl = &_ctx.gl;
 
     // Initialize containers
-    NU_VEC_INIT(16, &gl->cameras);
-    NU_VEC_INIT(16, &gl->meshes);
-    NU_VEC_INIT(16, &gl->textures);
-    NU_VEC_INIT(16, &gl->materials);
-    NU_VEC_INIT(16, &gl->lights);
-    NU_VEC_INIT(8, &gl->lightenvs);
     NU_VEC_INIT(16, &gl->targets);
-    NU_VEC_INIT(16, &gl->passes);
     NU_VEC_INIT(16, &gl->passes_order);
 
     // Initialize GL functions

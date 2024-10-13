@@ -13,6 +13,6 @@ typedef struct
     nu_texture_type_t type;
 } nu__texture_t;
 
-typedef NU_VEC(nu__texture_t) nu__texture_vec_t;
+typedef NU_POOL(nu__texture_t) nu__texture_pool_t;
 
 #endif

@@ -28,10 +28,13 @@ typedef struct
     nu__model_pool_t         models;
     nu__graphics_immediate_t im;
 
-    nu__camera_vec_t   cameras;
-    nu__texture_vec_t  textures;
-    nu__material_vec_t materias;
-    nu__mesh_vec_t     meshes;
+    nu__camera_pool_t     cameras;
+    nu__texture_pool_t    textures;
+    nu__material_pool_t   materials;
+    nu__mesh_pool_t       meshes;
+    nu__light_pool_t      lights;
+    nu__lightenv_pool_t   lightenvs;
+    nu__renderpass_pool_t passes;
 } nu__graphics_t;
 
 static nu_error_t nu__graphics_init(void);

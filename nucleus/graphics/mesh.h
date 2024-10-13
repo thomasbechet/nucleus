@@ -12,4 +12,6 @@ typedef struct
     nu_primitive_t primitive;
 } nu__mesh_t;
 
+typedef NU_POOL(nu__mesh_t) nu__mesh_pool_t;
+
 #endif

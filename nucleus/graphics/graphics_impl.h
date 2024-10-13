@@ -10,9 +10,18 @@
 static nu_error_t
 nu__graphics_init (void)
 {
-    NU_POOL_INIT(10, &_ctx.graphics.fonts);
-    NU_POOL_INIT(10, &_ctx.graphics.images);
-    NU_POOL_INIT(10, &_ctx.graphics.models);
+    nu__graphics_t *gfx = &_ctx.graphics;
+    NU_POOL_INIT(10, &gfx->fonts);
+    NU_POOL_INIT(10, &gfx->images);
+    NU_POOL_INIT(10, &gfx->models);
+
+    NU_POOL_INIT(16, &gfx->cameras);
+    NU_POOL_INIT(16, &gfx->meshes);
+    NU_POOL_INIT(16, &gfx->textures);
+    NU_POOL_INIT(16, &gfx->materials);
+    NU_POOL_INIT(16, &gfx->lights);
+    NU_POOL_INIT(8, &gfx->lightenvs);
+    NU_POOL_INIT(16, &gfx->passes);
 
     // Initialize backend
     nu__renderer_init();
@@ -34,10 +43,19 @@ nu__graphics_free (void)
 
     nu__renderer_free();
 
+    nu__graphics_t *gfx = &_ctx.graphics;
+    NU_POOL_FREE(&gfx->cameras);
+    NU_POOL_FREE(&gfx->meshes);
+    NU_POOL_FREE(&gfx->textures);
+    NU_POOL_FREE(&gfx->materials);
+    NU_POOL_FREE(&gfx->lights);
+    NU_POOL_FREE(&gfx->lightenvs);
+    NU_POOL_FREE(&gfx->passes);
+
     // TODO: free fonts and models
-    NU_POOL_FREE(&_ctx.graphics.models);
-    NU_POOL_FREE(&_ctx.graphics.images);
-    NU_POOL_FREE(&_ctx.graphics.fonts);
+    NU_POOL_FREE(&gfx->models);
+    NU_POOL_FREE(&gfx->images);
+    NU_POOL_FREE(&gfx->fonts);
     return NU_ERROR_NONE;
 }
 static nu_error_t

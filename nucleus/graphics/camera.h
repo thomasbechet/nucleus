@@ -14,6 +14,6 @@ typedef struct
     nu_m4_t ivp;
 } nu__camera_t;
 
-typedef NU_VEC(nu__camera_t) nu__camera_vec_t;
+typedef NU_POOL(nu__camera_t) nu__camera_pool_t;
 
 #endif
