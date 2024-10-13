@@ -16,10 +16,6 @@ nu__platform_init (void)
     NU_POOL_INIT(10, &_ctx.platform.entries);
     _ctx.platform.close_requested = NU_FALSE;
 
-    NU_INFO("initialize platform context (%dx%d)",
-            _ctx.platform.size.x,
-            _ctx.platform.size.y);
-
     // Initialize surface (and inputs)
     const nu_int_t width  = NU__DEFAULT_WINDOW_WIDTH;
     const nu_int_t height = NU__DEFAULT_WINDOW_HEIGHT;
@@ -73,10 +69,6 @@ nu__platform_init (void)
 static nu_error_t
 nu__platform_free (void)
 {
-    nu_error_t error;
-
-    NU_INFO("terminate platform context");
-
     RGFW_window_close(_ctx.platform.win);
 
     NU_POOL_FREE(&_ctx.platform.bindings);

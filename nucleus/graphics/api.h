@@ -131,6 +131,9 @@ NU_API void          nu_lightenv_add_light(nu_lightenv_t env, nu_light_t light);
 NU_API void          nu_lightenv_add_shadowmap(nu_lightenv_t env,
                                                nu_texture_t  shadowmap,
                                                nu_camera_t   camera);
+NU_API void          nu_lightenv_set_skybox(nu_lightenv_t env,
+                                            nu_texture_t  cubemap,
+                                            nu_q4_t       rotation);
 
 NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
 NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
@@ -147,9 +150,6 @@ NU_API void nu_renderpass_set_color_target(nu_renderpass_t pass,
 NU_API void nu_renderpass_set_depth_target(nu_renderpass_t pass,
                                            nu_texture_t    texture);
 NU_API void nu_renderpass_set_shade(nu_renderpass_t pass, nu_shademode_t mode);
-NU_API void nu_renderpass_set_skybox(nu_renderpass_t pass,
-                                     nu_texture_t    cubemap,
-                                     nu_q4_t         rotation);
 NU_API void nu_renderpass_set_lightenv(nu_renderpass_t pass, nu_lightenv_t env);
 
 NU_API void nu_draw_submesh_instanced(nu_renderpass_t pass,

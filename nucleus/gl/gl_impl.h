@@ -30,6 +30,7 @@ nugl__compile_shader (const nu_char_t *vert,
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
         NU_ERROR("%s", log);
+        nu_free(log, sizeof(nu_char_t) * max_length);
 
         glDeleteShader(vertex_shader);
         return NU_ERROR_SHADER_COMPILATION;
@@ -46,6 +47,7 @@ nugl__compile_shader (const nu_char_t *vert,
         nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
         glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
         NU_ERROR("%s", log);
+        nu_free(log, sizeof(nu_char_t) * max_length);
 
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
@@ -60,6 +62,13 @@ nugl__compile_shader (const nu_char_t *vert,
     glGetProgramiv(*program, GL_LINK_STATUS, &success);
     if (success == GL_FALSE)
     {
+        GLint max_length = 0;
+        glGetProgramiv(*program, GL_INFO_LOG_LENGTH, &max_length);
+        nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
+        glGetProgramInfoLog(*program, max_length, &max_length, log);
+        NU_ERROR("%s", log);
+        nu_free(log, sizeof(nu_char_t) * max_length);
+
         glDeleteProgram(*program);
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);

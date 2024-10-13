@@ -15,7 +15,6 @@ nu__graphics_init (void)
     NU_POOL_INIT(10, &_ctx.graphics.models);
 
     // Initialize backend
-    NU_INFO("initialize renderer context");
     nu__renderer_init();
 
     // Create surface texture
@@ -33,7 +32,6 @@ nu__graphics_free (void)
     // Terminate immediate context
     nu__graphics_immediate_free();
 
-    NU_INFO("terminate renderer context");
     nu__renderer_free();
 
     // TODO: free fonts and models

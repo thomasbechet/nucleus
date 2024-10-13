@@ -16,9 +16,9 @@ typedef NU_VEC(nu__model_gltf_cache_t) nu__model_gltf_cache_vec_t;
 
 typedef struct
 {
-    nu__model_gltf_cache_vec_t _cache;
-    nu_bool_t                  _has_default_material;
-    nu_u32_t                   _default_material;
+    nu__model_gltf_cache_vec_t cache;
+    nu_bool_t                  has_default_material;
+    nu_u32_t                   default_material;
 } nu__model_gltf_loader_t;
 #endif
 

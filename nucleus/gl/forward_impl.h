@@ -12,11 +12,9 @@ static void
 nugl__forward_create (nugl__renderpass_forward_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
-    pass->camera          = NU_NULL;
-    pass->mode            = NU_SHADE_LIT;
-    pass->skybox          = NU_NULL;
-    pass->skybox_rotation = nu_m3_identity();
-    pass->lightenv        = NU_NULL;
+    pass->camera   = NU_NULL;
+    pass->mode     = NU_SHADE_LIT;
+    pass->lightenv = NU_NULL;
     nugl__forward_reset(pass);
 }
 static void
@@ -139,10 +137,12 @@ nugl__forward_render (nugl__renderpass_t *pass)
     }
 
     // Render skybox
-    if (pass->forward.skybox)
+    if (pass->forward.lightenv)
     {
+        const nugl__lightenv_t *penv
+            = gl->lightenvs.data + NU_HANDLE_INDEX(pass->forward.lightenv);
         nugl__texture_t *cubemap
-            = gl->textures.data + NU_HANDLE_INDEX(pass->forward.skybox);
+            = gl->textures.data + NU_HANDLE_INDEX(penv->skybox);
 
         // Bind program
         glUseProgram(gl->skybox_program);
@@ -164,7 +164,7 @@ nugl__forward_render (nugl__renderpass_t *pass)
         glUniformMatrix3fv(glGetUniformLocation(gl->skybox_program, "rotation"),
                            1,
                            GL_FALSE,
-                           pass->forward.skybox_rotation.data);
+                           penv->skybox_rotation.data);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->texture);

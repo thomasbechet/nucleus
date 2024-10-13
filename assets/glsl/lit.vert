@@ -14,7 +14,7 @@ out VS_OUT {
     vec2 uv;
     vec3 normal;
     vec3 frag_pos;
-    vec4 frag_pos_light_space;
+    vec4 frag_pos_shadow;
 } vs_out;
 
 vec4 snap_vertex(in vec4 position)
@@ -34,7 +34,7 @@ void main()
 
     vs_out.normal = mat3(transpose(inverse(model))) * in_normal;
 
-    vs_out.frag_pos_light_space = shadowmap_view_proj * vec4(vs_out.frag_pos, 1);
+    vs_out.frag_pos_shadow = shadowmap_view_proj * vec4(vs_out.frag_pos, 1);
 
     vec4 position = view_projection * vec4(vs_out.frag_pos, 1);
     gl_Position = snap_vertex(position);

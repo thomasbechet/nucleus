@@ -190,7 +190,6 @@ init (void)
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
-    nu_renderpass_set_skybox(main_pass, skybox, nu_q4_identity());
 
     gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
@@ -214,6 +213,7 @@ init (void)
     nu_light_t light = nu_light_create(NU_LIGHT_DIRECTIONAL);
     lightenv         = nu_lightenv_create();
     nu_lightenv_add_shadowmap(lightenv, shadow_map, shadow_camera);
+    nu_lightenv_set_skybox(lightenv, skybox, nu_q4_identity());
     nu_renderpass_set_lightenv(main_pass, lightenv);
 
     // Create UI

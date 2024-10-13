@@ -42,6 +42,8 @@ nugl__lightenv_create (void)
         = NU_HANDLE_MAKE(nu_lightenv_t, gl->lightenvs.size - 1);
     p->shadowmap        = NU_NULL;
     p->shadowmap_camera = NU_NULL;
+    p->skybox           = NU_NULL;
+    p->skybox_rotation  = nu_m3_identity();
     return handle;
 }
 static void
@@ -49,13 +51,22 @@ nugl__lightenv_delete (nu_lightenv_t env)
 {
 }
 static void
-nugl__lightenv_set_shadowmap (nu_lightenv_t env,
+nugl__lightenv_add_shadowmap (nu_lightenv_t env,
                               nu_texture_t  shadowmap,
                               nu_camera_t   camera)
 {
     nugl__lightenv_t *p = _ctx.gl.lightenvs.data + NU_HANDLE_INDEX(env);
     p->shadowmap        = shadowmap;
     p->shadowmap_camera = camera;
+}
+void
+nugl__lightenv_set_skybox (nu_lightenv_t env,
+                           nu_texture_t  cubemap,
+                           nu_q4_t       rotation)
+{
+    nugl__lightenv_t *p = _ctx.gl.lightenvs.data + NU_HANDLE_INDEX(env);
+    p->skybox           = cubemap;
+    p->skybox_rotation  = nu_q4_mat3(rotation);
 }
 
 #endif

@@ -91,7 +91,6 @@ nuext_import_package (const nu_char_t *filename)
             }
             nu_char_t name[NU_ASSET_NAME_MAX];
             nu__json_value(json, tname, name, NU_ASSET_NAME_MAX);
-            NU_INFO("name:%s", name);
 
             // Parse path
             jsmntok_t *tpath = nu__json_object_member(json, tok, "path");
@@ -102,7 +101,6 @@ nuext_import_package (const nu_char_t *filename)
             }
             nu_char_t path[NUEXT_PATH_MAX];
             nu__json_value(json, tpath, path, NUEXT_PATH_MAX);
-            NU_INFO("path:%s", path);
             nu_char_t final_path[NUEXT_PATH_MAX];
             nuext_path_concat(dir, path, final_path);
 

@@ -248,7 +248,16 @@ nu_lightenv_add_shadowmap (nu_lightenv_t env,
                            nu_camera_t   camera)
 {
 #ifdef NU_BUILD_GL
-    nugl__lightenv_set_shadowmap(env, shadowmap, camera);
+    nugl__lightenv_add_shadowmap(env, shadowmap, camera);
+#endif
+}
+void
+nu_lightenv_set_skybox (nu_lightenv_t env,
+                        nu_texture_t  cubemap,
+                        nu_q4_t       rotation)
+{
+#ifdef NU_BUILD_GL
+    nugl__lightenv_set_skybox(env, cubemap, rotation);
 #endif
 }
 
@@ -324,15 +333,6 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 {
 #ifdef NU_BUILD_GL
     nugl__renderpass_set_shade(pass, mode);
-#endif
-}
-void
-nu_renderpass_set_skybox (nu_renderpass_t pass,
-                          nu_texture_t    cubemap,
-                          nu_q4_t         rotation)
-{
-#ifdef NU_BUILD_GL
-    nugl__renderpass_set_skybox(pass, cubemap, rotation);
 #endif
 }
 void

@@ -88,7 +88,7 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
         }
     }
 
-    NU_INFO("new framebuffer created for color: %d depth: %d", color, depth);
+    NU_DEBUG("new framebuffer created for color: %d depth: %d", color, depth);
 
     nugl__rendertarget_t *target = NU_VEC_PUSH(&gl->targets);
     target->color                = color;
@@ -218,15 +218,6 @@ nugl__renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
             break;
     }
     ppass->forward.mode = mode;
-}
-static void
-nugl__renderpass_set_skybox (nu_renderpass_t pass,
-                             nu_texture_t    cubemap,
-                             nu_q4_t         rotation)
-{
-    nugl__renderpass_t *ppass = _ctx.gl.passes.data + NU_HANDLE_INDEX(pass);
-    NU_ASSERT(ppass->type == NU_RENDERPASS_FORWARD);
-    ppass->forward.skybox = cubemap;
 }
 static void
 nugl__renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)

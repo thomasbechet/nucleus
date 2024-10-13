@@ -16,6 +16,8 @@ typedef struct
 {
     nu_texture_t shadowmap;
     nu_camera_t  shadowmap_camera;
+    nu_texture_t skybox;
+    nu_m3_t      skybox_rotation;
 } nugl__lightenv_t;
 
 typedef NU_VEC(nugl__lightenv_t) nugl__lightenv_vec_t;
