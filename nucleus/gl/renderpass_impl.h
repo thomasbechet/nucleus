@@ -9,13 +9,14 @@
 
 static void
 nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
-                              const nu__mesh_t         *pmesh,
+                              nu_mesh_t                 mesh,
                               nu_size_t                 first,
                               nu_size_t                 count,
                               nu_material_t             mat,
                               const nu_m4_t            *transforms,
                               nu_size_t                 instance_count)
 {
+    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
@@ -48,13 +49,13 @@ nugl__renderpass_init (nu__renderpass_t *pass)
     switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD:
-            nugl__forward_create(&pass->gl.forward);
+            nugl__forward_init(&pass->gl.forward);
             break;
         case NU_RENDERPASS_CANVAS:
-            nugl__canvas_create(&pass->gl.canvas);
+            nugl__canvas_init(&pass->gl.canvas);
             break;
         case NU_RENDERPASS_SHADOW:
-            nugl__shadow_create(&pass->gl.shadow);
+            nugl__shadow_init(&pass->gl.shadow);
             break;
     }
 }
@@ -149,7 +150,7 @@ nugl__renderpass_set_shade (nu__renderpass_t *pass)
 }
 
 static void
-nugl__reset_renderpass (nu__renderpass_t *pass)
+nugl__renderpass_reset (nu__renderpass_t *pass)
 {
     switch (pass->type)
     {
@@ -199,13 +200,12 @@ nugl__draw_submesh_instanced (nu__renderpass_t *pass,
                               const nu_m4_t    *transforms,
                               nu_size_t         instance_count)
 {
-    const nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
     // TODO: check command validity ?
     switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD: {
             nugl__submesh_draw_instanced(&pass->gl.forward.cmds,
-                                         pmesh,
+                                         mesh,
                                          first,
                                          count,
                                          material,
@@ -215,7 +215,7 @@ nugl__draw_submesh_instanced (nu__renderpass_t *pass,
         break;
         case NU_RENDERPASS_SHADOW:
             nugl__submesh_draw_instanced(&pass->gl.shadow.cmds,
-                                         pmesh,
+                                         mesh,
                                          first,
                                          count,
                                          material,
@@ -284,7 +284,7 @@ nugl__execute_renderpass (nu__renderpass_t *pass)
     // Reset pass
     if (pass->reset_after_submit)
     {
-        nugl__reset_renderpass(pass);
+        nugl__renderpass_reset(pass);
     }
 }
 

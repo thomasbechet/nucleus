@@ -22,7 +22,7 @@ nu_texture_delete (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
 #ifdef NU_BUILD_GL
-    nugl__texture_delete(tex);
+    nugl__texture_free(tex);
 #endif
     NU_POOL_REMOVE(&_ctx.graphics.textures, NU_HANDLE_INDEX(texture));
 }

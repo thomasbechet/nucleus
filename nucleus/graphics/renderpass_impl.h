@@ -53,7 +53,7 @@ nu_renderpass_submit (nu_renderpass_t pass)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
 #ifdef NU_BUILD_GL
-    nugl__renderpass_submit(pass);
+    nugl__renderpass_submit(p);
 #endif
 #ifdef NU_BUILD_UTILS
     _ctx.utils.stats.graphics_current.renderpass_count += 1;
@@ -143,13 +143,14 @@ nu_draw_submesh_instanced (nu_renderpass_t pass,
                            const nu_m4_t  *transforms,
                            nu_size_t       instance_count)
 {
+    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
 #ifdef NU_BUILD_GL
     nugl__draw_submesh_instanced(
-        pass, mesh, first, count, material, transforms, instance_count);
+        p, mesh, first, count, material, transforms, instance_count);
 #endif
 #ifdef NU_BUILD_UTILS
-    nu_primitive_t primitive = nugl__mesh_primitive(mesh);
-    switch (primitive)
+    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
+    switch (pmesh->primitive)
     {
         case NU_PRIMITIVE_POINTS:
             _ctx.utils.stats.graphics_current.point_count += count;
@@ -172,8 +173,9 @@ nu_draw_blit (nu_renderpass_t pass,
               nu_b2i_t        tex_extent,
               nu_material_t   material)
 {
+    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
 #ifdef NU_BUILD_GL
-    nugl__draw_blit(pass, extent, tex_extent, material);
+    nugl__draw_blit(p, extent, tex_extent, material);
 #endif
 }
 

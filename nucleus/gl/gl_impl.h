@@ -4,10 +4,7 @@
 #include <nucleus/internal.h>
 #include <nucleus/gl/shader_data.h>
 #include <nucleus/gl/texture_impl.h>
-#include <nucleus/gl/material_impl.h>
-#include <nucleus/gl/light_impl.h>
 #include <nucleus/gl/mesh_impl.h>
-#include <nucleus/gl/camera_impl.h>
 #include <nucleus/gl/renderpass_impl.h>
 
 static nu_error_t
@@ -230,8 +227,8 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
-        nu_u32_t            pass_index = gl->passes_order.data[i];
-        nugl__renderpass_t *pass       = &gl->passes.data[pass_index];
+        nu_u32_t          pass_index = gl->passes_order.data[i];
+        nu__renderpass_t *pass       = &_ctx.graphics.passes.data[pass_index];
         nugl__execute_renderpass(pass);
     }
 
@@ -247,8 +244,9 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     glViewport(viewport.min.x, viewport.min.y, size.x, size.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindTexture(GL_TEXTURE_2D,
-                  gl->textures.data[gl->surface_color_index].texture);
+    glBindTexture(
+        GL_TEXTURE_2D,
+        _ctx.graphics.textures.data[gl->surface_color_index].gl.texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glUseProgram(0);
 
@@ -257,30 +255,24 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 
     return NU_ERROR_NONE;
 }
-static nu_texture_t
-nugl__create_surface_color (nu_v2u_t size)
+static void
+nugl__init_surface_texture (nu__texture_t *tex)
 {
     nu__gl_t *gl = &_ctx.gl;
 
-    nugl__texture_t *ptex   = NU_VEC_PUSH(&gl->textures);
-    gl->surface_color_index = gl->textures.size - 1;
-    ptex->size              = nu_v3u(size.x, size.y, 0);
-
-    glGenTextures(1, &ptex->texture);
-    glBindTexture(GL_TEXTURE_2D, ptex->texture);
+    glGenTextures(1, &tex->gl.texture);
+    glBindTexture(GL_TEXTURE_2D, tex->gl.texture);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_SRGB,
-                 size.x,
-                 size.y,
+                 tex->size.x,
+                 tex->size.y,
                  0,
                  GL_RGB,
                  GL_UNSIGNED_BYTE,
                  NU_NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    return NU_HANDLE_MAKE(nu_texture_t, (nu_size_t)gl->surface_color_index);
 }
 
 #endif

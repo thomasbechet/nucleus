@@ -7,6 +7,12 @@
 #include <nucleus/graphics/model_impl.h>
 #include <nucleus/graphics/immediate_impl.h>
 
+#include <nucleus/graphics/camera_impl.h>
+#include <nucleus/graphics/texture_impl.h>
+#include <nucleus/graphics/material_impl.h>
+#include <nucleus/graphics/light_impl.h>
+#include <nucleus/graphics/renderpass_impl.h>
+
 static nu_error_t
 nu__graphics_init (void)
 {
@@ -27,8 +33,14 @@ nu__graphics_init (void)
     nu__renderer_init();
 
     // Create surface texture
-    _ctx.graphics.surface_color
-        = nugl__create_surface_color(_ctx.platform.size);
+    {
+        nu_size_t      index;
+        nu__texture_t *tex = NU_POOL_ADD(&_ctx.graphics.textures, &index);
+        tex->type          = NU_TEXTURE_COLOR_TARGET;
+        tex->size = nu_v3u(_ctx.platform.size.x, _ctx.platform.size.y, 0);
+        nugl__init_surface_texture(tex);
+        _ctx.graphics.surface_color = NU_HANDLE_MAKE(nu_texture_t, index);
+    }
 
     // Initialize immediate context
     nu__graphics_immediate_init();
@@ -268,11 +280,10 @@ nu_draw_mesh_instanced (nu_renderpass_t pass,
                         const nu_m4_t  *transforms,
                         nu_size_t       instance_count)
 {
-#ifdef NU_BUILD_GL
-    nu_size_t capacity = nugl__mesh_capacity(mesh);
+    nu_size_t capacity
+        = _ctx.graphics.meshes.data[NU_HANDLE_INDEX(mesh)].capacity;
     nu_draw_submesh_instanced(
         pass, mesh, 0, capacity, material, transforms, instance_count);
-#endif
 }
 
 #endif

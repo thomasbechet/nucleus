@@ -9,7 +9,7 @@ nugl__forward_reset (nugl__renderpass_forward_t *pass)
     NU_VEC_CLEAR(&pass->cmds);
 }
 static void
-nugl__forward_create (nugl__renderpass_forward_t *pass)
+nugl__forward_init (nugl__renderpass_forward_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
     nugl__forward_reset(pass);
@@ -100,7 +100,7 @@ nugl__forward_render (nu__renderpass_t *pass)
         if (pass->forward.mode == NU_SHADE_WIREFRAME)
         {
             nu_v4_t color = nu_color_to_vec4(
-                nugl__material_surface_color(cmd->material, NU_COLOR_WHITE));
+                nu__material_surface_color(cmd->material, NU_COLOR_WHITE));
             glUniform3fv(glGetUniformLocation(gl->wireframe_program, "color"),
                          1,
                          color.data);

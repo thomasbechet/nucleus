@@ -24,18 +24,18 @@ nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
 
     if (pass->shadow.depthmap != texture)
     {
-        pass->depthmap = texture;
-        if (pass->fbo)
+        pass->shadow.depthmap = texture;
+        if (pass->gl.fbo)
         {
-            glDeleteFramebuffers(1, &pass->fbo);
+            glDeleteFramebuffers(1, &pass->gl.fbo);
         }
 
-        glGenFramebuffers(1, &pass->fbo);
-        glBindFramebuffer(GL_FRAMEBUFFER, pass->fbo);
+        glGenFramebuffers(1, &pass->gl.fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, pass->gl.fbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER,
                                GL_DEPTH_ATTACHMENT,
                                GL_TEXTURE_2D,
-                               ptex->texture,
+                               ptex->gl.texture,
                                0);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
@@ -43,22 +43,22 @@ nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
     }
 }
 static void
-nugl__shadow_render (nugl__renderpass_t *pass)
+nugl__shadow_render (nu__renderpass_t *pass)
 {
     nu__gl_t *gl = &_ctx.gl;
     NU_ASSERT(pass->shadow.camera && pass->shadow.depthmap);
-    nugl__camera_t *pcam
-        = gl->cameras.data + NU_HANDLE_INDEX(pass->shadow.camera);
-    nugl__texture_t *ptex
-        = gl->textures.data + NU_HANDLE_INDEX(pass->shadow.depthmap);
+    nu__camera_t *pcam
+        = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(pass->shadow.camera);
+    nu__texture_t *ptex
+        = _ctx.graphics.textures.data + NU_HANDLE_INDEX(pass->shadow.depthmap);
 
-    if (!pass->shadow.fbo)
+    if (!pass->gl.shadow.fbo)
     {
         return;
     }
 
     glViewport(0, 0, ptex->size.x, ptex->size.y);
-    glBindFramebuffer(GL_FRAMEBUFFER, pass->shadow.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, pass->gl.shadow.fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
@@ -71,7 +71,7 @@ nugl__shadow_render (nugl__renderpass_t *pass)
                   ptex->size.data);
 
     // Compute light view projection matrix
-    const nugl__mesh_command_vec_t *cmds = &pass->shadow.cmds;
+    const nugl__mesh_command_vec_t *cmds = &pass->gl.shadow.cmds;
     for (nu_size_t i = 0; i < cmds->size; ++i)
     {
         const nugl__mesh_command_t *cmd = &cmds->data[i];

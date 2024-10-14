@@ -110,7 +110,7 @@ typedef struct
 typedef NU_VEC(nugl__rendertarget_t) nugl__rendertarget_vec_t;
 
 static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
-                                         const nu__mesh_t         *pmesh,
+                                         nu_mesh_t                 mesh,
                                          nu_size_t                 first,
                                          nu_size_t                 count,
                                          nu_material_t             mat,

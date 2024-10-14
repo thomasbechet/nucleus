@@ -21,13 +21,6 @@ nu__renderer_free (void)
     nugl__free();
 #endif
 }
-static nu_texture_t
-nu__renderer_create_surface_color (nu_v2u_t size)
-{
-#ifdef NU_BUILD_GL
-    return nugl__create_surface_color(size);
-#endif
-}
 static void
 nu__renderer_render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 {

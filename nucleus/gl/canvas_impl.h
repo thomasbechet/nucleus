@@ -25,7 +25,7 @@ nugl__canvas_reset (nugl__renderpass_canvas_t *pass)
     pass->depth = 0;
 }
 static void
-nugl__canvas_create (nugl__renderpass_canvas_t *pass)
+nugl__canvas_init (nugl__renderpass_canvas_t *pass)
 {
     NU_VEC_INIT(128, &pass->cmds);
     NU_VEC_INIT(32, &pass->blit_transfer);
@@ -103,10 +103,10 @@ nugl__write_canvas_buffers (nugl__renderpass_canvas_t *pass)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 static void
-nugl__canvas_draw_blit (nugl__renderpass_t *pass,
-                        nu_material_t       material,
-                        nu_b2i_t            extent,
-                        nu_b2i_t            tex_extent)
+nugl__canvas_draw_blit (nu__renderpass_t *pass,
+                        nu_material_t     material,
+                        nu_b2i_t          extent,
+                        nu_b2i_t          tex_extent)
 {
     if (!material)
     {
@@ -122,7 +122,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
     {
         case NU_TEXTURE_WRAP_CLAMP: {
             nugl__canvas_add_blit(
-                &pass->canvas,
+                &pass->gl.canvas,
                 extent.min,
                 nu_v2u(tex_extent.min.x, tex_extent.min.y),
                 nu_v2u_min(nu_b2i_size(extent), nu_b2i_size(tex_extent)));
@@ -145,7 +145,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                     nu_i32_t pos_x = extent.min.x + (x * tex_extent_s.x);
                     nu_i32_t pos_y = extent.min.y + (y * tex_extent_s.y);
                     nugl__canvas_add_blit(
-                        &pass->canvas,
+                        &pass->gl.canvas,
                         nu_v2i(pos_x, pos_y),
                         nu_v2u(tex_extent.min.x, tex_extent.min.y),
                         tex_extent_s);
@@ -165,7 +165,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                     nu_i32_t pos_y = extent.min.y + (y * tex_extent_s.y);
                     nu_v2u_t size  = nu_v2u(partial_hblit_size, tex_extent_s.y);
                     nugl__canvas_add_blit(
-                        &pass->canvas,
+                        &pass->gl.canvas,
                         nu_v2i(pos_x, pos_y),
                         nu_v2u(tex_extent.min.x, tex_extent.min.y),
                         size);
@@ -181,7 +181,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                         = extent.min.y + (full_vblit_count * tex_extent_s.y);
                     nu_v2u_t size = nu_v2u(tex_extent_s.x, partial_vblit_size);
                     nugl__canvas_add_blit(
-                        &pass->canvas,
+                        &pass->gl.canvas,
                         nu_v2i(pos_x, pos_y),
                         nu_v2u(tex_extent.min.x, tex_extent.min.y),
                         size);
@@ -196,7 +196,7 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
                     = extent.min.y + (full_vblit_count * tex_extent_s.y);
                 nu_v2u_t size = nu_v2u(partial_hblit_size, partial_vblit_size);
                 nugl__canvas_add_blit(
-                    &pass->canvas,
+                    &pass->gl.canvas,
                     nu_v2i(pos_x, pos_y),
                     nu_v2u(tex_extent.min.x, tex_extent.min.y),
                     size);
@@ -207,9 +207,9 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
         case NU_TEXTURE_WRAP_MIRROR:
             break;
     }
-    pass->canvas.depth += NUGL__DEPTH_INCREMENT;
+    pass->gl.canvas.depth += NUGL__DEPTH_INCREMENT;
 
-    nugl__canvas_command_t *last = NU_VEC_LAST(&pass->canvas.cmds);
+    nugl__canvas_command_t *last = NU_VEC_LAST(&pass->gl.canvas.cmds);
     NU_ASSERT(pmat->canvas.texture0);
     GLuint texture
         = _ctx.graphics.textures.data[NU_HANDLE_INDEX(pmat->canvas.texture0)]
@@ -221,11 +221,11 @@ nugl__canvas_draw_blit (nugl__renderpass_t *pass,
     }
     else
     {
-        last               = NU_VEC_PUSH(&pass->canvas.cmds);
+        last               = NU_VEC_PUSH(&pass->gl.canvas.cmds);
         last->type         = NUGL__CANVAS_BLIT;
         last->blit.texture = texture;
         last->blit.instance_start
-            = pass->canvas.blit_transfer.size - blit_count;
+            = pass->gl.canvas.blit_transfer.size - blit_count;
         last->blit.instance_count = blit_count;
     }
 }
