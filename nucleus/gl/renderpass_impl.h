@@ -166,23 +166,23 @@ nugl__renderpass_reset (nu__renderpass_t *pass)
     }
 }
 static void
-nugl__renderpass_submit (nu__renderpass_t *pass)
+nugl__renderpass_submit (nu_renderpass_t pass)
 {
     nu__gl_t *gl = &_ctx.gl;
 
     *NU_VEC_PUSH(&gl->passes_order) = NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
 
-    switch (pass->type)
+    switch (p->type)
     {
         case NU_RENDERPASS_FORWARD: {
-            NU_ASSERT(pass->color_target);
-            nugl__prepare_color_depth(
-                pass, pass->color_target, pass->depth_target);
+            NU_ASSERT(p->color_target);
+            nugl__prepare_color_depth(p, p->color_target, p->depth_target);
         }
         break;
         case NU_RENDERPASS_CANVAS: {
-            NU_ASSERT(pass->color_target);
-            nugl__prepare_color_depth(pass, pass->color_target, NU_NULL);
+            NU_ASSERT(p->color_target);
+            nugl__prepare_color_depth(p, p->color_target, NU_NULL);
         }
         break;
         case NU_RENDERPASS_SHADOW: {

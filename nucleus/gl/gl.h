@@ -85,7 +85,6 @@ typedef struct
 typedef struct
 {
     nugl__mesh_command_vec_t cmds;
-    GLuint                   fbo;
 } nugl__renderpass_shadow_t;
 
 typedef struct
@@ -131,7 +130,7 @@ typedef struct
     GLuint nearest_sampler;
 
     nugl__rendertarget_vec_t targets;
-    nu_u32_vec_t             passes_order;
+    nu_size_vec_t            passes_order;
 } nu__gl_t;
 
 #endif

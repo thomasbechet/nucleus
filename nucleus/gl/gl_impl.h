@@ -227,7 +227,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
-        nu_u32_t          pass_index = gl->passes_order.data[i];
+        nu_size_t         pass_index = gl->passes_order.data[i];
         nu__renderpass_t *pass       = &_ctx.graphics.passes.data[pass_index];
         nugl__execute_renderpass(pass);
     }

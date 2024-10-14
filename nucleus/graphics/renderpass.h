@@ -12,8 +12,7 @@ typedef struct
 
 typedef struct
 {
-    nu_texture_t depthmap;
-    nu_camera_t  camera;
+    nu_camera_t camera;
 } nu__renderpass_shadow_t;
 
 typedef struct

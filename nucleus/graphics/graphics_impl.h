@@ -2,16 +2,17 @@
 #define NU_GRAPHICS_IMPL_H
 
 #include <nucleus/graphics/backend_impl.h>
-#include <nucleus/graphics/font_impl.h>
-#include <nucleus/graphics/image_impl.h>
-#include <nucleus/graphics/model_impl.h>
-#include <nucleus/graphics/immediate_impl.h>
 
 #include <nucleus/graphics/camera_impl.h>
 #include <nucleus/graphics/texture_impl.h>
 #include <nucleus/graphics/material_impl.h>
+#include <nucleus/graphics/mesh_impl.h>
 #include <nucleus/graphics/light_impl.h>
 #include <nucleus/graphics/renderpass_impl.h>
+#include <nucleus/graphics/font_impl.h>
+#include <nucleus/graphics/image_impl.h>
+#include <nucleus/graphics/model_impl.h>
+#include <nucleus/graphics/immediate_impl.h>
 
 static nu_error_t
 nu__graphics_init (void)

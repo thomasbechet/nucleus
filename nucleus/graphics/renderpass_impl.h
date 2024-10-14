@@ -2,6 +2,7 @@
 #define NU_RENDERPASS_IMPL_H
 
 #include <nucleus/internal.h>
+#include <nucleus/graphics/backend_impl.h>
 
 nu_renderpass_t
 nu_renderpass_create (nu_renderpass_type_t type)
@@ -24,6 +25,7 @@ nu_renderpass_create (nu_renderpass_type_t type)
         case NU_RENDERPASS_CANVAS:
             break;
         case NU_RENDERPASS_SHADOW:
+            pass->shadow.camera = NU_NULL;
             break;
     }
 #ifdef NU_BUILD_GL
@@ -51,9 +53,8 @@ nu_renderpass_reset (nu_renderpass_t pass)
 void
 nu_renderpass_submit (nu_renderpass_t pass)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
 #ifdef NU_BUILD_GL
-    nugl__renderpass_submit(p);
+    nugl__renderpass_submit(pass);
 #endif
 #ifdef NU_BUILD_UTILS
     _ctx.utils.stats.graphics_current.renderpass_count += 1;
@@ -112,7 +113,7 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 #ifdef NU_BUILD_GL
     if (p->type == NU_RENDERPASS_SHADOW)
     {
-        nugl__shadow_set_depth_map(&p->gl.shadow, texture);
+        nugl__shadow_set_depth_map(p, texture);
     }
 #endif
 }
