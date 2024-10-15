@@ -206,6 +206,12 @@ NU_API void nu_draw_lines_strip(nu_renderpass_t pass,
                                 nu_size_t       count,
                                 nu_material_t   material,
                                 nu_m4_t         transform);
+NU_API void nu_draw_triangles(nu_renderpass_t pass,
+                              const nu_v3_t  *positions,
+                              const nu_v2_t  *uvs,
+                              nu_size_t       count,
+                              nu_material_t   material,
+                              nu_m4_t         transform);
 NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_b3_t         box,
                         nu_material_t   material,

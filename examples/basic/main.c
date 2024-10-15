@@ -71,6 +71,9 @@ draw_scene (nu_renderpass_t pass)
     nu_m4_t transform = nu_m4_scale(nu_v3(4, 4, 4));
     transform = nu_m4_mul(nu_m4_translate(nu_v3(10, -50, 0)), transform);
     nu_draw_model(pass, temple_model, transform);
+
+    transform = nu_m4_translate(nu_v3(0, 10, 0));
+    nu_draw_box(pass, nu_b3(nu_v3s(-0.5), nu_v3s(0.5)), material, transform);
 }
 
 void
@@ -189,7 +192,7 @@ init (void)
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
-    nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
+    nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
 
     gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
