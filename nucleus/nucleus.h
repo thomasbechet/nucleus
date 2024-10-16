@@ -23,6 +23,9 @@
 #ifdef NU_BUILD_PHYSICS
 #include <nucleus/physics/api.h>
 #endif
+#ifdef NU_BUILD_ECS
+#include <nucleus/ecs/api.h>
+#endif
 
 #ifdef NU_IMPLEMENTATION
 
@@ -47,6 +50,9 @@
 #endif
 #ifdef NU_BUILD_PHYSICS
 #include <nucleus/physics/physics_impl.h>
+#endif
+#ifdef NU_BUILD_ECS
+#include <nucleus/ecs/ecs_impl.h>
 #endif
 
 #endif

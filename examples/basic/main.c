@@ -60,6 +60,7 @@ static nu_ui_style_t   style;
 static nu_fixedloop_t  physics_loop_handle;
 static nu_lightenv_t   lightenv;
 static nu_camera_t     shadow_camera;
+static nu_ecs_t        ecs;
 
 void physics_loop(nu_f32_t timestep);
 
@@ -76,10 +77,28 @@ draw_scene (nu_renderpass_t pass)
     nu_draw_box(pass, nu_b3(nu_v3s(-0.5), nu_v3s(0.5)), material, transform);
 }
 
+typedef struct
+{
+    int i;
+} mycomp_t;
+
+typedef enum
+{
+    COMP_MYCOMP
+} component_t;
+
 void
 init (void)
 {
     nuext_import_package("../../../assets/pkg.json");
+
+    ecs = nu_ecs_create();
+    nu_ecs_reg_component_with(ecs, COMP_MYCOMP, sizeof(mycomp_t));
+    nu_ecs_id_t e = nu_ecs_add(ecs);
+    nu_ecs_set(ecs, e, COMP_MYCOMP);
+    NU_ASSERT(nu_ecs_has(ecs, e, COMP_MYCOMP));
+    nu_ecs_unset(ecs, e, COMP_MYCOMP);
+    NU_ASSERT(!nu_ecs_has(ecs, e, COMP_MYCOMP));
 
     // Configure inputs
     draw        = nu_input_create();

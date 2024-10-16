@@ -26,6 +26,9 @@
 #ifdef NU_BUILD_PHYSICS
 #include <nucleus/physics/physics.h>
 #endif
+#ifdef NU_BUILD_ECS
+#include <nucleus/ecs/ecs.h>
+#endif
 
 static struct nu__context
 {
@@ -53,6 +56,9 @@ static struct nu__context
 #endif
 #ifdef NU_BUILD_PHYSICS
     nu__physics_t physics;
+#endif
+#ifdef NU_BUILD_ECS
+    nu__ecs_t ecs;
 #endif
 } _ctx;
 

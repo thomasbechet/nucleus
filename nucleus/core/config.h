@@ -16,6 +16,7 @@
 #define NU_BUILD_ASSET
 #define NU_BUILD_UI
 #define NU_BUILD_PHYSICS
+#define NU_BUILD_ECS
 
 #if defined(NU_NO_PLATFORM)
 #undef NU_BUILD_PLATFORM
@@ -51,6 +52,10 @@
 
 #if defined(NU_NO_PHYSICS)
 #undef NU_BUILD_PHYSICS
+#endif
+
+#if defined(NU_NO_ECS)
+#undef NU_BUILD_ECS
 #endif
 
 //////////////////////////////////////////////////////////////////////////

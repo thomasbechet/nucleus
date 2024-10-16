@@ -47,37 +47,33 @@ main (int argc, char *argv[])
 
     error = nu__core_init();
     NU_ERROR_CHECK(error, return error);
-
 #ifdef NU_BUILD_PLATFORM
     error = nu__platform_init();
     NU_ERROR_CHECK(error, return error);
 #endif
-
 #ifdef NU_BUILD_GRAPHICS
     error = nu__graphics_init();
     NU_ERROR_CHECK(error, return error);
 #endif
-
 #ifdef NU_BUILD_UTILS
     error = nu__utils_init();
     NU_ERROR_CHECK(error, return error);
 #endif
-
 #ifdef NU_BUILD_IMPORTER
     nu__importer_init();
 #endif
-
 #ifdef NU_BUILD_ASSET
     error = nu__asset_init();
     NU_ERROR_CHECK(error, return error);
 #endif
-
 #ifdef NU_BUILD_UI
     nu__ui_init();
 #endif
-
 #ifdef NU_BUILD_PHYSICS
     nu__physics_init();
+#endif
+#ifdef NU_BUILD_ECS
+    nu__ecs_init();
 #endif
 
     // Run app
@@ -125,6 +121,9 @@ main (int argc, char *argv[])
 
     // Terminate modules
 
+#ifdef NU_BUILD_ECS
+    nu__ecs_free();
+#endif
 #ifdef NU_BUILD_PHYSICS
     nu__physics_free();
 #endif
