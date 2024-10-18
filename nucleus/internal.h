@@ -29,6 +29,9 @@
 #ifdef NU_BUILD_ECS
 #include <nucleus/ecs/ecs.h>
 #endif
+#ifdef NU_BUILD_SERIA
+#include <nucleus/seria/seria.h>
+#endif
 
 static struct nu__context
 {

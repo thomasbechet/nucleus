@@ -79,10 +79,18 @@ draw_scene (nu_renderpass_t pass)
 
 typedef struct
 {
-    nu_v3_t position;
-    nu_q4_t rotation;
-    nu_v3_t scale;
+    nu_v3_t   position;
+    nu_q4_t   rotation;
+    nu_v3_t   scale;
+    nu_bool_t flags[32];
 } transform_t;
+
+NU_SERIA(transform,
+         transform_t,
+         NU_SERIA_FIELD(transform_t, position, NU_SERIA_V3F, 1),
+         NU_SERIA_FIELD(transform_t, rotation, NU_SERIA_Q4, 1),
+         NU_SERIA_FIELD(transform_t, scale, NU_SERIA_V3F, 1),
+         NU_SERIA_FIELD(transform_t, flags, NU_SERIA_BOOL, 32));
 
 typedef struct
 {

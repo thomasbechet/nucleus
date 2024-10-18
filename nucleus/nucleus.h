@@ -26,6 +26,9 @@
 #ifdef NU_BUILD_ECS
 #include <nucleus/ecs/api.h>
 #endif
+#ifdef NU_BUILD_SERIA
+#include <nucleus/seria/api.h>
+#endif
 
 #ifdef NU_IMPLEMENTATION
 
@@ -53,6 +56,9 @@
 #endif
 #ifdef NU_BUILD_ECS
 #include <nucleus/ecs/ecs_impl.h>
+#endif
+#ifdef NU_BUILD_SERIA
+#include <nucleus/seria/seria_impl.h>
 #endif
 
 #endif

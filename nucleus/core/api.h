@@ -226,8 +226,10 @@ typedef enum
 
 typedef enum
 {
-    NU_TABLE_INT,
-    NU_TABLE_FLOAT,
+    NU_TYPE_BOOL,
+    NU_TYPE_I32,
+    NU_TYPE_U32,
+    NU_TYPE_F32,
 } nu_table_type_t;
 
 typedef enum
