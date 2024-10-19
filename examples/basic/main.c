@@ -79,18 +79,25 @@ draw_scene (nu_renderpass_t pass)
 
 typedef struct
 {
+    int hello;
+} subtype_t;
+
+NU_SERIA(subtype, subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1));
+
+typedef struct
+{
     nu_v3_t   position;
     nu_q4_t   rotation;
     nu_v3_t   scale;
+    subtype_t subtype;
     nu_bool_t flags[32];
 } transform_t;
 
-NU_SERIA(transform,
-         transform_t,
-         NU_SERIA_FIELD(transform_t, position, NU_SERIA_V3F, 1),
-         NU_SERIA_FIELD(transform_t, rotation, NU_SERIA_Q4, 1),
-         NU_SERIA_FIELD(transform_t, scale, NU_SERIA_V3F, 1),
-         NU_SERIA_FIELD(transform_t, flags, NU_SERIA_BOOL, 32));
+NU_SERIA(transform, transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3F, 1);
+         NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
+         NU_SERIA_FIELD(scale, NU_SERIA_V3F, 1);
+         NU_SERIA_FIELD_OBJ(subtype, 1, nu_seria_subtype);
+         NU_SERIA_FIELD(flags, NU_SERIA_BOOL, 32));
 
 typedef struct
 {
@@ -106,6 +113,7 @@ typedef enum
 void
 init (void)
 {
+
     nuext_import_package("../../../assets/pkg.json");
 
     // Configure inputs
@@ -289,6 +297,11 @@ init (void)
 
     physics_loop_handle
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
+
+    nu_seria_t seria = nu_seria_create();
+    nu_seria_open_dumper(seria);
+    nu_seria_transform(seria, NU_NULL);
+    nu_seria_delete(seria);
 }
 
 void

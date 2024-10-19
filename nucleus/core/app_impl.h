@@ -75,6 +75,9 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_ECS
     nu__ecs_init();
 #endif
+#ifdef NU_BUILD_SERIA
+    nu__seria_init();
+#endif
 
     // Run app
 
@@ -121,6 +124,9 @@ main (int argc, char *argv[])
 
     // Terminate modules
 
+#ifdef NU_BUILD_SERIA
+    nu__seria_init();
+#endif
 #ifdef NU_BUILD_ECS
     nu__ecs_free();
 #endif

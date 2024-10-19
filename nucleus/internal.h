@@ -63,6 +63,9 @@ static struct nu__context
 #ifdef NU_BUILD_ECS
     nu__ecs_t ecs;
 #endif
+#ifdef NU_BUILD_SERIA
+    nu__seria_t seria;
+#endif
 } _ctx;
 
 #endif
