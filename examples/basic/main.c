@@ -1,3 +1,4 @@
+#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -79,29 +80,21 @@ draw_scene (nu_renderpass_t pass)
 
 typedef struct
 {
-    int hello;
+    int     hello;
+    nu_v3_t vector;
+    nu_q4_t quat;
 } subtype_t;
 
-NU_SERIA(subtype, subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1));
-
 typedef struct
 {
-    nu_v3_t   position;
-    nu_q4_t   rotation;
-    nu_v3_t   scale;
-    subtype_t subtype;
-    nu_bool_t flags[32];
+    nu_v3_t position;
+    nu_q4_t rotation;
+    nu_v3_t scale;
 } transform_t;
 
-NU_SERIA(transform, transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3F, 1);
-         NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
-         NU_SERIA_FIELD(scale, NU_SERIA_V3F, 1);
-         NU_SERIA_FIELD_OBJ(subtype, 1, nu_seria_subtype);
-         NU_SERIA_FIELD(flags, NU_SERIA_BOOL, 32));
-
 typedef struct
 {
-    int stat;
+    nu_u32_t stat;
 } player_t;
 
 typedef enum
@@ -113,8 +106,9 @@ typedef enum
 void
 init (void)
 {
-
     nuext_import_package("../../../assets/pkg.json");
+
+    NU_SERIA(player_t, NU_SERIA_ACCESS(stat, NU_SERIA_LAYOUT(nu_u32_t), 1));
 
     // Configure inputs
     draw        = nu_input_create();
@@ -299,8 +293,8 @@ init (void)
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
 
     nu_seria_t seria = nu_seria_create();
-    nu_seria_open_dumper(seria);
-    nu_seria_transform(seria, NU_NULL);
+    nu_seria_open_reflect(seria);
+    // nu_seria_subtype(seria, NU_NULL);
     nu_seria_delete(seria);
 }
 

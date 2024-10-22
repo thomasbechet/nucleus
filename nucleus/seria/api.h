@@ -7,42 +7,21 @@
 #include <nucleus/external/jsmn/jsmn.h>
 #endif
 
-#define NU_SERIA_FIELD(field, type, count)      \
-    nu_seria_field(seria, #field, type, count); \
-    nu_seria_data(seria, &v->field);
+#define NU_SERIA_ACCESS(field, layout, size) \
+    nu_seria_layout_access(layout, #field, offsetof(type, field), layout, size);
 
-#define NU_SERIA_FIELD_OBJ(field, count, fn)            \
-    nu_seria_field(seria, #field, NU_SERIA_OBJ, count); \
-    fn(seria, &v->field);
-
-#define NU_SERIA(name, struct, ...)                    \
-    void nu_seria_##name(nu_seria_t seria, void *data) \
-    {                                                  \
-        struct *v = (struct *)data;                    \
-        nu_seria_begin(seria, #name);                  \
-        __VA_ARGS__                                    \
-        nu_seria_end(seria);                           \
+#define NU_SERIA(struct, ...)                                  \
+    {                                                          \
+        typedef struct type;                                   \
+        nu_seria_layout_t layout                               \
+            = nu_seria_layout_create(#struct, sizeof(struct)); \
+        __VA_ARGS__                                            \
     }
 
-typedef enum
-{
-    NU_SERIA_BOOL,
-    NU_SERIA_U32,
-    NU_SERIA_F32,
-    NU_SERIA_V3U,
-    NU_SERIA_V3F,
-    NU_SERIA_Q4,
-    NU_SERIA_STR,
-    NU_SERIA_OBJ,
-} nu_seria_type_t;
-
-typedef enum
-{
-    NU_SERIA_READ,
-    NU_SERIA_WRITE,
-} nu_seria_mode_t;
+#define NU_SERIA_LAYOUT(struct) nu_seria_layout(#struct)
 
 NU_DEFINE_HANDLE(nu_seria_t);
+NU_DEFINE_HANDLE(nu_seria_layout_t);
 
 NU_API nu_seria_t nu_seria_create(void);
 NU_API void       nu_seria_delete(nu_seria_t seria);
@@ -55,12 +34,18 @@ NU_API void nu_seria_open_json(nu_seria_t       seria,
 #endif
 NU_API void nu_seria_close(nu_seria_t seria);
 
-NU_API void nu_seria_begin(nu_seria_t seria, const nu_char_t *name);
-NU_API void nu_seria_end(nu_seria_t seria);
-NU_API void nu_seria_field(nu_seria_t       seria,
-                           const nu_char_t *name,
-                           nu_seria_type_t  type,
-                           nu_size_t        size);
-NU_API void nu_seria_data(nu_seria_t seria, void *data);
+NU_API nu_seria_layout_t nu_seria_layout_create(const nu_char_t *name,
+                                                nu_size_t        size);
+NU_API void              nu_seria_layout_access(nu_seria_layout_t layout,
+                                                const nu_char_t  *name,
+                                                nu_size_t         offset,
+                                                nu_seria_layout_t access_layout,
+                                                nu_size_t         size);
+NU_API nu_seria_layout_t nu_seria_layout(const nu_char_t *name);
+
+NU_API nu_size_t nu_seria_read(nu_seria_t        seria,
+                               nu_seria_layout_t layout,
+                               nu_size_t         capacity,
+                               void             *data);
 
 #endif

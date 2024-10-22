@@ -506,6 +506,10 @@ NU_API nu_int_t   nu_snprintf(nu_char_t       *s,
                               nu_size_t        n,
                               const nu_char_t *format,
                               ...);
+NU_API nu_int_t   nu_vsnprintf(nu_char_t       *s,
+                               nu_size_t        n,
+                               const nu_char_t *format,
+                               va_list          args);
 
 NU_API nu_u32_t nu_hash(const nu_char_t *s);
 NU_API nu_u32_t nu_hashn(const nu_char_t *s, nu_size_t n);

@@ -61,6 +61,10 @@ nu_realloc_a (nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n)
 void
 nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
 {
+    if (!p)
+    {
+        return;
+    }
     a->callback(p, s, 0, NU_DEFAULT_ALIGN, a->userdata);
 }
 
