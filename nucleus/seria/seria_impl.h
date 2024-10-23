@@ -9,17 +9,25 @@
 // #include <nucleus/seria/json_impl.h>
 // #endif
 
+#define NU__REGISTER_CORE(enum, coretype)                        \
+    {                                                            \
+        nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types); \
+        type->kind             = NU__SERIA_PRIMITIVE;            \
+        type->name             = nu_seria_primitive_names[enum]; \
+        type->size             = sizeof(coretype);               \
+        type->primitive        = enum;                           \
+    }
+
 static void
 nu__seria_register_primitive_types (void)
 {
-    for (nu_size_t i = 0; i < NU_SERIA_PRIMITIVE_COUNT; ++i)
-    {
-        nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types);
-        type->name             = nu_seria_primitive_names[i];
-        type->is_primitive     = NU_TRUE;
-        type->primitive        = i;
-    }
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_U32, nu_u32_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_F32, nu_f32_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_V3, nu_v3_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_Q4, nu_q4_t);
 }
+
+#undef NU__REGISTER_CORE
 
 static void
 nu__seria_init (void)
@@ -33,7 +41,18 @@ nu__seria_free (void)
 {
     for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
     {
-        NU_VEC_FREE(&_ctx.seria.types.data[i].accessors);
+        nu__seria_type_t *p = _ctx.seria.types.data + i;
+        switch (p->kind)
+        {
+            case NU__SERIA_PRIMITIVE:
+                NU_VEC_FREE(&_ctx.seria.types.data[i].values);
+                break;
+            case NU__SERIA_STRUCT:
+                NU_VEC_FREE(&_ctx.seria.types.data[i].fields);
+                break;
+            case NU__SERIA_ENUM:
+                break;
+        }
     }
     NU_VEC_FREE(&_ctx.seria.types);
     NU_POOL_FREE(&_ctx.seria.instances);
@@ -86,30 +105,54 @@ nu_seria_close (nu_seria_t seria)
 }
 
 nu_seria_type_t
-nu_seria_register (const nu_char_t *name, nu_size_t size)
+nu_seria_register_struct (const nu_char_t *name, nu_size_t size)
 {
-    nu__seria_type_t *layout = NU_VEC_PUSH(&_ctx.seria.types);
-    layout->name             = name;
-    layout->size             = size;
-    layout->is_primitive     = NU_FALSE;
-    NU_VEC_INIT(5, &layout->accessors);
+    nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types);
+    type->kind             = NU__SERIA_STRUCT;
+    type->name             = name;
+    type->size             = size;
+    NU_VEC_INIT(5, &type->fields);
     return NU_HANDLE_MAKE(nu_seria_type_t, _ctx.seria.types.size - 1);
 }
 void
-nu_seria_register_field (nu_seria_type_t  type,
-                         const nu_char_t *name,
-                         nu_seria_type_t  fieldtype,
-                         nu_size_t        size,
-                         nu_size_t        offset)
+nu_seria_register_struct_field (nu_seria_type_t  type,
+                                const nu_char_t *name,
+                                nu_seria_type_t  fieldtype,
+                                nu_size_t        size,
+                                nu_seria_flag_t  flags,
+                                nu_size_t        offset)
 {
     NU_ASSERT(fieldtype);
     NU_ASSERT(type && name && size);
-    nu__seria_type_t     *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
-    nu__seria_accessor_t *a = NU_VEC_PUSH(&p->accessors);
-    a->name                 = name;
-    a->size                 = size;
-    a->type                 = fieldtype;
-    a->offset               = offset;
+    nu__seria_type_t         *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    nu__seria_struct_field_t *a = NU_VEC_PUSH(&p->fields);
+    NU_ASSERT(p->kind == NU__SERIA_STRUCT);
+    a->name   = name;
+    a->size   = size;
+    a->type   = fieldtype;
+    a->offset = offset;
+    a->flags  = flags;
+}
+nu_seria_type_t
+nu_seria_register_enum (const nu_char_t *name, nu_size_t size)
+{
+    nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types);
+    type->kind             = NU__SERIA_ENUM;
+    type->name             = name;
+    type->size             = size;
+    NU_VEC_INIT(5, &type->values);
+    return NU_HANDLE_MAKE(nu_seria_type_t, _ctx.seria.types.size - 1);
+}
+void
+nu_seria_register_enum_value (nu_seria_type_t  type,
+                              const nu_char_t *name,
+                              nu_u32_t         value)
+{
+    nu__seria_type_t       *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    nu__seria_enum_value_t *v = NU_VEC_PUSH(&p->values);
+    NU_ASSERT(p->kind == NU__SERIA_ENUM);
+    v->name  = name;
+    v->value = value;
 }
 nu_seria_type_t
 nu_seria_type (const nu_char_t *name)
@@ -122,6 +165,55 @@ nu_seria_type (const nu_char_t *name)
         }
     }
     return NU_NULL;
+}
+void
+nu_seria_print_types (void)
+{
+    for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
+    {
+        nu__seria_type_t *p = _ctx.seria.types.data + i;
+        switch (p->kind)
+        {
+            case NU__SERIA_PRIMITIVE:
+                // don't print core types
+                break;
+            case NU__SERIA_STRUCT:
+                NU_INFO("%s <%d> {", p->name, p->size);
+                for (nu_size_t f = 0; f < p->fields.size; ++f)
+                {
+                    nu__seria_struct_field_t *pf = p->fields.data + f;
+                    nu__seria_type_t         *subtype
+                        = _ctx.seria.types.data + NU_HANDLE_INDEX(pf->type);
+                    const nu_char_t *flags;
+                    if (pf->flags == NU_SERIA_REQUIRED)
+                    {
+                        flags = "REQ";
+                    }
+                    else
+                    {
+                        flags = "OPT";
+                    }
+                    NU_INFO("   %s %s [%d] %s = <%d,%d>",
+                            pf->name,
+                            subtype->name,
+                            pf->size,
+                            flags,
+                            pf->offset,
+                            subtype->size);
+                }
+                NU_INFO("}");
+                break;
+            case NU__SERIA_ENUM:
+                NU_INFO("%s <%d> {", p->name, p->size);
+                for (nu_size_t v = 0; v < p->values.size; ++v)
+                {
+                    nu__seria_enum_value_t *pv = p->values.data + v;
+                    NU_INFO("   %s = %d", pv->name, pv->value);
+                }
+                NU_INFO("}");
+                break;
+        }
+    }
 }
 
 #endif

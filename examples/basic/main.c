@@ -86,9 +86,10 @@ typedef struct
 
 typedef struct
 {
-    nu_v3_t position;
-    nu_q4_t rotation;
-    nu_v3_t scale;
+    nu_v3_t   position;
+    nu_q4_t   rotation;
+    nu_v3_t   scale;
+    subtype_t subtype;
 } transform_t;
 
 typedef struct
@@ -107,7 +108,38 @@ init (void)
 {
     nuext_import_package("../../../assets/pkg.json");
 
-    NU_SERIA("player", player_t, NU_SERIA_FIELD("stat", NU_SERIA_U32, stat, 1));
+    NU_SERIA_STRUCT(
+        "subtype",
+        subtype_t,
+        NU_SERIA_STRUCT_FIELD(
+            "hello", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, hello);
+        NU_SERIA_STRUCT_FIELD(
+            "vector", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, vector);
+        NU_SERIA_STRUCT_FIELD("quat", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, quat));
+    NU_SERIA_STRUCT(
+        "transform",
+        transform_t,
+        NU_SERIA_STRUCT_FIELD(
+            "position", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, position);
+        NU_SERIA_STRUCT_FIELD(
+            "rotation", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, rotation);
+        NU_SERIA_STRUCT_FIELD(
+            "scale", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, scale);
+        NU_SERIA_STRUCT_FIELD("subtype",
+                              nu_seria_type("subtype"),
+                              1,
+                              NU_SERIA_REQUIRED,
+                              subtype););
+    NU_SERIA_STRUCT("player",
+                    player_t,
+                    NU_SERIA_STRUCT_FIELD(
+                        "stat", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, stat));
+    NU_SERIA_ENUM("component",
+                  component_t,
+                  NU_SERIA_ENUM_VALUE("transform", COMP_TRANSFORM);
+                  NU_SERIA_ENUM_VALUE("player", COMP_PLAYER););
+
+    nu_seria_print_types();
 
     // Configure inputs
     draw        = nu_input_create();
