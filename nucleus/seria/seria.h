@@ -4,19 +4,12 @@
 #include <nucleus/seria/api.h>
 #include <nucleus/seria/reflect.h>
 
-typedef enum
-{
-    NU__SERIA_BOOL,
-    NU__SERIA_F32,
-    NU__SERIA_U32,
-} nu__seria_primitive_t;
-
 typedef struct
 {
-    const nu_char_t  *name;
-    nu_seria_layout_t layout;
-    nu_size_t         offset;
-    nu_size_t         size;
+    const nu_char_t *name;
+    nu_seria_type_t  type;
+    nu_size_t        offset;
+    nu_size_t        size;
 } nu__seria_accessor_t;
 
 typedef struct
@@ -24,9 +17,9 @@ typedef struct
     const nu_char_t *name;
     nu_size_t        size;
     NU_VEC(nu__seria_accessor_t) accessors;
-    nu_bool_t is_primitive;
-    nu_int_t  primitive;
-} nu__seria_layout_t;
+    nu_bool_t            is_primitive;
+    nu_seria_primitive_t primitive;
+} nu__seria_type_t;
 
 static const nu_char_t *nu__seria_names[] = { "bool", "f32", "u32" };
 
@@ -47,7 +40,7 @@ typedef struct
 typedef struct
 {
     NU_POOL(nu__seria_instance_t) instances;
-    NU_VEC(nu__seria_layout_t) layouts;
+    NU_VEC(nu__seria_type_t) types;
 } nu__seria_t;
 
 static void nu__seria_init(void);

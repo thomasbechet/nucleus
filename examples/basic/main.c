@@ -1,4 +1,3 @@
-#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -108,7 +107,7 @@ init (void)
 {
     nuext_import_package("../../../assets/pkg.json");
 
-    NU_SERIA(player_t, NU_SERIA_ACCESS(stat, NU_SERIA_LAYOUT(nu_u32_t), 1));
+    NU_SERIA("player", player_t, NU_SERIA_FIELD("stat", NU_SERIA_U32, stat, 1));
 
     // Configure inputs
     draw        = nu_input_create();
