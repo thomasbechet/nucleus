@@ -167,6 +167,7 @@ nu_seria_type (const nu_char_t *name)
     return NU_NULL;
 }
 void
+
 nu_seria_dump_types (void)
 {
     for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
