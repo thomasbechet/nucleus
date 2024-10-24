@@ -2,7 +2,6 @@
 #define NU_SERIA_H
 
 #include <nucleus/seria/api.h>
-#include <nucleus/seria/reflect.h>
 
 typedef enum
 {
@@ -42,7 +41,6 @@ typedef struct
 {
     union
     {
-        nu__seria_reflect_t reflect;
     };
 } nu__seria_ctx_t;
 
