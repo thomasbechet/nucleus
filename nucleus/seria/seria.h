@@ -35,8 +35,6 @@ typedef struct
     nu_seria_primitive_t primitive;
 } nu__seria_type_t;
 
-static const nu_char_t *nu__seria_names[] = { "bool", "f32", "u32" };
-
 typedef struct
 {
     union
