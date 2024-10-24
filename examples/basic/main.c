@@ -77,11 +77,18 @@ draw_scene (nu_renderpass_t pass)
     nu_draw_box(pass, nu_b3(nu_v3s(-0.5), nu_v3s(0.5)), material, transform);
 }
 
+typedef enum
+{
+    COMP_TRANSFORM,
+    COMP_PLAYER
+} component_t;
+
 typedef struct
 {
-    int     hello;
-    nu_v3_t vector;
-    nu_q4_t quat;
+    int         hello;
+    nu_v3_t     vector;
+    nu_q4_t     quat;
+    component_t component;
 } subtype_t;
 
 typedef struct
@@ -97,17 +104,15 @@ typedef struct
     nu_u32_t stat;
 } player_t;
 
-typedef enum
-{
-    COMP_TRANSFORM,
-    COMP_PLAYER
-} component_t;
-
 void
 init (void)
 {
     nuext_import_package("../../../assets/pkg.json");
 
+    NU_SERIA_ENUM("component",
+                  component_t,
+                  NU_SERIA_ENUM_VALUE("transform", COMP_TRANSFORM);
+                  NU_SERIA_ENUM_VALUE("player", COMP_PLAYER););
     NU_SERIA_STRUCT(
         "subtype",
         subtype_t,
@@ -115,7 +120,12 @@ init (void)
             "hello", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, hello);
         NU_SERIA_STRUCT_FIELD(
             "vector", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, vector);
-        NU_SERIA_STRUCT_FIELD("quat", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, quat));
+        NU_SERIA_STRUCT_FIELD("quat", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, quat);
+        NU_SERIA_STRUCT_FIELD("component",
+                              nu_seria_type("component"),
+                              1,
+                              NU_SERIA_REQUIRED,
+                              component););
     NU_SERIA_STRUCT(
         "transform",
         transform_t,
@@ -134,12 +144,22 @@ init (void)
                     player_t,
                     NU_SERIA_STRUCT_FIELD(
                         "stat", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, stat));
-    NU_SERIA_ENUM("component",
-                  component_t,
-                  NU_SERIA_ENUM_VALUE("transform", COMP_TRANSFORM);
-                  NU_SERIA_ENUM_VALUE("player", COMP_PLAYER););
 
-    nu_seria_print_types();
+    nu_seria_dump_types();
+
+    transform_t trans;
+    trans.scale             = NU_V3_UP;
+    trans.position          = NU_V3_LEFT;
+    trans.rotation          = nu_q4_identity();
+    trans.subtype.quat      = nu_q4_identity();
+    trans.subtype.hello     = 123;
+    trans.subtype.vector    = nu_v3(1, 2, 3);
+    trans.subtype.component = COMP_PLAYER;
+
+    transform_t t[3]       = { trans, trans, trans };
+    t[2].subtype.hello     = 666;
+    t[2].subtype.component = COMP_TRANSFORM;
+    nu_seria_dump(nu_seria_type("transform"), 3, t);
 
     // Configure inputs
     draw        = nu_input_create();

@@ -4,10 +4,10 @@
 #include <nucleus/internal.h>
 
 // #include <nucleus/seria/reflect_impl.h>
-// #include <nucleus/seria/dumper_impl.h>
 // #ifdef NU_BUILD_JSMN
 // #include <nucleus/seria/json_impl.h>
 // #endif
+//
 
 #define NU__REGISTER_CORE(enum, coretype)                        \
     {                                                            \
@@ -167,7 +167,7 @@ nu_seria_type (const nu_char_t *name)
     return NU_NULL;
 }
 void
-nu_seria_print_types (void)
+nu_seria_dump_types (void)
 {
     for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
     {
@@ -214,6 +214,104 @@ nu_seria_print_types (void)
                 break;
         }
     }
+}
+static void
+nu__seria_print_with_depth (nu_size_t depth, const nu_char_t *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    nu_char_t str[256];
+    nu_vsnprintf(str, 256, format, args);
+    NU_INFO("%*s%s", depth * 2, "", str);
+
+    va_end(args);
+}
+static void
+nu__seria_dump (nu_size_t       depth,
+                nu_seria_type_t type,
+                nu_size_t       size,
+                nu_byte_t      *data)
+{
+    NU_ASSERT(type && data);
+    nu__seria_type_t *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    for (nu_size_t i = 0; i < size; ++i)
+    {
+        nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);
+        switch (p->kind)
+        {
+            case NU__SERIA_PRIMITIVE:
+                switch (p->primitive)
+                {
+                    case NU_SERIA_PRIMITIVE_U32:
+                        nu__seria_print_with_depth(
+                            depth, "%d", *(nu_u32_t *)ptr);
+                        break;
+                    case NU_SERIA_PRIMITIVE_F32:
+                        nu__seria_print_with_depth(
+                            depth, "%lf", *(nu_f32_t *)ptr);
+                        break;
+                    case NU_SERIA_PRIMITIVE_V3: {
+                        nu_v3_t *v = (nu_v3_t *)ptr;
+                        nu__seria_print_with_depth(
+                            depth, "[" NU_V3_FORMAT "]", v->x, v->y, v->z);
+                    }
+                    break;
+                    case NU_SERIA_PRIMITIVE_Q4: {
+                        nu_q4_t *v = (nu_q4_t *)ptr;
+                        nu__seria_print_with_depth(depth,
+                                                   "[ %lf %lf %lf %lf ]",
+                                                   v->x,
+                                                   v->y,
+                                                   v->z,
+                                                   v->w);
+                    }
+                    break;
+                }
+                break;
+            case NU__SERIA_STRUCT: {
+                nu__seria_print_with_depth(depth, "{");
+                for (nu_size_t f = 0; f < p->fields.size; ++f)
+                {
+                    nu__seria_struct_field_t *field = p->fields.data + f;
+                    nu__seria_type_t         *subtype
+                        = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
+                    nu__seria_print_with_depth(
+                        depth + 1, "%s (%s):", field->name, subtype->name);
+                    nu__seria_dump(depth + 2,
+                                   field->type,
+                                   field->size,
+                                   ptr + field->offset);
+                }
+                nu__seria_print_with_depth(depth, "}");
+            }
+            break;
+            case NU__SERIA_ENUM: {
+                nu_u32_t  value = *(nu_u32_t *)ptr;
+                nu_bool_t found = NU_FALSE;
+                for (nu_size_t e = 0; e < p->values.size; ++e)
+                {
+                    if (value == p->values.data[e].value)
+                    {
+                        nu__seria_print_with_depth(
+                            depth, "%s", p->values.data[e].name);
+                        found = NU_TRUE;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    nu__seria_print_with_depth(depth, "#INVALID");
+                }
+            }
+            break;
+        }
+    }
+}
+void
+nu_seria_dump (nu_seria_type_t type, nu_size_t size, void *data)
+{
+    nu__seria_dump(0, type, size, data);
 }
 
 #endif
