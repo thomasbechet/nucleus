@@ -3,11 +3,9 @@
 
 #include <nucleus/internal.h>
 
-// #include <nucleus/seria/reflect_impl.h>
-// #ifdef NU_BUILD_JSMN
-// #include <nucleus/seria/json_impl.h>
-// #endif
-//
+#ifdef NU_BUILD_JSMN
+#include <nucleus/seria/json_impl.h>
+#endif
 
 #define NU__REGISTER_CORE(enum, coretype)                        \
     {                                                            \
@@ -21,6 +19,7 @@
 static void
 nu__seria_register_primitive_types (void)
 {
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_BUF, nu_seria_buffer_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_U32, nu_u32_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_F32, nu_f32_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_V3, nu_v3_t);
@@ -59,11 +58,17 @@ nu__seria_free (void)
 }
 
 nu_seria_t
-nu_seria_create (void)
+nu_seria_create (nu_seria_format_t format)
 {
     nu_size_t             index;
     nu__seria_instance_t *s = NU_POOL_ADD(&_ctx.seria.instances, &index);
-    s->is_open              = NU_FALSE;
+    s->format               = format;
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            nu__seria_json_init(&s->json);
+            break;
+    }
     return NU_HANDLE_MAKE(nu_seria_t, index);
 }
 void
@@ -71,37 +76,13 @@ nu_seria_delete (nu_seria_t seria)
 {
     nu__seria_instance_t *s
         = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
-    if (s->is_open)
+    switch (s->format)
     {
-        nu_seria_close(seria);
+        case NU_SERIA_JSON:
+            nu__seria_json_free(&s->json);
+            break;
     }
     NU_POOL_REMOVE(&_ctx.seria.instances, NU_HANDLE_INDEX(seria));
-}
-
-void
-nu_seria_open_reflect (nu_seria_t seria)
-{
-    nu__seria_instance_t *s
-        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
-    s->is_open = NU_TRUE;
-}
-void
-nu_seria_open_dumper (nu_seria_t seria)
-{
-}
-#ifdef NU_BUILD_JSMN
-void
-nu_seria_open_json (nu_seria_t       seria,
-                    const jsmntok_t *toks,
-                    nu_size_t        toks_count)
-{
-}
-#endif
-void
-nu_seria_close (nu_seria_t seria)
-{
-    nu__seria_instance_t *s
-        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
 }
 
 nu_seria_type_t
@@ -118,17 +99,17 @@ void
 nu_seria_register_struct_field (nu_seria_type_t  type,
                                 const nu_char_t *name,
                                 nu_seria_type_t  fieldtype,
-                                nu_size_t        size,
+                                nu_size_t        count,
                                 nu_seria_flag_t  flags,
                                 nu_size_t        offset)
 {
     NU_ASSERT(fieldtype);
-    NU_ASSERT(type && name && size);
+    NU_ASSERT(type && name && count);
     nu__seria_type_t         *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
     nu__seria_struct_field_t *a = NU_VEC_PUSH(&p->fields);
     NU_ASSERT(p->kind == NU__SERIA_STRUCT);
     a->name   = name;
-    a->size   = size;
+    a->count  = count;
     a->type   = fieldtype;
     a->offset = offset;
     a->flags  = flags;
@@ -197,7 +178,7 @@ nu_seria_dump_types (void)
                     NU_INFO("   %s %s [%d] %s = <%d,%d>",
                             pf->name,
                             subtype->name,
-                            pf->size,
+                            pf->count,
                             flags,
                             pf->offset,
                             subtype->size);
@@ -231,12 +212,12 @@ nu__seria_print_with_depth (nu_size_t depth, const nu_char_t *format, ...)
 static void
 nu__seria_dump (nu_size_t       depth,
                 nu_seria_type_t type,
-                nu_size_t       size,
+                nu_size_t       count,
                 nu_byte_t      *data)
 {
     NU_ASSERT(type && data);
     nu__seria_type_t *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
-    for (nu_size_t i = 0; i < size; ++i)
+    for (nu_size_t i = 0; i < count; ++i)
     {
         nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);
         switch (p->kind)
@@ -244,6 +225,19 @@ nu__seria_dump (nu_size_t       depth,
             case NU__SERIA_PRIMITIVE:
                 switch (p->primitive)
                 {
+                    case NU_SERIA_PRIMITIVE_BUF: {
+                        nu_seria_buffer_t buf = *(nu_seria_buffer_t *)ptr;
+                        if (buf)
+                        {
+                            nu__seria_print_with_depth(
+                                depth, "%d", NU_HANDLE_INDEX(buf));
+                        }
+                        else
+                        {
+                            nu__seria_print_with_depth(depth, "NULL");
+                        }
+                    }
+                    break;
                     case NU_SERIA_PRIMITIVE_U32:
                         nu__seria_print_with_depth(
                             depth, "%d", *(nu_u32_t *)ptr);
@@ -281,7 +275,7 @@ nu__seria_dump (nu_size_t       depth,
                         depth + 1, "%s (%s):", field->name, subtype->name);
                     nu__seria_dump(depth + 2,
                                    field->type,
-                                   field->size,
+                                   field->count,
                                    ptr + field->offset);
                 }
                 nu__seria_print_with_depth(depth, "}");
@@ -313,6 +307,69 @@ void
 nu_seria_dump (nu_seria_type_t type, nu_size_t size, void *data)
 {
     nu__seria_dump(0, type, size, data);
+}
+
+#ifdef NU_BUILD_JSMN
+void
+nu_seria_open_json_toks (nu_seria_t       seria,
+                         const nu_char_t *json,
+                         const jsmntok_t *toks,
+                         nu_size_t        toks_count)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            nu__seria_json_open_toks(&s->json, json, toks, toks_count);
+            break;
+    }
+}
+#endif
+void
+nu_seria_close (nu_seria_t seria)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            nu__seria_json_close(&s->json);
+            break;
+    }
+}
+
+nu_size_t
+nu_seria_read (nu_seria_t        seria,
+               nu_seria_buffer_t buffer,
+               nu_seria_type_t   type,
+               nu_size_t         capacity,
+               void             *data)
+{
+    NU_ASSERT(buffer);
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            return nu__seria_json_read(&s->json, buffer, type, capacity, data);
+    }
+    return 0;
+}
+nu_seria_buffer_t
+nu_seria_write (nu_seria_t      seria,
+                nu_seria_type_t type,
+                nu_size_t       count,
+                void           *data)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            return nu__seria_json_write(&s->json, type, count, data);
+    }
+    return NU_NULL;
 }
 
 #endif

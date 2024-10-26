@@ -440,6 +440,12 @@ typedef struct
     nu_v3_t max;
 } nu_b3_t;
 
+typedef struct
+{
+    nu_char_t *data;
+    nu_size_t  size;
+} nu_str_t;
+
 typedef NU_VEC(nu_v2_t) nu_v2_vec_t;
 typedef NU_VEC(nu_v3_t) nu_v3_vec_t;
 typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
@@ -640,7 +646,7 @@ NU_API nu_v2_t   nu_b2i_normalize(nu_b2i_t b, nu_v2_t p);
 
 NU_API nu_b3_t   nu_b3(nu_v3_t p, nu_v3_t s);
 NU_API nu_v3_t   nu_b3_center(nu_b3_t b);
-NU_API nu_bool_t nj_b3_contains(nu_b3_t b, nu_v3_t p);
+NU_API nu_bool_t nu_b3_contains(nu_b3_t b, nu_v3_t p);
 
 NU_API nu_m4_t nu_perspective(nu_f32_t fov,
                               nu_f32_t aspect_ratio,

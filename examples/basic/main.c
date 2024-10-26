@@ -343,10 +343,7 @@ init (void)
     physics_loop_handle
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
 
-    nu_seria_t seria = nu_seria_create();
-    nu_seria_open_reflect(seria);
-    // nu_seria_subtype(seria, NU_NULL);
-    nu_seria_delete(seria);
+    nu_seria_dump_types();
 }
 
 void
