@@ -15,23 +15,23 @@ typedef enum
 
 typedef struct
 {
-    const nu_char_t *name;
-    nu_seria_type_t  type;
-    nu_size_t        offset;
-    nu_size_t        count;
-    nu_seria_flag_t  flags;
+    nu_str_t        name;
+    nu_seria_type_t type;
+    nu_size_t       offset;
+    nu_size_t       count;
+    nu_seria_flag_t flags;
 } nu__seria_struct_field_t;
 
 typedef struct
 {
-    const nu_char_t *name;
-    nu_u32_t         value;
+    nu_str_t name;
+    nu_u32_t value;
 } nu__seria_enum_value_t;
 
 typedef struct
 {
     nu__seria_kind_t kind;
-    const nu_char_t *name;
+    nu_str_t         name;
     nu_size_t        size;
     union
     {

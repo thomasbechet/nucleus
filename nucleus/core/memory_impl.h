@@ -84,6 +84,20 @@ nu_free (void *p, nu_size_t s)
     nu_free_a(&_ctx.core.allocator, p, s);
 }
 
+nu_int_t
+nu_memcmp (const void *p0, const void *p1, nu_size_t n)
+{
+    const nu_byte_t *b0 = p0;
+    const nu_byte_t *b1 = p1;
+    while (n-- > 0)
+    {
+        if (*b0++ != *b1++)
+        {
+            return b0[-1] < b1[-1] ? -1 : 1;
+        }
+    }
+    return 0;
+}
 void *
 nu_memset (void *dst, nu_word_t c, nu_size_t n)
 {

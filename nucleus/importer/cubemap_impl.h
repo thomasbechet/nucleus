@@ -4,31 +4,32 @@
 #include <nucleus/internal.h>
 
 nu_texture_t
-nuext_cubemap_load_filename (const nu_char_t *filename)
+nuext_cubemap_load_filename (nu_str_t filename)
 {
     nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
     nu_texture_t cubemap = NU_NULL;
     NU_ARRAY_FILL(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
     nu_size_t  json_size;
-    nu_char_t *json
-        = (nu_char_t *)nu__bytes_load_filename(filename, &json_size);
-    NU_CHECK(json, goto cleanup0);
+    nu_byte_t *json_buf = nu__bytes_load_filename(filename, &json_size);
+    nu_str_t   json     = nu_str_from_bytes(json_buf, json_size);
+    NU_CHECK(json_buf, goto cleanup0);
     nu_size_t  toks_size, toks_count;
-    jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
+    jsmntok_t *toks = nu__seria_json_parse(json, &toks_size, &toks_count);
     NU_CHECK(toks, goto cleanup1);
 
-    nu_char_t json_path[NUEXT_PATH_MAX];
-    nuext_path_dirname(filename, json_path);
+    nu_str_t json_path = nuext_path_dirname(filename);
 
     nu_size_t image_count = 0;
     NU_CHECK(toks[0].type == JSMN_OBJECT, goto cleanup0);
 
-    static const nu_char_t *faces[]
-        = { "posx", "negx", "posy", "negy", "posz", "negz" };
+    static nu_str_t faces[]
+        = { NU_STR("posx"), NU_STR("negx"), NU_STR("posy"),
+            NU_STR("negy"), NU_STR("posz"), NU_STR("negz") };
     for (nu_size_t f = 0; f < NU_ARRAY_SIZE(faces); ++f)
     {
-        jsmntok_t *tok = nu__json_object_member(json, &toks[0], faces[f]);
+        const jsmntok_t *tok
+            = nu__seria_json_object_member(json, &toks[0], faces[f]);
         if (!tok)
         {
             NU_ERROR("cubemap face not found '%s'", faces[f]);
@@ -41,10 +42,10 @@ nuext_cubemap_load_filename (const nu_char_t *filename)
         }
         if (!images[f])
         {
-            nu_char_t path[NUEXT_PATH_MAX];
-            nu__json_value(json, tok, path, NUEXT_PATH_MAX);
-            nu_char_t final_path[NUEXT_PATH_MAX];
-            nuext_path_concat(json_path, path, final_path);
+            nu_str_t  path = nu__seria_json_value(json, tok);
+            nu_byte_t final_path_buf[NUEXT_PATH_MAX];
+            nu_str_t  final_path = nuext_path_concat(
+                final_path_buf, NUEXT_PATH_MAX, json_path, path);
             images[f] = nuext_image_load_filename(final_path);
             if (!images[f])
             {
@@ -73,7 +74,7 @@ cleanup2:
 cleanup1:
     nu_free(toks, toks_size);
 cleanup0:
-    nu_free(json, json_size);
+    nu_free(json_buf, json_size);
     return cubemap;
 }
 

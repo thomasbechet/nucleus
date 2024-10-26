@@ -12,7 +12,7 @@ nu_font_create_default (void)
     nu__font_t *font = NU_POOL_ADD(&_ctx.graphics.fonts, &index);
 
     // Find min/max characters
-    font->min_char             = (nu_char_t)127;
+    font->min_char             = 127;
     font->max_char             = -128;
     const nu_size_t char_count = sizeof(nu__font_data_chars);
     for (nu_size_t i = 0; i < char_count; ++i)
@@ -89,19 +89,19 @@ nu_font_delete (nu_font_t handle)
 }
 
 void
-nu_draw_text (nu_renderpass_t  pass,
-              const nu_char_t *text,
-              nu_size_t        n,
-              nu_font_t        handle,
-              nu_v2i_t         pos)
+nu_draw_text (nu_renderpass_t pass,
+              nu_str_t        str,
+              nu_font_t       handle,
+              nu_v2i_t        pos)
 {
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
     nu_b2i_t    extent
         = nu_b2i_xywh(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
-    for (nu_size_t i = 0; i < n; ++i)
+    nu_size_t  it = 0;
+    nu_wchar_t c;
+    while (nu_str_next(str, &it, &c))
     {
-        nu_char_t c = text[i];
         if (c == '\n')
         {
             extent = nu_b2i_moveto(

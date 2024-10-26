@@ -55,18 +55,35 @@ NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_V2_FORMAT "%lf %lf"
-#define NU_V3_FORMAT "%lf %lf %lf"
-#define NU_V4_FORMAT "%lf %lf %lf %lf"
+#define NU_V2_FORMAT  "%lf %lf"
+#define NU_V2_ARGS(v) (v).x, (v).y
+#define NU_V3_FORMAT  "%lf %lf %lf"
+#define NU_V3_ARGS(v) (v).x, (v).y, (v).z
+#define NU_V4_FORMAT  "%lf %lf %lf %lf"
+#define NU_V4_ARGS(v) (v).x, (v).y, (v).z, (v).w
+#define NU_Q4_FORMAT  NU_V4_FORMAT
+#define NU_Q4_ARGS(q) NU_V4_ARGS(q)
 
-#define NU_DEBUG(...)   nu_log(NU_LOG_DEBUG, __SOURCE__, __VA_ARGS__)
-#define NU_INFO(...)    nu_log(NU_LOG_INFO, __SOURCE__, __VA_ARGS__)
-#define NU_WARNING(...) nu_log(NU_LOG_WARNING, __SOURCE__, __VA_ARGS__)
-#define NU_ERROR(...)   nu_log(NU_LOG_ERROR, __SOURCE__, __VA_ARGS__)
+#define NU_STR_FORMAT    "%.*s"
+#define NU_STR_ARGS(str) (int)str.size, str.data
+
+#define NU_DEBUG(format, ...) \
+    nu_log(NU_LOG_DEBUG, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_INFO(format, ...) \
+    nu_log(NU_LOG_INFO, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_WARNING(format, ...) \
+    nu_log(NU_LOG_WARNING, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_ERROR(format, ...) \
+    nu_log(NU_LOG_ERROR, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 
 #define NU_UID(name) nu_hash(name)
 
-#define NU_MATCH(a, b) (nu_strcmp(a, b) == 0)
+#define NU_MATCH(a, b) (nu_str_eq(a, b))
+#define NU_STR(str)                                          \
+    (nu_str_t)                                               \
+    {                                                        \
+        (nu_byte_t *)str, (sizeof(str) / sizeof(str[0])) - 1 \
+    }
 
 #ifdef NU_CXX
 #define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
@@ -201,7 +218,6 @@ typedef signed long    nu_i64_t;
 typedef float          nu_f32_t;
 typedef double         nu_f64_t;
 
-typedef char          nu_char_t;
 typedef int           nu_bool_t;
 typedef nu_i32_t      nu_int_t;
 typedef unsigned long nu_size_t;
@@ -209,6 +225,7 @@ typedef intptr_t      nu_intptr_t;
 typedef unsigned char nu_byte_t;
 typedef int           nu_word_t;
 typedef nu_u32_t      nu_uid_t;
+typedef nu_i32_t      nu_wchar_t;
 
 typedef void (*nu_fixedloop_callback_t)(nu_f32_t timestep);
 
@@ -442,7 +459,7 @@ typedef struct
 
 typedef struct
 {
-    nu_char_t *data;
+    nu_byte_t *data;
     nu_size_t  size;
 } nu_str_t;
 
@@ -458,21 +475,16 @@ NU_API void nu_app_init_callback(nu_app_callback_t callback);
 NU_API void nu_app_free_callback(nu_app_callback_t callback);
 NU_API void nu_app_update_callback(nu_app_callback_t callback);
 
-NU_API void nu__panic(const nu_char_t *source, const nu_char_t *format, ...);
-NU_API void nu__vpanic(const nu_char_t *source,
-                       const nu_char_t *format,
-                       va_list          args);
+NU_API void nu__panic(nu_str_t source, nu_str_t format, ...);
+NU_API void nu__vpanic(nu_str_t source, nu_str_t format, va_list args);
 
 NU_API float nu_deltatime(void);
 
-NU_API void nu_log(nu_log_level_t   level,
-                   const nu_char_t *source,
-                   const nu_char_t *format,
-                   ...);
-NU_API void nu_vlog(nu_log_level_t   level,
-                    const nu_char_t *source,
-                    const nu_char_t *format,
-                    va_list          args);
+NU_API void nu_log(nu_log_level_t level, nu_str_t source, nu_str_t format, ...);
+NU_API void nu_vlog(nu_log_level_t level,
+                    nu_str_t       source,
+                    nu_str_t       format,
+                    va_list        args);
 
 NU_API nu_allocator_t *nu_allocator_core(void);
 
@@ -484,9 +496,10 @@ NU_API void *nu_alloc(nu_size_t n);
 NU_API void *nu_realloc(void *p, nu_size_t s, nu_size_t n);
 NU_API void  nu_free(void *p, nu_size_t s);
 
-NU_API void *nu_memset(void *dst, nu_word_t c, nu_size_t n);
-NU_API void  nu_memcpy(void *dst, const void *src, nu_size_t n);
-NU_API void *nu_memalign(void *ptr, nu_size_t align);
+NU_API nu_int_t nu_memcmp(const void *p0, const void *p1, nu_size_t n);
+NU_API void    *nu_memset(void *dst, nu_word_t c, nu_size_t n);
+NU_API void     nu_memcpy(void *dst, const void *src, nu_size_t n);
+NU_API void    *nu_memalign(void *ptr, nu_size_t align);
 
 NU_API nu_time_t nu_time(void);
 NU_API nu_u32_t  nu_time_hours(const nu_time_t *time);
@@ -501,31 +514,25 @@ NU_API nu_fixedloop_t nu_fixedloop_create(nu_fixedloop_callback_t callback,
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);
 
-NU_API nu_size_t  nu_strnlen(const nu_char_t *str, nu_size_t maxlen);
-NU_API nu_size_t  nu_strlen(const nu_char_t *str);
-NU_API nu_size_t  nu_strncmp(const nu_char_t *s1,
-                             const nu_char_t *s2,
-                             nu_size_t        n);
-NU_API nu_size_t  nu_strcmp(const nu_char_t *s1, const nu_char_t *s2);
-NU_API nu_char_t *nu_strncpy(nu_char_t *dst, const nu_char_t *src, nu_size_t n);
-NU_API nu_int_t   nu_snprintf(nu_char_t       *s,
-                              nu_size_t        n,
-                              const nu_char_t *format,
-                              ...);
-NU_API nu_int_t   nu_vsnprintf(nu_char_t       *s,
-                               nu_size_t        n,
-                               const nu_char_t *format,
-                               va_list          args);
+NU_API nu_size_t nu_cstr_len(const char *s);
+NU_API nu_str_t  nu_str_from_bytes(nu_byte_t *bytes, nu_size_t n);
+NU_API void      nu_str_to_cstr(nu_str_t str, char *chars, nu_size_t n);
+NU_API nu_bool_t nu_str_eq(nu_str_t s1, nu_str_t s2);
+NU_API nu_u32_t  nu_str_hash(nu_str_t s);
+NU_API nu_bool_t nu_str_next(nu_str_t s, nu_size_t *it, nu_wchar_t *c);
+NU_API nu_str_t  nu_snprintf(nu_byte_t *buf, nu_size_t n, nu_str_t format, ...);
+NU_API nu_str_t  nu_vsnprintf(nu_byte_t *buf,
+                              nu_size_t  n,
+                              nu_str_t   format,
+                              va_list    args);
 
-NU_API nu_u32_t nu_hash(const nu_char_t *s);
-NU_API nu_u32_t nu_hashn(const nu_char_t *s, nu_size_t n);
-
-NU_API nuext_extension_t nuext_path_extension(const nu_char_t *filename);
-NU_API void nuext_path_basename(const nu_char_t *path, nu_char_t *name);
-NU_API void nuext_path_dirname(const nu_char_t *path, nu_char_t *name);
-NU_API void nuext_path_concat(const nu_char_t *p1,
-                              const nu_char_t *p2,
-                              nu_char_t       *path);
+NU_API nuext_extension_t nuext_path_extension(nu_str_t filename);
+NU_API nu_str_t          nuext_path_basename(nu_str_t path);
+NU_API nu_str_t          nuext_path_dirname(nu_str_t path);
+NU_API nu_str_t          nuext_path_concat(nu_byte_t *buf,
+                                           nu_size_t  n,
+                                           nu_str_t   p1,
+                                           nu_str_t   p2);
 
 NU_API nu_color_t nu_color(nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a);
 NU_API nu_v4_t    nu_color_to_vec4(nu_color_t c);

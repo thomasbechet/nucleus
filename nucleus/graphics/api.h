@@ -186,11 +186,10 @@ NU_API void nu_draw_mesh_instanced(nu_renderpass_t pass,
 NU_API void nu_draw_model(nu_renderpass_t pass,
                           nu_model_t      model,
                           nu_m4_t         transform);
-NU_API void nu_draw_text(nu_renderpass_t  pass,
-                         const nu_char_t *text,
-                         nu_size_t        n,
-                         nu_font_t        font,
-                         nu_v2i_t         pos);
+NU_API void nu_draw_text(nu_renderpass_t pass,
+                         nu_str_t        str,
+                         nu_font_t       font,
+                         nu_v2i_t        pos);
 NU_API void nu_draw_points(nu_renderpass_t pass,
                            const nu_v3_t  *positions,
                            nu_size_t       count,

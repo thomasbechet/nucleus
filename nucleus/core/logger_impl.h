@@ -4,10 +4,7 @@
 #include <nucleus/internal.h>
 
 void
-nu_log (nu_log_level_t   level,
-        const nu_char_t *source,
-        const nu_char_t *format,
-        ...)
+nu_log (nu_log_level_t level, nu_str_t source, nu_str_t format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -15,10 +12,7 @@ nu_log (nu_log_level_t   level,
     va_end(args);
 }
 void
-nu_vlog (nu_log_level_t   level,
-         const nu_char_t *source,
-         const nu_char_t *format,
-         va_list          args)
+nu_vlog (nu_log_level_t level, nu_str_t source, nu_str_t format, va_list args)
 {
     if (_ctx.core.logger.level < level)
     {
@@ -46,8 +40,10 @@ nu_vlog (nu_log_level_t   level,
             fprintf(stdout, "\x1B[31mERROR\x1B[0m ");
             break;
     }
-    fprintf(stdout, "\x1B[90m%s\x1B[0m", source);
-    vfprintf(stdout, format, args);
+    fprintf(stdout, "\x1B[90m" NU_STR_FORMAT "\x1B[0m", NU_STR_ARGS(source));
+    char buf[256];
+    nu_str_to_cstr(format, buf, 256);
+    vfprintf(stdout, buf, args);
     fprintf(stdout, "\n");
 }
 

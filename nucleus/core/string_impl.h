@@ -4,165 +4,142 @@
 #include <nucleus/internal.h>
 
 nu_size_t
-nu_strnlen (const nu_char_t *str, nu_size_t maxlen)
+nu_cstr_len (const char *str)
 {
-    const nu_char_t *p = str;
-    while (maxlen-- > 0 && *p)
-    {
-        p++;
-    }
-    return p - str;
-}
-
-nu_size_t
-nu_strlen (const nu_char_t *str)
-{
-    const nu_char_t *p = str;
+    const char *p = str;
     while (*p)
     {
         p++;
     }
     return p - str;
 }
-
-nu_size_t
-nu_strncmp (const nu_char_t *s1, const nu_char_t *s2, nu_size_t n)
+nu_str_t
+nu_str_from_bytes (nu_byte_t *bytes, nu_size_t n)
 {
-    while (n && *s1 && (*s1 == *s2))
-    {
-        ++s1;
-        ++s2;
-        --n;
-    }
-    if (n == 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return (*(nu_char_t *)s1 - *(nu_char_t *)s2);
-    }
+    nu_str_t str;
+    str.data = bytes;
+    str.size = n;
+    return str;
 }
-nu_size_t
-nu_strcmp (const nu_char_t *s1, const nu_char_t *s2)
+void
+nu_str_to_cstr (nu_str_t str, char *chars, nu_size_t n)
 {
-    while (*s1 && (*s1 == *s2))
-    {
-        s1++;
-        s2++;
-    }
-    return *(nu_char_t *)s1 - *(nu_char_t *)s2;
+    NU_ASSERT(str.size < n);
+    nu_memset(chars, 0, n);
+    nu_memcpy(chars, str.data, str.size);
 }
-nu_char_t *
-nu_strncpy (nu_char_t *dst, const nu_char_t *src, nu_size_t n)
+nu_bool_t
+nu_str_eq (nu_str_t s1, nu_str_t s2)
 {
-    if (n != 0)
-    {
-        char       *d = dst;
-        const char *s = src;
-
-        do
-        {
-            if ((*d++ = *s++) == 0)
-            {
-                /* NUL pad the remaining n-1 bytes */
-                while (--n != 0)
-                {
-                    *d++ = 0;
-                }
-                break;
-            }
-        } while (--n != 0);
-    }
-    return dst;
-}
-nu_int_t
-nu_snprintf (nu_char_t *s, nu_size_t n, const nu_char_t *format, ...)
-{
-#ifdef NU_STDLIB
-    va_list args;
-    va_start(args, format);
-    nu_int_t r = nu_vsnprintf(s, n, format, args);
-    va_end(args);
-    return r;
-#endif
-}
-nu_int_t
-nu_vsnprintf (nu_char_t *s, nu_size_t n, const nu_char_t *format, va_list args)
-{
-#ifdef NU_STDLIB
-    return vsnprintf(s, n, format, args);
-#endif
-}
-
-nu_u32_t
-nu_hash (const nu_char_t *s)
-{
-    return nu_hashn(s, nu_strlen(s));
+    return (s1.size == s2.size && nu_memcmp(s1.data, s2.data, s1.size) == 0);
 }
 nu_u32_t
-nu_hashn (const nu_char_t *s, nu_size_t n)
+nu_str_hash (nu_str_t s)
 {
     static const nu_u32_t FNV1A_HASH_32  = 0x811c9dc5;
     static const nu_u32_t FNV1A_PRIME_32 = 0x01000193;
     nu_u32_t              hash           = FNV1A_HASH_32;
     nu_size_t             i              = 0;
-    while (i < n)
+    while (i < s.size)
     {
-        hash ^= s[i];
+        hash ^= s.data[i];
         hash *= FNV1A_PRIME_32;
         ++i;
     }
     return hash;
 }
+nu_bool_t
+nu_str_next (nu_str_t s, nu_size_t *it, nu_wchar_t *c)
+{
+    if (*it >= s.size)
+    {
+        return NU_FALSE;
+    }
+    *c = s.data[*it];
+    ++(*it);
+    return NU_TRUE;
+}
+nu_str_t
+nu_snprintf (nu_byte_t *buf, nu_size_t n, nu_str_t format, ...)
+{
+#ifdef NU_STDLIB
+    va_list args;
+    va_start(args, format);
+    nu_str_t r = nu_vsnprintf(buf, n, format, args);
+    va_end(args);
+    return r;
+#endif
+}
+nu_str_t
+nu_vsnprintf (nu_byte_t *buf, nu_size_t n, nu_str_t format, va_list args)
+{
+#ifdef NU_STDLIB
+    int r = vsnprintf((char *)buf, n, (char *)format.data, args);
+    return nu_str_from_bytes(buf, r);
+#endif
+}
 
 nuext_extension_t
-nuext_path_extension (const nu_char_t *filename)
+nuext_path_extension (nu_str_t filename)
 {
-    const char *dot = strrchr(filename, '.');
-    if (!dot || dot == filename)
+    const char *dot
+        = strrchr((const char *)filename.data, '.'); // safe with utf-8
+    if (!dot || dot == (const char *)filename.data)
     {
         return NUEXT_EXTENSION_UNKNOWN;
     }
-    const nu_char_t *ext = dot + 1;
-    if (NU_MATCH(ext, "gltf"))
+    nu_str_t ext
+        = nu_str_from_bytes((nu_byte_t *)(dot + 1), nu_cstr_len(dot + 1));
+    if (NU_MATCH(ext, NU_STR("gltf")))
     {
         return NUEXT_EXTENSION_GLTF;
     }
-    else if (NU_MATCH(ext, "png"))
+    else if (NU_MATCH(ext, NU_STR("png")))
     {
         return NUEXT_EXTENSION_PNG;
     }
-    else if (NU_MATCH(ext, "jpeg"))
+    else if (NU_MATCH(ext, NU_STR("jpeg")))
     {
         return NUEXT_EXTENSION_JPEG;
     }
-    else if (NU_MATCH(ext, "json"))
+    else if (NU_MATCH(ext, NU_STR("json")))
     {
         return NUEXT_EXTENSION_JSON;
     }
     return NUEXT_EXTENSION_UNKNOWN;
 }
-void
-nuext_path_basename (const nu_char_t *path, nu_char_t *name)
+nu_str_t
+nuext_path_basename (nu_str_t path)
 {
-    nu_strncpy(name, path, NUEXT_PATH_MAX);
-#ifdef NU_STDLIB
-    name = basename((char *)name);
-#endif
+    for (nu_size_t n = path.size; n; --n)
+    {
+        if (path.data[n - 1] == '/')
+        {
+            return nu_str_from_bytes(path.data + n, path.size - n);
+        }
+    }
+    return path;
 }
-void
-nuext_path_dirname (const nu_char_t *path, nu_char_t *name)
+nu_str_t
+nuext_path_dirname (nu_str_t path)
 {
-    nu_strncpy(name, path, NUEXT_PATH_MAX);
-#ifdef NU_STDLIB
-    name = dirname((char *)name);
-#endif
+    for (nu_size_t n = path.size; n; --n)
+    {
+        if (path.data[n - 1] == '/')
+        {
+            return nu_str_from_bytes(path.data, n);
+        }
+    }
+    return path;
 }
-void
-nuext_path_concat (const nu_char_t *p1, const nu_char_t *p2, nu_char_t *path)
+nu_str_t
+nuext_path_concat (nu_byte_t *buf, nu_size_t n, nu_str_t p1, nu_str_t p2)
 {
-    nu_snprintf(path, NUEXT_PATH_MAX, "%s/%s", p1, p2);
+    return nu_snprintf(buf,
+                       n,
+                       NU_STR(NU_STR_FORMAT "/" NU_STR_FORMAT),
+                       NU_STR_ARGS(p1),
+                       NU_STR_ARGS(p2));
 }
 
 #endif

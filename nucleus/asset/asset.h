@@ -9,7 +9,8 @@ typedef struct
     nu_asset_type_t type;
     nu_u32_t        hash;
     void           *data;
-    nu_char_t       name[NU_ASSET_NAME_MAX];
+    nu_byte_t       name[NU_ASSET_NAME_MAX];
+    nu_size_t       name_size;
     nu_bundle_t     bundle;
     nu_size_t       refcount;
 } nu__asset_entry_t;

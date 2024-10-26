@@ -12,8 +12,8 @@ typedef struct
     nu_b2i_t     *glyphs;
     nu_size_t     glyphs_count;
     nu_v2u_t      glyph_size;
-    nu_char_t     min_char;
-    nu_char_t     max_char;
+    nu_wchar_t    min_char;
+    nu_wchar_t    max_char;
 } nu__font_t;
 
 typedef NU_POOL(nu__font_t) nu__font_pool_t;

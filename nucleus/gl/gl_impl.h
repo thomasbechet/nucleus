@@ -8,49 +8,42 @@
 #include <nucleus/gl/renderpass_impl.h>
 
 static nu_error_t
-nugl__compile_shader (const nu_char_t *vert,
-                      const nu_char_t *frag,
-                      GLuint          *program)
+nugl__compile_shader (nu_str_t source, GLuint shader_type, GLuint *shader)
+{
+    GLint success;
+    *shader                 = glCreateShader(shader_type);
+    const GLchar *psource[] = { (const GLchar *)source.data };
+    const GLint   psize[]   = { source.size };
+    glShaderSource(*shader, 1, psource, psize);
+    glCompileShader(*shader);
+    glGetShaderiv(*shader, GL_COMPILE_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+        GLint max_length = 0;
+        glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &max_length);
+        GLchar *log = (GLchar *)malloc(sizeof(GLchar) * max_length);
+        glGetShaderInfoLog(*shader, max_length, &max_length, log);
+        NU_ERROR("%s", log);
+        nu_free(log, sizeof(GLchar) * max_length);
+
+        glDeleteShader(*shader);
+        return NU_ERROR_SHADER_COMPILATION;
+    }
+    return NU_ERROR_NONE;
+}
+static nu_error_t
+nugl__compile_program (nu_str_t vert, nu_str_t frag, GLuint *program)
 {
     GLuint vertex_shader, fragment_shader;
     GLint  success;
 
-    NU_ASSERT(vert && frag);
+    nu_error_t error;
 
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vert, NULL);
-    glCompileShader(vertex_shader);
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        GLint max_length = 0;
-        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &max_length);
-        nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
-        glGetShaderInfoLog(vertex_shader, max_length, &max_length, log);
-        NU_ERROR("%s", log);
-        nu_free(log, sizeof(nu_char_t) * max_length);
+    error = nugl__compile_shader(vert, GL_VERTEX_SHADER, &vertex_shader);
+    NU_ERROR_CHECK(error, goto cleanup0);
 
-        glDeleteShader(vertex_shader);
-        return NU_ERROR_SHADER_COMPILATION;
-    }
-
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &frag, 0);
-    glCompileShader(fragment_shader);
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        GLint max_length = 0;
-        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &max_length);
-        nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
-        glGetShaderInfoLog(fragment_shader, max_length, &max_length, log);
-        NU_ERROR("%s", log);
-        nu_free(log, sizeof(nu_char_t) * max_length);
-
-        glDeleteShader(vertex_shader);
-        glDeleteShader(fragment_shader);
-        return NU_ERROR_SHADER_COMPILATION;
-    }
+    error = nugl__compile_shader(frag, GL_FRAGMENT_SHADER, &fragment_shader);
+    NU_ERROR_CHECK(error, goto cleanup1);
 
     *program = glCreateProgram();
     glAttachShader(*program, vertex_shader);
@@ -62,10 +55,10 @@ nugl__compile_shader (const nu_char_t *vert,
     {
         GLint max_length = 0;
         glGetProgramiv(*program, GL_INFO_LOG_LENGTH, &max_length);
-        nu_char_t *log = (nu_char_t *)malloc(sizeof(nu_char_t) * max_length);
+        GLchar *log = (GLchar *)malloc(sizeof(GLchar) * max_length);
         glGetProgramInfoLog(*program, max_length, &max_length, log);
         NU_ERROR("%s", log);
-        nu_free(log, sizeof(nu_char_t) * max_length);
+        nu_free(log, sizeof(GLchar) * max_length);
 
         glDeleteProgram(*program);
         glDeleteShader(vertex_shader);
@@ -73,13 +66,14 @@ nugl__compile_shader (const nu_char_t *vert,
         return NU_ERROR_SHADER_COMPILATION;
     }
 
-    glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
-
-    return NU_ERROR_NONE;
+cleanup1:
+    glDeleteShader(vertex_shader);
+cleanup0:
+    return error;
 }
 
-static const nu_char_t *
+static const GLchar *
 nugl__message_type_string (GLenum type)
 {
     switch (type)
@@ -161,51 +155,51 @@ nugl__init (void)
     glDebugMessageCallback(MessageCallback, NU_NULL);
 
     // Compile programs
-    error = nugl__compile_shader(nugl__shader_screen_blit_vert,
-                                 nugl__shader_screen_blit_frag,
-                                 &gl->screen_blit_program);
+    error = nugl__compile_program(nugl__shader_screen_blit_vert,
+                                  nugl__shader_screen_blit_frag,
+                                  &gl->screen_blit_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    error = nugl__compile_shader(
+    error = nugl__compile_program(
         nugl__shader_unlit_vert, nugl__shader_unlit_frag, &gl->unlit_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    error = nugl__compile_shader(
+    error = nugl__compile_program(
         nugl__shader_lit_vert, nugl__shader_lit_frag, &gl->lit_program);
     NU_ERROR_CHECK(error, return error);
     glUseProgram(gl->lit_program);
     glUniform1i(glGetUniformLocation(gl->lit_program, "texture0"), 0);
     glUniform1i(glGetUniformLocation(gl->lit_program, "shadow_map"), 1);
 
-    error = nugl__compile_shader(nugl__shader_skybox_vert,
-                                 nugl__shader_skybox_frag,
-                                 &gl->skybox_program);
+    error = nugl__compile_program(nugl__shader_skybox_vert,
+                                  nugl__shader_skybox_frag,
+                                  &gl->skybox_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
-    error = nugl__compile_shader(nugl__shader_canvas_blit_vert,
-                                 nugl__shader_canvas_blit_frag,
-                                 &gl->canvas_blit_program);
+    error = nugl__compile_program(nugl__shader_canvas_blit_vert,
+                                  nugl__shader_canvas_blit_frag,
+                                  &gl->canvas_blit_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
-    error = nugl__compile_shader(nugl__shader_wireframe_vert,
-                                 nugl__shader_wireframe_frag,
-                                 &gl->wireframe_program);
+    error = nugl__compile_program(nugl__shader_wireframe_vert,
+                                  nugl__shader_wireframe_frag,
+                                  &gl->wireframe_program);
     NU_ERROR_CHECK(error, return error);
 
     glEnableVertexAttribArray(0);
-    error = nugl__compile_shader(nugl__shader_shadow_vert,
-                                 nugl__shader_shadow_frag,
-                                 &gl->shadow_program);
+    error = nugl__compile_program(nugl__shader_shadow_vert,
+                                  nugl__shader_shadow_frag,
+                                  &gl->shadow_program);
     NU_ERROR_CHECK(error, return error);
 
     // Create nearest sampler

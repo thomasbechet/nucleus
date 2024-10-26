@@ -30,24 +30,7 @@ typedef struct
     int dummy;
 } nu__importer_t;
 
-static jsmntok_t *nu__json_parse(const nu_char_t *json,
-                                 nu_size_t        json_size,
-                                 nu_size_t       *size,
-                                 nu_size_t       *count);
-static nu_bool_t  nu__json_eq(const nu_char_t *json,
-                              jsmntok_t       *tok,
-                              const nu_char_t *s);
-static void       nu__json_value(const nu_char_t *json,
-                                 jsmntok_t       *tok,
-                                 nu_char_t       *s,
-                                 nu_size_t        n);
-static jsmntok_t *nu__json_skip(jsmntok_t *token);
-static jsmntok_t *nu__json_object_member(const nu_char_t *json,
-                                         jsmntok_t       *obj,
-                                         const nu_char_t *name);
-
-static nu_byte_t *nu__bytes_load_filename(const nu_char_t *filename,
-                                          nu_size_t       *size);
+static nu_byte_t *nu__bytes_load_filename(nu_str_t filename, nu_size_t *size);
 
 static void nu__importer_init(void);
 static void nu__importer_free(void);

@@ -107,7 +107,7 @@ typedef struct
 void
 init (void)
 {
-    nuext_import_package("../../../assets/pkg.json");
+    nuext_import_package(NU_STR("../../../assets/pkg.json"));
 
     NU_SERIA_ENUM("component",
                   component_t,
@@ -122,7 +122,7 @@ init (void)
             "vector", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, vector);
         NU_SERIA_STRUCT_FIELD("quat", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, quat);
         NU_SERIA_STRUCT_FIELD("component",
-                              nu_seria_type("component"),
+                              nu_seria_type(NU_STR("component")),
                               1,
                               NU_SERIA_REQUIRED,
                               component););
@@ -136,7 +136,7 @@ init (void)
         NU_SERIA_STRUCT_FIELD(
             "scale", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, scale);
         NU_SERIA_STRUCT_FIELD("subtype",
-                              nu_seria_type("subtype"),
+                              nu_seria_type(NU_STR("subtype")),
                               1,
                               NU_SERIA_REQUIRED,
                               subtype););
@@ -159,7 +159,7 @@ init (void)
     transform_t t[3]       = { trans, trans, trans };
     t[2].subtype.hello     = 666;
     t[2].subtype.component = COMP_TRANSFORM;
-    nu_seria_dump(nu_seria_type("transform"), 3, t);
+    nu_seria_dump(nu_seria_type(NU_STR("transform")), 3, t);
 
     // Configure inputs
     draw        = nu_input_create();
@@ -232,8 +232,8 @@ init (void)
     }
 
     // Load resources
-    texture     = NU_ASSET_TEXTURE("brick");
-    texture_gui = NU_ASSET_TEXTURE("GUI");
+    texture     = NU_ASSET_TEXTURE(NU_STR("brick"));
+    texture_gui = NU_ASSET_TEXTURE(NU_STR("GUI"));
 
     // Create material
     material = nu_material_create(NU_MATERIAL_SURFACE);
@@ -246,12 +246,12 @@ init (void)
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    temple_model = NU_ASSET_MODEL("temple");
-    ariane_model = NU_ASSET_MODEL("ariane");
-    castle       = NU_ASSET_MODEL("castle");
+    temple_model = NU_ASSET_MODEL(NU_STR("temple"));
+    ariane_model = NU_ASSET_MODEL(NU_STR("ariane"));
+    castle       = NU_ASSET_MODEL(NU_STR("castle"));
 
     // Load cubemap
-    skybox = NU_ASSET_TEXTURE("skybox");
+    skybox = NU_ASSET_TEXTURE(NU_STR("skybox"));
 
     // Create lightenv
 

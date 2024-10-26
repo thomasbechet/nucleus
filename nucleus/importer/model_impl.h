@@ -224,7 +224,7 @@ nu__model_gltf_loader_free (void)
     NU_VEC_FREE(&_ctx.importer.model_gltf_loader.cache);
 }
 static nu_model_t
-nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
+nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
 {
     cgltf_options options;
     nu_memset(&options, 0, sizeof(options));
@@ -238,12 +238,14 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
     loader->has_default_material = NU_FALSE;
 
     // Parse file and load buffers
-    result = cgltf_parse_file(&options, filename, &data);
+    char fn[256];
+    nu_str_to_cstr(filename, fn, 256);
+    result = cgltf_parse_file(&options, fn, &data);
     if (result != cgltf_result_success)
     {
         return NU_NULL;
     }
-    result = cgltf_load_buffers(&options, data, filename);
+    result = cgltf_load_buffers(&options, data, fn);
     if (result != cgltf_result_success)
     {
         return NU_NULL;
@@ -369,7 +371,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, const nu_char_t *filename)
 }
 
 nu_model_t
-nuext_model_load_filename (const nu_char_t *filename)
+nuext_model_load_filename (nu_str_t filename)
 {
 #ifdef NU_BUILD_CGLTF
     return nu__model_gltf_load(&_ctx.importer.model_gltf_loader, filename);

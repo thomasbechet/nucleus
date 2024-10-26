@@ -3,10 +3,10 @@
 
 #include <nucleus/internal.h>
 
+#include <nucleus/seria/seria.h>
+
 nu_asset_t
-nuext_import_asset (nu_asset_type_t  type,
-                    const nu_char_t *name,
-                    const nu_char_t *filename)
+nuext_import_asset (nu_asset_type_t type, nu_str_t name, nu_str_t filename)
 {
     nu_asset_t handle = nu_asset_add(type, name);
     NU_CHECK(handle, return handle);
@@ -44,26 +44,25 @@ nuext_import_asset (nu_asset_type_t  type,
     return handle;
 }
 nu_error_t
-nuext_import_package (const nu_char_t *filename)
+nuext_import_package (nu_str_t filename)
 {
     nu_error_t error = NU_ERROR_RESOURCE_LOADING;
 
-    nu_char_t dir[NUEXT_PATH_MAX];
-    nuext_path_dirname(filename, dir);
+    nu_str_t dir = nuext_path_dirname(filename);
 
-    NU_INFO("loading package %s", filename);
+    NU_INFO("loading package " NU_STR_FORMAT, NU_STR_ARGS(filename));
 
     nu_size_t  json_size;
-    nu_char_t *json
-        = (nu_char_t *)nu__bytes_load_filename(filename, &json_size);
-    if (!json)
+    nu_byte_t *json_buf = nu__bytes_load_filename(filename, &json_size);
+    nu_str_t   json     = nu_str_from_bytes(json_buf, json_size);
+    if (!json_buf)
     {
         NU_ERROR("failed to load json package");
         goto cleanup0;
     }
 
     nu_size_t  toks_size, toks_count;
-    jsmntok_t *toks = nu__json_parse(json, json_size, &toks_size, &toks_count);
+    jsmntok_t *toks = nu__seria_json_parse(json, &toks_size, &toks_count);
     if (!toks)
     {
         NU_ERROR("failed to parse json package");
@@ -77,65 +76,68 @@ nuext_import_package (const nu_char_t *filename)
     }
     nu_size_t max_asset_count = toks[0].size;
 
-    jsmntok_t *tok = &toks[1];
+    const jsmntok_t *tok = &toks[1];
     for (nu_size_t i = 0; i < max_asset_count; ++i)
     {
         if (tok->type == JSMN_OBJECT)
         {
             // Parse name
-            jsmntok_t *tname = nu__json_object_member(json, tok, "name");
+            const jsmntok_t *tname
+                = nu__seria_json_object_member(json, tok, NU_STR("name"));
             if (!tname)
             {
                 NU_ERROR("name member not found");
                 goto cleanup2;
             }
-            nu_char_t name[NU_ASSET_NAME_MAX];
-            nu__json_value(json, tname, name, NU_ASSET_NAME_MAX);
+            nu_str_t name = nu__seria_json_value(json, tname);
 
             // Parse path
-            jsmntok_t *tpath = nu__json_object_member(json, tok, "path");
+            const jsmntok_t *tpath
+                = nu__seria_json_object_member(json, tok, NU_STR("path"));
             if (!tpath)
             {
                 NU_ERROR("path member not found");
                 goto cleanup2;
             }
-            nu_char_t path[NUEXT_PATH_MAX];
-            nu__json_value(json, tpath, path, NUEXT_PATH_MAX);
-            nu_char_t final_path[NUEXT_PATH_MAX];
-            nuext_path_concat(dir, path, final_path);
+            nu_str_t  path = nu__seria_json_value(json, tpath);
+            nu_byte_t final_path_buf[NUEXT_PATH_MAX];
+            nu_str_t  final_path
+                = nuext_path_concat(final_path_buf, NUEXT_PATH_MAX, dir, path);
 
             // Parse type
-            nu_asset_type_t type  = NU_ASSET_UNKNOWN;
-            jsmntok_t      *ttype = nu__json_object_member(json, tok, "type");
+            nu_asset_type_t  type = NU_ASSET_UNKNOWN;
+            const jsmntok_t *ttype
+                = nu__seria_json_object_member(json, tok, NU_STR("type"));
             if (!ttype)
             {
                 NU_ERROR("type member not found");
                 goto cleanup2;
             }
-            if (nu__json_eq(json, ttype, "model"))
+            if (nu__seria_json_eq(json, ttype, NU_STR("model")))
             {
                 nuext_import_asset(NU_ASSET_MODEL, name, final_path);
             }
-            else if (nu__json_eq(json, ttype, "texture"))
+            else if (nu__seria_json_eq(json, ttype, NU_STR("texture")))
             {
                 nuext_import_asset(NU_ASSET_TEXTURE, name, final_path);
             }
             else
             {
-                NU_ERROR("unknown asset type %s", json + ttype->start);
+                NU_ERROR("unknown asset type " NU_STR_FORMAT,
+                         nu__seria_json_value(json, ttype));
                 goto cleanup2;
             }
 
-            NU_INFO("'%s' asset added", name);
+            NU_INFO("'" NU_STR_FORMAT "' asset added", NU_STR_ARGS(name));
         }
-        tok = nu__json_skip(tok);
+        tok = nu__seria_json_skip(tok);
     }
 
     error = NU_ERROR_NONE;
 cleanup2:
     nu_free(toks, toks_size);
 cleanup1:
-    nu_free(json, json_size);
+    nu_free(json_buf, json_size);
 cleanup0:
     return error;
 }

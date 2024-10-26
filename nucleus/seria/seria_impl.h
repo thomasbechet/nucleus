@@ -86,7 +86,7 @@ nu_seria_delete (nu_seria_t seria)
 }
 
 nu_seria_type_t
-nu_seria_register_struct (const nu_char_t *name, nu_size_t size)
+nu_seria_register_struct (nu_str_t name, nu_size_t size)
 {
     nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types);
     type->kind             = NU__SERIA_STRUCT;
@@ -96,15 +96,15 @@ nu_seria_register_struct (const nu_char_t *name, nu_size_t size)
     return NU_HANDLE_MAKE(nu_seria_type_t, _ctx.seria.types.size - 1);
 }
 void
-nu_seria_register_struct_field (nu_seria_type_t  type,
-                                const nu_char_t *name,
-                                nu_seria_type_t  fieldtype,
-                                nu_size_t        count,
-                                nu_seria_flag_t  flags,
-                                nu_size_t        offset)
+nu_seria_register_struct_field (nu_seria_type_t type,
+                                nu_str_t        name,
+                                nu_seria_type_t fieldtype,
+                                nu_size_t       count,
+                                nu_seria_flag_t flags,
+                                nu_size_t       offset)
 {
     NU_ASSERT(fieldtype);
-    NU_ASSERT(type && name && count);
+    NU_ASSERT(type && count);
     nu__seria_type_t         *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
     nu__seria_struct_field_t *a = NU_VEC_PUSH(&p->fields);
     NU_ASSERT(p->kind == NU__SERIA_STRUCT);
@@ -115,7 +115,7 @@ nu_seria_register_struct_field (nu_seria_type_t  type,
     a->flags  = flags;
 }
 nu_seria_type_t
-nu_seria_register_enum (const nu_char_t *name, nu_size_t size)
+nu_seria_register_enum (nu_str_t name, nu_size_t size)
 {
     nu__seria_type_t *type = NU_VEC_PUSH(&_ctx.seria.types);
     type->kind             = NU__SERIA_ENUM;
@@ -125,9 +125,9 @@ nu_seria_register_enum (const nu_char_t *name, nu_size_t size)
     return NU_HANDLE_MAKE(nu_seria_type_t, _ctx.seria.types.size - 1);
 }
 void
-nu_seria_register_enum_value (nu_seria_type_t  type,
-                              const nu_char_t *name,
-                              nu_u32_t         value)
+nu_seria_register_enum_value (nu_seria_type_t type,
+                              nu_str_t        name,
+                              nu_u32_t        value)
 {
     nu__seria_type_t       *p = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
     nu__seria_enum_value_t *v = NU_VEC_PUSH(&p->values);
@@ -136,7 +136,7 @@ nu_seria_register_enum_value (nu_seria_type_t  type,
     v->value = value;
 }
 nu_seria_type_t
-nu_seria_type (const nu_char_t *name)
+nu_seria_type (nu_str_t name)
 {
     for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
     {
@@ -160,13 +160,13 @@ nu_seria_dump_types (void)
                 // don't print core types
                 break;
             case NU__SERIA_STRUCT:
-                NU_INFO("%s <%d> {", p->name, p->size);
+                NU_INFO(NU_STR_FORMAT " <%d> {", NU_STR_ARGS(p->name), p->size);
                 for (nu_size_t f = 0; f < p->fields.size; ++f)
                 {
                     nu__seria_struct_field_t *pf = p->fields.data + f;
                     nu__seria_type_t         *subtype
                         = _ctx.seria.types.data + NU_HANDLE_INDEX(pf->type);
-                    const nu_char_t *flags;
+                    const char *flags;
                     if (pf->flags == NU_SERIA_REQUIRED)
                     {
                         flags = "REQ";
@@ -175,9 +175,10 @@ nu_seria_dump_types (void)
                     {
                         flags = "OPT";
                     }
-                    NU_INFO("   %s %s [%d] %s = <%d,%d>",
-                            pf->name,
-                            subtype->name,
+                    NU_INFO("   " NU_STR_FORMAT " " NU_STR_FORMAT
+                            " [%d] %s = <%d,%d>",
+                            NU_STR_ARGS(pf->name),
+                            NU_STR_ARGS(subtype->name),
                             pf->count,
                             flags,
                             pf->offset,
@@ -186,11 +187,13 @@ nu_seria_dump_types (void)
                 NU_INFO("}");
                 break;
             case NU__SERIA_ENUM:
-                NU_INFO("%s <%d> {", p->name, p->size);
+                NU_INFO(NU_STR_FORMAT " <%d> {", NU_STR_ARGS(p->name), p->size);
                 for (nu_size_t v = 0; v < p->values.size; ++v)
                 {
                     nu__seria_enum_value_t *pv = p->values.data + v;
-                    NU_INFO("   %s = %d", pv->name, pv->value);
+                    NU_INFO("   " NU_STR_FORMAT " = %d",
+                            NU_STR_ARGS(pv->name),
+                            pv->value);
                 }
                 NU_INFO("}");
                 break;
@@ -198,12 +201,12 @@ nu_seria_dump_types (void)
     }
 }
 static void
-nu__seria_print_with_depth (nu_size_t depth, const nu_char_t *format, ...)
+nu__seria_print_with_depth (nu_size_t depth, nu_str_t format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    nu_char_t str[256];
+    nu_byte_t str[256];
     nu_vsnprintf(str, 256, format, args);
     NU_INFO("%*s%s", depth * 2, "", str);
 
@@ -230,55 +233,57 @@ nu__seria_dump (nu_size_t       depth,
                         if (buf)
                         {
                             nu__seria_print_with_depth(
-                                depth, "%d", NU_HANDLE_INDEX(buf));
+                                depth, NU_STR("%d"), NU_HANDLE_INDEX(buf));
                         }
                         else
                         {
-                            nu__seria_print_with_depth(depth, "NULL");
+                            nu__seria_print_with_depth(depth, NU_STR("NULL"));
                         }
                     }
                     break;
                     case NU_SERIA_PRIMITIVE_U32:
                         nu__seria_print_with_depth(
-                            depth, "%d", *(nu_u32_t *)ptr);
+                            depth, NU_STR("%d"), *(nu_u32_t *)ptr);
                         break;
                     case NU_SERIA_PRIMITIVE_F32:
                         nu__seria_print_with_depth(
-                            depth, "%lf", *(nu_f32_t *)ptr);
+                            depth, NU_STR("%lf"), *(nu_f32_t *)ptr);
                         break;
                     case NU_SERIA_PRIMITIVE_V3: {
                         nu_v3_t *v = (nu_v3_t *)ptr;
-                        nu__seria_print_with_depth(
-                            depth, "[" NU_V3_FORMAT "]", v->x, v->y, v->z);
+                        nu__seria_print_with_depth(depth,
+                                                   NU_STR("[" NU_V3_FORMAT "]"),
+                                                   NU_V3_ARGS(*v));
                     }
                     break;
                     case NU_SERIA_PRIMITIVE_Q4: {
                         nu_q4_t *v = (nu_q4_t *)ptr;
-                        nu__seria_print_with_depth(depth,
-                                                   "[ %lf %lf %lf %lf ]",
-                                                   v->x,
-                                                   v->y,
-                                                   v->z,
-                                                   v->w);
+                        nu__seria_print_with_depth(
+                            depth,
+                            NU_STR("[ " NU_Q4_FORMAT "]"),
+                            NU_Q4_ARGS(*v));
                     }
                     break;
                 }
                 break;
             case NU__SERIA_STRUCT: {
-                nu__seria_print_with_depth(depth, "{");
+                nu__seria_print_with_depth(depth, NU_STR("{"));
                 for (nu_size_t f = 0; f < p->fields.size; ++f)
                 {
                     nu__seria_struct_field_t *field = p->fields.data + f;
                     nu__seria_type_t         *subtype
                         = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
                     nu__seria_print_with_depth(
-                        depth + 1, "%s (%s):", field->name, subtype->name);
+                        depth + 1,
+                        NU_STR(NU_STR_FORMAT " (" NU_STR_FORMAT "):"),
+                        NU_STR_ARGS(field->name),
+                        NU_STR_ARGS(subtype->name));
                     nu__seria_dump(depth + 2,
                                    field->type,
                                    field->count,
                                    ptr + field->offset);
                 }
-                nu__seria_print_with_depth(depth, "}");
+                nu__seria_print_with_depth(depth, NU_STR("}"));
             }
             break;
             case NU__SERIA_ENUM: {
@@ -289,14 +294,14 @@ nu__seria_dump (nu_size_t       depth,
                     if (value == p->values.data[e].value)
                     {
                         nu__seria_print_with_depth(
-                            depth, "%s", p->values.data[e].name);
+                            depth, NU_STR("%s"), p->values.data[e].name);
                         found = NU_TRUE;
                         break;
                     }
                 }
                 if (!found)
                 {
-                    nu__seria_print_with_depth(depth, "#INVALID");
+                    nu__seria_print_with_depth(depth, NU_STR("#INVALID"));
                 }
             }
             break;
@@ -312,7 +317,7 @@ nu_seria_dump (nu_seria_type_t type, nu_size_t size, void *data)
 #ifdef NU_BUILD_JSMN
 void
 nu_seria_open_json_toks (nu_seria_t       seria,
-                         const nu_char_t *json,
+                         nu_str_t         json,
                          const jsmntok_t *toks,
                          nu_size_t        toks_count)
 {
