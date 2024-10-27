@@ -523,6 +523,7 @@ NU_API void      nu_str_to_cstr(nu_str_t str, char *s, nu_size_t n);
 NU_API nu_bool_t nu_str_eq(nu_str_t s1, nu_str_t s2);
 NU_API nu_u32_t  nu_str_hash(nu_str_t s);
 NU_API nu_bool_t nu_str_next(nu_str_t s, nu_size_t *it, nu_wchar_t *c);
+NU_API nu_bool_t nu_str_to_u32(nu_str_t s, nu_u32_t *v);
 NU_API nu_bool_t nu_str_to_i32(nu_str_t s, nu_i32_t *v);
 NU_API nu_bool_t nu_str_to_f32(nu_str_t s, nu_f32_t *v);
 NU_API nu_str_t  nu_str_fmt(nu_str_t buf, nu_str_t format, ...);

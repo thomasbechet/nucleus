@@ -65,6 +65,17 @@ nu_str_next (nu_str_t s, nu_size_t *it, nu_wchar_t *c)
     return NU_TRUE;
 }
 nu_bool_t
+nu_str_to_u32 (nu_str_t s, nu_u32_t *v)
+{
+#ifdef NU_STDLIB
+    char  buf[32];
+    char *nptr = NU_NULL;
+    nu_str_to_cstr(s, buf, 32);
+    *v = strtoul(buf, &nptr, 10);
+    return !*nptr;
+#endif
+}
+nu_bool_t
 nu_str_to_i32 (nu_str_t s, nu_i32_t *v)
 {
 #ifdef NU_STDLIB

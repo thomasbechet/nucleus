@@ -30,8 +30,6 @@ typedef struct
     int dummy;
 } nu__importer_t;
 
-static nu_byte_t *nu__bytes_load_filename(nu_str_t filename, nu_size_t *size);
-
 static void nu__importer_init(void);
 static void nu__importer_free(void);
 

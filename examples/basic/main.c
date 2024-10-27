@@ -1,3 +1,4 @@
+#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -102,6 +103,7 @@ typedef struct
 typedef struct
 {
     nu_u32_t stat;
+    nu_v3_t  v;
 } player_t;
 
 void
@@ -140,26 +142,13 @@ init (void)
                               1,
                               NU_SERIA_REQUIRED,
                               subtype););
-    NU_SERIA_STRUCT("player",
-                    player_t,
-                    NU_SERIA_STRUCT_FIELD(
-                        "stat", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, stat));
+    NU_SERIA_STRUCT(
+        "player",
+        player_t,
+        NU_SERIA_STRUCT_FIELD("stat", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, stat);
+        NU_SERIA_STRUCT_FIELD("v", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, v));
 
     nu_seria_dump_types();
-
-    transform_t trans;
-    trans.scale             = NU_V3_UP;
-    trans.position          = NU_V3_LEFT;
-    trans.rotation          = nu_q4_identity();
-    trans.subtype.quat      = nu_q4_identity();
-    trans.subtype.hello     = 123;
-    trans.subtype.vector    = nu_v3(1, 2, 3);
-    trans.subtype.component = COMP_PLAYER;
-
-    transform_t t[3]       = { trans, trans, trans };
-    t[2].subtype.hello     = 666;
-    t[2].subtype.component = COMP_TRANSFORM;
-    nu_seria_dump(nu_seria_type(NU_STR("transform")), 3, t);
 
     // Configure inputs
     draw        = nu_input_create();
@@ -344,6 +333,21 @@ init (void)
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
 
     nu_seria_dump_types();
+
+    player_t        player[2];
+    nu_seria_type_t player_type = nu_seria_type(NU_STR("player"));
+    nu_seria_t      seria       = nu_seria_create();
+    nu_seria_open_file(
+        seria, NU_SERIA_JSON, NU_STR("../../../assets/player.json"));
+    nu_seria_seek(seria, NU_NULL);
+    nu_size_t n = nu_seria_read(seria, player_type, 1, player + 0);
+    NU_ASSERT(n == 1);
+    n = nu_seria_read(seria, player_type, 1, player + 1);
+    NU_ASSERT(n == 1);
+    n = nu_seria_read(seria, player_type, 1, player + 1);
+    NU_ASSERT(n == 0);
+    nu_seria_dump_value(player_type, 2, &player);
+    nu_seria_close(seria);
 }
 
 void

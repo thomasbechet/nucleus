@@ -2,6 +2,7 @@
 #define NU_SERIA_H
 
 #include <nucleus/seria/api.h>
+#include <nucleus/seria/nbin.h>
 #ifdef NU_BUILD_JSMN
 #include <nucleus/seria/json.h>
 #endif
@@ -43,13 +44,17 @@ typedef struct
 
 typedef struct
 {
+    nu_seria_format_t format;
+    nu_bool_t         opened;
+    nu_byte_t        *bytes;
+    nu_size_t         bytes_size;
     union
     {
+        nu__seria_nbin_t nbin;
 #ifdef NU_BUILD_JSMN
         nu__seria_json_t json;
 #endif
     };
-    nu_seria_format_t format;
 } nu__seria_instance_t;
 
 typedef struct
@@ -58,7 +63,8 @@ typedef struct
     NU_VEC(nu__seria_type_t) types;
 } nu__seria_t;
 
-static void nu__seria_init(void);
-static void nu__seria_free(void);
+static nu_byte_t *nu__seria_bytes_load_file(nu_str_t filename, nu_size_t *size);
+static void       nu__seria_init(void);
+static void       nu__seria_free(void);
 
 #endif

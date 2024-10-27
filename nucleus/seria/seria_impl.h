@@ -3,9 +3,30 @@
 
 #include <nucleus/internal.h>
 
+#include <nucleus/seria/nbin_impl.h>
 #ifdef NU_BUILD_JSMN
 #include <nucleus/seria/json_impl.h>
 #endif
+
+static nu_byte_t *
+nu__seria_bytes_load_file (nu_str_t filename, nu_size_t *size)
+{
+    char fn[256];
+    nu_str_to_cstr(filename, fn, 256);
+    FILE *f = fopen(fn, "rb");
+    if (!f)
+    {
+        NU_ERROR("failed to open file " NU_STR_FMT, NU_STR_ARGS(filename));
+        return NU_NULL;
+    }
+    fseek(f, 0, SEEK_END);
+    nu_size_t fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    nu_byte_t *bytes = (nu_byte_t *)nu_alloc(fsize);
+    fread(bytes, fsize, 1, f);
+    *size = fsize;
+    return bytes;
+}
 
 #define NU__REGISTER_CORE(enum, coretype)                        \
     {                                                            \
@@ -58,17 +79,12 @@ nu__seria_free (void)
 }
 
 nu_seria_t
-nu_seria_create (nu_seria_format_t format)
+nu_seria_create (void)
 {
     nu_size_t             index;
     nu__seria_instance_t *s = NU_POOL_ADD(&_ctx.seria.instances, &index);
-    s->format               = format;
-    switch (s->format)
-    {
-        case NU_SERIA_JSON:
-            nu__seria_json_init(&s->json);
-            break;
-    }
+    s->opened               = NU_FALSE;
+    s->bytes                = NU_NULL;
     return NU_HANDLE_MAKE(nu_seria_t, index);
 }
 void
@@ -76,11 +92,9 @@ nu_seria_delete (nu_seria_t seria)
 {
     nu__seria_instance_t *s
         = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
-    switch (s->format)
+    if (s->opened)
     {
-        case NU_SERIA_JSON:
-            nu__seria_json_free(&s->json);
-            break;
+        nu_seria_close(seria);
     }
     NU_POOL_REMOVE(&_ctx.seria.instances, NU_HANDLE_INDEX(seria));
 }
@@ -306,57 +320,131 @@ nu__seria_dump (nu_size_t       depth,
     }
 }
 void
-nu_seria_dump (nu_seria_type_t type, nu_size_t size, void *data)
+nu_seria_dump_value (nu_seria_type_t type, nu_size_t size, void *data)
 {
     nu__seria_dump(0, type, size, data);
 }
 
-#ifdef NU_BUILD_JSMN
 void
-nu_seria_open_json_toks (nu_seria_t       seria,
-                         nu_str_t         json,
-                         const jsmntok_t *toks,
-                         nu_size_t        toks_count)
+nu_seria_open_file (nu_seria_t        seria,
+                    nu_seria_format_t format,
+                    nu_str_t          filename)
 {
     nu__seria_instance_t *s
         = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    if (s->opened)
+    {
+        nu_seria_close(seria);
+    }
+    s->opened = NU_TRUE;
+
+    // load file
+    s->bytes = nu__seria_bytes_load_file(filename, &s->bytes_size);
+    NU_ASSERT(s->bytes);
+
     switch (s->format)
     {
         case NU_SERIA_JSON:
-            nu__seria_json_open_toks(&s->json, json, toks, toks_count);
+            nu__seria_json_open(&s->json, s->bytes, s->bytes_size);
+            break;
+        case NU_SERIA_NBIN:
+            nu__seria_nbin_open(&s->nbin, s->bytes, s->bytes_size);
             break;
     }
 }
-#endif
+void
+nu_seria_open_bytes (nu_seria_t        seria,
+                     nu_seria_format_t format,
+                     const nu_byte_t  *bytes,
+                     nu_size_t         size)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    if (s->opened)
+    {
+        nu_seria_close(seria);
+    }
+
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            nu__seria_json_open(&s->json, bytes, size);
+            break;
+        case NU_SERIA_NBIN:
+            nu__seria_nbin_open(&s->nbin, bytes, size);
+            break;
+    }
+}
 void
 nu_seria_close (nu_seria_t seria)
 {
     nu__seria_instance_t *s
         = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
-    switch (s->format)
+    if (s->opened)
     {
-        case NU_SERIA_JSON:
-            nu__seria_json_close(&s->json);
-            break;
+        switch (s->format)
+        {
+            case NU_SERIA_JSON:
+                nu__seria_json_close(&s->json);
+                break;
+            case NU_SERIA_NBIN:
+                nu__seria_nbin_close(&s->nbin);
+                break;
+        }
+        s->opened = NU_FALSE;
+        if (s->bytes)
+        {
+            nu_free(s->bytes, s->bytes_size);
+        }
     }
 }
 
-nu_size_t
-nu_seria_read (nu_seria_t        seria,
-               nu_seria_buffer_t buffer,
-               nu_seria_type_t   type,
-               nu_size_t         capacity,
-               void             *data)
+void
+nu_seria_seek (nu_seria_t seria, nu_seria_buffer_t buffer)
 {
-    NU_ASSERT(buffer);
     nu__seria_instance_t *s
         = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     switch (s->format)
     {
         case NU_SERIA_JSON:
-            return nu__seria_json_read(&s->json, buffer, type, capacity, data);
+            nu__seria_json_seek(&s->json, buffer);
+            break;
+        case NU_SERIA_NBIN:
+            nu__seria_nbin_seek(&s->nbin, buffer);
+            break;
+    }
+}
+nu_size_t
+nu_seria_read (nu_seria_t      seria,
+               nu_seria_type_t type,
+               nu_size_t       count,
+               void           *data)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            return nu__seria_json_read(&s->json, type, count, data);
+        case NU_SERIA_NBIN:
+            return nu__seria_nbin_read(&s->nbin, type, count, data);
     }
     return 0;
+}
+void
+nu_seria_write_root (nu_seria_t seria, nu_seria_buffer_t buffer)
+{
+    nu__seria_instance_t *s
+        = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    switch (s->format)
+    {
+        case NU_SERIA_JSON:
+            // unsupported
+            break;
+        case NU_SERIA_NBIN:
+            nu__seria_nbin_write_root(&s->nbin, buffer);
+            break;
+    }
 }
 nu_seria_buffer_t
 nu_seria_write (nu_seria_t      seria,
@@ -369,7 +457,10 @@ nu_seria_write (nu_seria_t      seria,
     switch (s->format)
     {
         case NU_SERIA_JSON:
-            return nu__seria_json_write(&s->json, type, count, data);
+            // unsupported
+            break;
+        case NU_SERIA_NBIN:
+            return nu__seria_nbin_write(&s->nbin, type, count, data);
     }
     return NU_NULL;
 }

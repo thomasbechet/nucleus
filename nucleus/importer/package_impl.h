@@ -53,7 +53,7 @@ nuext_import_package (nu_str_t filename)
     NU_INFO("loading package " NU_STR_FMT, NU_STR_ARGS(filename));
 
     nu_size_t  json_size;
-    nu_byte_t *json_buf = nu__bytes_load_filename(filename, &json_size);
+    nu_byte_t *json_buf = nu__seria_bytes_load_file(filename, &json_size);
     nu_str_t   json     = nu_str(json_buf, json_size);
     if (!json_buf)
     {

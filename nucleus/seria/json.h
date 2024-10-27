@@ -2,15 +2,17 @@
 #define NU_SERIA_JSON_H
 
 #include <nucleus/seria/api.h>
-
 #include <nucleus/external/jsmn/jsmn.h>
 
 typedef struct
 {
-    nu_str_t         json;
-    const jsmntok_t *toks;
-    nu_size_t        toks_count;
-    nu_bool_t        owned;
+    nu_str_t   json;
+    jsmntok_t *toks;
+    nu_size_t  toks_size;
+    nu_size_t  toks_capa;
+
+    const jsmntok_t *it;
+    nu_size_t        it_remaining;
 } nu__seria_json_t;
 
 static jsmntok_t *nu__seria_json_parse(nu_str_t   json,
