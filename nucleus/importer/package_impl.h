@@ -50,11 +50,11 @@ nuext_import_package (nu_str_t filename)
 
     nu_str_t dir = nuext_path_dirname(filename);
 
-    NU_INFO("loading package " NU_STR_FORMAT, NU_STR_ARGS(filename));
+    NU_INFO("loading package " NU_STR_FMT, NU_STR_ARGS(filename));
 
     nu_size_t  json_size;
     nu_byte_t *json_buf = nu__bytes_load_filename(filename, &json_size);
-    nu_str_t   json     = nu_str_from_bytes(json_buf, json_size);
+    nu_str_t   json     = nu_str(json_buf, json_size);
     if (!json_buf)
     {
         NU_ERROR("failed to load json package");
@@ -99,10 +99,9 @@ nuext_import_package (nu_str_t filename)
                 NU_ERROR("path member not found");
                 goto cleanup2;
             }
-            nu_str_t  path = nu__seria_json_value(json, tpath);
-            nu_byte_t final_path_buf[NUEXT_PATH_MAX];
-            nu_str_t  final_path
-                = nuext_path_concat(final_path_buf, NUEXT_PATH_MAX, dir, path);
+            nu_str_t path = nu__seria_json_value(json, tpath);
+            NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
+            nu_str_t final_path = nuext_path_concat(final_path_buf, dir, path);
 
             // Parse type
             nu_asset_type_t  type = NU_ASSET_UNKNOWN;
@@ -123,12 +122,12 @@ nuext_import_package (nu_str_t filename)
             }
             else
             {
-                NU_ERROR("unknown asset type " NU_STR_FORMAT,
+                NU_ERROR("unknown asset type " NU_STR_FMT,
                          nu__seria_json_value(json, ttype));
                 goto cleanup2;
             }
 
-            NU_INFO("'" NU_STR_FORMAT "' asset added", NU_STR_ARGS(name));
+            NU_INFO("'" NU_STR_FMT "' asset added", NU_STR_ARGS(name));
         }
         tok = nu__seria_json_skip(tok);
     }

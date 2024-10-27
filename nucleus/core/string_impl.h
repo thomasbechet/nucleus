@@ -3,8 +3,8 @@
 
 #include <nucleus/internal.h>
 
-nu_size_t
-nu_cstr_len (const char *str)
+static nu_size_t
+nu__cstr_len (const char *str)
 {
     const char *p = str;
     while (*p)
@@ -14,12 +14,17 @@ nu_cstr_len (const char *str)
     return p - str;
 }
 nu_str_t
-nu_str_from_bytes (nu_byte_t *bytes, nu_size_t n)
+nu_str (nu_byte_t *bytes, nu_size_t n)
 {
     nu_str_t str;
     str.data = bytes;
     str.size = n;
     return str;
+}
+nu_str_t
+nu_str_from_cstr (char *s)
+{
+    return nu_str((nu_byte_t *)s, nu__cstr_len(s));
 }
 void
 nu_str_to_cstr (nu_str_t str, char *chars, nu_size_t n)
@@ -59,23 +64,45 @@ nu_str_next (nu_str_t s, nu_size_t *it, nu_wchar_t *c)
     ++(*it);
     return NU_TRUE;
 }
+nu_bool_t
+nu_str_to_i32 (nu_str_t s, nu_i32_t *v)
+{
+#ifdef NU_STDLIB
+    char  buf[32];
+    char *nptr = NU_NULL;
+    nu_str_to_cstr(s, buf, 32);
+    *v = strtol(buf, &nptr, 10);
+    return !*nptr;
+#endif
+}
+nu_bool_t
+nu_str_to_f32 (nu_str_t s, nu_f32_t *v)
+{
+#ifdef NU_STDLIB
+    char  buf[32];
+    char *nptr = NU_NULL;
+    nu_str_to_cstr(s, buf, 32);
+    *v = strtof(buf, &nptr);
+    return !*nptr;
+#endif
+}
 nu_str_t
-nu_snprintf (nu_byte_t *buf, nu_size_t n, nu_str_t format, ...)
+nu_str_fmt (nu_str_t buf, nu_str_t format, ...)
 {
 #ifdef NU_STDLIB
     va_list args;
     va_start(args, format);
-    nu_str_t r = nu_vsnprintf(buf, n, format, args);
+    nu_str_t r = nu_str_vfmt(buf, format, args);
     va_end(args);
     return r;
 #endif
 }
 nu_str_t
-nu_vsnprintf (nu_byte_t *buf, nu_size_t n, nu_str_t format, va_list args)
+nu_str_vfmt (nu_str_t buf, nu_str_t format, va_list args)
 {
 #ifdef NU_STDLIB
-    int r = vsnprintf((char *)buf, n, (char *)format.data, args);
-    return nu_str_from_bytes(buf, r);
+    int r = vsnprintf((char *)buf.data, buf.size, (char *)format.data, args);
+    return nu_str(buf.data, r);
 #endif
 }
 
@@ -88,8 +115,7 @@ nuext_path_extension (nu_str_t filename)
     {
         return NUEXT_EXTENSION_UNKNOWN;
     }
-    nu_str_t ext
-        = nu_str_from_bytes((nu_byte_t *)(dot + 1), nu_cstr_len(dot + 1));
+    nu_str_t ext = nu_str_from_cstr((char *)dot + 1);
     if (NU_MATCH(ext, NU_STR("gltf")))
     {
         return NUEXT_EXTENSION_GLTF;
@@ -115,7 +141,7 @@ nuext_path_basename (nu_str_t path)
     {
         if (path.data[n - 1] == '/')
         {
-            return nu_str_from_bytes(path.data + n, path.size - n);
+            return nu_str(path.data + n, path.size - n);
         }
     }
     return path;
@@ -127,19 +153,18 @@ nuext_path_dirname (nu_str_t path)
     {
         if (path.data[n - 1] == '/')
         {
-            return nu_str_from_bytes(path.data, n);
+            return nu_str(path.data, n);
         }
     }
     return path;
 }
 nu_str_t
-nuext_path_concat (nu_byte_t *buf, nu_size_t n, nu_str_t p1, nu_str_t p2)
+nuext_path_concat (nu_str_t buf, nu_str_t p1, nu_str_t p2)
 {
-    return nu_snprintf(buf,
-                       n,
-                       NU_STR(NU_STR_FORMAT "/" NU_STR_FORMAT),
-                       NU_STR_ARGS(p1),
-                       NU_STR_ARGS(p2));
+    return nu_str_fmt(buf,
+                      NU_STR(NU_STR_FMT "/" NU_STR_FMT),
+                      NU_STR_ARGS(p1),
+                      NU_STR_ARGS(p2));
 }
 
 #endif

@@ -160,7 +160,7 @@ nu_seria_dump_types (void)
                 // don't print core types
                 break;
             case NU__SERIA_STRUCT:
-                NU_INFO(NU_STR_FORMAT " <%d> {", NU_STR_ARGS(p->name), p->size);
+                NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
                 for (nu_size_t f = 0; f < p->fields.size; ++f)
                 {
                     nu__seria_struct_field_t *pf = p->fields.data + f;
@@ -175,7 +175,7 @@ nu_seria_dump_types (void)
                     {
                         flags = "OPT";
                     }
-                    NU_INFO("   " NU_STR_FORMAT " " NU_STR_FORMAT
+                    NU_INFO("   " NU_STR_FMT " " NU_STR_FMT
                             " [%d] %s = <%d,%d>",
                             NU_STR_ARGS(pf->name),
                             NU_STR_ARGS(subtype->name),
@@ -187,11 +187,11 @@ nu_seria_dump_types (void)
                 NU_INFO("}");
                 break;
             case NU__SERIA_ENUM:
-                NU_INFO(NU_STR_FORMAT " <%d> {", NU_STR_ARGS(p->name), p->size);
+                NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
                 for (nu_size_t v = 0; v < p->values.size; ++v)
                 {
                     nu__seria_enum_value_t *pv = p->values.data + v;
-                    NU_INFO("   " NU_STR_FORMAT " = %d",
+                    NU_INFO("   " NU_STR_FMT " = %d",
                             NU_STR_ARGS(pv->name),
                             pv->value);
                 }
@@ -206,8 +206,8 @@ nu__seria_print_with_depth (nu_size_t depth, nu_str_t format, ...)
     va_list args;
     va_start(args, format);
 
-    nu_byte_t str[256];
-    nu_vsnprintf(str, 256, format, args);
+    NU_STR_BUF(str, 256);
+    nu_str_vfmt(str, format, args);
     NU_INFO("%*s%s", depth * 2, "", str);
 
     va_end(args);
@@ -251,17 +251,14 @@ nu__seria_dump (nu_size_t       depth,
                         break;
                     case NU_SERIA_PRIMITIVE_V3: {
                         nu_v3_t *v = (nu_v3_t *)ptr;
-                        nu__seria_print_with_depth(depth,
-                                                   NU_STR("[" NU_V3_FORMAT "]"),
-                                                   NU_V3_ARGS(*v));
+                        nu__seria_print_with_depth(
+                            depth, NU_STR("[" NU_V3_FMT "]"), NU_V3_ARGS(*v));
                     }
                     break;
                     case NU_SERIA_PRIMITIVE_Q4: {
                         nu_q4_t *v = (nu_q4_t *)ptr;
                         nu__seria_print_with_depth(
-                            depth,
-                            NU_STR("[ " NU_Q4_FORMAT "]"),
-                            NU_Q4_ARGS(*v));
+                            depth, NU_STR("[ " NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
                     }
                     break;
                 }
@@ -275,7 +272,7 @@ nu__seria_dump (nu_size_t       depth,
                         = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
                     nu__seria_print_with_depth(
                         depth + 1,
-                        NU_STR(NU_STR_FORMAT " (" NU_STR_FORMAT "):"),
+                        NU_STR(NU_STR_FMT " (" NU_STR_FMT "):"),
                         NU_STR_ARGS(field->name),
                         NU_STR_ARGS(subtype->name));
                     nu__seria_dump(depth + 2,

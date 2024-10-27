@@ -27,7 +27,7 @@ nu_asset_add (nu_asset_type_t type, nu_str_t name)
 {
     if (nu_asset_exists(type, name))
     {
-        NU_ERROR("asset '" NU_STR_FORMAT "' of type '" NU_STR_FORMAT
+        NU_ERROR("asset '" NU_STR_FMT "' of type '" NU_STR_FMT
                  "' already exists",
                  NU_STR_ARGS(name),
                  NU_STR_ARGS(nu__asset_type_names[type]));
@@ -65,7 +65,7 @@ nu_asset_find (nu_asset_type_t type, nu_str_t name)
             return NU_HANDLE_MAKE(nu_asset_t, i);
         }
     }
-    NU_ERROR("asset '" NU_STR_FORMAT "' of type '" NU_STR_FORMAT "' not found",
+    NU_ERROR("asset '" NU_STR_FMT "' of type '" NU_STR_FMT "' not found",
              NU_STR_ARGS(name),
              NU_STR_ARGS(nu__asset_type_names[type]));
     return NU_NULL;

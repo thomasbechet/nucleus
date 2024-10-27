@@ -108,11 +108,7 @@ nugl__canvas_draw_blit (nu__renderpass_t *pass,
                         nu_b2i_t          extent,
                         nu_b2i_t          tex_extent)
 {
-    if (!material)
-    {
-        NU_ERROR("no material bound");
-        return;
-    }
+    NU_ASSERT(material);
     const nu__material_t *pmat
         = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
     NU_ASSERT(pmat->type == NU_MATERIAL_CANVAS);

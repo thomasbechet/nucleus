@@ -47,34 +47,28 @@ nu__stats_update (void)
 void
 nu_draw_stats (nu_renderpass_t pass, nu_font_t font, nu_v2i_t pos)
 {
-    nu__stats_t    *s = &_ctx.utils.stats;
-    nu_str_t        str;
-    nu_byte_t       str_buf[256];
-    const nu_size_t buf_size = 256;
+    nu__stats_t *s = &_ctx.utils.stats;
+    NU_STR_BUF(str_buf, 256);
+    nu_str_t str;
 
-    str = nu_snprintf(str_buf, buf_size, NU_STR("FPS:%d"), (nu_u32_t)s->avg);
+    str = nu_str_fmt(str_buf, NU_STR("FPS:%d"), (nu_u32_t)s->avg);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 0)));
-    str = nu_snprintf(str_buf, buf_size, NU_STR("FRA:%d"), s->frame);
+    str = nu_str_fmt(str_buf, NU_STR("FRA:%d"), s->frame);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 10)));
-    str = nu_snprintf(str_buf,
-                      buf_size,
-                      NU_STR("RES:%dx%d"),
-                      _ctx.platform.size.x,
-                      _ctx.platform.size.y);
+    str = nu_str_fmt(str_buf,
+                     NU_STR("RES:%dx%d"),
+                     _ctx.platform.size.x,
+                     _ctx.platform.size.y);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 20)));
-    str = nu_snprintf(
-        str_buf, buf_size, NU_STR("TRI:%d"), s->graphics_frame.triangle_count);
+    str = nu_str_fmt(
+        str_buf, NU_STR("TRI:%d"), s->graphics_frame.triangle_count);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 30)));
-    str = nu_snprintf(
-        str_buf, buf_size, NU_STR("LIN:%d"), s->graphics_frame.line_count);
+    str = nu_str_fmt(str_buf, NU_STR("LIN:%d"), s->graphics_frame.line_count);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 40)));
-    str = nu_snprintf(
-        str_buf, buf_size, NU_STR("PTS:%d"), s->graphics_frame.point_count);
+    str = nu_str_fmt(str_buf, NU_STR("PTS:%d"), s->graphics_frame.point_count);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 50)));
-    str = nu_snprintf(str_buf,
-                      buf_size,
-                      NU_STR("RDP:%d"),
-                      s->graphics_frame.renderpass_count);
+    str = nu_str_fmt(
+        str_buf, NU_STR("RDP:%d"), s->graphics_frame.renderpass_count);
     nu_draw_text(pass, str, font, nu_v2i_add(pos, nu_v2i(0, 60)));
 }
 

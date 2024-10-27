@@ -37,8 +37,7 @@ cleanup0:
 static nu_str_t
 nu__seria_json_value (nu_str_t json, const jsmntok_t *tok)
 {
-    return nu_str_from_bytes(json.data + tok->start,
-                             (nu_size_t)(tok->end - tok->start));
+    return nu_str(json.data + tok->start, (nu_size_t)(tok->end - tok->start));
 }
 static nu_bool_t
 nu__seria_json_eq (nu_str_t json, const jsmntok_t *tok, nu_str_t s)
@@ -154,7 +153,8 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
         case NU__SERIA_STRUCT: {
             if (tok->type != JSMN_OBJECT)
             {
-                NU_ERROR("json token is not an object for type %s", t->name);
+                NU_ERROR("json token is not an object for type " NU_STR_FMT,
+                         NU_STR_ARGS(t->name));
                 return;
             }
             for (nu_size_t f = 0; f < t->fields.size; ++f)
@@ -165,7 +165,8 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
                     = nu__seria_json_object_member(j->json, tok, field->name);
                 if (!child_tok)
                 {
-                    NU_ERROR("json member not found '%s'", field->name);
+                    NU_ERROR("json member not found '" NU_STR_FMT "'",
+                             NU_STR_ARGS(field->name));
                     return;
                 }
                 if ((nu_size_t)child_tok->size != field->count)
@@ -206,8 +207,8 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
                     return;
                 }
             }
-            NU_ERROR("unknown enum value '" NU_STR_FORMAT
-                     "' for type '" NU_STR_FORMAT "'",
+            NU_ERROR("unknown enum value '" NU_STR_FMT "' for type '" NU_STR_FMT
+                     "'",
                      NU_STR_ARGS(value),
                      NU_STR_ARGS(t->name));
             return;
@@ -225,9 +226,9 @@ nu__seria_json_read (nu__seria_json_t *j,
     const nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
 
     // construct name
-    nu_byte_t name_buf[32];
-    nu_str_t  name
-        = nu_snprintf(name_buf, 32, NU_STR("_%d"), NU_HANDLE_INDEX(buffer));
+    NU_STR_BUF(name_buf, 32);
+    nu_str_t name
+        = nu_str_fmt(name_buf, NU_STR("_%d"), NU_HANDLE_INDEX(buffer));
 
     // find token
     if (j->toks_count == 0 || j->toks[0].type != JSMN_OBJECT)
@@ -237,8 +238,7 @@ nu__seria_json_read (nu__seria_json_t *j,
     const jsmntok_t *tok = nu__seria_json_object_member(j->json, j->toks, name);
     if (!tok)
     {
-        NU_ERROR("buffer index '" NU_STR_FORMAT "' not found",
-                 NU_STR_ARGS(name));
+        NU_ERROR("buffer index '" NU_STR_FMT "' not found", NU_STR_ARGS(name));
         return 0;
     }
     if (tok->type != JSMN_ARRAY)

@@ -12,7 +12,7 @@ nuext_cubemap_load_filename (nu_str_t filename)
 
     nu_size_t  json_size;
     nu_byte_t *json_buf = nu__bytes_load_filename(filename, &json_size);
-    nu_str_t   json     = nu_str_from_bytes(json_buf, json_size);
+    nu_str_t   json     = nu_str(json_buf, json_size);
     NU_CHECK(json_buf, goto cleanup0);
     nu_size_t  toks_size, toks_count;
     jsmntok_t *toks = nu__seria_json_parse(json, &toks_size, &toks_count);
@@ -42,10 +42,10 @@ nuext_cubemap_load_filename (nu_str_t filename)
         }
         if (!images[f])
         {
-            nu_str_t  path = nu__seria_json_value(json, tok);
-            nu_byte_t final_path_buf[NUEXT_PATH_MAX];
-            nu_str_t  final_path = nuext_path_concat(
-                final_path_buf, NUEXT_PATH_MAX, json_path, path);
+            nu_str_t path = nu__seria_json_value(json, tok);
+            NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
+            nu_str_t final_path
+                = nuext_path_concat(final_path_buf, json_path, path);
             images[f] = nuext_image_load_filename(final_path);
             if (!images[f])
             {

@@ -55,17 +55,20 @@ NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_V2_FORMAT  "%lf %lf"
+#define NU_V2_FMT     "%lf %lf"
 #define NU_V2_ARGS(v) (v).x, (v).y
-#define NU_V3_FORMAT  "%lf %lf %lf"
+#define NU_V3_FMT     "%lf %lf %lf"
 #define NU_V3_ARGS(v) (v).x, (v).y, (v).z
-#define NU_V4_FORMAT  "%lf %lf %lf %lf"
+#define NU_V4_FMT     "%lf %lf %lf %lf"
 #define NU_V4_ARGS(v) (v).x, (v).y, (v).z, (v).w
-#define NU_Q4_FORMAT  NU_V4_FORMAT
+#define NU_Q4_FMT     NU_V4_FMT
 #define NU_Q4_ARGS(q) NU_V4_ARGS(q)
 
-#define NU_STR_FORMAT    "%.*s"
+#define NU_STR_FMT       "%.*s"
 #define NU_STR_ARGS(str) (int)str.size, str.data
+#define NU_STR_BUF(name, size)   \
+    nu_byte_t name##_data[size]; \
+    nu_str_t  name = nu_str(name##_data, size);
 
 #define NU_DEBUG(format, ...) \
     nu_log(NU_LOG_DEBUG, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
@@ -514,25 +517,21 @@ NU_API nu_fixedloop_t nu_fixedloop_create(nu_fixedloop_callback_t callback,
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);
 
-NU_API nu_size_t nu_cstr_len(const char *s);
-NU_API nu_str_t  nu_str_from_bytes(nu_byte_t *bytes, nu_size_t n);
-NU_API void      nu_str_to_cstr(nu_str_t str, char *chars, nu_size_t n);
+NU_API nu_str_t  nu_str(nu_byte_t *bytes, nu_size_t n);
+NU_API nu_str_t  nu_str_from_cstr(char *s);
+NU_API void      nu_str_to_cstr(nu_str_t str, char *s, nu_size_t n);
 NU_API nu_bool_t nu_str_eq(nu_str_t s1, nu_str_t s2);
 NU_API nu_u32_t  nu_str_hash(nu_str_t s);
 NU_API nu_bool_t nu_str_next(nu_str_t s, nu_size_t *it, nu_wchar_t *c);
-NU_API nu_str_t  nu_snprintf(nu_byte_t *buf, nu_size_t n, nu_str_t format, ...);
-NU_API nu_str_t  nu_vsnprintf(nu_byte_t *buf,
-                              nu_size_t  n,
-                              nu_str_t   format,
-                              va_list    args);
+NU_API nu_bool_t nu_str_to_i32(nu_str_t s, nu_i32_t *v);
+NU_API nu_bool_t nu_str_to_f32(nu_str_t s, nu_f32_t *v);
+NU_API nu_str_t  nu_str_fmt(nu_str_t buf, nu_str_t format, ...);
+NU_API nu_str_t  nu_str_vfmt(nu_str_t buf, nu_str_t format, va_list args);
 
 NU_API nuext_extension_t nuext_path_extension(nu_str_t filename);
 NU_API nu_str_t          nuext_path_basename(nu_str_t path);
 NU_API nu_str_t          nuext_path_dirname(nu_str_t path);
-NU_API nu_str_t          nuext_path_concat(nu_byte_t *buf,
-                                           nu_size_t  n,
-                                           nu_str_t   p1,
-                                           nu_str_t   p2);
+NU_API nu_str_t nuext_path_concat(nu_str_t buf, nu_str_t p1, nu_str_t p2);
 
 NU_API nu_color_t nu_color(nu_u8_t r, nu_u8_t g, nu_u8_t b, nu_u8_t a);
 NU_API nu_v4_t    nu_color_to_vec4(nu_color_t c);
