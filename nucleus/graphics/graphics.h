@@ -35,6 +35,10 @@ typedef struct
     nu__light_pool_t      lights;
     nu__lightenv_pool_t   lightenvs;
     nu__renderpass_pool_t passes;
+
+#ifdef NU_BUILD_GRAPHICS_GL
+    nu__gl_t gl;
+#endif
 } nu__graphics_t;
 
 static nu_error_t nu__graphics_init(void);

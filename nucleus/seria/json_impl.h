@@ -3,7 +3,7 @@
 
 #include <nucleus/internal.h>
 
-#ifdef NU_BUILD_JSMN
+#ifdef NU_BUILD_SERIA_JSON
 #define JSMN_PARENT_LINKS
 #define JSMN_STRICT
 #define JSMN_STATIC

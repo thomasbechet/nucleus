@@ -3,7 +3,7 @@
 
 #include <nucleus/internal.h>
 
-#ifdef NU_BUILD_STBIMAGE
+#ifdef NU_BUILD_IMPORTER_STBIMAGE
 #define STB_IMAGE_IMPLEMENTATION
 #include <nucleus/external/stb/stb_image.h>
 #endif
@@ -35,7 +35,7 @@ nu__parse_colors (const nu_byte_t *src,
 static nu_image_t
 nu__image_load_filename (nu_str_t filename)
 {
-#ifdef NU_BUILD_STBIMAGE
+#ifdef NU_BUILD_IMPORTER_STBIMAGE
     int  w, h, n;
     char fn[256];
     nu_str_to_cstr(filename, fn, 256);
@@ -52,7 +52,7 @@ nu__image_load_filename (nu_str_t filename)
 static nu_image_t
 nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
 {
-#ifdef NU_BUILD_STBIMAGE
+#ifdef NU_BUILD_IMPORTER_STBIMAGE
     int        w, h, n;
     nu_byte_t *img
         = stbi_load_from_memory(data, size, &w, &h, &n, STBI_default);
@@ -69,7 +69,7 @@ nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
 nu_image_t
 nuext_image_load_filename (nu_str_t filename)
 {
-#ifdef NU_BUILD_STBIMAGE
+#ifdef NU_BUILD_IMPORTER_STBIMAGE
     return nu__image_load_filename(filename);
 #endif
     return NU_NULL;
@@ -77,7 +77,7 @@ nuext_image_load_filename (nu_str_t filename)
 nu_image_t
 nuext_image_load_memory (const nu_byte_t *data, nu_size_t size)
 {
-#ifdef NU_BUILD_STBIMAGE
+#ifdef NU_BUILD_IMPORTER_STBIMAGE
     return nu__image_load_memory(data, size);
 #endif
     return NU_NULL;

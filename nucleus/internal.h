@@ -8,9 +8,6 @@
 #ifdef NU_BUILD_GRAPHICS
 #include <nucleus/graphics/graphics.h>
 #endif
-#ifdef NU_BUILD_GRAPHICS_GL
-#include <nucleus/gl/gl.h>
-#endif
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils.h>
 #endif
@@ -41,9 +38,6 @@ static struct nu__context
 #endif
 #ifdef NU_BUILD_GRAPHICS
     nu__graphics_t graphics;
-#endif
-#ifdef NU_BUILD_GRAPHICS_GL
-    nu__gl_t gl;
 #endif
 #ifdef NU_BUILD_UTILS
     nu__utils_t utils;

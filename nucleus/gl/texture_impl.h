@@ -6,7 +6,7 @@
 static void
 nugl__texture_init (nu__texture_t *tex)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     glGenTextures(1, &tex->gl.texture);
 
@@ -105,7 +105,7 @@ nugl__texture_free (nu__texture_t *tex)
 static void
 nugl__texture_write_colors (nu__texture_t *tex, const nu_color_t *colors)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     switch (tex->type)
     {
@@ -132,7 +132,7 @@ nugl__texture_write_cubemap_colors (nu__texture_t    *tex,
                                     nu_cubemap_face_t face,
                                     const nu_color_t *colors)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     NU_ASSERT(tex->type == NU_TEXTURE_CUBEMAP_COLOR);
 

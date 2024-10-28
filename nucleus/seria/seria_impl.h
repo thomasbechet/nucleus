@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 #include <nucleus/seria/nbin_impl.h>
-#ifdef NU_BUILD_JSMN
+#ifdef NU_BUILD_SERIA_JSON
 #include <nucleus/seria/json_impl.h>
 #endif
 

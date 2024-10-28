@@ -17,7 +17,7 @@ nugl__shadow_init (nugl__renderpass_shadow_t *pass)
 static void
 nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(texture);
     nu__texture_t *ptex
         = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
@@ -42,7 +42,7 @@ nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
 static void
 nugl__shadow_render (nu__renderpass_t *pass)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(pass->shadow.camera && pass->depth_target);
     nu__camera_t *pcam
         = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(pass->shadow.camera);

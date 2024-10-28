@@ -229,7 +229,7 @@ nugl__canvas_draw_blit (nu__renderpass_t *pass,
 static void
 nugl__canvas_render (nu__renderpass_t *pass)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
     // Update buffers
     nugl__write_canvas_buffers(&pass->gl.canvas);
     glUseProgram(gl->canvas_blit_program);

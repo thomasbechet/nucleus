@@ -2,7 +2,6 @@
 #define NU_FONT_H
 
 #include <nucleus/graphics/api.h>
-
 #include <nucleus/graphics/font_data.h>
 
 typedef struct

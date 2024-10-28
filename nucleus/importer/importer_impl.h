@@ -11,14 +11,14 @@
 static void
 nu__importer_init (void)
 {
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
     nu__model_gltf_loader_init();
 #endif
 }
 static void
 nu__importer_free (void)
 {
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
     nu__model_gltf_loader_free();
 #endif
 }

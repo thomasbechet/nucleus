@@ -137,7 +137,7 @@ nugl__init (void)
 {
     nu_error_t error;
 
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     // Initialize containers
     NU_VEC_INIT(16, &gl->targets);
@@ -217,7 +217,7 @@ nugl__free (void)
 static nu_error_t
 nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
@@ -252,7 +252,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 static void
 nugl__init_surface_texture (nu__texture_t *tex)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     glGenTextures(1, &tex->gl.texture);
     glBindTexture(GL_TEXTURE_2D, tex->gl.texture);

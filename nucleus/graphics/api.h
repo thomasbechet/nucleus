@@ -1,7 +1,7 @@
 #ifndef NU_GRAPHICS_API_H
 #define NU_GRAPHICS_API_H
 
-#include <nucleus/platform/api.h>
+#include <nucleus/core/api.h>
 
 NU_DEFINE_HANDLE(nu_image_t);
 NU_DEFINE_HANDLE(nu_camera_t);

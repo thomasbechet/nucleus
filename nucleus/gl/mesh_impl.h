@@ -6,7 +6,7 @@
 static void
 nugl__mesh_init (nu__mesh_t *mesh)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     mesh->gl.positions = 0;
     mesh->gl.uvs       = 0;

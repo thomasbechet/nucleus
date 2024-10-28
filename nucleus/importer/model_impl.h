@@ -3,7 +3,7 @@
 
 #include <nucleus/internal.h>
 
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
 #define CGLTF_IMPLEMENTATION
 #include <nucleus/external/cgltf/cgltf.h>
 #endif
@@ -373,7 +373,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
 nu_model_t
 nuext_model_load_filename (nu_str_t filename)
 {
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
     return nu__model_gltf_load(&_ctx.importer.model_gltf_loader, filename);
 #endif
     return NU_NULL;

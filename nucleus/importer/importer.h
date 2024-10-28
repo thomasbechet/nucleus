@@ -6,7 +6,7 @@
 #include <nucleus/asset/asset.h>
 #include <nucleus/external/jsmn/jsmn.h>
 
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
 typedef struct
 {
     const void *ptr;
@@ -24,7 +24,7 @@ typedef struct
 
 typedef struct
 {
-#ifdef NU_BUILD_CGLTF
+#ifdef NU_BUILD_IMPORTER_CGLTF
     nu__model_gltf_loader_t model_gltf_loader;
 #endif
     int dummy;

@@ -67,7 +67,7 @@ nugl__renderpass_free (nu__renderpass_t *pass)
 static GLuint
 nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
     for (nu_size_t i = 0; i < gl->targets.size; ++i)
     {
         const nugl__rendertarget_t *target = gl->targets.data + i;
@@ -138,13 +138,13 @@ nugl__renderpass_set_shade (nu__renderpass_t *pass)
     switch (pass->forward.mode)
     {
         case NU_SHADE_UNLIT:
-            pass->gl.forward.program = _ctx.gl.unlit_program;
+            pass->gl.forward.program = _ctx.graphics.gl.unlit_program;
             break;
         case NU_SHADE_LIT:
-            pass->gl.forward.program = _ctx.gl.lit_program;
+            pass->gl.forward.program = _ctx.graphics.gl.lit_program;
             break;
         case NU_SHADE_WIREFRAME:
-            pass->gl.forward.program = _ctx.gl.wireframe_program;
+            pass->gl.forward.program = _ctx.graphics.gl.wireframe_program;
             break;
     }
 }
@@ -168,7 +168,7 @@ nugl__renderpass_reset (nu__renderpass_t *pass)
 static void
 nugl__renderpass_submit (nu_renderpass_t pass)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
 
     *NU_VEC_PUSH(&gl->passes_order) = NU_HANDLE_INDEX(pass);
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);

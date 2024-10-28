@@ -3,7 +3,7 @@
 
 #include <nucleus/seria/api.h>
 #include <nucleus/seria/nbin.h>
-#ifdef NU_BUILD_JSMN
+#ifdef NU_BUILD_SERIA_JSON
 #include <nucleus/seria/json.h>
 #endif
 
@@ -52,7 +52,7 @@ typedef struct
     union
     {
         nu__seria_nbin_t nbin;
-#ifdef NU_BUILD_JSMN
+#ifdef NU_BUILD_SERIA_JSON
         nu__seria_json_t json;
 #endif
     };

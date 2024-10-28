@@ -17,7 +17,7 @@ nugl__forward_init (nugl__renderpass_forward_t *pass)
 static void
 nugl__forward_render (nu__renderpass_t *pass)
 {
-    nu__gl_t *gl = &_ctx.gl;
+    nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(pass->forward.camera);
     nu__camera_t *cam
         = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(pass->forward.camera);
