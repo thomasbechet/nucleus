@@ -7,7 +7,10 @@ typedef struct
 {
     nu_byte_t *bytes;
     nu_size_t  bytes_size;
-    nu_bool_t  owned;
+
+    nu_size_t root;
+    nu_size_t it;
+    nu_size_t it_remaining;
 } nu__seria_nbin_t;
 
 #endif

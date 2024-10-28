@@ -31,6 +31,12 @@ NU_DEFINE_HANDLE(nu_seria_buffer_t);
 
 typedef enum
 {
+    NU_SERIA_READ,
+    NU_SERIA_WRITE
+} nu_seria_io_t;
+
+typedef enum
+{
     NU_SERIA_JSON,
     NU_SERIA_NBIN
 } nu_seria_format_t;
@@ -77,14 +83,16 @@ NU_API void            nu_seria_register_enum_value(nu_seria_type_t type,
 NU_API nu_seria_type_t nu_seria_type(nu_str_t name);
 
 NU_API void nu_seria_dump_types(void);
-NU_API void nu_seria_dump_value(nu_seria_type_t type,
-                                nu_size_t       count,
-                                void           *data);
+NU_API void nu_seria_dump_values(nu_seria_type_t type,
+                                 nu_size_t       count,
+                                 void           *data);
 
 NU_API void nu_seria_open_file(nu_seria_t        seria,
+                               nu_seria_io_t     mode,
                                nu_seria_format_t format,
                                nu_str_t          filename);
 NU_API void nu_seria_open_bytes(nu_seria_t        seria,
+                                nu_seria_io_t     mode,
                                 nu_seria_format_t format,
                                 const nu_byte_t  *bytes,
                                 nu_size_t         size);

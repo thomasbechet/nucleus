@@ -1,4 +1,3 @@
-#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -337,8 +336,10 @@ init (void)
     player_t        player[2];
     nu_seria_type_t player_type = nu_seria_type(NU_STR("player"));
     nu_seria_t      seria       = nu_seria_create();
-    nu_seria_open_file(
-        seria, NU_SERIA_JSON, NU_STR("../../../assets/player.json"));
+    nu_seria_open_file(seria,
+                       NU_SERIA_READ,
+                       NU_SERIA_JSON,
+                       NU_STR("../../../assets/player.json"));
     nu_seria_seek(seria, NU_NULL);
     nu_size_t n = nu_seria_read(seria, player_type, 1, player + 0);
     NU_ASSERT(n == 1);
@@ -346,7 +347,7 @@ init (void)
     NU_ASSERT(n == 1);
     n = nu_seria_read(seria, player_type, 1, player + 1);
     NU_ASSERT(n == 0);
-    nu_seria_dump_value(player_type, 2, &player);
+    nu_seria_dump_values(player_type, 2, &player);
     nu_seria_close(seria);
 }
 
