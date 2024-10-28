@@ -2,10 +2,10 @@
 #define NUGL_IMPL_H
 
 #include <nucleus/internal.h>
-#include <nucleus/gl/shader_data.h>
-#include <nucleus/gl/texture_impl.h>
-#include <nucleus/gl/mesh_impl.h>
-#include <nucleus/gl/renderpass_impl.h>
+#include <nucleus/graphics/gl/shader_data.h>
+#include <nucleus/graphics/gl/texture_impl.h>
+#include <nucleus/graphics/gl/mesh_impl.h>
+#include <nucleus/graphics/gl/renderpass_impl.h>
 
 static nu_error_t
 nugl__compile_shader (nu_str_t source, GLuint shader_type, GLuint *shader)

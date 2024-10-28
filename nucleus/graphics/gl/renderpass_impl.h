@@ -3,9 +3,9 @@
 
 #include <nucleus/internal.h>
 
-#include <nucleus/gl/forward_impl.h>
-#include <nucleus/gl/canvas_impl.h>
-#include <nucleus/gl/shadow_impl.h>
+#include <nucleus/graphics/gl/forward_impl.h>
+#include <nucleus/graphics/gl/canvas_impl.h>
+#include <nucleus/graphics/gl/shadow_impl.h>
 
 static void
 nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,

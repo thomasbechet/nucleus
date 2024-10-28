@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 #ifdef NU_BUILD_GRAPHICS_GL
-#include <nucleus/gl/gl_impl.h>
+#include <nucleus/graphics/gl/gl_impl.h>
 #endif
 
 static void

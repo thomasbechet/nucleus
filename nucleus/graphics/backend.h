@@ -7,7 +7,7 @@
 #ifndef NU_BUILD_PLATFORM
 #error "GL graphics backend requires platform module"
 #endif
-#include <nucleus/gl/gl.h>
+#include <nucleus/graphics/gl/gl.h>
 #endif
 
 #endif
