@@ -5,7 +5,7 @@
 
 typedef struct
 {
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_t gl;
 #endif
     nu_size_t      capacity;

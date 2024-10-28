@@ -1,6 +1,6 @@
 #ifndef NU_FONT_DATA_H
 #define NU_FONT_DATA_H
-#include <nucleus/core/config.h>
+#include <nucleus/core/api.h>
 #define NU__FONT_DATA_WIDTH  7
 #define NU__FONT_DATA_HEIGHT 8
 static const nu_byte_t nu__font_data_chars[]

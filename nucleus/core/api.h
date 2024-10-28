@@ -1,15 +1,194 @@
 #ifndef NU_CORE_API_H
 #define NU_CORE_API_H
 
-#include <nucleus/core/config.h>
+//////////////////////////////////////////////////////////////////////////
+//////                         Configuration                        //////
+//////////////////////////////////////////////////////////////////////////
+
+#include <nucleus/config.h>
+
+//////////////////////////////////////////////////////////////////////////
+//////                       Platform Detection                     //////
+//////////////////////////////////////////////////////////////////////////
+
+#if (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__) \
+     || defined(_WIN32))
+#define NU_PLATFORM_WINDOWS
+#elif defined(__linux__) || defined(__unix__)
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE // Ensure ppoll definition for glfw
+#endif
+#define NU_PLATFORM_UNIX
+#elif defined(__APPLE__)
+#define NU_PLATFORM_APPLE
+#endif
+
+#ifdef __cplusplus
+#define NU_CXX
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                         External Includes                    //////
+//////////////////////////////////////////////////////////////////////////
+
+#define NU_STDLIB
+#ifdef NU_STDLIB
+#include <stdlib.h>
+#include <stdint.h>
+#include <assert.h>
+#include <stdarg.h>
+#include <string.h>
+#include <stdio.h>
+#include <time.h>
+#include <libgen.h>
+#endif
+
+#if defined(NU_PLATFORM_WINDOWS)
+#define OEMRESOURCE
+#include <Windows.h>
+#include <errno.h>
+#elif defined(NU_PLATFORM_UNIX)
+#elif defined(NU_PLATFORM_APPLE)
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//////                     Import/Export Macros                     //////
+//////////////////////////////////////////////////////////////////////////
+
+#if defined(NU_PLATFORM_WINDOWS)
+
+#define NU_API_EXPORT __declspec(dllexport)
+#define NU_API_IMPORT __declspec(dllimport)
+#if defined(_MSC_VER)
+#define NU_ALIGN(X) __declspec(align(X))
+#else
+#define NU_ALIGN(X) __attribute((aligned(X)))
+#endif
+
+#elif defined(NU_PLATFORM_UNIX)
+
+#define NU_API_EXPORT __attribute__((visibility("default")))
+#define NU_API_IMPORT
+#define NU_ALIGN(X) __attribute((aligned(X)))
+
+#else
+
+#define NU_API_EXPORT
+#define NU_API_IMPORT
+#define NU_ALIGN(X)
+#pragma warning Unknown linkage directive import / export semantics.
+
+#endif
+
+#define NU_API NU_API_EXPORT
+
+//////////////////////////////////////////////////////////////////////////
+//////                            Macros                            //////
+//////////////////////////////////////////////////////////////////////////
+
+#define NU_BIG_ENDIAN (!*(unsigned char *)&(uint16_t) { 1 })
+
+#define NU_UNUSED(x)       (void)x
+#define NU_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define NU_ARRAY_FILL(arr, size, value)  \
+    for (nu_size_t i = 0; i < size; ++i) \
+    {                                    \
+        (arr)[i] = (value);              \
+    }
+
+#define NU_DEFINE_HANDLE(type)      typedef struct type *type
+#define NU_HANDLE_INDEX(handle)     (nu_size_t)((nu_intptr_t)handle - 1)
+#define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
+
+#if !defined(NU_NDEBUG) && defined(NU_STDLIB)
+#define NU_ASSERT(x) assert(x)
+#else
+#define NU_ASSERT(x) (void)(x)
+#endif
+
+#if !defined(NU_NDEBUG) && defined(NU_STDLIB)
+#define NU_ASSERT(x) assert(x)
+#else
+#define NU_ASSERT(x) (void)(x)
+#endif
+
+#define _NU_S(x)      #x
+#define _NU_S_(x)     _NU_S(x)
+#define _NU_S__LINE__ _NU_S_(__LINE__)
+
+#ifdef __FILE_NAME__
+#define __SOURCE__ __FILE_NAME__ ":" _NU_S__LINE__ " "
+#else
+#define __SOURCE__ ""
+#endif
+
+#ifdef NU_DEBUG
+#define _NU_CHECK(check, action, source) \
+    if (!(check))                        \
+    {                                    \
+        action;                          \
+    }
+#else
+#define _NU_CHECK(check, action, source) \
+    if (!(check))                        \
+    {                                    \
+        action;                          \
+    }
+#endif
+
+#define NU_CHECK(check, action) _NU_CHECK(check, action, __SOURCE__)
+
+#define NU_ERROR_CHECK(error, action) \
+    _NU_CHECK(error == NU_ERROR_NONE, action, __SOURCE__)
+#define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
+
+#define NU_UID(name) nu_hash(name)
+
+#define NU_MATCH(a, b) (nu_str_eq(a, b))
+#define NU_STR(str)                                          \
+    (nu_str_t)                                               \
+    {                                                        \
+        (nu_byte_t *)str, (sizeof(str) / sizeof(str[0])) - 1 \
+    }
+
+#ifdef NU_CXX
+#define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
+#else
+#define NU_VOID_CAST(type, expr) (expr)
+#endif
+
+#define NU_V2_FMT     "%lf %lf"
+#define NU_V2_ARGS(v) (v).x, (v).y
+#define NU_V3_FMT     "%lf %lf %lf"
+#define NU_V3_ARGS(v) (v).x, (v).y, (v).z
+#define NU_V4_FMT     "%lf %lf %lf %lf"
+#define NU_V4_ARGS(v) (v).x, (v).y, (v).z, (v).w
+#define NU_Q4_FMT     NU_V4_FMT
+#define NU_Q4_ARGS(q) NU_V4_ARGS(q)
+
+#define NU_STR_FMT       "%.*s"
+#define NU_STR_ARGS(str) (int)str.size, str.data
+#define NU_STR_BUF(name, size)   \
+    nu_byte_t name##_data[size]; \
+    nu_str_t  name = nu_str(name##_data, size);
+
+#define NU_DEBUG(format, ...) \
+    nu_log(NU_LOG_DEBUG, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_INFO(format, ...) \
+    nu_log(NU_LOG_INFO, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_WARNING(format, ...) \
+    nu_log(NU_LOG_WARNING, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+#define NU_ERROR(format, ...) \
+    nu_log(NU_LOG_ERROR, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////
+//////                            Constants                         //////
+//////////////////////////////////////////////////////////////////////////
 
 #define NU_TRUE  1
 #define NU_FALSE 0
 #define NU_NULL  0
 #define NU_NOOP
-
-NU_DEFINE_HANDLE(nu_table_t);
-NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 #define NU_DEFAULT_ALIGN  16
 #define NU_COLOR_WHITE    nu_color(255, 255, 255, 0)
@@ -55,44 +234,9 @@ NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_V2_FMT     "%lf %lf"
-#define NU_V2_ARGS(v) (v).x, (v).y
-#define NU_V3_FMT     "%lf %lf %lf"
-#define NU_V3_ARGS(v) (v).x, (v).y, (v).z
-#define NU_V4_FMT     "%lf %lf %lf %lf"
-#define NU_V4_ARGS(v) (v).x, (v).y, (v).z, (v).w
-#define NU_Q4_FMT     NU_V4_FMT
-#define NU_Q4_ARGS(q) NU_V4_ARGS(q)
-
-#define NU_STR_FMT       "%.*s"
-#define NU_STR_ARGS(str) (int)str.size, str.data
-#define NU_STR_BUF(name, size)   \
-    nu_byte_t name##_data[size]; \
-    nu_str_t  name = nu_str(name##_data, size);
-
-#define NU_DEBUG(format, ...) \
-    nu_log(NU_LOG_DEBUG, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
-#define NU_INFO(format, ...) \
-    nu_log(NU_LOG_INFO, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
-#define NU_WARNING(format, ...) \
-    nu_log(NU_LOG_WARNING, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
-#define NU_ERROR(format, ...) \
-    nu_log(NU_LOG_ERROR, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
-
-#define NU_UID(name) nu_hash(name)
-
-#define NU_MATCH(a, b) (nu_str_eq(a, b))
-#define NU_STR(str)                                          \
-    (nu_str_t)                                               \
-    {                                                        \
-        (nu_byte_t *)str, (sizeof(str) / sizeof(str[0])) - 1 \
-    }
-
-#ifdef NU_CXX
-#define NU_VOID_CAST(type, expr) (static_cast<decltype(type)>(expr))
-#else
-#define NU_VOID_CAST(type, expr) (expr)
-#endif
+//////////////////////////////////////////////////////////////////////////
+//////                        Data Structures                       //////
+//////////////////////////////////////////////////////////////////////////
 
 #define NU_VEC(type)               \
     struct                         \
@@ -208,6 +352,13 @@ NU_DEFINE_HANDLE(nu_fixedloop_t);
          : NU_NULL)
 
 #define NU_POOL_REMOVE(s, index) ((*NU_VEC_PUSH(&(s)->_freelist)) = (index))
+
+//////////////////////////////////////////////////////////////////////////
+//////                          Core Types                          //////
+//////////////////////////////////////////////////////////////////////////
+
+NU_DEFINE_HANDLE(nu_table_t);
+NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;

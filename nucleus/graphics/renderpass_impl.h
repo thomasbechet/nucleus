@@ -28,7 +28,7 @@ nu_renderpass_create (nu_renderpass_type_t type)
             pass->shadow.camera = NU_NULL;
             break;
     }
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_init(pass);
 #endif
     return NU_HANDLE_MAKE(nu_renderpass_t, index);
@@ -37,7 +37,7 @@ void
 nu_renderpass_delete (nu_renderpass_t pass)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_free(p);
 #endif
     NU_POOL_REMOVE(&_ctx.graphics.passes, NU_HANDLE_INDEX(pass));
@@ -46,14 +46,14 @@ void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_reset(p);
 #endif
 }
 void
 nu_renderpass_submit (nu_renderpass_t pass)
 {
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_submit(pass);
 #endif
 #ifdef NU_BUILD_UTILS
@@ -110,7 +110,7 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
     p->depth_target     = texture;
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     if (p->type == NU_RENDERPASS_SHADOW)
     {
         nugl__shadow_set_depth_map(p, texture);
@@ -123,7 +123,7 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
     NU_ASSERT(p->type == NU_RENDERPASS_FORWARD);
     p->forward.mode = mode;
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_set_shade(p);
 #endif
 }
@@ -145,7 +145,7 @@ nu_draw_submesh_instanced (nu_renderpass_t pass,
                            nu_size_t       instance_count)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__draw_submesh_instanced(
         p, mesh, first, count, material, transforms, instance_count);
 #endif
@@ -175,7 +175,7 @@ nu_draw_blit (nu_renderpass_t pass,
               nu_material_t   material)
 {
     nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__draw_blit(p, extent, tex_extent, material);
 #endif
 }

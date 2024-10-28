@@ -12,7 +12,7 @@ nu_texture_create (nu_texture_type_t type, nu_v3u_t size)
 
     ptex->type = type;
     ptex->size = size;
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_init(ptex);
 #endif
     return handle;
@@ -21,7 +21,7 @@ void
 nu_texture_delete (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
 #endif
     NU_POOL_REMOVE(&_ctx.graphics.textures, NU_HANDLE_INDEX(texture));
@@ -30,7 +30,7 @@ void
 nu_texture_write_colors (nu_texture_t texture, const nu_color_t *colors)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_write_colors(tex, colors);
 #endif
 }
@@ -40,7 +40,7 @@ nu_texture_write_cubemap_colors (nu_texture_t      cubemap,
                                  const nu_color_t *colors)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(cubemap);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_write_cubemap_colors(tex, face, colors);
 #endif
 }

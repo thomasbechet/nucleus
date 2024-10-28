@@ -94,7 +94,7 @@ NU_API void nu_seria_open_file(nu_seria_t        seria,
 NU_API void nu_seria_open_bytes(nu_seria_t        seria,
                                 nu_seria_io_t     mode,
                                 nu_seria_format_t format,
-                                const nu_byte_t  *bytes,
+                                nu_byte_t        *bytes,
                                 nu_size_t         size);
 NU_API void nu_seria_close(nu_seria_t seria);
 

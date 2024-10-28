@@ -1,0 +1,18 @@
+#ifndef NU_CONFIG_H
+#define NU_CONFIG_H
+
+#define NU_BUILD_PLATFORM
+#define NU_BUILD_GRAPHICS
+#define NU_BUILD_GRAPHICS_GL
+#define NU_BUILD_UTILS
+#define NU_BUILD_IMPORTER
+#define NU_BUILD_STBIMAGE
+#define NU_BUILD_CGLTF
+#define NU_BUILD_JSMN
+#define NU_BUILD_ASSET
+#define NU_BUILD_UI
+#define NU_BUILD_PHYSICS
+#define NU_BUILD_ECS
+#define NU_BUILD_SERIA
+
+#endif

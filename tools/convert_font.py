@@ -42,7 +42,7 @@ for c in ascii:
 
 print("#ifndef NU_FONT_DATA_H")
 print("#define NU_FONT_DATA_H")
-print("#include <nucleus/core/config.h>")
+print("#include <nucleus/core/api.h>")
 print("#define NU__FONT_DATA_WIDTH ", w);
 print("#define NU__FONT_DATA_HEIGHT", h);
 print("static const nu_byte_t nu__font_data_chars[] = {", ','.join(['0x{:02x}'.format(x) for x in bytes(ascii, 'utf-8')]), "};")

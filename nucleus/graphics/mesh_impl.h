@@ -10,7 +10,7 @@ nu_mesh_create (nu_primitive_t primitive, nu_size_t count)
     nu__mesh_t *mesh = NU_POOL_ADD(&_ctx.graphics.meshes, &index);
     mesh->primitive  = primitive;
     mesh->capacity   = count;
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_init(mesh);
 #endif
     return NU_HANDLE_MAKE(nu_mesh_t, index);
@@ -19,7 +19,7 @@ void
 nu_mesh_delete (nu_mesh_t mesh)
 {
     nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_free(pmesh);
 #endif
     NU_POOL_REMOVE(&_ctx.graphics.meshes, NU_HANDLE_INDEX(mesh));
@@ -32,7 +32,7 @@ nu_mesh_write_uvs (nu_mesh_t      mesh,
 {
     NU_ASSERT(mesh);
     nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_write_uvs(pmesh, first, count, data);
 #endif
 }
@@ -45,7 +45,7 @@ nu_mesh_write_positions (nu_mesh_t      mesh,
     NU_ASSERT(mesh);
     nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
     NU_ASSERT(first + count <= pmesh->capacity);
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_write_positions(pmesh, first, count, data);
 #endif
 }

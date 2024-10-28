@@ -83,7 +83,7 @@ nu__seria_json_object_member (nu_str_t         json,
 static void
 nu__seria_json_open (nu__seria_json_t *j,
                      nu_seria_io_t     io,
-                     const nu_byte_t  *bytes,
+                     nu_byte_t        *bytes,
                      nu_size_t         size)
 {
     NU_ASSERT(io == NU_SERIA_READ);

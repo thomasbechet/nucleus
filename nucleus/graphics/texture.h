@@ -6,7 +6,7 @@
 
 typedef struct
 {
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_t gl;
 #endif
     nu_v3u_t          size;

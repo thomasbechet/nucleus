@@ -17,7 +17,7 @@ typedef struct
 
 typedef struct
 {
-#ifdef NU_BUILD_GL
+#ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_t gl;
 #endif
     nu_renderpass_type_t type;
