@@ -64,8 +64,12 @@ typedef struct
     NU_VEC(nu__seria_type_t) types;
 } nu__seria_t;
 
-static nu_byte_t *nu__seria_bytes_load_file(nu_str_t filename, nu_size_t *size);
-static void       nu__seria_init(void);
-static void       nu__seria_free(void);
+static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);
+static void       nu__seria_write_bytes(nu_str_t         filename,
+                                        const nu_byte_t *bytes,
+                                        nu_size_t        size);
+
+static void nu__seria_init(void);
+static void nu__seria_free(void);
 
 #endif

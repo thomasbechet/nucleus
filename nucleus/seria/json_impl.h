@@ -92,10 +92,11 @@ nu__seria_json_open (nu__seria_json_t *j,
     j->toks = nu__seria_json_parse(j->json, &j->toks_capa, &j->toks_size);
     NU_ASSERT(j->toks);
 }
-static void
+static nu_size_t
 nu__seria_json_close (nu__seria_json_t *j)
 {
     nu_free(j->toks, sizeof(*j->toks) * j->toks_capa);
+    return 0;
 }
 
 static void

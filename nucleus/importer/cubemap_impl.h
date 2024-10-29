@@ -11,7 +11,7 @@ nuext_cubemap_load_filename (nu_str_t filename)
     NU_ARRAY_FILL(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
     nu_size_t  json_size;
-    nu_byte_t *json_buf = nu__seria_bytes_load_file(filename, &json_size);
+    nu_byte_t *json_buf = nu__seria_load_bytes(filename, &json_size);
     nu_str_t   json     = nu_str(json_buf, json_size);
     NU_CHECK(json_buf, goto cleanup0);
     nu_size_t  toks_size, toks_count;

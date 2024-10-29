@@ -333,22 +333,23 @@ init (void)
 
     nu_seria_dump_types();
 
-    player_t        player[2];
-    nu_seria_type_t player_type = nu_seria_type(NU_STR("player"));
-    nu_seria_t      seria       = nu_seria_create();
-    nu_seria_open_file(seria,
-                       NU_SERIA_READ,
-                       NU_SERIA_JSON,
-                       NU_STR("../../../assets/player.json"));
-    nu_seria_seek(seria, NU_NULL);
-    nu_size_t n = nu_seria_read(seria, player_type, 1, player + 0);
-    NU_ASSERT(n == 1);
-    n = nu_seria_read(seria, player_type, 1, player + 1);
-    NU_ASSERT(n == 1);
-    n = nu_seria_read(seria, player_type, 1, player + 1);
-    NU_ASSERT(n == 0);
-    nu_seria_dump_values(player_type, 2, &player);
-    nu_seria_close(seria);
+    transform_t transform;
+    transform.position          = NU_V3_ZEROS;
+    transform.scale             = NU_V3_ONES;
+    transform.rotation          = nu_q4_identity();
+    transform.subtype.quat      = nu_q4_identity();
+    transform.subtype.hello     = 0xFFFFFFFF;
+    transform.subtype.vector    = NU_V3_ONES;
+    transform.subtype.component = COMP_TRANSFORM;
+
+    nu_byte_t bytes[256];
+    nu_memset(bytes, 0, 256);
+    nu_seria_t ser = nu_seria_create();
+    nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, 256);
+    nu_seria_buffer_t buf = nu_seria_write(
+        ser, nu_seria_type(NU_STR("transform")), 1, &transform);
+    nu_size_t n = nu_seria_close(ser);
+    nu__seria_write_bytes(NU_STR("dump.bin"), bytes, n);
 }
 
 void

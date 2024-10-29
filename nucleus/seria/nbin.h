@@ -5,12 +5,13 @@
 
 typedef struct
 {
-    nu_byte_t *bytes;
-    nu_size_t  bytes_size;
+    nu_seria_io_t mode;
+    nu_byte_t    *bytes;
+    nu_size_t     bytes_size;
 
-    nu_size_t root;
-    nu_size_t it;
-    nu_size_t it_remaining;
+    nu_seria_buffer_t root;
+    nu_byte_t        *it;
+    nu_byte_t        *end;
 } nu__seria_nbin_t;
 
 #endif

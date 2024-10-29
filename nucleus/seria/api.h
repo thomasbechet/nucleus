@@ -87,26 +87,25 @@ NU_API void nu_seria_dump_values(nu_seria_type_t type,
                                  nu_size_t       count,
                                  void           *data);
 
-NU_API void nu_seria_open_file(nu_seria_t        seria,
-                               nu_seria_io_t     mode,
-                               nu_seria_format_t format,
-                               nu_str_t          filename);
-NU_API void nu_seria_open_bytes(nu_seria_t        seria,
-                                nu_seria_io_t     mode,
-                                nu_seria_format_t format,
-                                nu_byte_t        *bytes,
-                                nu_size_t         size);
-NU_API void nu_seria_close(nu_seria_t seria);
+NU_API void      nu_seria_open_file(nu_seria_t        seria,
+                                    nu_seria_io_t     mode,
+                                    nu_seria_format_t format,
+                                    nu_str_t          filename);
+NU_API void      nu_seria_open_bytes(nu_seria_t        seria,
+                                     nu_seria_io_t     mode,
+                                     nu_seria_format_t format,
+                                     nu_byte_t        *bytes,
+                                     nu_size_t         size);
+NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
 NU_API void      nu_seria_seek(nu_seria_t seria, nu_seria_buffer_t buffer);
 NU_API nu_size_t nu_seria_read(nu_seria_t      seria,
                                nu_seria_type_t type,
                                nu_size_t       count,
                                void           *data);
-NU_API void nu_seria_write_root(nu_seria_t seria, nu_seria_buffer_t buffer);
 NU_API nu_seria_buffer_t nu_seria_write(nu_seria_t      seria,
                                         nu_seria_type_t type,
                                         nu_size_t       count,
-                                        void           *data);
+                                        const void     *data);
 
 #endif
