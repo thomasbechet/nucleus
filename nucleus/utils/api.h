@@ -1,7 +1,11 @@
 #ifndef NU_UTILS_API_H
 #define NU_UTILS_API_H
 
+#include <nucleus/platform/api.h>
 #include <nucleus/graphics/api.h>
+#ifdef NU_BUILD_UTILS_SERIA
+#include <nucleus/seria/api.h>
+#endif
 
 NU_DEFINE_HANDLE(nu_geometry_t);
 NU_DEFINE_HANDLE(nu_controller_t);
@@ -44,6 +48,11 @@ NU_API nu_mesh_t     nu_geometry_create_mesh(nu_geometry_t  geometry,
                                              nu_primitive_t primitive);
 NU_API nu_mesh_t     nu_geometry_create_mesh_normals(nu_geometry_t geometry);
 NU_API nu_b3_t       nu_geometry_bounds(nu_geometry_t geometry);
+#ifdef NU_BUILD_UTILS_SERIA
+NU_API nu_seria_buffer_t nu_geometry_write(nu_geometry_t geometry,
+                                           nu_seria_t    seria);
+NU_API void nu_geometry_read(nu_geometry_t geometry, nu_seria_t seria);
+#endif
 
 NU_API void nu_draw_stats(nu_renderpass_t pass, nu_font_t font, nu_v2i_t pos);
 

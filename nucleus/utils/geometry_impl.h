@@ -1,6 +1,7 @@
 #ifndef NU_GEOMETRY_IMPL_H
 #define NU_GEOMETRY_IMPL_H
 
+#include "nucleus/seria/api.h"
 #include <nucleus/internal.h>
 
 static nu__primitive_type_t *
@@ -464,5 +465,19 @@ nu_geometry_bounds (nu_geometry_t geometry)
     }
     return nu_b3(min, max);
 }
+#ifdef NU_BUILD_UTILS_SERIA
+nu_seria_buffer_t
+nu_geometry_write (nu_geometry_t geometry, nu_seria_t seria)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+    nu_seria_buffer_t buffer = nu_seria_begin_write(seria, NU_NULL);
+    return buffer;
+}
+void
+nu_geometry_read (nu_geometry_t geometry, nu_seria_t seria)
+{
+    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
+}
+#endif
 
 #endif

@@ -1,3 +1,4 @@
+#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -110,42 +111,26 @@ init (void)
 {
     nuext_import_package(NU_STR("../../../assets/pkg.json"));
 
-    NU_SERIA_ENUM("component",
-                  component_t,
-                  NU_SERIA_ENUM_VALUE("transform", COMP_TRANSFORM);
-                  NU_SERIA_ENUM_VALUE("player", COMP_PLAYER););
+    NU_SERIA_ENUM(
+        "component", component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
+        NU_SERIA_VALUE("player", COMP_PLAYER););
     NU_SERIA_STRUCT(
-        "subtype",
-        subtype_t,
-        NU_SERIA_STRUCT_FIELD(
-            "hello", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, hello);
-        NU_SERIA_STRUCT_FIELD(
-            "vector", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, vector);
-        NU_SERIA_STRUCT_FIELD("quat", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, quat);
-        NU_SERIA_STRUCT_FIELD("component",
-                              nu_seria_type(NU_STR("component")),
-                              1,
-                              NU_SERIA_REQUIRED,
-                              component););
+        "subtype", subtype_t, NU_SERIA_FIELD("hello", NU_SERIA_U32, 1, hello);
+        NU_SERIA_FIELD("vector", NU_SERIA_V3, 1, vector);
+        NU_SERIA_FIELD("quat", NU_SERIA_Q4, 1, quat);
+        NU_SERIA_FIELD(
+            "component", nu_seria_type(NU_STR("component")), 1, component););
     NU_SERIA_STRUCT(
         "transform",
         transform_t,
-        NU_SERIA_STRUCT_FIELD(
-            "position", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, position);
-        NU_SERIA_STRUCT_FIELD(
-            "rotation", NU_SERIA_Q4, 1, NU_SERIA_REQUIRED, rotation);
-        NU_SERIA_STRUCT_FIELD(
-            "scale", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, scale);
-        NU_SERIA_STRUCT_FIELD("subtype",
-                              nu_seria_type(NU_STR("subtype")),
-                              1,
-                              NU_SERIA_REQUIRED,
-                              subtype););
+        NU_SERIA_FIELD("position", NU_SERIA_V3, 1, position);
+        NU_SERIA_FIELD("rotation", NU_SERIA_Q4, 1, rotation);
+        NU_SERIA_FIELD("scale", NU_SERIA_V3, 1, scale);
+        NU_SERIA_FIELD(
+            "subtype", nu_seria_type(NU_STR("subtype")), 1, subtype););
     NU_SERIA_STRUCT(
-        "player",
-        player_t,
-        NU_SERIA_STRUCT_FIELD("stat", NU_SERIA_U32, 1, NU_SERIA_REQUIRED, stat);
-        NU_SERIA_STRUCT_FIELD("v", NU_SERIA_V3, 1, NU_SERIA_REQUIRED, v));
+        "player", player_t, NU_SERIA_FIELD("stat", NU_SERIA_U32, 1, stat);
+        NU_SERIA_FIELD("v", NU_SERIA_V3, 1, v));
 
     nu_seria_dump_types();
 
@@ -342,14 +327,32 @@ init (void)
     transform.subtype.vector    = NU_V3_ONES;
     transform.subtype.component = COMP_TRANSFORM;
 
-    nu_byte_t bytes[256];
-    nu_memset(bytes, 0, 256);
-    nu_seria_t ser = nu_seria_create();
-    nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, 256);
-    nu_seria_buffer_t buf = nu_seria_write(
-        ser, nu_seria_type(NU_STR("transform")), 1, &transform);
+    const nu_size_t bytes_size = 1 << 14;
+    nu_byte_t      *bytes      = nu_alloc(bytes_size);
+    nu_seria_t      ser        = nu_seria_create();
+    nu_seria_type_t type       = nu_seria_type(NU_STR("transform"));
+
+    nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
+    nu_seria_buffer_t buf = nu_seria_begin_write(ser, type);
+    for (nu_size_t i = 0; i < 128; ++i)
+    {
+        nu_seria_write(ser, 1, &transform);
+    }
     nu_size_t n = nu_seria_close(ser);
+
     nu__seria_write_bytes(NU_STR("dump.bin"), bytes, n);
+
+    nu_memset(&transform, 0, sizeof(transform));
+    nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, bytes_size);
+    n = nu_seria_begin_read(ser, type, NU_NULL);
+    NU_ASSERT(n == 128);
+    for (nu_size_t i = 0; i < n; ++i)
+    {
+        nu_seria_read(ser, 1, &transform);
+    }
+    nu_seria_close(ser);
+
+    nu_seria_dump_values(type, 1, &transform);
 }
 
 void

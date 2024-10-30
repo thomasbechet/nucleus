@@ -46,7 +46,7 @@ typedef struct
 {
     nu_seria_format_t format;
     nu_bool_t         opened;
-    nu_seria_io_t     mode;
+    nu_seria_mode_t   mode;
     nu_byte_t        *bytes;
     nu_size_t         bytes_size;
     union

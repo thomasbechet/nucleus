@@ -82,11 +82,11 @@ nu__seria_json_object_member (nu_str_t         json,
 
 static void
 nu__seria_json_open (nu__seria_json_t *j,
-                     nu_seria_io_t     io,
+                     nu_seria_mode_t   mode,
                      nu_byte_t        *bytes,
                      nu_size_t         size)
 {
-    NU_ASSERT(io == NU_SERIA_READ);
+    NU_ASSERT(mode == NU_SERIA_READ);
     j->json = nu_str((nu_byte_t *)bytes, size);
     // parse file
     j->toks = nu__seria_json_parse(j->json, &j->toks_capa, &j->toks_size);
@@ -239,8 +239,10 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
     }
 }
 
-static void
-nu__seria_json_seek (nu__seria_json_t *j, nu_seria_buffer_t buffer)
+static nu_size_t
+nu__seria_json_begin_read (nu__seria_json_t *j,
+                           nu_seria_type_t   type,
+                           nu_seria_buffer_t buffer)
 {
     // construct name
     NU_STR_BUF(name_buf, 32);
@@ -258,33 +260,33 @@ nu__seria_json_seek (nu__seria_json_t *j, nu_seria_buffer_t buffer)
     if (j->toks_size == 0 || j->toks[0].type != JSMN_OBJECT)
     {
         NU_ERROR("malformed json");
-        return;
+        return 0;
     }
     const jsmntok_t *tok = nu__seria_json_object_member(j->json, j->toks, name);
     if (!tok)
     {
         NU_ERROR("buffer index '" NU_STR_FMT "' not found", NU_STR_ARGS(name));
-        return;
+        return 0;
     }
     if (tok->type != JSMN_ARRAY)
     {
         NU_ERROR("invalid root object type (must be an array)");
-        return;
+        return 0;
     }
     if (tok->size == 0)
     {
-        return; // empty buffer
+        return 0; // empty buffer
     }
     j->it           = tok + 1; // first array item
     j->it_remaining = tok->size;
+    j->type         = type;
+    return tok->size;
 }
 static nu_size_t
-nu__seria_json_read (nu__seria_json_t *j,
-                     nu_seria_type_t   type,
-                     nu_size_t         count,
-                     void             *data)
+nu__seria_json_read (nu__seria_json_t *j, nu_size_t count, void *data)
 {
-    const nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    const nu__seria_type_t *t
+        = _ctx.seria.types.data + NU_HANDLE_INDEX(j->type);
     NU_ASSERT(j->it);
 
     // parse objects
