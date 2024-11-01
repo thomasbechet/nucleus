@@ -197,14 +197,14 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
                              NU_STR_ARGS(field->name));
                     return;
                 }
-                if (field->count > 1 && child_tok->type != JSMN_ARRAY)
+                if (field->size > 1 && child_tok->type != JSMN_ARRAY)
                 {
                     NU_ERROR("field count > 1 but token is not an array");
                     return;
                 }
                 const nu__seria_type_t *subtype
                     = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
-                for (nu_size_t i = 0; i < field->count; ++i)
+                for (nu_size_t i = 0; i < field->size; ++i)
                 {
                     nu_byte_t *ptr = data + field->offset + i * subtype->size;
                     nu__seria_json_parse_value(j, subtype, child_tok, ptr);

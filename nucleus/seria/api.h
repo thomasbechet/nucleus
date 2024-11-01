@@ -77,7 +77,7 @@ NU_API nu_seria_type_t nu_seria_register_struct(nu_str_t name, nu_size_t size);
 NU_API void            nu_seria_register_struct_field(nu_seria_type_t type,
                                                       nu_str_t        name,
                                                       nu_seria_type_t fieldtype,
-                                                      nu_size_t       count,
+                                                      nu_size_t       size,
                                                       nu_seria_flag_t flags,
                                                       nu_size_t       offset);
 NU_API nu_seria_type_t nu_seria_register_enum(nu_str_t name, nu_size_t size);
@@ -88,7 +88,7 @@ NU_API nu_seria_type_t nu_seria_type(nu_str_t name);
 
 NU_API void nu_seria_dump_types(void);
 NU_API void nu_seria_dump_values(nu_seria_type_t type,
-                                 nu_size_t       count,
+                                 nu_size_t       size,
                                  void           *data);
 
 NU_API void      nu_seria_open_file(nu_seria_t        seria,
@@ -105,9 +105,9 @@ NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 NU_API nu_size_t nu_seria_begin_read(nu_seria_t        seria,
                                      nu_seria_type_t   type,
                                      nu_seria_buffer_t buffer);
-NU_API nu_size_t nu_seria_read(nu_seria_t seria, nu_size_t count, void *data);
+NU_API nu_size_t nu_seria_read(nu_seria_t seria, nu_size_t size, void *data);
 NU_API nu_seria_buffer_t nu_seria_begin_write(nu_seria_t      seria,
                                               nu_seria_type_t type);
-NU_API void nu_seria_write(nu_seria_t seria, nu_size_t count, const void *data);
+NU_API void nu_seria_write(nu_seria_t seria, nu_size_t size, const void *data);
 
 #endif

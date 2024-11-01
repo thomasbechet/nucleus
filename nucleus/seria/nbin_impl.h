@@ -196,7 +196,7 @@ nu__seria_nbin_read_value (nu__seria_nbin_t       *nbin,
                 const nu__seria_struct_field_t *field = t->fields.data + f;
                 const nu__seria_type_t         *subtype
                     = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
-                for (nu_size_t i = 0; i < field->count; ++i)
+                for (nu_size_t i = 0; i < field->size; ++i)
                 {
                     nu_byte_t *ptr = data + field->offset + i * subtype->size;
                     nu__seria_nbin_read_value(nbin, subtype, ptr);
@@ -252,11 +252,11 @@ nu__seria_nbin_begin_read (nu__seria_nbin_t *nbin,
     return size;
 }
 static nu_size_t
-nu__seria_nbin_read (nu__seria_nbin_t *nbin, nu_size_t count, void *data)
+nu__seria_nbin_read (nu__seria_nbin_t *nbin, nu_size_t size, void *data)
 {
     nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(nbin->type);
     nu_size_t         n;
-    for (n = 0; n < count; ++n)
+    for (n = 0; n < size; ++n)
     {
         if (nbin->it + n * t->size >= nbin->end)
         {
@@ -315,7 +315,7 @@ nu__seria_nbin_write_value (nu__seria_nbin_t       *nbin,
                 const nu__seria_struct_field_t *field = t->fields.data + f;
                 const nu__seria_type_t         *subtype
                     = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
-                for (nu_size_t i = 0; i < field->count; ++i)
+                for (nu_size_t i = 0; i < field->size; ++i)
                 {
                     const nu_byte_t *ptr
                         = data + field->offset + i * subtype->size;
@@ -346,27 +346,27 @@ nu__seria_nbin_begin_write (nu__seria_nbin_t *nbin, nu_seria_type_t type)
     nu_seria_buffer_t buffer = NU_HANDLE_MAKE(
         nu_seria_buffer_t, (nu_size_t)nbin->it - (nu_size_t)nbin->bytes);
     nbin->start = nbin->it;
-    // write buffer count
-    nu_u32_t count = 0;
-    nbin->it += nu__nbin_write_u32(nbin->it, &count, 1);
+    // write buffer size
+    nu_u32_t size = 0;
+    nbin->it += nu__nbin_write_u32(nbin->it, &size, 1);
     nbin->type = type;
     return buffer;
 }
 static void
-nu__seria_nbin_write (nu__seria_nbin_t *nbin, nu_size_t count, const void *data)
+nu__seria_nbin_write (nu__seria_nbin_t *nbin, nu_size_t size, const void *data)
 {
     nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(nbin->type);
     // write buffer
-    for (nu_size_t i = 0; i < count; ++i)
+    for (nu_size_t i = 0; i < size; ++i)
     {
         nu__seria_nbin_write_value(
             nbin, t, (const nu_byte_t *)data + t->size * i);
     }
-    // update buffer count
-    nu_u32_t size;
-    nu__nbin_read_u32(&size, nbin->start, 1);
-    size += count;
-    nu__nbin_write_u32(nbin->start, &size, 1);
+    // update buffer size
+    nu_u32_t s;
+    nu__nbin_read_u32(&s, nbin->start, 1);
+    s += size;
+    nu__nbin_write_u32(nbin->start, &s, 1);
 }
 
 #endif

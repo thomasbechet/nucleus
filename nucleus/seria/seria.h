@@ -19,7 +19,7 @@ typedef struct
     nu_str_t        name;
     nu_seria_type_t type;
     nu_size_t       offset;
-    nu_size_t       count;
+    nu_size_t       size;
     nu_seria_flag_t flags;
 } nu__seria_struct_field_t;
 
