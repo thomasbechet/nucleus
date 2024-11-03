@@ -348,4 +348,17 @@ nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
     return nu__ecs_iter_next(ins, it);
 }
 
+#ifdef NU_BUILD_ECS_SERIA
+nu_seria_buffer_t
+nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
+{
+    nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
+    return NU_NULL;
+}
+void
+nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
+{
+}
+#endif
+
 #endif

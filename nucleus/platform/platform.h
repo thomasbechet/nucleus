@@ -66,7 +66,6 @@ typedef NU_POOL(nu__input_entry_t) nu__input_pool_t;
 
 typedef struct
 {
-    nu_bool_t close_requested;
 
     nu__input_pool_t   entries;
     nu__binding_pool_t bindings;

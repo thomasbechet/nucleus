@@ -9,6 +9,7 @@ typedef struct
     nu_app_callback_t free;
     nu_app_callback_t update;
     float             deltatime;
+    nu_bool_t         close_requested;
 } nu__app_t;
 
 #endif

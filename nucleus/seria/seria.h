@@ -46,9 +46,13 @@ typedef struct
 {
     nu_seria_format_t format;
     nu_bool_t         opened;
+    nu_bool_t         owned;
     nu_seria_mode_t   mode;
     nu_byte_t        *bytes;
-    nu_size_t         bytes_size;
+    nu_byte_t        *end;
+    nu_byte_t        *ptr;
+    nu_seria_type_t   buf_type;
+    nu_size_t         buf_remaining_size;
     union
     {
         nu__seria_nbin_t nbin;
@@ -56,11 +60,11 @@ typedef struct
         nu__seria_json_t json;
 #endif
     };
-} nu__seria_instance_t;
+} nu__seria_ctx_t;
 
 typedef struct
 {
-    NU_POOL(nu__seria_instance_t) instances;
+    NU_POOL(nu__seria_ctx_t) instances;
     NU_VEC(nu__seria_type_t) types;
 } nu__seria_t;
 
@@ -68,6 +72,10 @@ static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);
 static void       nu__seria_write_bytes(nu_str_t         filename,
                                         const nu_byte_t *bytes,
                                         nu_size_t        size);
+
+static void     nu__seria_seek(nu__seria_ctx_t *ctx, nu_size_t offset);
+static nu_u32_t nu__seria_read_4b(nu__seria_ctx_t *ctx);
+static void     nu__seria_write_4b(nu__seria_ctx_t *ctx, nu_u32_t v);
 
 static void nu__seria_init(void);
 static void nu__seria_free(void);

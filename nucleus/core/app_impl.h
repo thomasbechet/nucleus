@@ -19,13 +19,23 @@ nu_app_update_callback (nu_app_callback_t callback)
     _ctx.core.app.update = callback;
 }
 
+nu_bool_t
+nu_exit_requested (void)
+{
+    return _ctx.core.app.close_requested;
+}
+void
+nu_request_stop (void)
+{
+    _ctx.core.app.close_requested = NU_TRUE;
+}
 float
 nu_deltatime (void)
 {
     return _ctx.core.app.deltatime;
 }
 
-void nu_main(void);
+void nu_app(void);
 
 int
 main (int argc, char *argv[])
@@ -33,15 +43,16 @@ main (int argc, char *argv[])
     nu_error_t error;
 
     // Initialise app configuration
-    _ctx.core.app.init      = NU_NULL;
-    _ctx.core.app.update    = NU_NULL;
-    _ctx.core.app.deltatime = 0;
+    _ctx.core.app.init            = NU_NULL;
+    _ctx.core.app.update          = NU_NULL;
+    _ctx.core.app.deltatime       = 0;
+    _ctx.core.app.close_requested = NU_FALSE;
 #ifdef NU_BUILD_PLATFORM
     _ctx.platform.size = nu_v2u(640, 400);
 #endif
 
     // User app configuration
-    nu_main();
+    nu_app();
 
     // Initialize modules
 

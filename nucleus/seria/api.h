@@ -33,6 +33,20 @@ NU_DEFINE_HANDLE(nu_seria_t);
 NU_DEFINE_HANDLE(nu_seria_type_t);
 NU_DEFINE_HANDLE(nu_seria_buffer_t);
 
+#define NU_SERIA_BUF NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_BUF)
+#define NU_SERIA_U32 NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_U32)
+#define NU_SERIA_F32 NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_F32)
+#define NU_SERIA_V3  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_V3)
+#define NU_SERIA_Q4  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_Q4)
+
+#define NU_VEC_READ(v, ser, type, buffer)                         \
+    {                                                             \
+        NU_VEC_RESIZE(v, nu_seria_seek((ser), (type), (buffer))); \
+        nu_seria_read((ser), (v)->size, (v)->data);               \
+    }
+#define NU_VEC_WRITE(v, ser, type) \
+    nu_seria_alloc_write((ser), (type), (v)->size, (v)->data);
+
 typedef enum
 {
     NU_SERIA_READ,
@@ -63,12 +77,6 @@ typedef enum
 static nu_str_t nu_seria_primitive_names[] = {
     NU_STR("buf"), NU_STR("u32"), NU_STR("f32"), NU_STR("v3"), NU_STR("q4")
 };
-
-#define NU_SERIA_BUF NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_BUF)
-#define NU_SERIA_U32 NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_U32)
-#define NU_SERIA_F32 NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_F32)
-#define NU_SERIA_V3  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_V3)
-#define NU_SERIA_Q4  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_Q4)
 
 NU_API nu_seria_t nu_seria_create(void);
 NU_API void       nu_seria_delete(nu_seria_t seria);
@@ -102,12 +110,18 @@ NU_API void      nu_seria_open_bytes(nu_seria_t        seria,
                                      nu_size_t         size);
 NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
-NU_API nu_size_t nu_seria_begin_read(nu_seria_t        seria,
-                                     nu_seria_type_t   type,
-                                     nu_seria_buffer_t buffer);
-NU_API nu_size_t nu_seria_read(nu_seria_t seria, nu_size_t size, void *data);
-NU_API nu_seria_buffer_t nu_seria_begin_write(nu_seria_t      seria,
-                                              nu_seria_type_t type);
+NU_API nu_seria_buffer_t nu_seria_alloc(nu_seria_t      seria,
+                                        nu_seria_type_t type,
+                                        nu_size_t       size);
+NU_API nu_seria_buffer_t nu_seria_alloc_write(nu_seria_t      seria,
+                                              nu_seria_type_t type,
+                                              nu_size_t       size,
+                                              const void     *data);
 NU_API void nu_seria_write(nu_seria_t seria, nu_size_t size, const void *data);
+
+NU_API nu_size_t nu_seria_seek(nu_seria_t        seria,
+                               nu_seria_type_t   type,
+                               nu_seria_buffer_t buffer);
+NU_API nu_size_t nu_seria_read(nu_seria_t seria, nu_size_t size, void *data);
 
 #endif

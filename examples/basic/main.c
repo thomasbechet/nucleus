@@ -1,4 +1,3 @@
-#include "nucleus/seria/api.h"
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -319,7 +318,7 @@ init (void)
     nu_seria_dump_types();
 
     transform_t transform;
-    transform.position          = NU_V3_ZEROS;
+    transform.position          = nu_v3(1, 2, 3);
     transform.scale             = NU_V3_ONES;
     transform.rotation          = nu_q4_identity();
     transform.subtype.quat      = nu_q4_identity();
@@ -333,7 +332,7 @@ init (void)
     nu_seria_type_t type       = nu_seria_type(NU_STR("transform"));
 
     nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
-    nu_seria_buffer_t buf = nu_seria_begin_write(ser, type);
+    nu_seria_buffer_t buf = nu_seria_alloc(ser, type, 128);
     for (nu_size_t i = 0; i < 128; ++i)
     {
         nu_seria_write(ser, 1, &transform);
@@ -343,8 +342,8 @@ init (void)
     nu__seria_write_bytes(NU_STR("dump.bin"), bytes, n);
 
     nu_memset(&transform, 0, sizeof(transform));
-    nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, bytes_size);
-    n = nu_seria_begin_read(ser, type, NU_NULL);
+    nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, n);
+    n = nu_seria_seek(ser, type, NU_NULL);
     NU_ASSERT(n == 128);
     for (nu_size_t i = 0; i < n; ++i)
     {
@@ -409,7 +408,7 @@ physics_loop (nu_f32_t timestep)
 }
 
 void
-nu_main (void)
+nu_app (void)
 {
     nu_app_surface_size(WIDTH, HEIGHT);
     nu_app_init_callback(init);

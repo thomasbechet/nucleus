@@ -632,7 +632,9 @@ NU_API void nu_app_update_callback(nu_app_callback_t callback);
 NU_API void nu__panic(nu_str_t source, nu_str_t format, ...);
 NU_API void nu__vpanic(nu_str_t source, nu_str_t format, va_list args);
 
-NU_API float nu_deltatime(void);
+NU_API nu_bool_t nu_exit_requested(void);
+NU_API void      nu_request_stop(void);
+NU_API float     nu_deltatime(void);
 
 NU_API void nu_log(nu_log_level_t level, nu_str_t source, nu_str_t format, ...);
 NU_API void nu_vlog(nu_log_level_t level,

@@ -470,7 +470,7 @@ nu_seria_buffer_t
 nu_geometry_write (nu_geometry_t geometry, nu_seria_t seria)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
-    nu_seria_buffer_t buffer = nu_seria_begin_write(seria, NU_NULL);
+    nu_seria_buffer_t buffer = nu_seria_alloc(seria, NU_NULL, 123);
     return buffer;
 }
 void

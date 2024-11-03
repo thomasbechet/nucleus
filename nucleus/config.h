@@ -13,6 +13,7 @@
 #define NU_BUILD_UI
 #define NU_BUILD_PHYSICS
 #define NU_BUILD_ECS
+#define NU_BUILD_ECS_SERIA
 #define NU_BUILD_SERIA
 #define NU_BUILD_SERIA_JSON
 

@@ -14,7 +14,6 @@ nu__platform_init (void)
 
     // Initialize context
     NU_POOL_INIT(10, &_ctx.platform.entries);
-    _ctx.platform.close_requested = NU_FALSE;
 
     // Initialize surface (and inputs)
     const nu_int_t width  = NU__DEFAULT_WINDOW_WIDTH;
@@ -96,8 +95,10 @@ nu__platform_poll_events (void)
         _ctx.platform.mouse_motion = NU_V2_ZEROS;
 
         // Check close requested
-        _ctx.platform.close_requested
-            = RGFW_window_shouldClose(_ctx.platform.win);
+        if (RGFW_window_shouldClose(_ctx.platform.win))
+        {
+            nu_request_stop();
+        }
 
         // Process events
         while (RGFW_window_checkEvent(_ctx.platform.win))
@@ -231,16 +232,6 @@ nu__platform_poll_events (void)
             _ctx.platform.mouse_old_position = _ctx.platform.mouse_position;
         }
     }
-}
-nu_bool_t
-nu_exit_requested (void)
-{
-    return _ctx.platform.close_requested;
-}
-void
-nu_request_stop (void)
-{
-    _ctx.platform.close_requested = NU_TRUE;
 }
 
 #endif

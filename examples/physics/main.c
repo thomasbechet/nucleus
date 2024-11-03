@@ -479,7 +479,7 @@ update (void)
 }
 
 void
-nu_main (void)
+nu_app (void)
 {
     nu_app_surface_size(WIDTH, HEIGHT);
     nu_app_init_callback(init);
