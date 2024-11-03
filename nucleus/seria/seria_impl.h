@@ -1,7 +1,6 @@
 #ifndef NU_SERIA_IMPL_H
 #define NU_SERIA_IMPL_H
 
-#include "nucleus/seria/api.h"
 #include <nucleus/internal.h>
 
 #include <nucleus/seria/nbin_impl.h>
@@ -458,16 +457,13 @@ nu_seria_close (nu_seria_t seria)
     }
     if (ctx->mode == NU_SERIA_WRITE)
     {
-        return ctx->end - ctx->ptr;
+        return ctx->ptr - ctx->bytes;
     }
-    else
-    {
-        return 0;
-    }
+    return 0;
 }
 
 nu_seria_buffer_t
-nu_seria_alloc (nu_seria_t seria, nu_seria_type_t type, nu_size_t size)
+nu_seria_write_begin (nu_seria_t seria, nu_seria_type_t type, nu_size_t size)
 {
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
@@ -478,19 +474,9 @@ nu_seria_alloc (nu_seria_t seria, nu_seria_type_t type, nu_size_t size)
         case NU_SERIA_JSON:
             return NU_NULL;
         case NU_SERIA_NBIN:
-            return nu__seria_nbin_alloc(ctx, type, size);
+            return nu__seria_nbin_write_begin(ctx, type, size);
     }
     return NU_NULL;
-}
-nu_seria_buffer_t
-nu_seria_alloc_write (nu_seria_t      seria,
-                      nu_seria_type_t type,
-                      nu_size_t       size,
-                      const void     *data)
-{
-    nu_seria_buffer_t buf = nu_seria_alloc(seria, type, size);
-    nu_seria_write(seria, size, data);
-    return buf;
 }
 void
 nu_seria_write (nu_seria_t seria, nu_size_t size, const void *data)
@@ -509,8 +495,21 @@ nu_seria_write (nu_seria_t seria, nu_size_t size, const void *data)
     }
     ctx->buf_remaining_size -= size;
 }
+nu_seria_buffer_t
+nu_seria_write_immediate (nu_seria_t      seria,
+                          nu_seria_type_t type,
+                          nu_size_t       size,
+                          const void     *data)
+{
+    nu_seria_buffer_t buf = nu_seria_write_begin(seria, type, size);
+    nu_seria_write(seria, size, data);
+    return buf;
+}
+
 nu_size_t
-nu_seria_seek (nu_seria_t seria, nu_seria_type_t type, nu_seria_buffer_t buffer)
+nu_seria_read_begin (nu_seria_t        seria,
+                     nu_seria_type_t   type,
+                     nu_seria_buffer_t buffer)
 {
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
@@ -520,7 +519,8 @@ nu_seria_seek (nu_seria_t seria, nu_seria_type_t type, nu_seria_buffer_t buffer)
         case NU_SERIA_JSON:
             // return nu__seria_json_begin_read(&ctx->json, type, buffer);
         case NU_SERIA_NBIN:
-            ctx->buf_remaining_size = nu__seria_nbin_seek(ctx, type, buffer);
+            ctx->buf_remaining_size
+                = nu__seria_nbin_read_begin(ctx, type, buffer);
             break;
     }
     return ctx->buf_remaining_size;

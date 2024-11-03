@@ -39,13 +39,13 @@ NU_DEFINE_HANDLE(nu_seria_buffer_t);
 #define NU_SERIA_V3  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_V3)
 #define NU_SERIA_Q4  NU_HANDLE_MAKE(nu_seria_type_t, NU_SERIA_PRIMITIVE_Q4)
 
-#define NU_VEC_READ(v, ser, type, buffer)                         \
-    {                                                             \
-        NU_VEC_RESIZE(v, nu_seria_seek((ser), (type), (buffer))); \
-        nu_seria_read((ser), (v)->size, (v)->data);               \
+#define NU_VEC_READ(v, ser, type, buffer)                               \
+    {                                                                   \
+        NU_VEC_RESIZE(v, nu_seria_read_begin((ser), (type), (buffer))); \
+        nu_seria_read((ser), (v)->size, (v)->data);                     \
     }
 #define NU_VEC_WRITE(v, ser, type) \
-    nu_seria_alloc_write((ser), (type), (v)->size, (v)->data);
+    nu_seria_write_immediate((ser), (type), (v)->size, (v)->data);
 
 typedef enum
 {
@@ -110,18 +110,18 @@ NU_API void      nu_seria_open_bytes(nu_seria_t        seria,
                                      nu_size_t         size);
 NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
-NU_API nu_seria_buffer_t nu_seria_alloc(nu_seria_t      seria,
-                                        nu_seria_type_t type,
-                                        nu_size_t       size);
-NU_API nu_seria_buffer_t nu_seria_alloc_write(nu_seria_t      seria,
+NU_API nu_seria_buffer_t nu_seria_write_begin(nu_seria_t      seria,
                                               nu_seria_type_t type,
-                                              nu_size_t       size,
-                                              const void     *data);
+                                              nu_size_t       size);
 NU_API void nu_seria_write(nu_seria_t seria, nu_size_t size, const void *data);
+NU_API nu_seria_buffer_t nu_seria_write_immediate(nu_seria_t      seria,
+                                                  nu_seria_type_t type,
+                                                  nu_size_t       size,
+                                                  const void     *data);
 
-NU_API nu_size_t nu_seria_seek(nu_seria_t        seria,
-                               nu_seria_type_t   type,
-                               nu_seria_buffer_t buffer);
+NU_API nu_size_t nu_seria_read_begin(nu_seria_t        seria,
+                                     nu_seria_type_t   type,
+                                     nu_seria_buffer_t buffer);
 NU_API nu_size_t nu_seria_read(nu_seria_t seria, nu_size_t size, void *data);
 
 #endif

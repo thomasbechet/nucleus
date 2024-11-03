@@ -83,6 +83,8 @@ init (void)
     NU_VEC_READ(&transforms, ser, type, NU_NULL);
     NU_ASSERT(transforms.size == 14);
     nu_seria_close(ser);
+
+    nu_seria_dump_values(type, 1, transforms.data);
 }
 
 void

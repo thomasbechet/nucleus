@@ -61,31 +61,35 @@ nu__seria_nbin_read_buffer (nu__seria_ctx_t *ctx)
 static void
 nu__seria_nbin_open (nu__seria_ctx_t *ctx)
 {
+    ctx->nbin.root_buffer = NU_NULL;
     if (ctx->mode == NU_SERIA_READ)
     {
         // read root buffer
+        nu_size_t prev_offset = ctx->ptr - ctx->bytes;
+        nu__seria_seek(ctx, ctx->end - ctx->bytes - sizeof(nu_u32_t));
         ctx->nbin.root_buffer = nu__seria_nbin_read_buffer(ctx);
+        nu__seria_seek(ctx, prev_offset);
     }
     else
     {
-        // write base root buffer
-        nu__seria_write_4b(ctx, nu__seria_u32_le(0));
-        ctx->nbin.root_buffer = NU_NULL;
+        // write version
+        nu__seria_write_4b(ctx, nu__seria_u32_le(12345));
     }
 }
 static void
 nu__seria_nbin_close (nu__seria_ctx_t *ctx)
 {
-    // write root buffer
-    nu__seria_seek(ctx, 0);
-    if (ctx->nbin.root_buffer)
+    if (ctx->mode == NU_SERIA_WRITE)
     {
-        nu__seria_write_4b(
-            ctx, nu__seria_u32_le(NU_HANDLE_INDEX(ctx->nbin.root_buffer)));
-    }
-    else
-    {
-        nu__seria_write_4b(ctx, nu__seria_u32_le(0));
+        if (ctx->nbin.root_buffer)
+        {
+            nu__seria_write_4b(
+                ctx, nu__seria_u32_le(NU_HANDLE_INDEX(ctx->nbin.root_buffer)));
+        }
+        else
+        {
+            nu__seria_write_4b(ctx, nu__seria_u32_le(0));
+        }
     }
 }
 
@@ -168,9 +172,9 @@ nu__seria_nbin_write_value (nu__seria_ctx_t        *ctx,
     }
 }
 static nu_seria_buffer_t
-nu__seria_nbin_alloc (nu__seria_ctx_t *ctx,
-                      nu_seria_type_t  type,
-                      nu_size_t        size)
+nu__seria_nbin_write_begin (nu__seria_ctx_t *ctx,
+                            nu_seria_type_t  type,
+                            nu_size_t        size)
 {
     // create buffer handle
     nu_seria_buffer_t buffer = NU_HANDLE_MAKE(
@@ -268,9 +272,9 @@ nu__seria_nbin_read_value (nu__seria_ctx_t        *ctx,
     }
 }
 static nu_size_t
-nu__seria_nbin_seek (nu__seria_ctx_t  *ctx,
-                     nu_seria_type_t   type,
-                     nu_seria_buffer_t buffer)
+nu__seria_nbin_read_begin (nu__seria_ctx_t  *ctx,
+                           nu_seria_type_t   type,
+                           nu_seria_buffer_t buffer)
 {
     // read buffer offset
     buffer          = buffer ? buffer : ctx->nbin.root_buffer;

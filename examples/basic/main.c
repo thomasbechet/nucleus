@@ -332,7 +332,7 @@ init (void)
     nu_seria_type_t type       = nu_seria_type(NU_STR("transform"));
 
     nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
-    nu_seria_buffer_t buf = nu_seria_alloc(ser, type, 128);
+    nu_seria_buffer_t buf = nu_seria_write_begin(ser, type, 128);
     for (nu_size_t i = 0; i < 128; ++i)
     {
         nu_seria_write(ser, 1, &transform);
@@ -343,7 +343,7 @@ init (void)
 
     nu_memset(&transform, 0, sizeof(transform));
     nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, n);
-    n = nu_seria_seek(ser, type, NU_NULL);
+    n = nu_seria_read_begin(ser, type, NU_NULL);
     NU_ASSERT(n == 128);
     for (nu_size_t i = 0; i < n; ++i)
     {
