@@ -182,23 +182,21 @@ nu_ecs_capacity (nu_ecs_t ecs)
 }
 
 nu_ecs_id_t
-nu_ecs_register (nu_ecs_t ecs, nu_ecs_id_t id, nu_size_t size)
+nu_ecs_register (nu_ecs_t ecs, nu_size_t size)
 {
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
 
-    if (id >= ins->components.size)
-    {
-        NU_VEC_RESIZE(&ins->components, id + 1);
-    }
-
-    nu__ecs_comp_t *comp      = ins->components.data + id;
-    comp->size                = size;
-    comp->capa                = 10;
-    comp->data                = nu_alloc(size * comp->capa);
+    nu__ecs_comp_t *comp = NU_VEC_PUSH(&ins->components);
+    comp->size           = size;
+    comp->capa           = 10;
+    comp->data           = nu_alloc(size * comp->capa);
+#ifdef NU_BUILD_ECS_SERIA
+    comp->type = NU_NULL;
+#endif
     nu_size_t init_mask_count = (comp->capa / NU__ECS_ENTITY_PER_MASK) + 1;
     NU_VEC_INIT(init_mask_count, &comp->bitset);
 
-    return id;
+    return ins->components.size - 1;
 }
 void *
 nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
@@ -349,14 +347,23 @@ nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
 }
 
 #ifdef NU_BUILD_ECS_SERIA
-nu_seria_buffer_t
+nu_ecs_id_t
+nu_ecs_register_seria (nu_ecs_t ecs, nu_seria_type_t type)
+{
+    const nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    nu__ecs_instance_t *ins   = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
+    nu_ecs_id_t         id    = nu_ecs_register(ecs, t->size);
+    nu__ecs_comp_t     *comp  = ins->components.data + id;
+    comp->type                = type;
+    return id;
+}
+void
 nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
 {
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
-    return NU_NULL;
 }
 void
-nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
+nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria)
 {
 }
 #endif

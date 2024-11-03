@@ -13,6 +13,9 @@ typedef struct
     nu_size_t        capa;
     void            *data;
     nu__ecs_bitset_t bitset;
+#ifdef NU_BUILD_ECS_SERIA
+    nu_seria_type_t type;
+#endif
 } nu__ecs_comp_t;
 
 typedef struct

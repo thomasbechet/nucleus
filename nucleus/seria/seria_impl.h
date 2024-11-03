@@ -456,7 +456,14 @@ nu_seria_close (nu_seria_t seria)
             nu_free(ctx->bytes, ctx->end - ctx->bytes);
         }
     }
-    return ctx->end - ctx->bytes;
+    if (ctx->mode == NU_SERIA_WRITE)
+    {
+        return ctx->end - ctx->ptr;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 nu_seria_buffer_t

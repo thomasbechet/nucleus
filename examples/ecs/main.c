@@ -1,22 +1,17 @@
-#include "nucleus/seria/api.h"
 #include <build/examples/ecs/config.h>
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
 static nu_ecs_t ecs;
 
-typedef enum
-{
-    COMP_TRANSFORM,
-    COMP_PLAYER
-} component_t;
+static nu_ecs_id_t COMP_TRANSFORM;
+static nu_ecs_id_t COMP_PLAYER;
 
 typedef struct
 {
-    int         hello;
-    nu_v3_t     vector;
-    nu_q4_t     quat;
-    component_t component;
+    int     hello;
+    nu_v3_t vector;
+    nu_q4_t quat;
 } subtype_t;
 
 typedef struct
@@ -36,15 +31,10 @@ typedef struct
 void
 init (void)
 {
-    NU_SERIA_ENUM(
-        "component", component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
-        NU_SERIA_VALUE("player", COMP_PLAYER););
     NU_SERIA_STRUCT(
         "subtype", subtype_t, NU_SERIA_FIELD("hello", NU_SERIA_U32, 1, hello);
         NU_SERIA_FIELD("vector", NU_SERIA_V3, 1, vector);
-        NU_SERIA_FIELD("quat", NU_SERIA_Q4, 1, quat);
-        NU_SERIA_FIELD(
-            "component", nu_seria_type(NU_STR("component")), 1, component););
+        NU_SERIA_FIELD("quat", NU_SERIA_Q4, 1, quat););
     NU_SERIA_STRUCT(
         "transform",
         transform_t,
@@ -58,22 +48,24 @@ init (void)
         NU_SERIA_FIELD("v", NU_SERIA_V3, 1, v));
 
     ecs = nu_ecs_create();
+    COMP_TRANSFORM
+        = nu_ecs_register_seria(ecs, nu_seria_type(NU_STR("transform")));
+    COMP_PLAYER = nu_ecs_register_seria(ecs, nu_seria_type(NU_STR("player")));
 
     nu_seria_dump_types();
 
     NU_VEC(transform_t) transforms;
     NU_VEC_INIT(10, &transforms);
 
-    for (nu_size_t i = 0; i < 128; ++i)
+    for (nu_size_t i = 0; i < 14; ++i)
     {
-        transform_t *transform       = NU_VEC_PUSH(&transforms);
-        transform->position          = nu_v3(1, 2, 3);
-        transform->scale             = NU_V3_ONES;
-        transform->rotation          = nu_q4_identity();
-        transform->subtype.quat      = nu_q4_identity();
-        transform->subtype.hello     = 0xFFFFFFFF;
-        transform->subtype.vector    = NU_V3_ONES;
-        transform->subtype.component = COMP_TRANSFORM;
+        transform_t *transform    = NU_VEC_PUSH(&transforms);
+        transform->position       = nu_v3(1, 2, 3);
+        transform->scale          = NU_V3_ONES;
+        transform->rotation       = nu_q4_identity();
+        transform->subtype.quat   = nu_q4_identity();
+        transform->subtype.hello  = 0xFFFFFFFF;
+        transform->subtype.vector = NU_V3_ONES;
     }
 
     const nu_size_t bytes_size = 1 << 14;
@@ -89,7 +81,7 @@ init (void)
 
     nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, n);
     NU_VEC_READ(&transforms, ser, type, NU_NULL);
-    NU_ASSERT(transforms.size == 128);
+    NU_ASSERT(transforms.size == 14);
     nu_seria_close(ser);
 }
 
