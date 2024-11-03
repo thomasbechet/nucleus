@@ -113,6 +113,11 @@ nu__seria_nbin_write_value (nu__seria_ctx_t        *ctx,
                     nu__seria_write_4b(ctx, nu__seria_u32_le(offset));
                 }
                 break;
+                case NU_SERIA_PRIMITIVE_BYTE: {
+                    nu_byte_t value = *(nu_byte_t *)data;
+                    nu__seria_write_1b(ctx, value);
+                }
+                break;
                 case NU_SERIA_PRIMITIVE_U32: {
                     nu_u32_t value = *(nu_u32_t *)data;
                     nu__seria_write_4b(ctx, nu__seria_u32_le(value));
@@ -212,6 +217,11 @@ nu__seria_nbin_read_value (nu__seria_ctx_t        *ctx,
                 case NU_SERIA_PRIMITIVE_BUF: {
                     nu_seria_buffer_t *buffer = (nu_seria_buffer_t *)data;
                     *buffer                   = nu__seria_nbin_read_buffer(ctx);
+                }
+                break;
+                case NU_SERIA_PRIMITIVE_BYTE: {
+                    nu_byte_t *p = (nu_byte_t *)data;
+                    *p           = nu__seria_read_1b(ctx);
                 }
                 break;
                 case NU_SERIA_PRIMITIVE_U32: {

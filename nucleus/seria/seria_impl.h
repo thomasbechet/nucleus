@@ -11,9 +11,9 @@
 static nu_byte_t *
 nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
 {
-    char fn[256];
+    nu_byte_t fn[256];
     nu_str_to_cstr(filename, fn, 256);
-    FILE *f = fopen(fn, "rb");
+    FILE *f = fopen((char *)fn, "rb");
     if (!f)
     {
         NU_ERROR("failed to open file " NU_STR_FMT, NU_STR_ARGS(filename));
@@ -32,9 +32,9 @@ nu__seria_write_bytes (nu_str_t         filename,
                        const nu_byte_t *bytes,
                        nu_size_t        size)
 {
-    char fn[256];
+    nu_byte_t fn[256];
     nu_str_to_cstr(filename, fn, 256);
-    FILE *f = fopen(fn, "w");
+    FILE *f = fopen((char *)fn, "w");
     if (!f)
     {
         NU_ERROR("failed to open file " NU_STR_FMT, NU_STR_ARGS(filename));
@@ -57,6 +57,7 @@ static void
 nu__seria_register_primitive_types (void)
 {
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_BUF, nu_seria_buffer_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_BYTE, nu_byte_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_U32, nu_u32_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_F32, nu_f32_t);
     NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_V3, nu_v3_t);
@@ -276,6 +277,10 @@ nu__seria_dump (nu_size_t       depth,
                         }
                     }
                     break;
+                    case NU_SERIA_PRIMITIVE_BYTE:
+                        nu__seria_print_with_depth(
+                            depth, NU_STR("%d"), *(nu_u8_t *)ptr);
+                        break;
                     case NU_SERIA_PRIMITIVE_U32:
                         nu__seria_print_with_depth(
                             depth, NU_STR("%d"), *(nu_u32_t *)ptr);
@@ -351,6 +356,18 @@ nu__seria_seek (nu__seria_ctx_t *ctx, nu_size_t offset)
 {
     ctx->ptr = ctx->bytes + offset;
 }
+static nu_byte_t
+nu__seria_read_1b (nu__seria_ctx_t *ctx)
+{
+    if (ctx->ptr >= ctx->end)
+    {
+        NU_ERROR("invalid read");
+        return 0;
+    }
+    nu_byte_t val = *(const nu_byte_t *)ctx->ptr;
+    ctx->ptr += sizeof(nu_byte_t);
+    return val;
+}
 static nu_u32_t
 nu__seria_read_4b (nu__seria_ctx_t *ctx)
 {
@@ -362,6 +379,17 @@ nu__seria_read_4b (nu__seria_ctx_t *ctx)
     nu_u32_t val = *(const nu_u32_t *)ctx->ptr;
     ctx->ptr += sizeof(nu_u32_t);
     return val;
+}
+static void
+nu__seria_write_1b (nu__seria_ctx_t *ctx, nu_byte_t v)
+{
+    if (ctx->ptr >= ctx->end)
+    {
+        NU_ERROR("invalid read");
+        return;
+    }
+    *(nu_byte_t *)ctx->ptr = v;
+    ctx->ptr += sizeof(nu_byte_t);
 }
 static void
 nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)

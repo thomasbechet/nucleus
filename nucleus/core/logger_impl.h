@@ -41,9 +41,9 @@ nu_vlog (nu_log_level_t level, nu_str_t source, nu_str_t format, va_list args)
             break;
     }
     fprintf(stdout, "\x1B[90m" NU_STR_FMT "\x1B[0m", NU_STR_ARGS(source));
-    char buf[256];
+    nu_byte_t buf[256];
     nu_str_to_cstr(format, buf, 256);
-    vfprintf(stdout, buf, args);
+    vfprintf(stdout, (char *)buf, args);
     fprintf(stdout, "\n");
 }
 

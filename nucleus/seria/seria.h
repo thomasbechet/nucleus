@@ -73,9 +73,11 @@ static void       nu__seria_write_bytes(nu_str_t         filename,
                                         const nu_byte_t *bytes,
                                         nu_size_t        size);
 
-static void     nu__seria_seek(nu__seria_ctx_t *ctx, nu_size_t offset);
-static nu_u32_t nu__seria_read_4b(nu__seria_ctx_t *ctx);
-static void     nu__seria_write_4b(nu__seria_ctx_t *ctx, nu_u32_t v);
+static void      nu__seria_seek(nu__seria_ctx_t *ctx, nu_size_t offset);
+static nu_byte_t nu__seria_read_1b(nu__seria_ctx_t *ctx);
+static nu_u32_t  nu__seria_read_4b(nu__seria_ctx_t *ctx);
+static void      nu__seria_write_1b(nu__seria_ctx_t *ctx, nu_byte_t v);
+static void      nu__seria_write_4b(nu__seria_ctx_t *ctx, nu_u32_t v);
 
 static void nu__seria_init(void);
 static void nu__seria_free(void);

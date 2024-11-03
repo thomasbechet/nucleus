@@ -4,9 +4,9 @@
 #include <nucleus/internal.h>
 
 static nu_size_t
-nu__cstr_len (const char *str)
+nu__cstr_len (const nu_byte_t *str)
 {
-    const char *p = str;
+    const nu_byte_t *p = str;
     while (*p)
     {
         p++;
@@ -22,16 +22,16 @@ nu_str (nu_byte_t *bytes, nu_size_t n)
     return str;
 }
 nu_str_t
-nu_str_from_cstr (char *s)
+nu_str_from_cstr (nu_byte_t *s)
 {
-    return nu_str((nu_byte_t *)s, nu__cstr_len(s));
+    return nu_str(s, nu__cstr_len(s));
 }
 void
-nu_str_to_cstr (nu_str_t str, char *chars, nu_size_t n)
+nu_str_to_cstr (nu_str_t str, nu_byte_t *chars, nu_size_t n)
 {
     NU_ASSERT(str.size < n);
     nu_memset(chars, 0, n);
-    nu_memcpy(chars, str.data, str.size);
+    nu_memcpy(chars, str.data, NU_MIN(str.size, n - 1));
 }
 nu_bool_t
 nu_str_eq (nu_str_t s1, nu_str_t s2)
@@ -68,10 +68,10 @@ nu_bool_t
 nu_str_to_u32 (nu_str_t s, nu_u32_t *v)
 {
 #ifdef NU_STDLIB
-    char  buf[32];
-    char *nptr = NU_NULL;
+    nu_byte_t  buf[32];
+    nu_byte_t *nptr = NU_NULL;
     nu_str_to_cstr(s, buf, 32);
-    *v = strtoul(buf, &nptr, 10);
+    *v = strtoul((char *)buf, (char **)&nptr, 10);
     return !*nptr;
 #endif
 }
@@ -79,10 +79,10 @@ nu_bool_t
 nu_str_to_i32 (nu_str_t s, nu_i32_t *v)
 {
 #ifdef NU_STDLIB
-    char  buf[32];
-    char *nptr = NU_NULL;
+    nu_byte_t  buf[32];
+    nu_byte_t *nptr = NU_NULL;
     nu_str_to_cstr(s, buf, 32);
-    *v = strtol(buf, &nptr, 10);
+    *v = strtol((char *)buf, (char **)&nptr, 10);
     return !*nptr;
 #endif
 }
@@ -90,10 +90,10 @@ nu_bool_t
 nu_str_to_f32 (nu_str_t s, nu_f32_t *v)
 {
 #ifdef NU_STDLIB
-    char  buf[32];
-    char *nptr = NU_NULL;
+    nu_byte_t  buf[32];
+    nu_byte_t *nptr = NU_NULL;
     nu_str_to_cstr(s, buf, 32);
-    *v = strtof(buf, &nptr);
+    *v = strtof((char *)buf, (char **)&nptr);
     return !*nptr;
 #endif
 }
@@ -120,13 +120,13 @@ nu_str_vfmt (nu_str_t buf, nu_str_t format, va_list args)
 nuext_extension_t
 nuext_path_extension (nu_str_t filename)
 {
-    const char *dot
-        = strrchr((const char *)filename.data, '.'); // safe with utf-8
-    if (!dot || dot == (const char *)filename.data)
+    const nu_byte_t *dot = (nu_byte_t *)strrchr((const char *)filename.data,
+                                                '.'); // safe with utf-8
+    if (!dot || dot == (const nu_byte_t *)filename.data)
     {
         return NUEXT_EXTENSION_UNKNOWN;
     }
-    nu_str_t ext = nu_str_from_cstr((char *)dot + 1);
+    nu_str_t ext = nu_str_from_cstr((nu_byte_t *)dot + 1);
     if (NU_MATCH(ext, NU_STR("gltf")))
     {
         return NUEXT_EXTENSION_GLTF;

@@ -134,6 +134,8 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
         case NU__SERIA_PRIMITIVE: {
             switch (t->primitive)
             {
+                case NU_SERIA_PRIMITIVE_BYTE:
+                    break;
                 case NU_SERIA_PRIMITIVE_BUF: {
                     if (tok->type != JSMN_PRIMITIVE)
                     {

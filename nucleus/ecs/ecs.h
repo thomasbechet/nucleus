@@ -21,7 +21,7 @@ typedef struct
 #ifdef NU_BUILD_ECS_SERIA
 typedef struct
 {
-    nu_u32_t          hash;
+    nu_byte_t         name[64];
     nu_seria_buffer_t entities;
     nu_seria_buffer_t data;
 } nu__ecs_comp_dto_t;
@@ -49,6 +49,9 @@ typedef struct
 typedef struct
 {
     NU_POOL(nu__ecs_instance_t) instances;
+#ifdef NU_BUILD_ECS_SERIA
+    nu_seria_type_t component_type;
+#endif
 } nu__ecs_t;
 
 static void nu__ecs_init(void);

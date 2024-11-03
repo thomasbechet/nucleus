@@ -90,11 +90,12 @@ nu__ecs_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ecs.instances);
 #ifdef NU_BUILD_ECS_SERIA
-    NU_SERIA_STRUCT("ecs_component",
+    NU_SERIA_STRUCT(NU_ECS_COMPONENT_TYPE_NAME,
                     nu__ecs_comp_dto_t,
-                    NU_SERIA_FIELD("hash", NU_SERIA_U32, 1, hash);
+                    NU_SERIA_FIELD("name", NU_SERIA_BYTE, 64, name);
                     NU_SERIA_FIELD("entities", NU_SERIA_BUF, 1, entities);
                     NU_SERIA_FIELD("data", NU_SERIA_BUF, 1, data));
+    _ctx.ecs.component_type = nu_seria_type(NU_STR(NU_ECS_COMPONENT_TYPE_NAME));
 #endif
 }
 static void
@@ -159,6 +160,17 @@ nu_ecs_add (nu_ecs_t ecs)
     nu__ecs_bitset_set(&ins->bitset, index);
 
     return index + 1;
+}
+void
+nu_ecs_add_at (nu_ecs_t ecs, nu_ecs_id_t id)
+{
+    NU_ASSERT(id);
+    nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
+    if (nu_ecs_valid(ecs, id))
+    {
+        return;
+    }
+    nu__ecs_bitset_set(&ins->bitset, id - 1);
 }
 void
 nu_ecs_remove (nu_ecs_t ecs, nu_ecs_id_t e)
