@@ -18,6 +18,15 @@ typedef struct
 #endif
 } nu__ecs_comp_t;
 
+#ifdef NU_BUILD_ECS_SERIA
+typedef struct
+{
+    nu_u32_t          hash;
+    nu_seria_buffer_t entities;
+    nu_seria_buffer_t data;
+} nu__ecs_comp_dto_t;
+#endif
+
 typedef struct
 {
     NU_VEC(nu_ecs_id_t)
@@ -44,5 +53,9 @@ typedef struct
 
 static void nu__ecs_init(void);
 static void nu__ecs_free(void);
+
+static nu_size_t nu__ecs_bitset_count(const nu__ecs_bitset_t *bitset);
+static nu_bool_t nu__ecs_bitset_isset(const nu__ecs_bitset_t *bitset,
+                                      nu_size_t               index);
 
 #endif

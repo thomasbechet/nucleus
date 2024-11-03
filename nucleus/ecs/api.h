@@ -34,8 +34,10 @@ NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
 #ifdef NU_BUILD_ECS_SERIA
 NU_API nu_ecs_id_t nu_ecs_register_seria(nu_ecs_t ecs, nu_seria_type_t type);
-NU_API void        nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
-NU_API void        nu_ecs_read(nu_ecs_t ecs, nu_seria_t seria);
+NU_API nu_seria_buffer_t nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
+NU_API void              nu_ecs_read(nu_ecs_t          ecs,
+                                     nu_seria_t        seria,
+                                     nu_seria_buffer_t buffer);
 #endif
 
 #endif

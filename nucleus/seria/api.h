@@ -93,6 +93,7 @@ NU_API void            nu_seria_register_enum_value(nu_seria_type_t type,
                                                     nu_str_t        name,
                                                     nu_u32_t        value);
 NU_API nu_seria_type_t nu_seria_type(nu_str_t name);
+NU_API nu_str_t        nu_seria_name(nu_seria_type_t type);
 
 NU_API void nu_seria_dump_types(void);
 NU_API void nu_seria_dump_values(nu_seria_type_t type,

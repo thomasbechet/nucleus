@@ -176,8 +176,14 @@ nu_seria_type (nu_str_t name)
     }
     return NU_NULL;
 }
-void
+nu_str_t
+nu_seria_name (nu_seria_type_t type)
+{
+    const nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
+    return t->name;
+}
 
+void
 nu_seria_dump_types (void)
 {
     for (nu_size_t i = 0; i < _ctx.seria.types.size; ++i)
@@ -465,6 +471,7 @@ nu_seria_close (nu_seria_t seria)
 nu_seria_buffer_t
 nu_seria_write_begin (nu_seria_t seria, nu_seria_type_t type, nu_size_t size)
 {
+    NU_ASSERT(seria);
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
     ctx->buf_type           = type;
@@ -481,6 +488,7 @@ nu_seria_write_begin (nu_seria_t seria, nu_seria_type_t type, nu_size_t size)
 void
 nu_seria_write (nu_seria_t seria, nu_size_t size, const void *data)
 {
+    NU_ASSERT(seria);
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
     size = NU_MIN(ctx->buf_remaining_size, size);
@@ -501,6 +509,7 @@ nu_seria_write_immediate (nu_seria_t      seria,
                           nu_size_t       size,
                           const void     *data)
 {
+    NU_ASSERT(seria);
     nu_seria_buffer_t buf = nu_seria_write_begin(seria, type, size);
     nu_seria_write(seria, size, data);
     return buf;
@@ -511,6 +520,7 @@ nu_seria_read_begin (nu_seria_t        seria,
                      nu_seria_type_t   type,
                      nu_seria_buffer_t buffer)
 {
+    NU_ASSERT(seria);
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
     ctx->buf_type = type;
@@ -528,6 +538,7 @@ nu_seria_read_begin (nu_seria_t        seria,
 nu_size_t
 nu_seria_read (nu_seria_t seria, nu_size_t size, void *data)
 {
+    NU_ASSERT(seria);
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
     size = NU_MIN(ctx->buf_remaining_size, size);

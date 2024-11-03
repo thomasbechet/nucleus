@@ -2,6 +2,7 @@
 #define NU_ECS_IMPL_H
 
 #include <nucleus/internal.h>
+#include <nucleus/ecs/seria_impl.h>
 
 static void
 nu__ecs_mask_set (nu__ecs_mask_t *bitset, nu_size_t n)
@@ -73,11 +74,28 @@ nu__ecs_bitset_mask (const nu__ecs_bitset_t *bitset, nu_size_t mask_index)
     }
     return bitset->data[mask_index];
 }
+static nu_size_t
+nu__ecs_bitset_count (const nu__ecs_bitset_t *bitset)
+{
+    nu_size_t n = 0;
+    for (nu_size_t i = 0; i < bitset->size; ++i)
+    {
+        n += nu__ecs_mask_count(bitset->data[i]);
+    }
+    return n;
+}
 
 static void
 nu__ecs_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ecs.instances);
+#ifdef NU_BUILD_ECS_SERIA
+    NU_SERIA_STRUCT("ecs_component",
+                    nu__ecs_comp_dto_t,
+                    NU_SERIA_FIELD("hash", NU_SERIA_U32, 1, hash);
+                    NU_SERIA_FIELD("entities", NU_SERIA_BUF, 1, entities);
+                    NU_SERIA_FIELD("data", NU_SERIA_BUF, 1, data));
+#endif
 }
 static void
 nu__ecs_free (void)
@@ -345,27 +363,5 @@ nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
     nu__ecs_iter_t     *it  = ins->iters.data + iter;
     return nu__ecs_iter_next(ins, it);
 }
-
-#ifdef NU_BUILD_ECS_SERIA
-nu_ecs_id_t
-nu_ecs_register_seria (nu_ecs_t ecs, nu_seria_type_t type)
-{
-    const nu__seria_type_t *t = _ctx.seria.types.data + NU_HANDLE_INDEX(type);
-    nu__ecs_instance_t *ins   = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
-    nu_ecs_id_t         id    = nu_ecs_register(ecs, t->size);
-    nu__ecs_comp_t     *comp  = ins->components.data + id;
-    comp->type                = type;
-    return id;
-}
-void
-nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
-{
-    nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
-}
-void
-nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria)
-{
-}
-#endif
 
 #endif
