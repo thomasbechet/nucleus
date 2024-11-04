@@ -42,8 +42,6 @@ typedef struct
     NU_VEC(nu__ecs_comp_t) components;
     NU_VEC(nu__ecs_iter_t) iters;
     nu__ecs_bitset_t bitset;
-    NU_VEC(nu_size_t) free_entities;
-    nu_size_t next;
 } nu__ecs_instance_t;
 
 typedef struct

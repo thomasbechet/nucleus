@@ -43,7 +43,8 @@ nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
         {
             if (nu__ecs_bitset_isset(&comp->bitset, i))
             {
-                nu_seria_write(seria, 1, nu_ecs_get(ecs, i + 1, c));
+                void *data = nu_ecs_get(ecs, i + 1, c);
+                nu_seria_write(seria, 1, data);
             }
         }
 
@@ -54,7 +55,7 @@ nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
         {
             if (nu__ecs_bitset_isset(&comp->bitset, i))
             {
-                nu_ecs_id_t id = i;
+                nu_ecs_id_t id = i + 1;
                 nu_seria_write(seria, 1, &id);
             }
         }
@@ -77,7 +78,12 @@ nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
 void
 nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
 {
+    nu_ecs_clear(ecs);
+
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
+
+    NU_VEC(nu_ecs_id_t) entities;
+    NU_VEC_INIT(64, &entities);
 
     nu__ecs_comp_dto_t dtos[256];
     nu_size_t          dto_count
@@ -92,7 +98,8 @@ nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
 
         // find registered component
         const nu__ecs_comp_t *comp = NU_NULL;
-        nu_str_t dto_name          = nu_str_from_cstr((nu_byte_t *)dto->name);
+        nu_ecs_id_t           comp_id;
+        nu_str_t dto_name = nu_str_from_cstr((nu_byte_t *)dto->name);
         for (nu_size_t c = 0; c < ins->components.size; ++c)
         {
             const nu__ecs_comp_t *component = ins->components.data + c;
@@ -100,7 +107,8 @@ nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
             {
                 if (nu_str_eq(dto_name, nu_seria_name(component->type)))
                 {
-                    comp = component;
+                    comp    = component;
+                    comp_id = c;
                     break;
                 }
             }
@@ -113,28 +121,25 @@ nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria, nu_seria_buffer_t buffer)
         }
 
         // create entities (if missing)
-        nu_size_t entity_count
-            = nu_seria_read_begin(seria, NU_SERIA_U32, dto->entities);
-        NU_VEC(nu_ecs_id_t) entities;
-        NU_VEC_INIT(entity_count, &entities);
         NU_VEC_READ(&entities, seria, NU_SERIA_U32, dto->entities);
-        for (nu_size_t e = 0; e < entity_count; ++e)
+        for (nu_size_t e = 0; e < entities.size; ++e)
         {
             nu_ecs_id_t id = entities.data[e];
-            if (!nu_ecs_valid(ecs, e))
-            {
-                nu_ecs_add_at(ecs, id);
-            }
+            nu_ecs_add_at(ecs, id);
         }
-        NU_VEC_FREE(&entities);
 
         // create component
         nu_size_t component_count
             = nu_seria_read_begin(seria, comp->type, dto->data);
+        NU_ASSERT(component_count == entities.size);
         for (nu_size_t c = 0; c < component_count; ++c)
         {
+            nu_ecs_set(ecs, entities.data[c], comp_id);
+            nu_seria_read(seria, 1, nu_ecs_get(ecs, entities.data[c], comp_id));
         }
     }
+
+    NU_VEC_FREE(&entities);
 }
 #endif
 

@@ -20,6 +20,7 @@ NU_API void        nu_ecs_remove(nu_ecs_t ecs, nu_ecs_id_t e);
 NU_API nu_bool_t   nu_ecs_valid(nu_ecs_t ecs, nu_ecs_id_t e);
 NU_API nu_size_t   nu_ecs_count(nu_ecs_t ecs);
 NU_API nu_size_t   nu_ecs_capacity(nu_ecs_t ecs);
+NU_API void        nu_ecs_clear(nu_ecs_t ecs);
 
 NU_API nu_ecs_id_t nu_ecs_register(nu_ecs_t ecs, nu_size_t size);
 NU_API void       *nu_ecs_set(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);

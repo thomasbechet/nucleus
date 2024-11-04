@@ -218,7 +218,7 @@ nu_seria_dump_types (void)
                             pf->size,
                             flags,
                             pf->offset,
-                            subtype->size);
+                            subtype->size * pf->size);
                 }
                 NU_INFO("}");
                 break;

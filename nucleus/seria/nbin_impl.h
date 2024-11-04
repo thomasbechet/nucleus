@@ -69,6 +69,9 @@ nu__seria_nbin_open (nu__seria_ctx_t *ctx)
         nu__seria_seek(ctx, ctx->end - ctx->bytes - sizeof(nu_u32_t));
         ctx->nbin.root_buffer = nu__seria_nbin_read_buffer(ctx);
         nu__seria_seek(ctx, prev_offset);
+
+        // read version
+        nu__seria_read_4b(ctx);
     }
     else
     {

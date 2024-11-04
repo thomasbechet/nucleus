@@ -84,6 +84,25 @@ nu__ecs_bitset_count (const nu__ecs_bitset_t *bitset)
     }
     return n;
 }
+static nu_size_t
+nu__ecs_bitset_find_unset (const nu__ecs_bitset_t *bitset)
+{
+    for (nu_size_t i = 0; i < bitset->size; ++i)
+    {
+        nu__ecs_mask_t mask = bitset->data[i];
+        if (bitset->data[i] != 0xFFFFFFFF)
+        {
+            nu_size_t index = 0;
+            while (mask & 0x1)
+            {
+                mask >>= 1;
+                ++index;
+            }
+            return i * NU__ECS_ENTITY_PER_MASK + index;
+        }
+    }
+    return bitset->size * NU__ECS_ENTITY_PER_MASK;
+}
 
 static void
 nu__ecs_init (void)
@@ -112,8 +131,6 @@ nu_ecs_create (void)
     NU_VEC_INIT(64, &ins->components);
     NU_VEC_INIT(64, &ins->iters);
     NU_VEC_INIT(64, &ins->bitset);
-    NU_VEC_INIT(64, &ins->free_entities);
-    ins->next = 0;
     return NU_HANDLE_MAKE(nu_ecs_t, index);
 }
 void
@@ -138,7 +155,6 @@ nu_ecs_delete (nu_ecs_t ecs)
     }
     NU_VEC_FREE(&ins->iters);
     NU_VEC_FREE(&ins->bitset);
-    NU_VEC_FREE(&ins->free_entities);
     NU_POOL_REMOVE(&_ctx.ecs.instances, NU_HANDLE_INDEX(ecs));
 }
 
@@ -147,16 +163,7 @@ nu_ecs_add (nu_ecs_t ecs)
 {
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
 
-    nu_size_t index;
-    if (ins->free_entities.size)
-    {
-        index = *NU_VEC_POP(&ins->free_entities);
-    }
-    else
-    {
-        index = ins->next++;
-    }
-
+    nu_size_t index = nu__ecs_bitset_find_unset(&ins->bitset);
     nu__ecs_bitset_set(&ins->bitset, index);
 
     return index + 1;
@@ -187,8 +194,6 @@ nu_ecs_remove (nu_ecs_t ecs, nu_ecs_id_t e)
 
     // mask entity as invalid
     nu__ecs_bitset_unset(&ins->bitset, index);
-
-    *NU_VEC_PUSH(&ins->free_entities) = index;
 }
 nu_bool_t
 nu_ecs_valid (nu_ecs_t ecs, nu_ecs_id_t e)
@@ -202,13 +207,25 @@ nu_size_t
 nu_ecs_count (nu_ecs_t ecs)
 {
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
-    return nu_ecs_capacity(ecs) - ins->free_entities.size;
+    return nu__ecs_bitset_count(&ins->bitset);
 }
 nu_size_t
 nu_ecs_capacity (nu_ecs_t ecs)
 {
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
-    return ins->next;
+    return ins->bitset.size * NU__ECS_ENTITY_PER_MASK;
+}
+void
+nu_ecs_clear (nu_ecs_t ecs)
+{
+    nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
+    for (nu_size_t i = 0; i < ins->components.size; ++i)
+    {
+        nu__ecs_comp_t *comp = ins->components.data + i;
+        comp->size           = 0;
+        NU_VEC_CLEAR(&comp->bitset);
+    }
+    NU_VEC_CLEAR(&ins->bitset);
 }
 
 nu_ecs_id_t
@@ -322,8 +339,7 @@ nu__ecs_iter_next (const nu__ecs_instance_t *ins, nu__ecs_iter_t *it)
     while (!it->mask)
     {
         ++it->mask_index;
-        const nu_size_t max_mask_count
-            = (ins->next / NU__ECS_ENTITY_PER_MASK) + 1;
+        const nu_size_t max_mask_count = ins->bitset.size;
         if (it->mask_index >= max_mask_count)
         {
             // reach last mask
