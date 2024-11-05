@@ -13,7 +13,7 @@ typedef struct
 
     const jsmntok_t *it;
     nu_size_t        it_remaining;
-    nu_seria_type_t  type;
+    nu_seria_layout_t  type;
 } nu__seria_json_t;
 
 static jsmntok_t *nu__seria_json_parse(nu_str_t   json,

@@ -670,6 +670,7 @@ NU_API nu_fixedloop_t nu_fixedloop_create(nu_fixedloop_callback_t callback,
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);
 
+nu_size_t        nu_cstr_len(const nu_byte_t *str, nu_size_t maxlen);
 NU_API nu_str_t  nu_str(nu_byte_t *bytes, nu_size_t n);
 NU_API nu_str_t  nu_str_from_cstr(nu_byte_t *s);
 NU_API void      nu_str_to_cstr(nu_str_t str, nu_byte_t *s, nu_size_t n);

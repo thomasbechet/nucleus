@@ -41,7 +41,7 @@ init (void)
 
     ecs = nu_ecs_create();
     COMP_TRANSFORM
-        = nu_ecs_register_seria(ecs, nu_seria_type(NU_STR("transform")));
+        = nu_ecs_register_seria(ecs, nu_seria_layout(NU_STR("transform")));
     // COMP_PLAYER = nu_ecs_register_seria(ecs,
     // nu_seria_type(NU_STR("player")));
 
@@ -52,7 +52,7 @@ init (void)
     // e = nu_ecs_add(ecs);
     // nu_ecs_set(ecs, e, COMP_TRANSFORM);
 
-    nu_seria_dump_types();
+    nu_seria_dump_layouts();
 
     const nu_size_t bytes_size = 1 << 14;
     nu_byte_t      *bytes      = nu_alloc(bytes_size);

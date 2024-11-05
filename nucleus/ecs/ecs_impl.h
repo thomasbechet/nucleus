@@ -108,14 +108,6 @@ static void
 nu__ecs_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ecs.instances);
-#ifdef NU_BUILD_ECS_SERIA
-    NU_SERIA_STRUCT(NU_ECS_COMPONENT_TYPE_NAME,
-                    nu__ecs_comp_dto_t,
-                    NU_SERIA_FIELD("name", NU_SERIA_BYTE, 64, name);
-                    NU_SERIA_FIELD("entities", NU_SERIA_BUF, 1, entities);
-                    NU_SERIA_FIELD("data", NU_SERIA_BUF, 1, data));
-    _ctx.ecs.component_type = nu_seria_type(NU_STR(NU_ECS_COMPONENT_TYPE_NAME));
-#endif
 }
 static void
 nu__ecs_free (void)
@@ -238,7 +230,7 @@ nu_ecs_register (nu_ecs_t ecs, nu_size_t size)
     comp->capa           = 10;
     comp->data           = nu_alloc(size * comp->capa);
 #ifdef NU_BUILD_ECS_SERIA
-    comp->type = NU_NULL;
+    comp->layout = NU_NULL;
 #endif
     nu_size_t init_mask_count = (comp->capa / NU__ECS_ENTITY_PER_MASK) + 1;
     NU_VEC_INIT(init_mask_count, &comp->bitset);

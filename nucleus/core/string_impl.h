@@ -13,6 +13,16 @@ nu__cstr_len (const nu_byte_t *str)
     }
     return p - str;
 }
+nu_size_t
+nu_cstr_len (const nu_byte_t *str, nu_size_t maxlen)
+{
+    const nu_byte_t *p = str;
+    while (maxlen-- > 0 && *p)
+    {
+        p++;
+    }
+    return p - str;
+}
 nu_str_t
 nu_str (nu_byte_t *bytes, nu_size_t n)
 {

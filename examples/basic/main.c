@@ -131,7 +131,7 @@ init (void)
         "player", player_t, NU_SERIA_FIELD("stat", NU_SERIA_U32, 1, stat);
         NU_SERIA_FIELD("v", NU_SERIA_V3, 1, v));
 
-    nu_seria_dump_types();
+    nu_seria_dump_layouts();
 
     // Configure inputs
     draw        = nu_input_create();
@@ -315,7 +315,7 @@ init (void)
     physics_loop_handle
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
 
-    nu_seria_dump_types();
+    nu_seria_dump_layouts();
 
     transform_t transform;
     transform.position          = nu_v3(1, 2, 3);
@@ -329,7 +329,7 @@ init (void)
     const nu_size_t bytes_size = 1 << 14;
     nu_byte_t      *bytes      = nu_alloc(bytes_size);
     nu_seria_t      ser        = nu_seria_create();
-    nu_seria_type_t type       = nu_seria_type(NU_STR("transform"));
+    nu_seria_layout_t type       = nu_seria_layout(NU_STR("transform"));
 
     nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
     nu_seria_buffer_t buf = nu_seria_write_begin(ser, type, 128);

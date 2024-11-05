@@ -125,7 +125,7 @@ nu__seria_json_parse_f32_array (nu__seria_json_t *j,
 }
 static void
 nu__seria_json_parse_value (nu__seria_json_t       *j,
-                            const nu__seria_type_t *t,
+                            const nu__seria_layout_t *t,
                             const jsmntok_t        *tok,
                             nu_byte_t              *data)
 {
@@ -204,8 +204,8 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
                     NU_ERROR("field count > 1 but token is not an array");
                     return;
                 }
-                const nu__seria_type_t *subtype
-                    = _ctx.seria.types.data + NU_HANDLE_INDEX(field->type);
+                const nu__seria_layout_t *subtype
+                    = _ctx.seria.layouts.data + NU_HANDLE_INDEX(field->layout);
                 for (nu_size_t i = 0; i < field->size; ++i)
                 {
                     nu_byte_t *ptr = data + field->offset + i * subtype->size;
@@ -243,7 +243,7 @@ nu__seria_json_parse_value (nu__seria_json_t       *j,
 
 static nu_size_t
 nu__seria_json_begin_read (nu__seria_json_t *j,
-                           nu_seria_type_t   type,
+                           nu_seria_layout_t   type,
                            nu_seria_buffer_t buffer)
 {
     // construct name
@@ -287,8 +287,8 @@ nu__seria_json_begin_read (nu__seria_json_t *j,
 static nu_size_t
 nu__seria_json_read (nu__seria_json_t *j, nu_size_t count, void *data)
 {
-    const nu__seria_type_t *t
-        = _ctx.seria.types.data + NU_HANDLE_INDEX(j->type);
+    const nu__seria_layout_t *t
+        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(j->type);
     NU_ASSERT(j->it);
 
     // parse objects
