@@ -3,8 +3,6 @@
 
 #include <nucleus/internal.h>
 
-#include <nucleus/seria/seria.h>
-
 nu_asset_t
 nuext_import_asset (nu_asset_type_t type, nu_str_t name, nu_str_t filename)
 {
@@ -62,7 +60,7 @@ nuext_import_package (nu_str_t filename)
     }
 
     nu_size_t  toks_size, toks_count;
-    jsmntok_t *toks = nu__seria_json_parse(json, &toks_size, &toks_count);
+    jsmntok_t *toks = nu__json_parse(json, &toks_size, &toks_count);
     if (!toks)
     {
         NU_ERROR("failed to parse json package");
@@ -83,53 +81,53 @@ nuext_import_package (nu_str_t filename)
         {
             // Parse name
             const jsmntok_t *tname
-                = nu__seria_json_object_member(json, tok, NU_STR("name"));
+                = nu__json_object_member(json, tok, NU_STR("name"));
             if (!tname)
             {
                 NU_ERROR("name member not found");
                 goto cleanup2;
             }
-            nu_str_t name = nu__seria_json_value(json, tname);
+            nu_str_t name = nu__json_value(json, tname);
 
             // Parse path
             const jsmntok_t *tpath
-                = nu__seria_json_object_member(json, tok, NU_STR("path"));
+                = nu__json_object_member(json, tok, NU_STR("path"));
             if (!tpath)
             {
                 NU_ERROR("path member not found");
                 goto cleanup2;
             }
-            nu_str_t path = nu__seria_json_value(json, tpath);
+            nu_str_t path = nu__json_value(json, tpath);
             NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
             nu_str_t final_path = nuext_path_concat(final_path_buf, dir, path);
 
             // Parse type
             nu_asset_type_t  type = NU_ASSET_UNKNOWN;
             const jsmntok_t *ttype
-                = nu__seria_json_object_member(json, tok, NU_STR("type"));
+                = nu__json_object_member(json, tok, NU_STR("type"));
             if (!ttype)
             {
                 NU_ERROR("type member not found");
                 goto cleanup2;
             }
-            if (nu__seria_json_eq(json, ttype, NU_STR("model")))
+            if (nu__json_eq(json, ttype, NU_STR("model")))
             {
                 nuext_import_asset(NU_ASSET_MODEL, name, final_path);
             }
-            else if (nu__seria_json_eq(json, ttype, NU_STR("texture")))
+            else if (nu__json_eq(json, ttype, NU_STR("texture")))
             {
                 nuext_import_asset(NU_ASSET_TEXTURE, name, final_path);
             }
             else
             {
                 NU_ERROR("unknown asset type " NU_STR_FMT,
-                         nu__seria_json_value(json, ttype));
+                         nu__json_value(json, ttype));
                 goto cleanup2;
             }
 
             NU_INFO("'" NU_STR_FMT "' asset added", NU_STR_ARGS(name));
         }
-        tok = nu__seria_json_skip(tok);
+        tok = nu__json_skip(tok);
     }
 
     error = NU_ERROR_NONE;

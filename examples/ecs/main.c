@@ -1,11 +1,6 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-static nu_ecs_t ecs;
-
-static nu_ecs_id_t COMP_TRANSFORM;
-static nu_ecs_id_t COMP_PLAYER;
-
 typedef struct
 {
     int     hello;
@@ -25,6 +20,11 @@ typedef struct
     nu_u32_t stat;
     nu_v3_t  v;
 } player_t;
+
+static nu_ecs_t ecs;
+
+static nu_ecs_id_t COMP_TRANSFORM;
+static nu_ecs_id_t COMP_PLAYER;
 
 void
 init (void)
@@ -53,21 +53,22 @@ init (void)
     nu_ecs_set(ecs, e, COMP_TRANSFORM);
 
     nu_seria_dump_layouts();
-    nu_seria_dump_values(NU_SERIA_LAYOUT(transform_t), 1, p);
 
     const nu_size_t bytes_size = 1 << 14;
     nu_byte_t      *bytes      = nu_alloc(bytes_size);
     nu_seria_t      ser        = nu_seria_create();
     nu_memset(bytes, 0, bytes_size);
 
-    nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
+    nu_seria_open_bytes(ser, NU_SERIA_WRITE, bytes, bytes_size);
     nu_ecs_write(ecs, ser);
     nu_size_t n = nu_seria_close(ser);
     nu__seria_write_bytes(NU_STR("dump.bin"), bytes, n);
 
-    nu_seria_open_bytes(ser, NU_SERIA_READ, NU_SERIA_NBIN, bytes, n);
+    nu_seria_open_bytes(ser, NU_SERIA_READ, bytes, n);
     nu_ecs_read(ecs, ser);
     nu_seria_close(ser);
+
+    nu_ecs_dump(ecs);
 }
 
 void

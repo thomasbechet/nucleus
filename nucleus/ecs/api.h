@@ -43,5 +43,6 @@ NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
 NU_API void nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
 NU_API void nu_ecs_read(nu_ecs_t ecs, nu_seria_t seria);
+NU_API void nu_ecs_dump(nu_ecs_t ecs);
 
 #endif

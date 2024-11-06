@@ -58,7 +58,7 @@ nu__seria_nbin_open (nu__seria_ctx_t *ctx)
     else
     {
         // write version
-        nu__seria_write_4b(ctx, nu__seria_u32_le(12345));
+        nu__seria_write_4b(ctx, nu__seria_u32_le(0xFFFFFFFF));
     }
 }
 static void
@@ -138,6 +138,7 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
         case NU__SERIA_STRUCT: {
             for (nu_size_t i = 0; i < size; ++i)
             {
+                nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
                 for (nu_size_t f = 0; f < layout->fields.size; ++f)
                 {
                     const nu__seria_struct_field_t *field
@@ -145,9 +146,8 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
                     const nu__seria_layout_t *sub_layout
                         = _ctx.seria.layouts.data
                           + NU_HANDLE_INDEX(field->layout);
-                    const nu_byte_t *ptr
-                        = (nu_byte_t *)data + layout->size * i + field->offset;
-                    nu__seria_nbin_write(ctx, sub_layout, field->size, ptr);
+                    nu_byte_t *data = ptr + field->offset;
+                    nu__seria_nbin_write(ctx, sub_layout, field->size, data);
                 }
             }
         }
@@ -258,7 +258,7 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                         = _ctx.seria.layouts.data
                           + NU_HANDLE_INDEX(field->layout);
                     nu_byte_t *data = ptr + field->offset;
-                    nu__seria_nbin_read(ctx, field_layout, field->size, ptr);
+                    nu__seria_nbin_read(ctx, field_layout, field->size, data);
                 }
             }
         }

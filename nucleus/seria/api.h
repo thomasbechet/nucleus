@@ -59,12 +59,6 @@ typedef enum
 
 typedef enum
 {
-    NU_SERIA_JSON,
-    NU_SERIA_NBIN
-} nu_seria_format_t;
-
-typedef enum
-{
     NU_SERIA_PRIMITIVE_BYTE = 0,
     NU_SERIA_PRIMITIVE_U32  = 1,
     NU_SERIA_PRIMITIVE_F32  = 2,
@@ -107,15 +101,13 @@ NU_API void nu_seria_dump_values(nu_seria_layout_t layout,
                                  nu_size_t         size,
                                  void             *data);
 
-NU_API void      nu_seria_open_file(nu_seria_t        seria,
-                                    nu_seria_mode_t   mode,
-                                    nu_seria_format_t format,
-                                    nu_str_t          filename);
-NU_API void      nu_seria_open_bytes(nu_seria_t        seria,
-                                     nu_seria_mode_t   mode,
-                                     nu_seria_format_t format,
-                                     nu_byte_t        *bytes,
-                                     nu_size_t         size);
+NU_API void      nu_seria_open_file(nu_seria_t      seria,
+                                    nu_seria_mode_t mode,
+                                    nu_str_t        filename);
+NU_API void      nu_seria_open_bytes(nu_seria_t      seria,
+                                     nu_seria_mode_t mode,
+                                     nu_byte_t      *bytes,
+                                     nu_size_t       size);
 NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
 NU_API void nu_seria_write(nu_seria_t        seria,

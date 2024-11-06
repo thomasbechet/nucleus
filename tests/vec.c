@@ -1,5 +1,3 @@
-#define NU_STDLIB
-#define NU_NO_PLATFORM
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
@@ -9,7 +7,7 @@ typedef struct
     nu_u8_t  a;
 } mystruct;
 
-typedef nu_vec(mystruct) mystruct_vec_t;
+typedef NU_VEC(mystruct) mystruct_vec_t;
 
 int
 main (void)

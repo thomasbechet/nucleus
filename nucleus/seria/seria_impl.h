@@ -3,7 +3,6 @@
 
 #include <nucleus/internal.h>
 #include <nucleus/seria/nbin_impl.h>
-#include <nucleus/seria/json_impl.h>
 
 static nu_byte_t *
 nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
@@ -397,10 +396,7 @@ nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)
 }
 
 void
-nu_seria_open_file (nu_seria_t        seria,
-                    nu_seria_mode_t   mode,
-                    nu_seria_format_t format,
-                    nu_str_t          filename)
+nu_seria_open_file (nu_seria_t seria, nu_seria_mode_t mode, nu_str_t filename)
 {
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     if (ctx->opened)
@@ -410,7 +406,6 @@ nu_seria_open_file (nu_seria_t        seria,
     ctx->opened = NU_TRUE;
     ctx->owned  = NU_TRUE;
     ctx->mode   = mode;
-    ctx->format = format;
 
     // load file
     nu_size_t size;
@@ -419,23 +414,13 @@ nu_seria_open_file (nu_seria_t        seria,
     ctx->end = ctx->bytes + size;
     ctx->ptr = ctx->bytes;
 
-    switch (ctx->format)
-    {
-        case NU_SERIA_JSON:
-            // nu__seria_json_open(&ctx->json, mode, ctx->bytes,
-            // ctx->bytes_size);
-            break;
-        case NU_SERIA_NBIN:
-            nu__seria_nbin_open(ctx);
-            break;
-    }
+    nu__seria_nbin_open(ctx);
 }
 void
-nu_seria_open_bytes (nu_seria_t        seria,
-                     nu_seria_mode_t   mode,
-                     nu_seria_format_t format,
-                     nu_byte_t        *bytes,
-                     nu_size_t         size)
+nu_seria_open_bytes (nu_seria_t      seria,
+                     nu_seria_mode_t mode,
+                     nu_byte_t      *bytes,
+                     nu_size_t       size)
 {
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     if (ctx->opened)
@@ -445,21 +430,12 @@ nu_seria_open_bytes (nu_seria_t        seria,
     ctx->opened = NU_TRUE;
     ctx->owned  = NU_FALSE;
     ctx->mode   = mode;
-    ctx->format = format;
 
     ctx->bytes = bytes;
     ctx->end   = ctx->bytes + size;
     ctx->ptr   = ctx->bytes;
 
-    switch (ctx->format)
-    {
-        case NU_SERIA_JSON:
-            // nu__seria_json_open(&ctx->json, mode, bytes, size);
-            break;
-        case NU_SERIA_NBIN:
-            nu__seria_nbin_open(ctx);
-            break;
-    }
+    nu__seria_nbin_open(ctx);
 }
 nu_size_t
 nu_seria_close (nu_seria_t seria)
@@ -467,15 +443,7 @@ nu_seria_close (nu_seria_t seria)
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
     if (ctx->opened)
     {
-        switch (ctx->format)
-        {
-            case NU_SERIA_JSON:
-                // n = nu__seria_json_close(&s->json);
-                break;
-            case NU_SERIA_NBIN:
-                nu__seria_nbin_close(ctx);
-                break;
-        }
+        nu__seria_nbin_close(ctx);
         ctx->opened = NU_FALSE;
         if (ctx->owned && ctx->bytes) // free owned bytes
         {
@@ -500,15 +468,7 @@ nu_seria_write (nu_seria_t        seria,
     const nu__seria_layout_t *l
         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
-    switch (ctx->format)
-    {
-        case NU_SERIA_JSON:
-            // unsupported
-            break;
-        case NU_SERIA_NBIN:
-            nu__seria_nbin_write(ctx, l, size, data);
-            break;
-    }
+    nu__seria_nbin_write(ctx, l, size, data);
 }
 
 void
@@ -522,14 +482,7 @@ nu_seria_read (nu_seria_t        seria,
     const nu__seria_layout_t *l
         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
-    switch (ctx->format)
-    {
-        case NU_SERIA_JSON:
-            // return nu__seria_json_read(&s->json, size, data);
-        case NU_SERIA_NBIN:
-            nu__seria_nbin_read(ctx, l, size, data);
-            break;
-    }
+    nu__seria_nbin_read(ctx, l, size, data);
 }
 
 #endif

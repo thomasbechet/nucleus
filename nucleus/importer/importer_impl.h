@@ -3,6 +3,7 @@
 
 #include <nucleus/internal.h>
 
+#include <nucleus/importer/json_impl.h>
 #include <nucleus/importer/package_impl.h>
 #include <nucleus/importer/model_impl.h>
 #include <nucleus/importer/image_impl.h>

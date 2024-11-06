@@ -2,9 +2,6 @@
 #define NU_SERIA_H
 
 #include <nucleus/seria/api.h>
-#ifdef NU_BUILD_SERIA_JSON
-#include <nucleus/seria/json.h>
-#endif
 
 typedef enum
 {
@@ -43,13 +40,12 @@ typedef struct
 
 typedef struct
 {
-    nu_seria_format_t format;
-    nu_bool_t         opened;
-    nu_bool_t         owned;
-    nu_seria_mode_t   mode;
-    nu_byte_t        *bytes;
-    nu_byte_t        *end;
-    nu_byte_t        *ptr;
+    nu_bool_t       opened;
+    nu_bool_t       owned;
+    nu_seria_mode_t mode;
+    nu_byte_t      *bytes;
+    nu_byte_t      *end;
+    nu_byte_t      *ptr;
 } nu__seria_ctx_t;
 
 typedef struct
