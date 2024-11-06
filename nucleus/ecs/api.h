@@ -9,10 +9,18 @@ NU_DEFINE_HANDLE(nu_ecs_t);
     for (nu_ecs_id_t(e) = nu_ecs_begin((ecs), (iter)); (e); \
          (e)            = nu_ecs_next((ecs), (iter)))
 
+#define NU_ECS_REG_COMPONENT(name, layout) \
+    nu_ecs_register(NU_STR(#name), NU_SERIA_LAYOUT(layout))
+
+#define NU_ECS_COMPONENT(name) nu_ecs_find_component(NU_STR(#name))
+
 typedef nu_u32_t nu_ecs_id_t;
 
 NU_API nu_ecs_t nu_ecs_create(void);
 NU_API void     nu_ecs_delete(nu_ecs_t ecs);
+
+NU_API nu_ecs_id_t nu_ecs_register(nu_str_t name, nu_seria_layout_t layout);
+NU_API nu_ecs_id_t nu_ecs_find_component(nu_str_t name);
 
 NU_API nu_ecs_id_t nu_ecs_add(nu_ecs_t ecs);
 NU_API void        nu_ecs_add_at(nu_ecs_t ecs, nu_ecs_id_t e);
@@ -22,11 +30,10 @@ NU_API nu_size_t   nu_ecs_count(nu_ecs_t ecs);
 NU_API nu_size_t   nu_ecs_capacity(nu_ecs_t ecs);
 NU_API void        nu_ecs_clear(nu_ecs_t ecs);
 
-NU_API nu_ecs_id_t nu_ecs_register(nu_ecs_t ecs, nu_size_t size);
-NU_API void       *nu_ecs_set(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
-NU_API void        nu_ecs_unset(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
-NU_API void       *nu_ecs_get(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
-NU_API nu_bool_t   nu_ecs_has(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
+NU_API void     *nu_ecs_set(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
+NU_API void      nu_ecs_unset(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
+NU_API void     *nu_ecs_get(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
+NU_API nu_bool_t nu_ecs_has(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
 
 NU_API nu_ecs_id_t nu_ecs_iter(nu_ecs_t ecs);
 NU_API void nu_ecs_includes(nu_ecs_t ecs, nu_ecs_id_t iter, nu_ecs_id_t c);
@@ -34,14 +41,7 @@ NU_API void nu_ecs_excludes(nu_ecs_t ecs, nu_ecs_id_t iter, nu_ecs_id_t c);
 NU_API nu_ecs_id_t nu_ecs_begin(nu_ecs_t ecs, nu_ecs_id_t iter);
 NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
-#ifdef NU_BUILD_ECS_SERIA
-
-#define NU_ECS_COMPONENT_TYPE_NAME "ecs_component"
-
-NU_API nu_ecs_id_t nu_ecs_register_seria(nu_ecs_t          ecs,
-                                         nu_seria_layout_t layout);
-NU_API void        nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
-NU_API void        nu_ecs_read(nu_ecs_t ecs, nu_seria_t seria);
-#endif
+NU_API void nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
+NU_API void nu_ecs_read(nu_ecs_t ecs, nu_seria_t seria);
 
 #endif

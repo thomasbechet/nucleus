@@ -49,8 +49,7 @@ NU_API nu_mesh_t     nu_geometry_create_mesh(nu_geometry_t  geometry,
 NU_API nu_mesh_t     nu_geometry_create_mesh_normals(nu_geometry_t geometry);
 NU_API nu_b3_t       nu_geometry_bounds(nu_geometry_t geometry);
 #ifdef NU_BUILD_UTILS_SERIA
-NU_API nu_seria_buffer_t nu_geometry_write(nu_geometry_t geometry,
-                                           nu_seria_t    seria);
+NU_API void nu_geometry_write(nu_geometry_t geometry, nu_seria_t seria);
 NU_API void nu_geometry_read(nu_geometry_t geometry, nu_seria_t seria);
 #endif
 

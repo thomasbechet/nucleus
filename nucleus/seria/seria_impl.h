@@ -3,6 +3,7 @@
 
 #include <nucleus/internal.h>
 #include <nucleus/seria/nbin_impl.h>
+#include <nucleus/seria/json_impl.h>
 
 static nu_byte_t *
 nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
@@ -129,8 +130,9 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
                                 nu_seria_flag_t   flags,
                                 nu_size_t         offset)
 {
+    NU_ASSERT(layout);
     NU_ASSERT(field_layout);
-    NU_ASSERT(layout && size);
+    NU_ASSERT(size);
     nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     nu__seria_struct_field_t *a = NU_VEC_PUSH(&p->fields);
     NU_ASSERT(p->kind == NU__SERIA_STRUCT);
@@ -162,7 +164,7 @@ nu_seria_register_enum_value (nu_seria_layout_t layout,
     v->value = value;
 }
 nu_seria_layout_t
-nu_seria_layout (nu_str_t name)
+nu_seria_find_layout (nu_str_t name)
 {
     for (nu_size_t i = 0; i < _ctx.seria.layouts.size; ++i)
     {
@@ -174,11 +176,18 @@ nu_seria_layout (nu_str_t name)
     return NU_NULL;
 }
 nu_str_t
-nu_seria_name (nu_seria_layout_t type)
+nu_seria_name (nu_seria_layout_t layout)
 {
     const nu__seria_layout_t *t
-        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(type);
+        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     return t->name;
+}
+nu_size_t
+nu_seria_size (nu_seria_layout_t layout)
+{
+    const nu__seria_layout_t *t
+        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    return t->size;
 }
 
 void
@@ -247,12 +256,12 @@ nu__seria_print_with_depth (nu_size_t depth, nu_str_t format, ...)
 }
 static void
 nu__seria_dump (nu_size_t         depth,
-                nu_seria_layout_t type,
+                nu_seria_layout_t layout,
                 nu_size_t         size,
                 nu_byte_t        *data)
 {
-    NU_ASSERT(type && data);
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(type);
+    NU_ASSERT(layout && data);
+    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     for (nu_size_t i = 0; i < size; ++i)
     {
         nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);

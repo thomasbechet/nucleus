@@ -329,7 +329,7 @@ init (void)
     const nu_size_t bytes_size = 1 << 14;
     nu_byte_t      *bytes      = nu_alloc(bytes_size);
     nu_seria_t      ser        = nu_seria_create();
-    nu_seria_layout_t type       = nu_seria_layout(NU_STR("transform"));
+    nu_seria_layout_t type       = nu_seria_find_layout(NU_STR("transform"));
 
     nu_seria_open_bytes(ser, NU_SERIA_WRITE, NU_SERIA_NBIN, bytes, bytes_size);
     nu_seria_buffer_t buf = nu_seria_write_begin(ser, type, 128);

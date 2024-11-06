@@ -3,20 +3,25 @@
 
 #include <nucleus/ecs/api.h>
 
-#define NU__ECS_ENTITY_PER_MASK 32
+#define NU__ECS_ENTITY_PER_MASK    32
+#define NU__ECS_COMPONENT_NAME_LEN 64
+
 typedef nu_u32_t nu__ecs_mask_t;
 typedef NU_VEC(nu__ecs_mask_t) nu__ecs_bitset_t;
 
 typedef struct
 {
-    nu_size_t        size;
+    nu_byte_t         name[NU__ECS_COMPONENT_NAME_LEN];
+    nu_seria_layout_t layout;
+} nu__ecs_component_t;
+
+typedef struct
+{
     nu_size_t        capa;
     void            *data;
+    nu_size_t        component_size;
     nu__ecs_bitset_t bitset;
-#ifdef NU_BUILD_ECS_SERIA
-    nu_seria_layout_t layout;
-#endif
-} nu__ecs_comp_t;
+} nu__ecs_component_pool_t;
 
 typedef struct
 {
@@ -30,14 +35,15 @@ typedef struct
 
 typedef struct
 {
-    NU_VEC(nu__ecs_comp_t) components;
     NU_VEC(nu__ecs_iter_t) iters;
     nu__ecs_bitset_t bitset;
+    NU_VEC(nu__ecs_component_pool_t) pools;
 } nu__ecs_instance_t;
 
 typedef struct
 {
     NU_POOL(nu__ecs_instance_t) instances;
+    NU_VEC(nu__ecs_component_t) components;
 } nu__ecs_t;
 
 static void nu__ecs_init(void);

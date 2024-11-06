@@ -238,14 +238,14 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     loader->has_default_material = NU_FALSE;
 
     // Parse file and load buffers
-    char fn[256];
+    nu_byte_t fn[256];
     nu_str_to_cstr(filename, fn, 256);
-    result = cgltf_parse_file(&options, fn, &data);
+    result = cgltf_parse_file(&options, (char *)fn, &data);
     if (result != cgltf_result_success)
     {
         return NU_NULL;
     }
-    result = cgltf_load_buffers(&options, data, fn);
+    result = cgltf_load_buffers(&options, data, (char *)fn);
     if (result != cgltf_result_success)
     {
         return NU_NULL;

@@ -466,12 +466,10 @@ nu_geometry_bounds (nu_geometry_t geometry)
     return nu_b3(min, max);
 }
 #ifdef NU_BUILD_UTILS_SERIA
-nu_seria_buffer_t
+void
 nu_geometry_write (nu_geometry_t geometry, nu_seria_t seria)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
-    nu_seria_buffer_t buffer = nu_seria_alloc(seria, NU_NULL, 123);
-    return buffer;
 }
 void
 nu_geometry_read (nu_geometry_t geometry, nu_seria_t seria)

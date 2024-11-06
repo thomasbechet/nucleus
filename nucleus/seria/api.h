@@ -3,31 +3,33 @@
 
 #include <nucleus/core/api.h>
 
-#define NU_SERIA_STRUCT(name, struct, ...)                            \
-    {                                                                 \
-        typedef struct sstruct;                                       \
-        nu_seria_layout_t layout                                      \
-            = nu_seria_register_struct(NU_STR(name), sizeof(struct)); \
-        __VA_ARGS__                                                   \
+#define NU_SERIA_REG_STRUCT(struct, ...)                                 \
+    {                                                                    \
+        typedef struct sstruct;                                          \
+        nu_seria_layout_t l                                              \
+            = nu_seria_register_struct(NU_STR(#struct), sizeof(struct)); \
+        __VA_ARGS__                                                      \
     }
 
-#define NU_SERIA_FIELD(name, layout, size, field)     \
-    nu_seria_register_struct_field(t,                 \
-                                   NU_STR(name),      \
+#define NU_SERIA_FIELD(field, layout, size)           \
+    nu_seria_register_struct_field(l,                 \
+                                   NU_STR(#field),    \
                                    layout,            \
                                    size,              \
                                    NU_SERIA_REQUIRED, \
                                    offsetof(sstruct, field));
 
-#define NU_SERIA_ENUM(name, enum, ...)                            \
-    {                                                             \
-        nu_seria_layout_t layout                                  \
-            = nu_seria_register_enum(NU_STR(name), sizeof(enum)); \
-        __VA_ARGS__                                               \
+#define NU_SERIA_REG_ENUM(enum, ...)                               \
+    {                                                              \
+        nu_seria_layout_t layout                                   \
+            = nu_seria_register_enum(NU_STR(#enum), sizeof(enum)); \
+        __VA_ARGS__                                                \
     }
 
 #define NU_SERIA_VALUE(name, value) \
     nu_seria_register_enum_value(layout, NU_STR(name), value)
+
+#define NU_SERIA_LAYOUT(type) nu_seria_find_layout(NU_STR(#type))
 
 NU_DEFINE_HANDLE(nu_seria_t);
 NU_DEFINE_HANDLE(nu_seria_layout_t);
@@ -96,8 +98,9 @@ NU_API nu_seria_layout_t nu_seria_register_enum(nu_str_t name, nu_size_t size);
 NU_API void              nu_seria_register_enum_value(nu_seria_layout_t type,
                                                       nu_str_t          name,
                                                       nu_u32_t          value);
-NU_API nu_seria_layout_t nu_seria_layout(nu_str_t name);
+NU_API nu_seria_layout_t nu_seria_find_layout(nu_str_t name);
 NU_API nu_str_t          nu_seria_name(nu_seria_layout_t layout);
+NU_API nu_size_t         nu_seria_size(nu_seria_layout_t layout);
 
 NU_API void nu_seria_dump_layouts(void);
 NU_API void nu_seria_dump_values(nu_seria_layout_t layout,
@@ -116,11 +119,11 @@ NU_API void      nu_seria_open_bytes(nu_seria_t        seria,
 NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
 NU_API void nu_seria_write(nu_seria_t        seria,
-                           nu_seria_layout_t type,
+                           nu_seria_layout_t layout,
                            nu_size_t         size,
                            const void       *data);
 NU_API void nu_seria_read(nu_seria_t        seria,
-                          nu_seria_layout_t type,
+                          nu_seria_layout_t layout,
                           nu_size_t         size,
                           void             *data);
 

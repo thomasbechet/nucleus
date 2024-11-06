@@ -36,10 +36,10 @@ static nu_image_t
 nu__image_load_filename (nu_str_t filename)
 {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
-    int  w, h, n;
-    char fn[256];
+    int       w, h, n;
+    nu_byte_t fn[256];
     nu_str_to_cstr(filename, fn, 256);
-    nu_byte_t *img = stbi_load(fn, &w, &h, &n, STBI_default);
+    nu_byte_t *img = stbi_load((char *)fn, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_NULL);
     nu_v2u_t   size   = nu_v2u(w, h);
     nu_image_t handle = nu_image_create(size);
