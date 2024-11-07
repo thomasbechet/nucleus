@@ -4,7 +4,9 @@
 #include <nucleus/internal.h>
 
 nu_resource_t
-nuext_import_resource (nu_resource_type_t type, nu_str_t name, nu_str_t filename)
+nuext_import_resource (nu_resource_type_t type,
+                       nu_str_t           name,
+                       nu_str_t           filename)
 {
     nu_resource_t handle = nu_resource_add(type, name);
     NU_CHECK(handle, return handle);

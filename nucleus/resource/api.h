@@ -30,6 +30,21 @@ typedef struct
     nu_bundle_t        bundle;
 } nu_resource_info_t;
 
+typedef void (*nu_resource_load_pfn_t)(void *data, nu_seria_t seria);
+typedef void (*nu_resource_save_pfn_t)(void *data, nu_seria_t seria);
+
+NU_API nu_resource_type_t nu_resource_register(nu_str_t               name,
+                                               nu_seria_layout_t      layout,
+                                               nu_resource_load_pfn_t load,
+                                               nu_resource_save_pfn_t save);
+
+NU_API nu_resource_t nu_resource_add2(nu_resource_type_t type, void *data);
+NU_API nu_resource_t nu_resource_load(nu_resource_type_t type,
+                                      nu_seria_t         seria);
+NU_API void          nu_resource_save(nu_resource_t resource, nu_seria_t seria);
+NU_API void          nu_resource_load_pkg(nu_seria_t seria);
+NU_API void          nu_resource_save_pkg(nu_seria_t seria);
+
 NU_API nu_resource_t nu_resource_add(nu_resource_type_t type, nu_str_t name);
 NU_API nu_resource_t nu_resource_find(nu_resource_type_t type, nu_str_t name);
 NU_API nu_bool_t     nu_resource_exists(nu_resource_type_t type, nu_str_t name);
