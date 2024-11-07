@@ -11,8 +11,8 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils.h>
 #endif
-#ifdef NU_BUILD_ASSET
-#include <nucleus/asset/asset.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/resource.h>
 #endif
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/importer.h>
@@ -42,8 +42,8 @@ static struct nu__context
 #ifdef NU_BUILD_UTILS
     nu__utils_t utils;
 #endif
-#ifdef NU_BUILD_ASSET
-    nu__asset_t asset;
+#ifdef NU_BUILD_RESOURCE
+    nu__resource_t resource;
 #endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_t importer;

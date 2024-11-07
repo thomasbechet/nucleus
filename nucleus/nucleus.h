@@ -11,8 +11,8 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils.h>
 #endif
-#ifdef NU_BUILD_ASSET
-#include <nucleus/asset/api.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/api.h>
 #endif
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/api.h>
@@ -42,8 +42,8 @@
 #ifdef NU_BUILD_UTILS
 #include <nucleus/utils/utils_impl.h>
 #endif
-#ifdef NU_BUILD_ASSET
-#include <nucleus/asset/asset_impl.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/resource_impl.h>
 #endif
 #ifdef NU_BUILD_IMPORTER
 #include <nucleus/importer/importer_impl.h>

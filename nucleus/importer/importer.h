@@ -3,7 +3,7 @@
 
 #include <nucleus/importer/api.h>
 #include <nucleus/graphics/graphics.h>
-#include <nucleus/asset/asset.h>
+#include <nucleus/resource/resource.h>
 #include <nucleus/importer/json.h>
 
 #ifdef NU_BUILD_IMPORTER_CGLTF

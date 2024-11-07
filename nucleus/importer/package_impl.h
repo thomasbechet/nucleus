@@ -3,17 +3,17 @@
 
 #include <nucleus/internal.h>
 
-nu_asset_t
-nuext_import_asset (nu_asset_type_t type, nu_str_t name, nu_str_t filename)
+nu_resource_t
+nuext_import_resource (nu_resource_type_t type, nu_str_t name, nu_str_t filename)
 {
-    nu_asset_t handle = nu_asset_add(type, name);
+    nu_resource_t handle = nu_resource_add(type, name);
     NU_CHECK(handle, return handle);
-    nu__asset_entry_t *entry
-        = &_ctx.asset.entries.data[NU_HANDLE_INDEX(handle)];
+    nu__resource_entry_t *entry
+        = &_ctx.resource.entries.data[NU_HANDLE_INDEX(handle)];
 
     switch (type)
     {
-        case NU_ASSET_TEXTURE: {
+        case NU_RESOURCE_TEXTURE: {
             if (nuext_path_extension(filename) == NUEXT_EXTENSION_JSON)
             {
                 entry->data = nuext_cubemap_load_filename(filename);
@@ -28,14 +28,13 @@ nuext_import_asset (nu_asset_type_t type, nu_str_t name, nu_str_t filename)
             }
         }
         break;
-        case NU_ASSET_MATERIAL:
-        case NU_ASSET_MODEL:
+        case NU_RESOURCE_MATERIAL:
+        case NU_RESOURCE_MODEL:
             entry->data = nuext_model_load_filename(filename);
             NU_CHECK(entry->data, return NU_NULL);
             break;
-        case NU_ASSET_INPUT:
-        case NU_ASSET_TABLE:
-        case NU_ASSET_UNKNOWN:
+        case NU_RESOURCE_INPUT:
+        case NU_RESOURCE_UNKNOWN:
             break;
     }
 
@@ -102,8 +101,8 @@ nuext_import_package (nu_str_t filename)
             nu_str_t final_path = nuext_path_concat(final_path_buf, dir, path);
 
             // Parse type
-            nu_asset_type_t  type = NU_ASSET_UNKNOWN;
-            const jsmntok_t *ttype
+            nu_resource_type_t type = NU_RESOURCE_UNKNOWN;
+            const jsmntok_t   *ttype
                 = nu__json_object_member(json, tok, NU_STR("type"));
             if (!ttype)
             {
@@ -112,11 +111,11 @@ nuext_import_package (nu_str_t filename)
             }
             if (nu__json_eq(json, ttype, NU_STR("model")))
             {
-                nuext_import_asset(NU_ASSET_MODEL, name, final_path);
+                nuext_import_resource(NU_RESOURCE_MODEL, name, final_path);
             }
             else if (nu__json_eq(json, ttype, NU_STR("texture")))
             {
-                nuext_import_asset(NU_ASSET_TEXTURE, name, final_path);
+                nuext_import_resource(NU_RESOURCE_TEXTURE, name, final_path);
             }
             else
             {

@@ -41,8 +41,8 @@ NU_API void nu_ecs_excludes(nu_ecs_t ecs, nu_ecs_id_t iter, nu_ecs_id_t c);
 NU_API nu_ecs_id_t nu_ecs_begin(nu_ecs_t ecs, nu_ecs_id_t iter);
 NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
-NU_API void nu_ecs_write(nu_ecs_t ecs, nu_seria_t seria);
-NU_API void nu_ecs_read(nu_ecs_t ecs, nu_seria_t seria);
-NU_API void nu_ecs_dump(nu_ecs_t ecs);
+NU_API void     nu_ecs_save(nu_ecs_t ecs, nu_seria_t seria);
+NU_API nu_ecs_t nu_ecs_load(nu_seria_t seria);
+NU_API void     nu_ecs_dump(nu_ecs_t ecs);
 
 #endif

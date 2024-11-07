@@ -76,8 +76,8 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_IMPORTER
     nu__importer_init();
 #endif
-#ifdef NU_BUILD_ASSET
-    error = nu__asset_init();
+#ifdef NU_BUILD_RESOURCE
+    error = nu__resource_init();
     NU_ERROR_CHECK(error, return error);
 #endif
 #ifdef NU_BUILD_UI
@@ -144,8 +144,8 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_UI
     nu__ui_free();
 #endif
-#ifdef NU_BUILD_ASSET
-    nu__asset_free();
+#ifdef NU_BUILD_RESOURCE
+    nu__resource_free();
 #endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_free();

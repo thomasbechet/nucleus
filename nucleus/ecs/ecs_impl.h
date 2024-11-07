@@ -419,7 +419,7 @@ nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
 }
 
 void
-nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
+nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
 {
     const nu__ecs_instance_t *ins
         = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
@@ -464,11 +464,10 @@ nu_ecs_write (nu_ecs_t ecs, nu_seria_t seria)
         }
     }
 }
-void
-nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria)
+nu_ecs_t
+nu_ecs_load (nu_seria_t seria)
 {
-    nu_ecs_clear(ecs);
-
+    nu_ecs_t            ecs = nu_ecs_create();
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
 
     // read ecs header
@@ -517,6 +516,8 @@ nu_ecs_read (nu_ecs_t ecs, nu_seria_t seria)
             nu_seria_read(seria, layout, 1, data);
         }
     }
+
+    return ecs;
 }
 void
 nu_ecs_dump (nu_ecs_t ecs)

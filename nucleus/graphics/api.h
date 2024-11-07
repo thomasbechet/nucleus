@@ -1,7 +1,7 @@
 #ifndef NU_GRAPHICS_API_H
 #define NU_GRAPHICS_API_H
 
-#include <nucleus/core/api.h>
+#include <nucleus/seria/api.h>
 
 NU_DEFINE_HANDLE(nu_image_t);
 NU_DEFINE_HANDLE(nu_camera_t);
@@ -217,10 +217,12 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_m4_t         transform);
 
 NU_API nu_image_t   nu_image_create(nu_v2u_t size);
+NU_API nu_texture_t nu_image_create_texture(nu_image_t image);
 NU_API void         nu_image_delete(nu_image_t image);
 NU_API nu_color_t  *nu_image_colors(nu_image_t image);
 NU_API nu_v2u_t     nu_image_size(nu_image_t image);
-NU_API nu_texture_t nu_image_create_texture(nu_image_t image);
+NU_API nu_image_t   nu_image_load(nu_seria_t seria);
+NU_API void         nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_model_t nu_model_create(void);
 NU_API void       nu_model_delete(nu_model_t model);

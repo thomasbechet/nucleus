@@ -54,18 +54,13 @@ init (void)
 
     nu_seria_dump_layouts();
 
-    const nu_size_t bytes_size = 1 << 14;
-    nu_byte_t      *bytes      = nu_alloc(bytes_size);
-    nu_seria_t      ser        = nu_seria_create();
-    nu_memset(bytes, 0, bytes_size);
+    nu_seria_t ser = nu_seria_create();
+    // nu_seria_open_file(ser, NU_SERIA_WRITE, NU_STR("dump.bin"));
+    // nu_ecs_write(ecs, ser);
+    // nu_size_t n = nu_seria_close(ser);
 
-    nu_seria_open_bytes(ser, NU_SERIA_WRITE, bytes, bytes_size);
-    nu_ecs_write(ecs, ser);
-    nu_size_t n = nu_seria_close(ser);
-    nu__seria_write_bytes(NU_STR("dump.bin"), bytes, n);
-
-    nu_seria_open_bytes(ser, NU_SERIA_READ, bytes, n);
-    nu_ecs_read(ecs, ser);
+    nu_seria_open_file(ser, NU_SERIA_READ, NU_STR("dump.bin"));
+    ecs = nu_ecs_load(ser);
     nu_seria_close(ser);
 
     nu_ecs_dump(ecs);

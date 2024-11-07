@@ -196,8 +196,8 @@ init (void)
     }
 
     // Load resources
-    texture     = NU_ASSET_TEXTURE(NU_STR("brick"));
-    texture_gui = NU_ASSET_TEXTURE(NU_STR("GUI"));
+    texture     = NU_RESOURCE_TEXTURE(NU_STR("brick"));
+    texture_gui = NU_RESOURCE_TEXTURE(NU_STR("GUI"));
 
     // Create material
     material = nu_material_create(NU_MATERIAL_SURFACE);
@@ -210,12 +210,12 @@ init (void)
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    temple_model = NU_ASSET_MODEL(NU_STR("temple"));
-    ariane_model = NU_ASSET_MODEL(NU_STR("ariane"));
-    castle       = NU_ASSET_MODEL(NU_STR("castle"));
+    temple_model = NU_RESOURCE_MODEL(NU_STR("temple"));
+    ariane_model = NU_RESOURCE_MODEL(NU_STR("ariane"));
+    castle       = NU_RESOURCE_MODEL(NU_STR("castle"));
 
     // Load cubemap
-    skybox = NU_ASSET_TEXTURE(NU_STR("skybox"));
+    skybox = NU_RESOURCE_TEXTURE(NU_STR("skybox"));
 
     // Create lightenv
 

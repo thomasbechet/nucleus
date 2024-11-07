@@ -28,5 +28,25 @@ nu_image_size (nu_image_t image)
 {
     return _ctx.graphics.images.data[NU_HANDLE_INDEX(image)].size;
 }
+nu_image_t
+nu_image_load (nu_seria_t seria)
+{
+    nu_u32_t x, y;
+    nu_seria_read(seria, NU_SERIA_U32, 1, &x);
+    nu_seria_read(seria, NU_SERIA_U32, 1, &y);
+    nu_image_t   image = nu_image_create(nu_v2u(x, y));
+    nu__image_t *im    = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
+    nu_seria_read(seria, NU_SERIA_BYTE, 4 * x * y, im->colors);
+    return image;
+}
+void
+nu_image_save (nu_image_t image, nu_seria_t seria)
+{
+    nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
+    nu_seria_write(seria, NU_SERIA_U32, 1, &ima->size.x);
+    nu_seria_write(seria, NU_SERIA_U32, 1, &ima->size.y);
+    nu_seria_write(
+        seria, NU_SERIA_BYTE, 4 * ima->size.x * ima->size.y, ima->colors);
+}
 
 #endif
