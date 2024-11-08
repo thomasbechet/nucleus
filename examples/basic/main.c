@@ -110,6 +110,8 @@ init (void)
 {
     nuext_import_package(NU_STR("../../../assets/pkg.json"));
 
+    NU_RESOURCE_REG(texture, nu_texture_t, NU_NULL, NU_NULL);
+
     NU_SERIA_REG_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
                       NU_SERIA_VALUE("player", COMP_PLAYER););
     NU_SERIA_REG_STRUCT(

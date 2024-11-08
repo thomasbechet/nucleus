@@ -3,97 +3,144 @@
 
 #include <nucleus/internal.h>
 
-static const nu_str_t nu__resource_type_names[]
-    = { NU_STR("texture"), NU_STR("cubemap"), NU_STR("material"),
-        NU_STR("model"),   NU_STR("input"),   NU_STR("unknown") };
-
 static nu_error_t
 nu__resource_init (void)
 {
+    NU_VEC_INIT(10, &_ctx.resource.types);
     NU_POOL_INIT(10, &_ctx.resource.entries);
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__resource_free (void)
 {
+    for (nu_size_t i = 0; i < _ctx.resource.entries.capacity; ++i)
+    {
+        const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
+        if (res->used)
+        {
+            nu_resource_remove(NU_HANDLE_MAKE(nu_resource_t, i));
+        }
+    }
     NU_POOL_FREE(&_ctx.resource.entries);
+    NU_VEC_FREE(&_ctx.resource.types);
     return NU_ERROR_NONE;
 }
 
-nu_resource_t
-nu_resource_add (nu_resource_type_t type, nu_str_t name)
+nu_resource_type_t
+nu_resource_register (nu_uid_t               uid,
+                      nu_resource_load_pfn_t load,
+                      nu_resource_save_pfn_t save,
+                      nu_resource_free_pfn_t free)
 {
-    if (nu_resource_exists(type, name))
+    if (nu_resource_type_find(uid))
     {
-        NU_ERROR("resource '" NU_STR_FMT "' of type '" NU_STR_FMT
-                 "' already exists",
-                 NU_STR_ARGS(name),
-                 NU_STR_ARGS(nu__resource_type_names[type]));
+        NU_ERROR("resource type %d already exists", uid);
         return NU_NULL;
     }
 
-    if (name.size > NU_RESOURCE_NAME_MAX)
+    nu__resource_type_t *t = NU_VEC_PUSH(&_ctx.resource.types);
+    t->uid                 = uid;
+    t->load                = load;
+    t->save                = save;
+    t->free                = free;
+    return NU_HANDLE_MAKE(nu_resource_type_t, _ctx.resource.types.size - 1);
+}
+nu_resource_type_t
+nu_resource_type_find (nu_uid_t uid)
+{
+    for (nu_size_t i = 0; i < _ctx.resource.types.size; ++i)
     {
-        NU_ERROR("asset name too long");
-        return NU_NULL;
+        const nu__resource_type_t *t = _ctx.resource.types.data + i;
+        if (t->uid == uid)
+        {
+            return NU_HANDLE_MAKE(nu_resource_type_t, i);
+        }
     }
+    return NU_NULL;
+}
+
+nu_resource_t
+nu_resource_add (nu_resource_type_t type, nu_uid_t uid, void *data)
+{
+    NU_ASSERT(type);
+    NU_ASSERT(data);
+
+    const nu__resource_type_t *t
+        = _ctx.resource.types.data + NU_HANDLE_INDEX(type);
 
     nu_size_t             index;
-    nu__resource_entry_t *entry = NU_POOL_ADD(&_ctx.resource.entries, &index);
-    entry->used                 = NU_TRUE;
-    entry->type                 = type;
-    entry->hash                 = nu_str_hash(name);
-    entry->bundle               = _ctx.resource.active_bundle;
-    entry->refcount             = 0;
-    entry->data                 = NU_NULL;
-    nu_memcpy(entry->name, name.data, name.size);
-    entry->name_size = name.size;
-
+    nu__resource_entry_t *res = NU_POOL_ADD(&_ctx.resource.entries, &index);
+    res->used                 = NU_TRUE;
+    res->uid                  = uid;
+    res->type                 = type;
+    res->data                 = data;
+    res->refcount             = 0;
     return NU_HANDLE_MAKE(nu_resource_t, index);
 }
-nu_resource_t
-nu_resource_find (nu_resource_type_t type, nu_str_t name)
+void
+nu_resource_remove (nu_resource_t resource)
 {
-    nu_u32_t hash = nu_str_hash(name);
-    for (nu_size_t i = 0; i < _ctx.resource.entries.capacity; ++i)
+    NU_ASSERT(resource);
+
+    nu__resource_entry_t *res
+        = _ctx.resource.entries.data + NU_HANDLE_INDEX(resource);
+    const nu__resource_type_t *t
+        = _ctx.resource.types.data + NU_HANDLE_INDEX(res->type);
+
+    NU_ASSERT(res->refcount == 0);
+
+    // free resource
+    if (res->data && t->free)
     {
-        nu__resource_entry_t *entry = _ctx.resource.entries.data + i;
-        if (entry->used && entry->type == type && entry->hash == hash)
+        t->free(res->data);
+    }
+
+    res->data = NU_NULL;
+    res->used = NU_FALSE;
+}
+nu_resource_t
+nu_resource_find (nu_uid_t uid)
+{
+    for (nu_size_t i = 0; i < _ctx.resource.types.size; ++i)
+    {
+        const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
+        if (res->uid == uid)
         {
             return NU_HANDLE_MAKE(nu_resource_t, i);
         }
     }
-    NU_ERROR("resource '" NU_STR_FMT "' of type '" NU_STR_FMT "' not found",
-             NU_STR_ARGS(name),
-             NU_STR_ARGS(nu__resource_type_names[type]));
     return NU_NULL;
 }
-nu_bool_t
-nu_resource_exists (nu_resource_type_t type, nu_str_t name)
+void
+nu_resource_acquire (nu_resource_t resource)
 {
-    nu_u32_t hash = nu_str_hash(name);
-    for (nu_size_t i = 0; i < _ctx.resource.entries.capacity; ++i)
-    {
-        nu__resource_entry_t *entry = _ctx.resource.entries.data + i;
-        if (entry->used && entry->type == type && entry->hash == hash)
-        {
-            return NU_TRUE;
-        }
-    }
-    return NU_FALSE;
+    NU_ASSERT(resource);
+    ++_ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].refcount;
+}
+void
+nu_resource_release (nu_resource_t resource)
+{
+    NU_ASSERT(resource);
+    NU_ASSERT(_ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].refcount);
+    --_ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].refcount;
 }
 void *
-nu_resource_data (nu_resource_t handle)
+nu_resource_data (nu_resource_t resource)
 {
-    NU_ASSERT(handle);
-    return _ctx.resource.entries.data[NU_HANDLE_INDEX(handle)].data;
+    NU_ASSERT(resource);
+    return _ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].data;
 }
-nu_resource_info_t
-nu_resource_info (nu_resource_t handle)
+nu_resource_type_t
+nu_resource_get_type (nu_resource_t resource)
 {
-    nu_resource_info_t info;
-    info.type = NU_RESOURCE_TEXTURE;
-    return info;
+    NU_ASSERT(resource);
+    return _ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].type;
+}
+nu_uid_t
+nu_resource_get_uid (nu_resource_t resource)
+{
+    NU_ASSERT(resource);
+    return _ctx.resource.entries.data[NU_HANDLE_INDEX(resource)].uid;
 }
 
 #endif

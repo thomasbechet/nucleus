@@ -8,7 +8,8 @@ nuext_import_resource (nu_resource_type_t type,
                        nu_str_t           name,
                        nu_str_t           filename)
 {
-    nu_resource_t handle = nu_resource_add(type, name);
+    nu_resource_t handle = nu_resource_add(type, data);
+    nu_resource_set_name(handle, name);
     NU_CHECK(handle, return handle);
     nu__resource_entry_t *entry
         = &_ctx.resource.entries.data[NU_HANDLE_INDEX(handle)];
@@ -30,17 +31,26 @@ nuext_import_resource (nu_resource_type_t type,
             }
         }
         break;
-        case NU_RESOURCE_MATERIAL:
         case NU_RESOURCE_MODEL:
             entry->data = nuext_model_load_filename(filename);
             NU_CHECK(entry->data, return NU_NULL);
             break;
-        case NU_RESOURCE_INPUT:
-        case NU_RESOURCE_UNKNOWN:
-            break;
     }
 
     return handle;
+}
+nu_resource_t
+nuext_import_texture (nu_str_t filename, nu_str_t name)
+{
+    nu_resource_add
+}
+nu_resource_t
+nuext_import_model (nu_str_t filename, nu_str_t name)
+{
+}
+nu_resource_t
+nuext_import_cubemap (nu_str_t filename, nu_str_t name)
+{
 }
 nu_error_t
 nuext_import_package (nu_str_t filename)
@@ -103,8 +113,7 @@ nuext_import_package (nu_str_t filename)
             nu_str_t final_path = nuext_path_concat(final_path_buf, dir, path);
 
             // Parse type
-            nu_resource_type_t type = NU_RESOURCE_UNKNOWN;
-            const jsmntok_t   *ttype
+            const jsmntok_t *ttype
                 = nu__json_object_member(json, tok, NU_STR("type"));
             if (!ttype)
             {

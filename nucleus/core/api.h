@@ -142,7 +142,7 @@
     _NU_CHECK(error == NU_ERROR_NONE, action, __SOURCE__)
 #define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
 
-#define NU_UID(name) nu_hash(name)
+#define NU_UID(name) nu_str_hash(NU_STR(name))
 
 #define NU_MATCH(a, b) (nu_str_eq(a, b))
 #define NU_STR(str)                                          \
