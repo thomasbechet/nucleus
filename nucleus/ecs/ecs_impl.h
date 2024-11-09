@@ -108,6 +108,9 @@ nu__ecs_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ecs.instances);
     NU_VEC_INIT(1, &_ctx.ecs.components);
+#ifdef NU_BUILD_RESOURCE
+    nu__ecs_res_register();
+#endif
 }
 static void
 nu__ecs_free (void)
@@ -425,8 +428,7 @@ nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
         = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
 
     // write ecs header
-    nu_u32_t pool_count = ins->pools.size;
-    nu_seria_write(seria, NU_SERIA_U32, 1, &pool_count);
+    nu_seria_write_u32(seria, ins->pools.size);
 
     // iterate pools
     for (nu_size_t p = 0; p < ins->pools.size; ++p)
@@ -471,8 +473,7 @@ nu_ecs_load (nu_seria_t seria)
     nu__ecs_instance_t *ins = _ctx.ecs.instances.data + NU_HANDLE_INDEX(ecs);
 
     // read ecs header
-    nu_u32_t pool_count;
-    nu_seria_read(seria, NU_SERIA_U32, 1, &pool_count);
+    nu_u32_t pool_count = nu_seria_read_u32(seria);
 
     for (nu_size_t p = 0; p < pool_count; ++p)
     {
@@ -486,8 +487,7 @@ nu_ecs_load (nu_seria_t seria)
             = nu_ecs_find_component(nu_str_from_cstr(component_name));
 
         // read component count
-        nu_u32_t component_count;
-        nu_seria_read(seria, NU_SERIA_U32, 1, &component_count);
+        nu_u32_t component_count = nu_seria_read_u32(seria);
         NU_ASSERT(component_count > 0);
 
         // find component layout
@@ -547,5 +547,37 @@ nu_ecs_dump (nu_ecs_t ecs)
         }
     }
 }
+
+#ifdef NU_BUILD_RESOURCE
+nu_ecs_t
+nu_ecs_resource (nu_uid_t uid)
+{
+    return nu_resource_data(_ctx.ecs.res_ecs, uid);
+}
+static void
+nu__ecs_res_removed (void *data)
+{
+    nu_ecs_delete(data);
+}
+static void *
+nu__ecs_res_load (nu_seria_t seria)
+{
+    return nu_ecs_load(seria);
+}
+static void
+nu__ecs_res_save (void *data, nu_seria_t seria)
+{
+    nu_ecs_save(data, seria);
+}
+static void
+nu__ecs_res_register (void)
+{
+    _ctx.ecs.res_ecs = nu_resource_register(NU_UID("ecs"),
+                                            NU_NULL,
+                                            nu__ecs_res_removed,
+                                            nu__ecs_res_load,
+                                            nu__ecs_res_save);
+}
+#endif
 
 #endif

@@ -2,6 +2,9 @@
 #define NU_GRAPHICS_API_H
 
 #include <nucleus/seria/api.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/api.h>
+#endif
 
 NU_DEFINE_HANDLE(nu_image_t);
 NU_DEFINE_HANDLE(nu_camera_t);
@@ -229,5 +232,10 @@ NU_API void       nu_model_delete(nu_model_t model);
 
 NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);
+
+#ifdef NU_BUILD_RESOURCE
+NU_API nu_texture_t nu_texture_resource(nu_uid_t uid);
+NU_API nu_model_t   nu_model_resource(nu_uid_t uid);
+#endif
 
 #endif

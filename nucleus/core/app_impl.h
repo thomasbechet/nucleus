@@ -61,6 +61,10 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_SERIA
     nu__seria_init();
 #endif
+#ifdef NU_BUILD_RESOURCE
+    error = nu__resource_init();
+    NU_ERROR_CHECK(error, return error);
+#endif
 #ifdef NU_BUILD_PLATFORM
     error = nu__platform_init();
     NU_ERROR_CHECK(error, return error);
@@ -75,10 +79,6 @@ main (int argc, char *argv[])
 #endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_init();
-#endif
-#ifdef NU_BUILD_RESOURCE
-    error = nu__resource_init();
-    NU_ERROR_CHECK(error, return error);
 #endif
 #ifdef NU_BUILD_UI
     nu__ui_init();
@@ -144,9 +144,6 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_UI
     nu__ui_free();
 #endif
-#ifdef NU_BUILD_RESOURCE
-    nu__resource_free();
-#endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_free();
 #endif
@@ -159,8 +156,11 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_PLATFORM
     nu__platform_free();
 #endif
+#ifdef NU_BUILD_RESOURCE
+    nu__resource_free();
+#endif
 #ifdef NU_BUILD_SERIA
-    nu__seria_init();
+    nu__seria_free();
 #endif
     nu__core_free();
 

@@ -43,13 +43,15 @@ NU_DEFINE_HANDLE(nu_seria_layout_t);
 
 #define NU_VEC_READ(v, seria, layout)                         \
     {                                                         \
-        nu_u32_t size;                                        \
-        nu_seria_read((seria), NU_SERIA_U32, &size);          \
+        nu_u32_t size = nu_seria_read_u32((seria));           \
         NU_VEC_RESIZE(v, size);                               \
         nu_seria_read((ser), (layout), (v)->size, (v)->data); \
     }
-#define NU_VEC_WRITE(v, seria, layout) \
-    nu_seria_write((seria), (layout), (v)->size, (v)->data);
+#define NU_VEC_WRITE(v, seria, layout)                           \
+    {                                                            \
+        nu_seria_write_u32((v)->size);                           \
+        nu_seria_write((seria), (layout), (v)->size, (v)->data); \
+    }
 
 typedef enum
 {
@@ -118,5 +120,8 @@ NU_API void nu_seria_read(nu_seria_t        seria,
                           nu_seria_layout_t layout,
                           nu_size_t         size,
                           void             *data);
+
+NU_API nu_u32_t nu_seria_read_u32(nu_seria_t seria);
+NU_API void     nu_seria_write_u32(nu_seria_t seria, nu_u32_t value);
 
 #endif

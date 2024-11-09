@@ -15,6 +15,7 @@ nu__importer_init (void)
 #ifdef NU_BUILD_IMPORTER_CGLTF
     nu__model_gltf_loader_init();
 #endif
+    _ctx.importer.pcg_state = NU__IMPORTER_PCG_SEED;
 }
 static void
 nu__importer_free (void)

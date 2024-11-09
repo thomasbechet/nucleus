@@ -78,12 +78,12 @@ nu__seria_free (void)
         switch (p->kind)
         {
             case NU__SERIA_PRIMITIVE:
-                NU_VEC_FREE(&_ctx.seria.layouts.data[i].values);
                 break;
             case NU__SERIA_STRUCT:
-                NU_VEC_FREE(&_ctx.seria.layouts.data[i].fields);
+                NU_VEC_FREE(&p->fields);
                 break;
             case NU__SERIA_ENUM:
+                NU_VEC_FREE(&p->values);
                 break;
         }
     }
@@ -483,6 +483,19 @@ nu_seria_read (nu_seria_t        seria,
         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
     nu__seria_nbin_read(ctx, l, size, data);
+}
+
+nu_u32_t
+nu_seria_read_u32 (nu_seria_t seria)
+{
+    nu_u32_t v;
+    nu_seria_read(seria, NU_SERIA_U32, 1, &v);
+    return v;
+}
+void
+nu_seria_write_u32 (nu_seria_t seria, nu_u32_t value)
+{
+    nu_seria_write(seria, NU_SERIA_U32, 1, &value);
 }
 
 #endif

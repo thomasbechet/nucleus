@@ -111,7 +111,6 @@ nu_memset (void *dst, nu_word_t c, nu_size_t n)
     }
     return (dst);
 }
-
 void
 nu_memcpy (void *dst, const void *src, nu_size_t n)
 {
@@ -124,7 +123,20 @@ nu_memcpy (void *dst, const void *src, nu_size_t n)
         u8_dst[i] = u8_src[i];
     }
 }
+void
+nu_memswp (void *a, void *b, nu_size_t n)
+{
+    nu_byte_t *a_swap = (nu_byte_t *)a, *b_swap = (nu_byte_t *)b;
+    nu_byte_t *a_end = a + n;
 
+    while (a_swap < a_end)
+    {
+        nu_byte_t temp = *a_swap;
+        *a_swap        = *b_swap;
+        *b_swap        = temp;
+        a_swap++, b_swap++;
+    }
+}
 void *
 nu_memalign (void *ptr, nu_size_t align)
 {

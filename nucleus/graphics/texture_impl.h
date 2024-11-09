@@ -45,4 +45,36 @@ nu_texture_write_cubemap_colors (nu_texture_t      cubemap,
 #endif
 }
 
+#ifdef NU_BUILD_RESOURCE
+nu_texture_t
+nu_texture_resource (nu_uid_t uid)
+{
+    return nu_resource_data(_ctx.graphics.res_texture, uid);
+}
+static void
+nu__texture_resource_removed (void *data)
+{
+    nu_texture_delete(data);
+}
+static void *
+nu__texture_resource_load (nu_seria_t seria)
+{
+    return NU_NULL;
+}
+static void
+nu__texture_resource_save (void *data, nu_seria_t seria)
+{
+}
+static void
+nu__texture_resource_register (void)
+{
+    _ctx.graphics.res_texture
+        = nu_resource_register(NU_UID("texture"),
+                               NU_NULL,
+                               nu__texture_resource_removed,
+                               nu__texture_resource_load,
+                               nu__texture_resource_save);
+}
+#endif
+
 #endif

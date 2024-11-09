@@ -90,6 +90,8 @@ typedef struct
     nu_timer_t     last_mouse_click;
     nu_bool_t      switch_capture_mouse;
     nu_v2u_t       size;
+
+    nu_resource_t res_input;
 } nu__platform_t;
 
 static nu_error_t nu__platform_init(void);

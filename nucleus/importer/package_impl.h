@@ -3,54 +3,29 @@
 
 #include <nucleus/internal.h>
 
-nu_resource_t
-nuext_import_resource (nu_resource_type_t type,
-                       nu_str_t           name,
-                       nu_str_t           filename)
+void
+nuext_import_texture (nu_str_t filename, nu_uid_t uid)
 {
-    nu_resource_t handle = nu_resource_add(type, data);
-    nu_resource_set_name(handle, name);
-    NU_CHECK(handle, return handle);
-    nu__resource_entry_t *entry
-        = &_ctx.resource.entries.data[NU_HANDLE_INDEX(handle)];
-
-    switch (type)
-    {
-        case NU_RESOURCE_TEXTURE: {
-            if (nuext_path_extension(filename) == NUEXT_EXTENSION_JSON)
-            {
-                entry->data = nuext_cubemap_load_filename(filename);
-                NU_CHECK(entry->data, return NU_NULL);
-            }
-            else
-            {
-                nu_image_t image = nuext_image_load_filename(filename);
-                NU_CHECK(image, return NU_NULL);
-                entry->data = nu_image_create_texture(image);
-                nu_image_delete(image);
-            }
-        }
-        break;
-        case NU_RESOURCE_MODEL:
-            entry->data = nuext_model_load_filename(filename);
-            NU_CHECK(entry->data, return NU_NULL);
-            break;
-    }
-
-    return handle;
+    nu_image_t image = nuext_image_load_file(filename);
+    NU_ASSERT(image);
+    nu_texture_t texture = nu_image_create_texture(image);
+    NU_ASSERT(texture);
+    nu_image_delete(image);
+    nu_resource_add(_ctx.graphics.res_texture, uid, texture);
 }
-nu_resource_t
-nuext_import_texture (nu_str_t filename, nu_str_t name)
+void
+nuext_import_model (nu_str_t filename, nu_uid_t uid)
 {
-    nu_resource_add
+    nu_model_t model = nuext_model_load_file(filename);
+    NU_ASSERT(model);
+    nu_resource_add(_ctx.graphics.res_model, uid, model);
 }
-nu_resource_t
-nuext_import_model (nu_str_t filename, nu_str_t name)
+void
+nuext_import_cubemap (nu_str_t filename, nu_uid_t uid)
 {
-}
-nu_resource_t
-nuext_import_cubemap (nu_str_t filename, nu_str_t name)
-{
+    nu_texture_t cubemap = nuext_cubemap_load_file(filename);
+    NU_ASSERT(cubemap);
+    nu_resource_add(_ctx.graphics.res_texture, uid, cubemap);
 }
 nu_error_t
 nuext_import_package (nu_str_t filename)
@@ -122,11 +97,18 @@ nuext_import_package (nu_str_t filename)
             }
             if (nu__json_eq(json, ttype, NU_STR("model")))
             {
-                nuext_import_resource(NU_RESOURCE_MODEL, name, final_path);
+                nuext_import_model(final_path, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("texture")))
             {
-                nuext_import_resource(NU_RESOURCE_TEXTURE, name, final_path);
+                if (nuext_path_extension(final_path) == NUEXT_EXTENSION_JSON)
+                {
+                    nuext_import_cubemap(final_path, nu_str_hash(name));
+                }
+                else
+                {
+                    nuext_import_texture(final_path, nu_str_hash(name));
+                }
             }
             else
             {
@@ -135,7 +117,9 @@ nuext_import_package (nu_str_t filename)
                 goto cleanup2;
             }
 
-            NU_INFO("'" NU_STR_FMT "' asset added", NU_STR_ARGS(name));
+            NU_INFO("'" NU_STR_FMT "' resource added (%llu)",
+                    NU_STR_ARGS(name),
+                    nu_str_hash(name));
         }
         tok = nu__json_skip(tok);
     }

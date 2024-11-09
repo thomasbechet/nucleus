@@ -2,6 +2,9 @@
 #define NU_ECS_API_H
 
 #include <nucleus/seria/api.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/api.h>
+#endif
 
 NU_DEFINE_HANDLE(nu_ecs_t);
 
@@ -44,5 +47,9 @@ NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 NU_API void     nu_ecs_save(nu_ecs_t ecs, nu_seria_t seria);
 NU_API nu_ecs_t nu_ecs_load(nu_seria_t seria);
 NU_API void     nu_ecs_dump(nu_ecs_t ecs);
+
+#ifdef NU_BUILD_RESOURCE
+NU_API nu_ecs_t nu_ecs_resource(nu_uid_t uid);
+#endif
 
 #endif

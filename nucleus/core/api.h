@@ -277,6 +277,24 @@
 #define NU_VEC_POP(v) \
     (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
 
+#define NU_VEC_SWAP(v, a, b)                                                 \
+    {                                                                        \
+        NU_ASSERT((a) < (v)->size && (b) < (v)->size);                       \
+        if ((a) != (b))                                                      \
+        {                                                                    \
+            nu_memswp((v)->data + (a), (v)->data + (b), sizeof(*(v)->data)); \
+        }                                                                    \
+    }
+
+#define NU_VEC_SWAP_REMOVE(v, i)                \
+    {                                           \
+        if ((i) < (v)->size - 1)                \
+        {                                       \
+            NU_VEC_SWAP(v, (i), (v)->size - 1); \
+        }                                       \
+        NU_VEC_POP(v);                          \
+    }
+
 #define NU_VEC_RESIZE(v, new_size)                               \
     do                                                           \
     {                                                            \
@@ -357,7 +375,6 @@
 //////                          Core Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-NU_DEFINE_HANDLE(nu_table_t);
 NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 // TODO: use stdint types
@@ -655,6 +672,7 @@ NU_API void  nu_free(void *p, nu_size_t s);
 NU_API nu_int_t nu_memcmp(const void *p0, const void *p1, nu_size_t n);
 NU_API void    *nu_memset(void *dst, nu_word_t c, nu_size_t n);
 NU_API void     nu_memcpy(void *dst, const void *src, nu_size_t n);
+NU_API void     nu_memswp(void *a, void *b, nu_size_t n);
 NU_API void    *nu_memalign(void *ptr, nu_size_t align);
 
 NU_API nu_time_t nu_time(void);
@@ -682,6 +700,9 @@ NU_API nu_bool_t nu_str_to_i32(nu_str_t s, nu_i32_t *v);
 NU_API nu_bool_t nu_str_to_f32(nu_str_t s, nu_f32_t *v);
 NU_API nu_str_t  nu_str_fmt(nu_str_t buf, nu_str_t format, ...);
 NU_API nu_str_t  nu_str_vfmt(nu_str_t buf, nu_str_t format, va_list args);
+
+NU_API nu_u32_t nu_pcg_u32(nu_u64_t *state, nu_u64_t incr);
+NU_API nu_f32_t nu_pcg_f32(nu_u64_t *state, nu_u64_t incr);
 
 NU_API nuext_extension_t nuext_path_extension(nu_str_t filename);
 NU_API nu_str_t          nuext_path_basename(nu_str_t path);

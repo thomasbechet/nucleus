@@ -67,7 +67,7 @@ nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
 }
 
 nu_image_t
-nuext_image_load_filename (nu_str_t filename)
+nuext_image_load_file (nu_str_t filename)
 {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
     return nu__image_load_filename(filename);

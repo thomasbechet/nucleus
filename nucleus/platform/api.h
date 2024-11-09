@@ -1,7 +1,10 @@
 #ifndef NU_PLATFORM_API_H
 #define NU_PLATFORM_API_H
 
-#include <nucleus/core/api.h>
+#include <nucleus/seria/api.h>
+#ifdef NU_BUILD_RESOURCE
+#include <nucleus/resource/api.h>
+#endif
 
 NU_DEFINE_HANDLE(nu_input_t);
 
@@ -164,5 +167,11 @@ NU_API nu_error_t nuext_input_bind_button_value(nu_input_t     input,
                                                 nuext_button_t button,
                                                 nu_f32_t       value);
 NU_API nu_error_t nuext_input_bind_axis(nu_input_t input, nuext_axis_t axis);
+
+NU_API nu_v2i_t nuext_platform_cursor(nu_input_t cursor_x, nu_input_t cursor_y);
+
+#ifdef NU_BUILD_RESOURCE
+NU_API nu_input_t nu_input_resource(nu_uid_t uid);
+#endif
 
 #endif

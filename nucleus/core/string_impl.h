@@ -127,6 +127,25 @@ nu_str_vfmt (nu_str_t buf, nu_str_t format, va_list args)
 #endif
 }
 
+nu_u32_t
+nu_pcg_u32 (nu_u64_t *state, nu_u64_t incr)
+{
+    nu_u64_t old_state  = *state;
+    *state              = old_state * 6364136223846793005 + (incr | 1);
+    nu_u64_t xorshifted = ((old_state >> 18) ^ old_state) >> 27;
+    nu_u64_t rot        = old_state >> 59;
+    return ((xorshifted >> rot) | (xorshifted << ((-rot & 31))));
+}
+nu_f32_t
+nu_pcg_f32 (nu_u64_t *state, nu_u64_t incr)
+{
+    // generate uniformly distributed single precision number in [1, 2)
+    nu_u32_t next = (nu_pcg_u32(state, incr) >> 9) | 0x3f800000;
+    nu_f32_t flt;
+    nu_memcpy(&flt, &next, sizeof(nu_f32_t));
+    return flt - 1;
+}
+
 nuext_extension_t
 nuext_path_extension (nu_str_t filename)
 {

@@ -3,30 +3,29 @@
 
 #include <nucleus/resource/api.h>
 
-#define NU__RESOURCE_TYPE_NAME_MAX 32
-#define NU__RESOURCE_NAME_MAX      32
-
 typedef struct
 {
-    nu_uid_t               uid;
-    nu_resource_load_pfn_t load;
-    nu_resource_save_pfn_t save;
-    nu_resource_free_pfn_t free;
+    nu_uid_t              uid;
+    nu_resource_added_t   added;
+    nu_resource_removed_t removed;
+    nu_resource_load_t    load;
+    nu_resource_save_t    save;
 } nu__resource_type_t;
 
 typedef struct
 {
-    nu_bool_t          used;
-    nu_uid_t           uid;
-    void              *data;
-    nu_size_t          refcount;
-    nu_resource_type_t type;
+    nu_uid_t      uid;
+    nu_uid_t      bundle;
+    nu_resource_t type;
+    nu_size_t     refcount;
+    void         *data;
 } nu__resource_entry_t;
 
 typedef struct
 {
     NU_VEC(nu__resource_type_t) types;
-    NU_POOL(nu__resource_entry_t) entries;
+    NU_VEC(nu__resource_entry_t) entries;
+    nu_uid_t active_bundle;
 } nu__resource_t;
 
 static nu_error_t nu__resource_init(void);

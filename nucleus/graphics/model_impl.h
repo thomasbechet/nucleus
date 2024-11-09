@@ -35,4 +35,35 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
     }
 }
 
+#ifdef NU_BUILD_RESOURCE
+nu_model_t
+nu_model_resource (nu_uid_t uid)
+{
+    return nu_resource_data(_ctx.graphics.res_model, uid);
+}
+static void
+nu__model_resource_removed (void *data)
+{
+    // nu_model_delete(data);
+}
+static void *
+nu__model_resource_load (nu_seria_t seria)
+{
+    return NU_NULL;
+}
+static void
+nu__model_resource_save (void *data, nu_seria_t seria)
+{
+}
+static void
+nu__model_resource_register (void)
+{
+    _ctx.graphics.res_model = nu_resource_register(NU_UID("model"),
+                                                   NU_NULL,
+                                                   nu__model_resource_removed,
+                                                   nu__model_resource_load,
+                                                   nu__model_resource_save);
+}
+#endif
+
 #endif

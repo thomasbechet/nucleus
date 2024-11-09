@@ -6,6 +6,9 @@
 #include <nucleus/resource/resource.h>
 #include <nucleus/importer/json.h>
 
+#define NU__IMPORTER_PCG_SEED 12345
+#define NU__IMPORTER_PCG_INCR 12345
+
 #ifdef NU_BUILD_IMPORTER_CGLTF
 typedef struct
 {
@@ -27,7 +30,7 @@ typedef struct
 #ifdef NU_BUILD_IMPORTER_CGLTF
     nu__model_gltf_loader_t model_gltf_loader;
 #endif
-    int dummy;
+    nu_u64_t pcg_state;
 } nu__importer_t;
 
 static void nu__importer_init(void);

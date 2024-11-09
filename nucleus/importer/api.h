@@ -4,16 +4,16 @@
 #include <nucleus/graphics/api.h>
 #include <nucleus/resource/api.h>
 
-NU_API nu_image_t nuext_image_load_filename(nu_str_t filename);
+NU_API nu_image_t nuext_image_load_file(nu_str_t filename);
 NU_API nu_image_t nuext_image_load_memory(const nu_byte_t *data,
                                           nu_size_t        size);
 
-NU_API nu_model_t   nuext_model_load_filename(nu_str_t filename);
-NU_API nu_texture_t nuext_cubemap_load_filename(nu_str_t filename);
+NU_API nu_model_t   nuext_model_load_file(nu_str_t filename);
+NU_API nu_texture_t nuext_cubemap_load_file(nu_str_t filename);
 
-NU_API nu_resource_t nuext_import_texture(nu_str_t filename, nu_str_t name);
-NU_API nu_resource_t nuext_import_model(nu_str_t filename, nu_str_t name);
-NU_API nu_resource_t nuext_import_cubemap(nu_str_t filename, nu_str_t name);
-NU_API nu_error_t    nuext_import_package(nu_str_t filename);
+NU_API void       nuext_import_texture(nu_str_t filename, nu_uid_t uid);
+NU_API void       nuext_import_model(nu_str_t filename, nu_uid_t uid);
+NU_API void       nuext_import_cubemap(nu_str_t filename, nu_uid_t uid);
+NU_API nu_error_t nuext_import_package(nu_str_t filename);
 
 #endif

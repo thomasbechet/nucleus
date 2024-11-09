@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 nu_texture_t
-nuext_cubemap_load_filename (nu_str_t filename)
+nuext_cubemap_load_file (nu_str_t filename)
 {
     nu_image_t   images[NU_CUBEMAP_FACE_COUNT];
     nu_texture_t cubemap = NU_NULL;
@@ -45,7 +45,7 @@ nuext_cubemap_load_filename (nu_str_t filename)
             NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
             nu_str_t final_path
                 = nuext_path_concat(final_path_buf, json_path, path);
-            images[f] = nuext_image_load_filename(final_path);
+            images[f] = nuext_image_load_file(final_path);
             if (!images[f])
             {
                 NU_ERROR("cubemap face loading error '%s'", path);
