@@ -44,9 +44,6 @@ typedef struct
     nu_resource_t res_image;
     nu_resource_t res_texture;
     nu_resource_t res_model;
-    nu_resource_t res_font;
-    nu_resource_t res_mesh;
-    nu_resource_t res_material;
 #endif
 } nu__graphics_t;
 
