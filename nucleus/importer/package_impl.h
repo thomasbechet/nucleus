@@ -4,14 +4,11 @@
 #include <nucleus/internal.h>
 
 void
-nuext_import_texture (nu_str_t filename, nu_uid_t uid)
+nuext_import_image (nu_str_t filename, nu_uid_t uid)
 {
     nu_image_t image = nuext_image_load_file(filename);
     NU_ASSERT(image);
-    nu_texture_t texture = nu_image_create_texture(image);
-    NU_ASSERT(texture);
-    nu_image_delete(image);
-    nu_resource_add(_ctx.graphics.res_texture, uid, texture);
+    nu_resource_add(_ctx.graphics.res_image, uid, image);
 }
 void
 nuext_import_model (nu_str_t filename, nu_uid_t uid)
@@ -107,7 +104,7 @@ nuext_import_package (nu_str_t filename)
                 }
                 else
                 {
-                    nuext_import_texture(final_path, nu_str_hash(name));
+                    nuext_import_image(final_path, nu_str_hash(name));
                 }
             }
             else

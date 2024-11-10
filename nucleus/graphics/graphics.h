@@ -42,7 +42,7 @@ typedef struct
 
 #ifdef NU_BUILD_RESOURCE
     nu_resource_t res_image;
-    nu_resource_t res_texture;
+    nu_resource_t res_image_texture;
     nu_resource_t res_model;
 #endif
 } nu__graphics_t;

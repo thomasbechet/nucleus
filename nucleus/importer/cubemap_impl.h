@@ -59,7 +59,7 @@ nuext_cubemap_load_file (nu_str_t filename)
                                 nu_v3u(size.x, size.y, 0));
     for (nu_size_t i = 0; i < NU_CUBEMAP_FACE_COUNT; ++i)
     {
-        nu_texture_write_cubemap_colors(cubemap, i, nu_image_colors(images[i]));
+        nu_texture_set_cubemap_colors(cubemap, i, nu_image_colors(images[i]));
     }
 
 cleanup2:

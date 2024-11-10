@@ -40,6 +40,7 @@ nu__platform_init (void)
     // Bind callbacks
     RGFW_window_makeCurrent_OpenGL(_ctx.platform.win);
     RGFW_window_makeCurrent(_ctx.platform.win);
+    // RGFW_setWindowResizeCallback(nu__window_size_callback);
 
     // Get initial mouse position
     RGFW_point p                 = RGFW_window_getMousePoint(_ctx.platform.win);
@@ -184,7 +185,6 @@ nu__platform_poll_events (void)
             {
                 _ctx.platform.previous_rect = _ctx.platform.win->r;
                 RGFW_monitor mon = RGFW_window_getMonitor(_ctx.platform.win);
-                RGFW_window_moveToMonitor(_ctx.platform.win, mon);
                 RGFW_window_setBorder(_ctx.platform.win, RGFW_FALSE);
                 RGFW_window_resize(_ctx.platform.win,
                                    RGFW_AREA(mon.rect.w, mon.rect.h));

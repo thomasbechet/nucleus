@@ -48,7 +48,8 @@ nu__graphics_init (void)
 
     // Register resources
 #ifdef NU_BUILD_RESOURCE
-    nu__texture_resource_register();
+    nu__image_resource_register();
+    nu__image_texture_resource_register();
     nu__model_resource_register();
 #endif
 
@@ -91,7 +92,7 @@ nu_texture_create_color (nu_color_t color)
 {
     nu_texture_t tex = nu_texture_create(NU_TEXTURE_COLOR, NU_V3U_ONES);
     NU_CHECK(tex, return tex);
-    nu_texture_write_colors(tex, &color);
+    nu_texture_set_colors(tex, &color);
     return tex;
 }
 nu_texture_t
@@ -101,7 +102,7 @@ nu_image_create_texture (nu_image_t image)
     nu_texture_t tex
         = nu_texture_create(NU_TEXTURE_COLOR, nu_v3u_v2u(ima->size, 0));
     NU_CHECK(tex, return tex);
-    nu_texture_write_colors(tex, ima->colors);
+    nu_texture_set_colors(tex, ima->colors);
     return tex;
 }
 

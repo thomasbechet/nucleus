@@ -25,7 +25,7 @@ nu_mesh_delete (nu_mesh_t mesh)
     NU_POOL_REMOVE(&_ctx.graphics.meshes, NU_HANDLE_INDEX(mesh));
 }
 void
-nu_mesh_write_uvs (nu_mesh_t      mesh,
+nu_mesh_set_uvs (nu_mesh_t      mesh,
                    nu_size_t      first,
                    nu_size_t      count,
                    const nu_v2_t *data)
@@ -37,7 +37,7 @@ nu_mesh_write_uvs (nu_mesh_t      mesh,
 #endif
 }
 void
-nu_mesh_write_positions (nu_mesh_t      mesh,
+nu_mesh_set_positions (nu_mesh_t      mesh,
                          nu_size_t      first,
                          nu_size_t      count,
                          const nu_v3_t *data)
@@ -50,7 +50,7 @@ nu_mesh_write_positions (nu_mesh_t      mesh,
 #endif
 }
 void
-nu_mesh_write_colors (nu_mesh_t         mesh,
+nu_mesh_set_colors (nu_mesh_t         mesh,
                       nu_size_t         first,
                       nu_size_t         count,
                       const nu_color_t *data)

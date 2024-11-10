@@ -89,27 +89,27 @@ NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_m4_t proj);
 
 NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
 NU_API void      nu_mesh_delete(nu_mesh_t mesh);
-NU_API void      nu_mesh_write_uvs(nu_mesh_t      mesh,
-                                   nu_size_t      first,
-                                   nu_size_t      count,
-                                   const nu_v2_t *data);
-NU_API void      nu_mesh_write_positions(nu_mesh_t      mesh,
-                                         nu_size_t      first,
-                                         nu_size_t      count,
-                                         const nu_v3_t *data);
-NU_API void      nu_mesh_write_colors(nu_mesh_t         mesh,
-                                      nu_size_t         first,
-                                      nu_size_t         count,
-                                      const nu_color_t *data);
+NU_API void      nu_mesh_set_uvs(nu_mesh_t      mesh,
+                                 nu_size_t      first,
+                                 nu_size_t      count,
+                                 const nu_v2_t *data);
+NU_API void      nu_mesh_set_positions(nu_mesh_t      mesh,
+                                       nu_size_t      first,
+                                       nu_size_t      count,
+                                       const nu_v3_t *data);
+NU_API void      nu_mesh_set_colors(nu_mesh_t         mesh,
+                                    nu_size_t         first,
+                                    nu_size_t         count,
+                                    const nu_color_t *data);
 
 NU_API nu_texture_t nu_texture_create(nu_texture_type_t type, nu_v3u_t size);
 NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
 NU_API void         nu_texture_delete(nu_texture_t texture);
-NU_API void         nu_texture_write_colors(nu_texture_t      texture,
-                                            const nu_color_t *colors);
-NU_API void         nu_texture_write_cubemap_colors(nu_texture_t      cubemap,
-                                                    nu_cubemap_face_t face,
-                                                    const nu_color_t *colors);
+NU_API void         nu_texture_set_colors(nu_texture_t      texture,
+                                          const nu_color_t *colors);
+NU_API void         nu_texture_set_cubemap_colors(nu_texture_t      cubemap,
+                                                  nu_cubemap_face_t face,
+                                                  const nu_color_t *colors);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
@@ -235,7 +235,7 @@ NU_API void      nu_font_delete(nu_font_t font);
 
 #ifdef NU_BUILD_RESOURCE
 NU_API nu_image_t   nu_image_resource(nu_uid_t uid);
-NU_API nu_texture_t nu_texture_resource(nu_uid_t uid);
+NU_API nu_texture_t nu_image_texture_resource(nu_uid_t uid);
 NU_API nu_model_t   nu_model_resource(nu_uid_t uid);
 #endif
 

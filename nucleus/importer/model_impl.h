@@ -110,8 +110,8 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_size_t primitive_count = indice_count / 3;
             nu_mesh_t handle
                 = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_mesh_write_positions(handle, 0, primitive_count, buf_positions);
-            nu_mesh_write_uvs(handle, 0, primitive_count, buf_uvs);
+            nu_mesh_set_positions(handle, 0, primitive_count, buf_positions);
+            nu_mesh_set_uvs(handle, 0, primitive_count, buf_uvs);
 
             // Free resources
             nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
