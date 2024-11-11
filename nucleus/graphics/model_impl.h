@@ -37,7 +37,7 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
 
 #ifdef NU_BUILD_RESOURCE
 nu_model_t
-nu_model_resource (nu_uid_t uid)
+nu_model (nu_uid_t uid)
 {
     return nu_resource_data(_ctx.graphics.res_model, uid);
 }

@@ -10,7 +10,7 @@ nugl__texture_init (nu__texture_t *tex)
 
     glGenTextures(1, &tex->gl.texture);
 
-    if (tex->type == NU_TEXTURE_CUBEMAP_COLOR)
+    if (tex->type == NU_TEXTURE_CUBEMAP)
     {
         NU_ASSERT(tex->size.x == tex->size.y);
         glBindTexture(GL_TEXTURE_CUBE_MAP, tex->gl.texture);
@@ -42,8 +42,8 @@ nugl__texture_init (nu__texture_t *tex)
         glBindTexture(GL_TEXTURE_2D, tex->gl.texture);
         switch (tex->type)
         {
-            case NU_TEXTURE_COLOR:
-            case NU_TEXTURE_COLOR_TARGET:
+            case NU_TEXTURE_COLORMAP:
+            case NU_TEXTURE_COLORMAP_TARGET:
                 glTexImage2D(GL_TEXTURE_2D,
                              0,
                              GL_RGBA,
@@ -54,7 +54,7 @@ nugl__texture_init (nu__texture_t *tex)
                              GL_UNSIGNED_BYTE,
                              NU_NULL);
                 break;
-            case NU_TEXTURE_DEPTH_TARGET:
+            case NU_TEXTURE_DEPTHBUFFER_TARGET:
                 glTexImage2D(GL_TEXTURE_2D,
                              0,
                              GL_DEPTH24_STENCIL8,
@@ -65,7 +65,7 @@ nugl__texture_init (nu__texture_t *tex)
                              GL_UNSIGNED_INT_24_8,
                              NU_NULL);
                 break;
-            case NU_TEXTURE_SHADOW_TARGET: {
+            case NU_TEXTURE_SHADOWMAP_TARGET: {
                 glTexImage2D(GL_TEXTURE_2D,
                              0,
                              GL_DEPTH_COMPONENT,
@@ -84,7 +84,7 @@ nugl__texture_init (nu__texture_t *tex)
                     GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
             }
             break;
-            case NU_TEXTURE_CUBEMAP_COLOR:
+            case NU_TEXTURE_CUBEMAP:
                 NU_ASSERT(NU_FALSE);
                 break;
         }
@@ -103,13 +103,15 @@ nugl__texture_free (nu__texture_t *tex)
     glDeleteTextures(1, &tex->gl.texture);
 }
 static void
-nugl__texture_write_colors (nu__texture_t *tex, const nu_color_t *colors)
+nugl__texture_set_data (nu__texture_t   *tex,
+                        nu_size_t        layer,
+                        const nu_byte_t *data)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
 
     switch (tex->type)
     {
-        case NU_TEXTURE_COLOR: {
+        case NU_TEXTURE_COLORMAP: {
             glBindTexture(GL_TEXTURE_2D, tex->gl.texture);
             glTexSubImage2D(GL_TEXTURE_2D,
                             0,
@@ -119,34 +121,28 @@ nugl__texture_write_colors (nu__texture_t *tex, const nu_color_t *colors)
                             tex->size.y,
                             GL_RGBA,
                             GL_UNSIGNED_BYTE,
-                            colors);
+                            data);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+        break;
+        case NU_TEXTURE_CUBEMAP: {
+            glBindTexture(GL_TEXTURE_CUBE_MAP, tex->gl.texture);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer,
+                         0,
+                         GL_RGBA,
+                         tex->size.x,
+                         tex->size.y,
+                         0,
+                         GL_RGBA,
+                         GL_UNSIGNED_BYTE,
+                         data);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         }
         break;
         default:
             NU_ERROR("invalid texture usage for colors update");
             break;
     }
-}
-static void
-nugl__texture_write_cubemap_colors (nu__texture_t    *tex,
-                                    nu_cubemap_face_t face,
-                                    const nu_color_t *colors)
-{
-    nu__gl_t *gl = &_ctx.graphics.gl;
-
-    NU_ASSERT(tex->type == NU_TEXTURE_CUBEMAP_COLOR);
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP, tex->gl.texture);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
-                 0,
-                 GL_RGBA,
-                 tex->size.x,
-                 tex->size.y,
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 colors);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 #endif

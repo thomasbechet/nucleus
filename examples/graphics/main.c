@@ -19,7 +19,7 @@ void
 init (void)
 {
     // Material
-    texture  = nu_texture_create_color(NU_COLOR_WHITE);
+    texture  = nu_texture_create_from_color(NU_COLOR_WHITE);
     material = nu_material_create(NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
 
@@ -31,8 +31,8 @@ init (void)
                        nu_lookat(nu_v3(2, 1, 2), NU_V3_ZEROS, NU_V3_UP));
 
     // Renderpass
-    depth_buffer
-        = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
+    depth_buffer = nu_texture_create(
+        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     nu_color_t clear_color = NU_COLOR_BLACK;
     surface_color          = nu_surface_color_target();
 

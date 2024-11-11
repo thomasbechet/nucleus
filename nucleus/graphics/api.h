@@ -21,12 +21,17 @@ NU_DEFINE_HANDLE(nu_renderpass_t);
 
 typedef enum
 {
-    NU_TEXTURE_COLOR,
-    NU_TEXTURE_COLOR_TARGET,
-    NU_TEXTURE_DEPTH_TARGET,
-    NU_TEXTURE_SHADOW_TARGET,
-    NU_TEXTURE_CUBEMAP_COLOR,
+    NU_TEXTURE_COLORMAP,
+    NU_TEXTURE_COLORMAP_TARGET,
+    NU_TEXTURE_DEPTHBUFFER_TARGET,
+    NU_TEXTURE_SHADOWMAP_TARGET,
+    NU_TEXTURE_CUBEMAP,
 } nu_texture_type_t;
+
+typedef enum
+{
+    NU_IMAGE_RGBA
+} nu_image_type_t;
 
 typedef enum
 {
@@ -102,14 +107,17 @@ NU_API void      nu_mesh_set_colors(nu_mesh_t         mesh,
                                     nu_size_t         count,
                                     const nu_color_t *data);
 
-NU_API nu_texture_t nu_texture_create(nu_texture_type_t type, nu_v3u_t size);
-NU_API nu_texture_t nu_texture_create_color(nu_color_t color);
-NU_API void         nu_texture_delete(nu_texture_t texture);
-NU_API void         nu_texture_set_colors(nu_texture_t      texture,
-                                          const nu_color_t *colors);
-NU_API void         nu_texture_set_cubemap_colors(nu_texture_t      cubemap,
-                                                  nu_cubemap_face_t face,
-                                                  const nu_color_t *colors);
+NU_API nu_texture_t      nu_texture_create(nu_texture_type_t type,
+                                           nu_v3u_t          size,
+                                           nu_size_t         layer);
+NU_API nu_texture_t      nu_texture_create_from_color(nu_color_t color);
+NU_API nu_texture_t      nu_texture_create_from_image(nu_texture_type_t type,
+                                                      nu_image_t        image);
+NU_API void              nu_texture_delete(nu_texture_t texture);
+NU_API void              nu_texture_set_data(nu_texture_t     texture,
+                                             nu_size_t        layer,
+                                             const nu_byte_t *data);
+NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
@@ -219,13 +227,14 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_material_t   material,
                         nu_m4_t         transform);
 
-NU_API nu_image_t   nu_image_create(nu_v2u_t size);
-NU_API nu_texture_t nu_image_create_texture(nu_image_t image);
-NU_API void         nu_image_delete(nu_image_t image);
-NU_API nu_color_t  *nu_image_colors(nu_image_t image);
-NU_API nu_v2u_t     nu_image_size(nu_image_t image);
-NU_API nu_image_t   nu_image_load(nu_seria_t seria);
-NU_API void         nu_image_save(nu_image_t image, nu_seria_t seria);
+NU_API nu_image_t nu_image_create(nu_image_type_t type,
+                                  nu_v3u_t        size,
+                                  nu_size_t       layer);
+NU_API void       nu_image_delete(nu_image_t image);
+NU_API nu_byte_t *nu_image_data(nu_image_t image, nu_size_t layer);
+NU_API nu_v3u_t   nu_image_size(nu_image_t image);
+NU_API nu_image_t nu_image_load(nu_seria_t seria);
+NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_model_t nu_model_create(void);
 NU_API void       nu_model_delete(nu_model_t model);
@@ -234,9 +243,9 @@ NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);
 
 #ifdef NU_BUILD_RESOURCE
-NU_API nu_image_t   nu_image_resource(nu_uid_t uid);
-NU_API nu_texture_t nu_image_texture_resource(nu_uid_t uid);
-NU_API nu_model_t   nu_model_resource(nu_uid_t uid);
+NU_API nu_image_t   nu_image(nu_uid_t uid);
+NU_API nu_texture_t nu_image_texture(nu_uid_t uid);
+NU_API nu_model_t   nu_model(nu_uid_t uid);
 #endif
 
 #endif

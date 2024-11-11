@@ -37,5 +37,6 @@ void main()
     vs_out.frag_pos_shadow = shadowmap_view_proj * vec4(vs_out.frag_pos, 1);
 
     vec4 position = view_projection * vec4(vs_out.frag_pos, 1);
-    gl_Position = snap_vertex(position);
+    // gl_Position = snap_vertex(position);
+    gl_Position = position;
 }

@@ -25,7 +25,8 @@ vec4 snap_vertex(in vec4 position)
 void main()
 {
     vec4 position = view_projection * model * vec4(in_position, 1);
-    gl_Position = snap_vertex(position);
+    // gl_Position = snap_vertex(position);
+    gl_Position = position;
 
     vs_out.uv = (uv_transform * vec3(in_uv, 1)).xy;
 }

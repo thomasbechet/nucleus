@@ -37,7 +37,7 @@ nu__graphics_init (void)
     {
         nu_size_t      index;
         nu__texture_t *tex = NU_POOL_ADD(&_ctx.graphics.textures, &index);
-        tex->type          = NU_TEXTURE_COLOR_TARGET;
+        tex->type          = NU_TEXTURE_COLORMAP_TARGET;
         tex->size = nu_v3u(_ctx.platform.size.x, _ctx.platform.size.y, 0);
         nugl__init_surface_texture(tex);
         _ctx.graphics.surface_color = NU_HANDLE_MAKE(nu_texture_t, index);
@@ -87,24 +87,6 @@ nu__graphics_render (void)
     return NU_ERROR_NONE;
 }
 
-nu_texture_t
-nu_texture_create_color (nu_color_t color)
-{
-    nu_texture_t tex = nu_texture_create(NU_TEXTURE_COLOR, NU_V3U_ONES);
-    NU_CHECK(tex, return tex);
-    nu_texture_set_colors(tex, &color);
-    return tex;
-}
-nu_texture_t
-nu_image_create_texture (nu_image_t image)
-{
-    nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
-    nu_texture_t tex
-        = nu_texture_create(NU_TEXTURE_COLOR, nu_v3u_v2u(ima->size, 0));
-    NU_CHECK(tex, return tex);
-    nu_texture_set_colors(tex, ima->colors);
-    return tex;
-}
 
 nu_material_t
 nu_material_create_color (nu_material_type_t type, nu_color_t color)

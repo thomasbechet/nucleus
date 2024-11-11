@@ -108,7 +108,12 @@ typedef struct
 void
 init (void)
 {
+    nu_resource_set_active_bundle(NU_UID("import"));
     nuext_import_package(NU_STR("../../../assets/pkg.json"));
+    nu_seria_t seria = nu_seria_create();
+    nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
+    nu_resource_save_bundle(NU_UID("import"), seria);
+    nu_seria_close(seria);
 
     NU_SERIA_REG_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
                       NU_SERIA_VALUE("player", COMP_PLAYER););
@@ -165,8 +170,8 @@ init (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    depth_buffer
-        = nu_texture_create(NU_TEXTURE_DEPTH_TARGET, nu_v3u(WIDTH, HEIGHT, 0));
+    depth_buffer = nu_texture_create(
+        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
 
     // Create meshes
     {
@@ -196,8 +201,8 @@ init (void)
     }
 
     // Load resources
-    texture     = nu_texture_resource(NU_UID("brick"));
-    texture_gui = nu_texture_resource(NU_UID("GUI"));
+    texture     = nu_image_texture(NU_UID("brick"));
+    texture_gui = nu_image_texture(NU_UID("GUI"));
 
     // Create material
     material = nu_material_create(NU_MATERIAL_SURFACE);
@@ -210,12 +215,12 @@ init (void)
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    temple_model = nu_model_resource(NU_UID("temple"));
-    ariane_model = nu_model_resource(NU_UID("ariane"));
-    castle       = nu_model_resource(NU_UID("castle"));
+    temple_model = nu_model(NU_UID("temple"));
+    ariane_model = nu_model(NU_UID("ariane"));
+    castle       = nu_model(NU_UID("castle"));
 
     // Load cubemap
-    skybox = nu_texture_resource(NU_UID("skybox"));
+    skybox = nu_image_texture(NU_UID("skybox"));
 
     // Create lightenv
 
@@ -247,8 +252,8 @@ init (void)
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
 
-    shadow_map    = nu_texture_create(NU_TEXTURE_SHADOW_TARGET,
-                                   nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 0));
+    shadow_map = nu_texture_create(
+        NU_TEXTURE_SHADOWMAP_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 1), 1);
     shadow_camera = nu_camera_create();
     nu_camera_set_proj(shadow_camera, nu_ortho(-50, 50, -50, 50, 1, 500));
     nu_camera_set_view(shadow_camera,

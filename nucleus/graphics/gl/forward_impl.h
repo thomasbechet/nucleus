@@ -73,7 +73,7 @@ nugl__forward_render (nu__renderpass_t *pass)
         const nu__camera_t *shadowmap_camera
             = _ctx.graphics.cameras.data
               + NU_HANDLE_INDEX(penv->shadowmap_camera);
-        NU_ASSERT(shadowmap->type == NU_TEXTURE_SHADOW_TARGET);
+        NU_ASSERT(shadowmap->type == NU_TEXTURE_SHADOWMAP_TARGET);
 
         glUniformMatrix4fv(glGetUniformLocation(pass->gl.forward.program,
                                                 "shadowmap_view_proj"),

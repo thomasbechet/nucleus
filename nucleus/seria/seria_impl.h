@@ -373,26 +373,37 @@ nu__seria_read_4b (nu__seria_ctx_t *ctx)
     return val;
 }
 static void
+nu__seria_write (nu__seria_ctx_t *ctx, void *p, nu_size_t n)
+{
+    if (ctx->ptr + n >= ctx->end)
+    {
+        if (ctx->fileopen)
+        {
+            nu_size_t offset   = ctx->ptr - ctx->bytes;
+            nu_size_t size     = ctx->end - ctx->bytes;
+            nu_size_t new_size = size * 2;
+            ctx->bytes         = nu_realloc(ctx->bytes, size, new_size);
+            ctx->end           = ctx->bytes + new_size;
+            ctx->ptr           = ctx->bytes + offset;
+        }
+        else
+        {
+            NU_ERROR("out of memory");
+            return;
+        }
+    }
+    nu_memcpy(ctx->ptr, p, n);
+    ctx->ptr += n;
+}
+static void
 nu__seria_write_1b (nu__seria_ctx_t *ctx, nu_byte_t v)
 {
-    if (ctx->ptr >= ctx->end)
-    {
-        NU_ERROR("invalid read");
-        return;
-    }
-    *(nu_byte_t *)ctx->ptr = v;
-    ctx->ptr += sizeof(nu_byte_t);
+    nu__seria_write(ctx, &v, sizeof(nu_byte_t));
 }
 static void
 nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)
 {
-    if (ctx->ptr >= ctx->end)
-    {
-        NU_ERROR("invalid read");
-        return;
-    }
-    *(nu_u32_t *)ctx->ptr = v;
-    ctx->ptr += sizeof(nu_u32_t);
+    nu__seria_write(ctx, &v, sizeof(nu_u32_t));
 }
 
 void
@@ -403,16 +414,28 @@ nu_seria_open_file (nu_seria_t seria, nu_seria_mode_t mode, nu_str_t filename)
     {
         nu_seria_close(seria);
     }
-    ctx->opened = NU_TRUE;
-    ctx->owned  = NU_TRUE;
-    ctx->mode   = mode;
+    ctx->opened   = NU_TRUE;
+    ctx->fileopen = NU_TRUE;
+    ctx->filename = filename;
+    ctx->mode     = mode;
 
     // load file
-    nu_size_t size;
-    ctx->bytes = nu__seria_load_bytes(filename, &size);
-    NU_ASSERT(ctx->bytes);
-    ctx->end = ctx->bytes + size;
-    ctx->ptr = ctx->bytes;
+    if (mode == NU_SERIA_READ)
+    {
+        nu_size_t size;
+        ctx->bytes = nu__seria_load_bytes(filename, &size);
+        NU_ASSERT(ctx->bytes);
+        ctx->ptr = ctx->bytes;
+        ctx->end = ctx->bytes + size;
+    }
+    else
+    {
+        const nu_size_t size = 1000;
+        ctx->bytes           = nu_alloc(size);
+        NU_ASSERT(ctx->bytes);
+        ctx->ptr = ctx->bytes;
+        ctx->end = ctx->bytes + size;
+    }
 
     nu__seria_nbin_open(ctx);
 }
@@ -427,9 +450,9 @@ nu_seria_open_bytes (nu_seria_t      seria,
     {
         nu_seria_close(seria);
     }
-    ctx->opened = NU_TRUE;
-    ctx->owned  = NU_FALSE;
-    ctx->mode   = mode;
+    ctx->opened   = NU_TRUE;
+    ctx->fileopen = NU_FALSE;
+    ctx->mode     = mode;
 
     ctx->bytes = bytes;
     ctx->end   = ctx->bytes + size;
@@ -441,18 +464,23 @@ nu_size_t
 nu_seria_close (nu_seria_t seria)
 {
     nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    if (ctx->mode == NU_SERIA_WRITE)
+    {
+        nu_size_t size = ctx->ptr - ctx->bytes;
+        if (ctx->fileopen)
+        {
+            nu__seria_write_bytes(ctx->filename, ctx->bytes, size);
+        }
+        return size;
+    }
     if (ctx->opened)
     {
         nu__seria_nbin_close(ctx);
         ctx->opened = NU_FALSE;
-        if (ctx->owned && ctx->bytes) // free owned bytes
+        if (ctx->fileopen && ctx->bytes) // free owned bytes
         {
             nu_free(ctx->bytes, ctx->end - ctx->bytes);
         }
-    }
-    if (ctx->mode == NU_SERIA_WRITE)
-    {
-        return ctx->ptr - ctx->bytes;
     }
     return 0;
 }

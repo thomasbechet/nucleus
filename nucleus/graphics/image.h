@@ -5,9 +5,11 @@
 
 typedef struct
 {
-    nu_v2u_t       size;
-    nu_color_t    *colors;
-    nu_allocator_t allocator;
+    nu_image_type_t type;
+    nu_v3u_t        size;
+    nu_size_t       layer;
+    nu_byte_t      *data;
+    nu_allocator_t  allocator;
 } nu__image_t;
 
 typedef NU_POOL(nu__image_t) nu__image_pool_t;

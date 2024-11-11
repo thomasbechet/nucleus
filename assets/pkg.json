@@ -1,7 +1,7 @@
 [
     {
         "name": "skybox",
-        "type": "texture",
+        "type": "cubemap",
         "path": "skyboxes/skybox.json"
     },
     {
@@ -21,12 +21,12 @@
     },
     {
         "name": "GUI",
-        "type": "texture",
+        "type": "colormap",
         "path": "GUI.png"
     },
     {
         "name": "brick",
-        "type": "texture",
+        "type": "colormap",
         "path": "brick_building_front_lowres.png"
     }
 ]

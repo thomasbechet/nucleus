@@ -142,9 +142,17 @@ nu_resource_remove_bundle (nu_uid_t uid)
     }
 }
 void
-nu_resource_bind_bundle (nu_uid_t uid)
+nu_resource_set_active_bundle (nu_uid_t uid)
 {
     _ctx.resource.active_bundle = uid;
+}
+void
+nu_resource_set_bundle (nu_uid_t uid, nu_uid_t bundle)
+{
+    NU_ASSERT(uid);
+    nu__resource_entry_t *res = nu__resource_find(uid, NU_NULL);
+    NU_ASSERT(res);
+    res->bundle = bundle;
 }
 void *
 nu_resource_data (nu_resource_t type, nu_uid_t uid)
@@ -152,10 +160,7 @@ nu_resource_data (nu_resource_t type, nu_uid_t uid)
     NU_ASSERT(uid);
     nu__resource_entry_t *res = nu__resource_find(uid, NU_NULL);
     NU_ASSERT(res);
-    if (res->type != type)
-    {
-        return NU_NULL;
-    }
+    NU_ASSERT(res->type == type);
     return res->data;
 }
 void

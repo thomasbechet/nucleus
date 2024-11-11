@@ -11,18 +11,31 @@ nuext_import_image (nu_str_t filename, nu_uid_t uid)
     nu_resource_add(_ctx.graphics.res_image, uid, image);
 }
 void
+nuext_import_colormap (nu_str_t filename, nu_uid_t uid)
+{
+    nu_image_t image = nuext_image_load_file(filename);
+    NU_ASSERT(image);
+    nu_texture_t texture
+        = nu_texture_create_from_image(NU_TEXTURE_COLORMAP, image);
+    NU_ASSERT(texture);
+    nu_resource_add(_ctx.graphics.res_image_texture, uid, texture);
+}
+void
+nuext_import_cubemap (nu_str_t filename, nu_uid_t uid)
+{
+    nu_image_t image = nuext_image_load_file(filename);
+    NU_ASSERT(image);
+    nu_texture_t texture
+        = nu_texture_create_from_image(NU_TEXTURE_CUBEMAP, image);
+    NU_ASSERT(texture);
+    nu_resource_add(_ctx.graphics.res_image_texture, uid, texture);
+}
+void
 nuext_import_model (nu_str_t filename, nu_uid_t uid)
 {
     nu_model_t model = nuext_model_load_file(filename);
     NU_ASSERT(model);
     nu_resource_add(_ctx.graphics.res_model, uid, model);
-}
-void
-nuext_import_cubemap (nu_str_t filename, nu_uid_t uid)
-{
-    nu_texture_t cubemap = nuext_cubemap_load_file(filename);
-    NU_ASSERT(cubemap);
-    nu_resource_add(_ctx.graphics.res_texture, uid, cubemap);
 }
 nu_error_t
 nuext_import_package (nu_str_t filename)
@@ -96,16 +109,17 @@ nuext_import_package (nu_str_t filename)
             {
                 nuext_import_model(final_path, nu_str_hash(name));
             }
-            else if (nu__json_eq(json, ttype, NU_STR("texture")))
+            else if (nu__json_eq(json, ttype, NU_STR("colormap")))
             {
-                if (nuext_path_extension(final_path) == NUEXT_EXTENSION_JSON)
-                {
-                    nuext_import_cubemap(final_path, nu_str_hash(name));
-                }
-                else
-                {
-                    nuext_import_image(final_path, nu_str_hash(name));
-                }
+                nuext_import_colormap(final_path, nu_str_hash(name));
+            }
+            else if (nu__json_eq(json, ttype, NU_STR("cubemap")))
+            {
+                nuext_import_cubemap(final_path, nu_str_hash(name));
+            }
+            else if (nu__json_eq(json, ttype, NU_STR("image")))
+            {
+                nuext_import_image(final_path, nu_str_hash(name));
             }
             else
             {

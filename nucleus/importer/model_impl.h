@@ -141,7 +141,8 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
         (const nu_byte_t *)tview->buffer->data + tview->offset, tview->size);
 
     // Create texture
-    nu_texture_t handle = nu_image_create_texture(image);
+    nu_texture_t handle
+        = nu_texture_create_from_image(NU_TEXTURE_COLORMAP, image);
     nu_image_delete(image);
 
     // Append asset
@@ -200,7 +201,7 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
     {
         NU_DEBUG("loading default material");
 
-        nu_texture_t texture = nu_texture_create_color(NU_COLOR_RED);
+        nu_texture_t texture = nu_texture_create_from_color(NU_COLOR_RED);
         NU_VEC_PUSH(&model->resources)->texture = texture;
 
         nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);

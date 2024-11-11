@@ -41,7 +41,8 @@ typedef struct
 typedef struct
 {
     nu_bool_t       opened;
-    nu_bool_t       owned;
+    nu_bool_t       fileopen;
+    nu_str_t        filename;
     nu_seria_mode_t mode;
     nu_byte_t      *bytes;
     nu_byte_t      *end;

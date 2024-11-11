@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <nucleus/config.h>
+#define NU_VERSION 1
 
 //////////////////////////////////////////////////////////////////////////
 //////                       Platform Detection                     //////
@@ -111,6 +112,8 @@
 #else
 #define NU_ASSERT(x) (void)(x)
 #endif
+
+#define NU_UNREACHABLE() NU_ASSERT(NU_FALSE)
 
 #define _NU_S(x)      #x
 #define _NU_S_(x)     _NU_S(x)

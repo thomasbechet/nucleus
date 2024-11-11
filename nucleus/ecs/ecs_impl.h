@@ -175,7 +175,7 @@ nu_ecs_find_component (nu_str_t name)
             return i;
         }
     }
-    NU_ASSERT(NU_FALSE);
+    NU_UNREACHABLE();
     return 0;
 }
 

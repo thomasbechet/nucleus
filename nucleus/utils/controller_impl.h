@@ -189,12 +189,7 @@ nu_controller_update (nu_controller_t controller,
         }
     }
 
-    // Round position
-    const float round = 100;
-    nu_v3_t     pos   = nu_v3(roundf(ctrl->pos.x * round) / round,
-                        roundf(ctrl->pos.y * round) / round,
-                        roundf(ctrl->pos.z * round) / round);
-
+    nu_v3_t pos     = ctrl->pos;
     nu_v3_t forward = nu_q4_mulv3(ctrl->rot, NU_V3_FORWARD);
     nu_v3_t up      = nu_v3_normalize(nu_q4_mulv3(ctrl->rot, NU_V3_UP));
 

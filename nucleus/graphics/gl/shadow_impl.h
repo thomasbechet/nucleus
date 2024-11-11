@@ -21,7 +21,7 @@ nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
     NU_ASSERT(texture);
     nu__texture_t *ptex
         = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    NU_ASSERT(ptex->type == NU_TEXTURE_SHADOW_TARGET);
+    NU_ASSERT(ptex->type == NU_TEXTURE_SHADOWMAP_TARGET);
 
     if (pass->gl.fbo)
     {
