@@ -69,6 +69,10 @@ void
 nu_texture_delete (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
+    if (tex->image) // is image_texture
+    {
+        nu_image_delete(tex->image);
+    }
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
 #endif
@@ -96,10 +100,10 @@ nu_texture_type (nu_texture_t texture)
 nu_texture_t
 nu_image_texture (nu_uid_t uid)
 {
-    return nu_resource_data(_ctx.graphics.res_image_texture, uid);
+    return nu_resource_data(NU_UID(NU_RESOURCE_IMAGE_TEXTURE), uid);
 }
 static void
-nu__image_texture_resource_removed (void *data)
+nu__image_texture_resource_unload (void *data)
 {
     nu_texture_delete(data);
 }
@@ -130,12 +134,10 @@ nu__image_texture_resource_save (void *data, nu_seria_t seria)
 static void
 nu__image_texture_resource_register (void)
 {
-    _ctx.graphics.res_image_texture
-        = nu_resource_register(NU_UID("image_texture"),
-                               NU_NULL,
-                               nu__image_texture_resource_removed,
-                               nu__image_texture_resource_load,
-                               nu__image_texture_resource_save);
+    nu_resource_register(NU_UID(NU_RESOURCE_IMAGE_TEXTURE),
+                         nu__image_texture_resource_load,
+                         nu__image_texture_resource_unload,
+                         nu__image_texture_resource_save);
 }
 #endif
 

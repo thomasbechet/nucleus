@@ -5,20 +5,19 @@
 
 typedef struct
 {
-    nu_uid_t              uid;
-    nu_resource_added_t   added;
-    nu_resource_removed_t removed;
-    nu_resource_load_t    load;
-    nu_resource_save_t    save;
+    nu_uid_t             uid;
+    nu_resource_load_t   load;
+    nu_resource_unload_t unload;
+    nu_resource_save_t   save;
 } nu__resource_type_t;
 
 typedef struct
 {
-    nu_uid_t      uid;
-    nu_uid_t      bundle;
-    nu_resource_t type;
-    nu_size_t     refcount;
-    void         *data;
+    nu_uid_t  type;
+    nu_uid_t  uid;
+    nu_uid_t  bundle;
+    nu_size_t refcount;
+    void     *data;
 } nu__resource_entry_t;
 
 typedef struct

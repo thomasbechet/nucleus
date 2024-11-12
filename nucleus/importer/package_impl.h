@@ -8,7 +8,7 @@ nuext_import_image (nu_str_t filename, nu_uid_t uid)
 {
     nu_image_t image = nuext_image_load_file(filename);
     NU_ASSERT(image);
-    nu_resource_add(_ctx.graphics.res_image, uid, image);
+    nu_resource_insert(_ctx.graphics.res_image, uid, image);
 }
 void
 nuext_import_colormap (nu_str_t filename, nu_uid_t uid)
@@ -18,7 +18,7 @@ nuext_import_colormap (nu_str_t filename, nu_uid_t uid)
     nu_texture_t texture
         = nu_texture_create_from_image(NU_TEXTURE_COLORMAP, image);
     NU_ASSERT(texture);
-    nu_resource_add(_ctx.graphics.res_image_texture, uid, texture);
+    nu_resource_insert(_ctx.graphics.res_image_texture, uid, texture);
 }
 void
 nuext_import_cubemap (nu_str_t filename, nu_uid_t uid)
@@ -28,14 +28,14 @@ nuext_import_cubemap (nu_str_t filename, nu_uid_t uid)
     nu_texture_t texture
         = nu_texture_create_from_image(NU_TEXTURE_CUBEMAP, image);
     NU_ASSERT(texture);
-    nu_resource_add(_ctx.graphics.res_image_texture, uid, texture);
+    nu_resource_insert(_ctx.graphics.res_image_texture, uid, texture);
 }
 void
 nuext_import_model (nu_str_t filename, nu_uid_t uid)
 {
     nu_model_t model = nuext_model_load_file(filename);
     NU_ASSERT(model);
-    nu_resource_add(_ctx.graphics.res_model, uid, model);
+    nu_resource_insert(_ctx.graphics.res_model, uid, model);
 }
 nu_error_t
 nuext_import_package (nu_str_t filename)

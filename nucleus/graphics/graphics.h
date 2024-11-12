@@ -39,12 +39,6 @@ typedef struct
 #ifdef NU_BUILD_GRAPHICS_GL
     nu__gl_t gl;
 #endif
-
-#ifdef NU_BUILD_RESOURCE
-    nu_resource_t res_image;
-    nu_resource_t res_image_texture;
-    nu_resource_t res_model;
-#endif
 } nu__graphics_t;
 
 static nu_error_t nu__graphics_init(void);

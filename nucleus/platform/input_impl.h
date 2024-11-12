@@ -391,12 +391,16 @@ nuext_platform_cursor (nu_input_t cursor_x, nu_input_t cursor_y)
 nu_input_t
 nu_input_resource (nu_uid_t uid)
 {
-    return nu_resource_data(_ctx.platform.res_input, uid);
+    return nu_resource_data(NU_UID(NU_RESOURCE_INPUT), uid);
 }
 static void *
 nu__input_resource_load (nu_seria_t seria)
 {
     return NU_NULL;
+}
+static void
+nu__input_resource_unload (void *data)
+{
 }
 static void
 nu__input_resource_save (void *data, nu_seria_t seria)
@@ -405,11 +409,10 @@ nu__input_resource_save (void *data, nu_seria_t seria)
 static void
 nu__input_resource_register (void)
 {
-    _ctx.platform.res_input = nu_resource_register(NU_UID("input"),
-                                                   NU_NULL,
-                                                   NU_NULL,
-                                                   nu__input_resource_load,
-                                                   nu__input_resource_save);
+    nu_resource_register(NU_UID(NU_RESOURCE_INPUT),
+                         nu__input_resource_load,
+                         nu__input_resource_unload,
+                         nu__input_resource_save);
 }
 #endif
 

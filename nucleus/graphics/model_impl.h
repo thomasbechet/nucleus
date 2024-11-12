@@ -39,12 +39,12 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
 nu_model_t
 nu_model (nu_uid_t uid)
 {
-    return nu_resource_data(_ctx.graphics.res_model, uid);
+    return nu_resource_data(NU_UID(NU_RESOURCE_MODEL), uid);
 }
 static void
-nu__model_resource_removed (void *data)
+nu__model_resource_unload (void *data)
 {
-    // nu_model_delete(data);
+    nu_model_delete(data);
 }
 static void *
 nu__model_resource_load (nu_seria_t seria)
@@ -58,11 +58,10 @@ nu__model_resource_save (void *data, nu_seria_t seria)
 static void
 nu__model_resource_register (void)
 {
-    _ctx.graphics.res_model = nu_resource_register(NU_UID("model"),
-                                                   NU_NULL,
-                                                   nu__model_resource_removed,
-                                                   nu__model_resource_load,
-                                                   nu__model_resource_save);
+    nu_resource_register(NU_UID(NU_RESOURCE_MODEL),
+                         nu__model_resource_load,
+                         nu__model_resource_unload,
+                         nu__model_resource_save);
 }
 #endif
 

@@ -44,9 +44,6 @@ typedef struct
 {
     NU_POOL(nu__ecs_instance_t) instances;
     NU_VEC(nu__ecs_component_t) components;
-#ifdef NU_BUILD_RESOURCE
-    nu_resource_t res_ecs;
-#endif
 } nu__ecs_t;
 
 static void nu__ecs_init(void);

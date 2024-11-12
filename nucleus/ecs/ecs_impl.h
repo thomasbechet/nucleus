@@ -550,22 +550,22 @@ nu_ecs_dump (nu_ecs_t ecs)
 
 #ifdef NU_BUILD_RESOURCE
 nu_ecs_t
-nu_ecs_resource (nu_uid_t uid)
+nu_ecs (nu_uid_t uid)
 {
     return nu_resource_data(_ctx.ecs.res_ecs, uid);
 }
-static void
-nu__ecs_res_removed (void *data)
-{
-    nu_ecs_delete(data);
-}
 static void *
-nu__ecs_res_load (nu_seria_t seria)
+nu__ecs_resource_load (nu_seria_t seria)
 {
     return nu_ecs_load(seria);
 }
 static void
-nu__ecs_res_save (void *data, nu_seria_t seria)
+nu__ecs_resource_unload (void *data)
+{
+    nu_ecs_delete(data);
+}
+static void
+nu__ecs_resource_save (void *data, nu_seria_t seria)
 {
     nu_ecs_save(data, seria);
 }
@@ -573,10 +573,9 @@ static void
 nu__ecs_res_register (void)
 {
     _ctx.ecs.res_ecs = nu_resource_register(NU_UID("ecs"),
-                                            NU_NULL,
-                                            nu__ecs_res_removed,
-                                            nu__ecs_res_load,
-                                            nu__ecs_res_save);
+                                            nu__ecs_resource_load,
+                                            nu__ecs_resource_unload,
+                                            nu__ecs_resource_save);
 }
 #endif
 

@@ -65,17 +65,17 @@ nu_image_save (nu_image_t image, nu_seria_t seria)
 nu_image_t
 nu_image (nu_uid_t uid)
 {
-    return nu_resource_data(_ctx.graphics.res_image, uid);
-}
-static void
-nu__image_resource_removed (void *data)
-{
-    nu_image_delete(data);
+    return nu_resource_data(NU_UID(NU_RESOURCE_IMAGE), uid);
 }
 static void *
 nu__image_resource_load (nu_seria_t seria)
 {
     return nu_image_load(seria);
+}
+static void
+nu__image_resource_unload (void *data)
+{
+    nu_image_delete(data);
 }
 static void
 nu__image_resource_save (void *data, nu_seria_t seria)
@@ -85,11 +85,10 @@ nu__image_resource_save (void *data, nu_seria_t seria)
 static void
 nu__image_resource_register (void)
 {
-    _ctx.graphics.res_image = nu_resource_register(NU_UID("image"),
-                                                   NU_NULL,
-                                                   nu__image_resource_removed,
-                                                   nu__image_resource_load,
-                                                   nu__image_resource_save);
+    nu_resource_register(NU_UID(NU_RESOURCE_IMAGE),
+                         nu__image_resource_load,
+                         nu__image_resource_unload,
+                         nu__image_resource_save);
 }
 #endif
 

@@ -49,7 +49,7 @@ NU_API nu_ecs_t nu_ecs_load(nu_seria_t seria);
 NU_API void     nu_ecs_dump(nu_ecs_t ecs);
 
 #ifdef NU_BUILD_RESOURCE
-NU_API nu_ecs_t nu_ecs_resource(nu_uid_t uid);
+NU_API nu_ecs_t nu_ecs(nu_uid_t uid);
 #endif
 
 #endif

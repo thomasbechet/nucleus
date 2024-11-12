@@ -243,6 +243,9 @@ NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);
 
 #ifdef NU_BUILD_RESOURCE
+#define NU_RESOURCE_IMAGE         "image"
+#define NU_RESOURCE_IMAGE_TEXTURE "image_texture"
+#define NU_RESOURCE_MODEL         "model"
 NU_API nu_image_t   nu_image(nu_uid_t uid);
 NU_API nu_texture_t nu_image_texture(nu_uid_t uid);
 NU_API nu_model_t   nu_model(nu_uid_t uid);

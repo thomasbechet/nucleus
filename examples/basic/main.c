@@ -108,7 +108,7 @@ typedef struct
 void
 init (void)
 {
-    nu_resource_set_active_bundle(NU_UID("import"));
+    nu_resource_set_default_bundle(NU_UID("import"));
     nuext_import_package(NU_STR("../../../assets/pkg.json"));
     nu_seria_t seria = nu_seria_create();
     nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
