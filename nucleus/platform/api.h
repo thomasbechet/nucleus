@@ -170,9 +170,4 @@ NU_API nu_error_t nuext_input_bind_axis(nu_input_t input, nuext_axis_t axis);
 
 NU_API nu_v2i_t nuext_platform_cursor(nu_input_t cursor_x, nu_input_t cursor_y);
 
-#ifdef NU_BUILD_RESOURCE
-#define NU_RESOURCE_INPUT "input"
-NU_API nu_input_t nu_input_resource(nu_uid_t uid);
-#endif
-
 #endif

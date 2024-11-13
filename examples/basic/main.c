@@ -108,11 +108,10 @@ typedef struct
 void
 init (void)
 {
-    nu_resource_set_default_bundle(NU_UID("import"));
-    nuext_import_package(NU_STR("../../../assets/pkg.json"));
+    nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
     nu_seria_t seria = nu_seria_create();
     nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
-    nu_resource_save_bundle(NU_UID("import"), seria);
+    nu_resource_save_group(NU_UID("import"), seria);
     nu_seria_close(seria);
 
     NU_SERIA_REG_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
@@ -201,8 +200,8 @@ init (void)
     }
 
     // Load resources
-    texture     = nu_image_texture(NU_UID("brick"));
-    texture_gui = nu_image_texture(NU_UID("GUI"));
+    texture     = nu_resource(NU_RESOURCE_TEXTURE, NU_UID("brick"));
+    texture_gui = nu_resource(NU_RESOURCE_TEXTURE, NU_UID("GUI"));
 
     // Create material
     material = nu_material_create(NU_MATERIAL_SURFACE);
@@ -215,12 +214,12 @@ init (void)
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    temple_model = nu_model(NU_UID("temple"));
-    ariane_model = nu_model(NU_UID("ariane"));
-    castle       = nu_model(NU_UID("castle"));
+    temple_model = nu_resource(NU_RESOURCE_MODEL, NU_UID("temple"));
+    ariane_model = nu_resource(NU_RESOURCE_MODEL, NU_UID("ariane"));
+    castle       = nu_resource(NU_RESOURCE_MODEL, NU_UID("castle"));
 
     // Load cubemap
-    skybox = nu_image_texture(NU_UID("skybox"));
+    skybox = nu_resource(NU_RESOURCE_TEXTURE, NU_UID("skybox"));
 
     // Create lightenv
 

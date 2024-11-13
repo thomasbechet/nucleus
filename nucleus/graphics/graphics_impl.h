@@ -46,13 +46,6 @@ nu__graphics_init (void)
     // Initialize immediate context
     nu__graphics_immediate_init();
 
-    // Register resources
-#ifdef NU_BUILD_RESOURCE
-    nu__image_resource_register();
-    nu__image_texture_resource_register();
-    nu__model_resource_register();
-#endif
-
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -86,7 +79,6 @@ nu__graphics_render (void)
     nu__graphics_immediate_reset();
     return NU_ERROR_NONE;
 }
-
 
 nu_material_t
 nu_material_create_color (nu_material_type_t type, nu_color_t color)

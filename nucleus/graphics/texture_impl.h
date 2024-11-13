@@ -12,10 +12,10 @@ nu_texture_create (nu_texture_type_t type, nu_v3u_t size, nu_size_t layer)
     nu__texture_t *ptex   = NU_POOL_ADD(&_ctx.graphics.textures, &index);
     nu_texture_t   handle = NU_HANDLE_MAKE(nu_texture_t, index);
 
-    ptex->type  = type;
-    ptex->size  = size;
-    ptex->layer = layer;
-    ptex->image = NU_NULL;
+    ptex->type          = type;
+    ptex->size          = size;
+    ptex->layer         = layer;
+    ptex->image_texture = NU_NULL;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_init(ptex);
 #endif
@@ -60,18 +60,22 @@ nu_texture_create_from_image (nu_texture_type_t type, nu_image_t image)
             }
             break;
     }
-    nu__texture_t *tex_data
-        = _ctx.graphics.textures.data + NU_HANDLE_INDEX(tex);
-    tex_data->image = image;
+    return tex;
+}
+nu_texture_t
+nu_texture_create_image_texture (nu_texture_type_t type, nu_image_t image)
+{
+    nu_texture_t tex = nu_texture_create_from_image(type, image);
+    _ctx.graphics.textures.data[NU_HANDLE_INDEX(tex)].image_texture = image;
     return tex;
 }
 void
 nu_texture_delete (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    if (tex->image) // is image_texture
+    if (tex->image_texture) // is image_texture
     {
-        nu_image_delete(tex->image);
+        nu_image_delete(tex->image_texture);
     }
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
@@ -84,7 +88,7 @@ nu_texture_set_data (nu_texture_t     texture,
                      const nu_byte_t *data)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    NU_ASSERT(!tex->image);
+    NU_ASSERT(!tex->image_texture);
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_set_data(tex, layer, data);
 #endif
@@ -95,50 +99,5 @@ nu_texture_type (nu_texture_t texture)
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
     return tex->type;
 }
-
-#ifdef NU_BUILD_RESOURCE
-nu_texture_t
-nu_image_texture (nu_uid_t uid)
-{
-    return nu_resource_data(NU_UID(NU_RESOURCE_IMAGE_TEXTURE), uid);
-}
-static void
-nu__image_texture_resource_unload (void *data)
-{
-    nu_texture_delete(data);
-}
-static void *
-nu__image_texture_resource_load (nu_seria_t seria)
-{
-    nu_texture_type_t type = NU_TEXTURE_COLORMAP;
-    if (nu_seria_read_u32(seria))
-    {
-        type = NU_TEXTURE_CUBEMAP;
-    }
-    nu_image_t image = nu_image_load(seria);
-    NU_ASSERT(image);
-    nu_texture_t   texture = nu_texture_create_from_image(type, image);
-    nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    tex->image         = image;
-    return texture;
-}
-static void
-nu__image_texture_resource_save (void *data, nu_seria_t seria)
-{
-    nu_texture_t   texture = data;
-    nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    nu_seria_write_u32(seria, tex->type == NU_TEXTURE_CUBEMAP ? 1 : 0);
-    NU_ASSERT(tex->image);
-    nu_image_save(tex->image, seria);
-}
-static void
-nu__image_texture_resource_register (void)
-{
-    nu_resource_register(NU_UID(NU_RESOURCE_IMAGE_TEXTURE),
-                         nu__image_texture_resource_load,
-                         nu__image_texture_resource_unload,
-                         nu__image_texture_resource_save);
-}
-#endif
 
 #endif

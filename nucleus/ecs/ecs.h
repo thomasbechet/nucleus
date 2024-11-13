@@ -52,8 +52,5 @@ static void nu__ecs_free(void);
 static nu_size_t nu__ecs_bitset_count(const nu__ecs_bitset_t *bitset);
 static nu_bool_t nu__ecs_bitset_isset(const nu__ecs_bitset_t *bitset,
                                       nu_size_t               index);
-#ifdef NU_BUILD_RESOURCE
-static void nu__ecs_res_register(void);
-#endif
 
 #endif

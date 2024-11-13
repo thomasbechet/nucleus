@@ -12,7 +12,7 @@ typedef struct
     nu_texture_type_t type;
     nu_v3u_t          size;
     nu_size_t         layer;
-    nu_image_t        image;
+    nu_image_t        image_texture;
 } nu__texture_t;
 
 typedef NU_POOL(nu__texture_t) nu__texture_pool_t;

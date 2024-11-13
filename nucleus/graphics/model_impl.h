@@ -35,34 +35,4 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
     }
 }
 
-#ifdef NU_BUILD_RESOURCE
-nu_model_t
-nu_model (nu_uid_t uid)
-{
-    return nu_resource_data(NU_UID(NU_RESOURCE_MODEL), uid);
-}
-static void
-nu__model_resource_unload (void *data)
-{
-    nu_model_delete(data);
-}
-static void *
-nu__model_resource_load (nu_seria_t seria)
-{
-    return NU_NULL;
-}
-static void
-nu__model_resource_save (void *data, nu_seria_t seria)
-{
-}
-static void
-nu__model_resource_register (void)
-{
-    nu_resource_register(NU_UID(NU_RESOURCE_MODEL),
-                         nu__model_resource_load,
-                         nu__model_resource_unload,
-                         nu__model_resource_save);
-}
-#endif
-
 #endif

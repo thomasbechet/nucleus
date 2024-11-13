@@ -2,9 +2,6 @@
 #define NU_GRAPHICS_API_H
 
 #include <nucleus/seria/api.h>
-#ifdef NU_BUILD_RESOURCE
-#include <nucleus/resource/api.h>
-#endif
 
 NU_DEFINE_HANDLE(nu_image_t);
 NU_DEFINE_HANDLE(nu_camera_t);
@@ -113,6 +110,8 @@ NU_API nu_texture_t      nu_texture_create(nu_texture_type_t type,
 NU_API nu_texture_t      nu_texture_create_from_color(nu_color_t color);
 NU_API nu_texture_t      nu_texture_create_from_image(nu_texture_type_t type,
                                                       nu_image_t        image);
+NU_API nu_texture_t      nu_texture_create_image_texture(nu_texture_type_t type,
+                                                         nu_image_t        image);
 NU_API void              nu_texture_delete(nu_texture_t texture);
 NU_API void              nu_texture_set_data(nu_texture_t     texture,
                                              nu_size_t        layer,
@@ -241,14 +240,5 @@ NU_API void       nu_model_delete(nu_model_t model);
 
 NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);
-
-#ifdef NU_BUILD_RESOURCE
-#define NU_RESOURCE_IMAGE         "image"
-#define NU_RESOURCE_IMAGE_TEXTURE "image_texture"
-#define NU_RESOURCE_MODEL         "model"
-NU_API nu_image_t   nu_image(nu_uid_t uid);
-NU_API nu_texture_t nu_image_texture(nu_uid_t uid);
-NU_API nu_model_t   nu_model(nu_uid_t uid);
-#endif
 
 #endif

@@ -108,9 +108,6 @@ nu__ecs_init (void)
 {
     NU_POOL_INIT(1, &_ctx.ecs.instances);
     NU_VEC_INIT(1, &_ctx.ecs.components);
-#ifdef NU_BUILD_RESOURCE
-    nu__ecs_res_register();
-#endif
 }
 static void
 nu__ecs_free (void)
@@ -547,36 +544,5 @@ nu_ecs_dump (nu_ecs_t ecs)
         }
     }
 }
-
-#ifdef NU_BUILD_RESOURCE
-nu_ecs_t
-nu_ecs (nu_uid_t uid)
-{
-    return nu_resource_data(_ctx.ecs.res_ecs, uid);
-}
-static void *
-nu__ecs_resource_load (nu_seria_t seria)
-{
-    return nu_ecs_load(seria);
-}
-static void
-nu__ecs_resource_unload (void *data)
-{
-    nu_ecs_delete(data);
-}
-static void
-nu__ecs_resource_save (void *data, nu_seria_t seria)
-{
-    nu_ecs_save(data, seria);
-}
-static void
-nu__ecs_res_register (void)
-{
-    _ctx.ecs.res_ecs = nu_resource_register(NU_UID("ecs"),
-                                            nu__ecs_resource_load,
-                                            nu__ecs_resource_unload,
-                                            nu__ecs_resource_save);
-}
-#endif
 
 #endif
