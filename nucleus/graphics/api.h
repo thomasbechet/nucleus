@@ -117,6 +117,7 @@ NU_API void              nu_texture_set_data(nu_texture_t     texture,
                                              nu_size_t        layer,
                                              const nu_byte_t *data);
 NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
+NU_API nu_image_t        nu_texture_image(nu_texture_t texture);
 
 NU_API nu_material_t nu_material_create(nu_material_type_t type);
 NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
@@ -236,12 +237,12 @@ NU_API nu_image_t nu_image_load(nu_seria_t seria);
 NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_model_t nu_model_create(nu_size_t node_count);
+NU_API void       nu_model_delete(nu_model_t model);
 NU_API void       nu_model_set(nu_model_t    model,
                                nu_size_t     index,
                                nu_mesh_t     mesh,
                                nu_material_t material,
                                nu_m4_t       transform);
-NU_API void       nu_model_delete(nu_model_t model);
 
 NU_API nu_font_t nu_font_create_default(void);
 NU_API void      nu_font_delete(nu_font_t font);

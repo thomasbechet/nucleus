@@ -12,10 +12,10 @@ nu_texture_create (nu_texture_type_t type, nu_v3u_t size, nu_size_t layer)
     nu__texture_t *ptex   = NU_POOL_ADD(&_ctx.graphics.textures, &index);
     nu_texture_t   handle = NU_HANDLE_MAKE(nu_texture_t, index);
 
-    ptex->type          = type;
-    ptex->size          = size;
-    ptex->layer         = layer;
-    ptex->image_texture = NU_NULL;
+    ptex->type  = type;
+    ptex->size  = size;
+    ptex->layer = layer;
+    ptex->image = NU_NULL;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_init(ptex);
 #endif
@@ -67,7 +67,7 @@ nu_texture_t
 nu_texture_create_image_texture (nu_texture_type_t type, nu_image_t image)
 {
     nu_texture_t tex = nu_texture_create_from_image(type, image);
-    _ctx.graphics.textures.data[NU_HANDLE_INDEX(tex)].image_texture = image;
+    _ctx.graphics.textures.data[NU_HANDLE_INDEX(tex)].image = image;
     return tex;
 }
 void
@@ -77,6 +77,10 @@ nu_texture_delete (nu_texture_t texture)
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
 #endif
+    if (tex->image)
+    {
+        nu_image_delete(tex->image);
+    }
     NU_POOL_REMOVE(&_ctx.graphics.textures, NU_HANDLE_INDEX(texture));
 }
 void
@@ -85,7 +89,7 @@ nu_texture_set_data (nu_texture_t     texture,
                      const nu_byte_t *data)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    NU_ASSERT(!tex->image_texture);
+    NU_ASSERT(!tex->image);
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_set_data(tex, layer, data);
 #endif
@@ -95,6 +99,12 @@ nu_texture_type (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
     return tex->type;
+}
+nu_image_t
+nu_texture_image (nu_texture_t texture)
+{
+    nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
+    return tex->image;
 }
 
 #endif

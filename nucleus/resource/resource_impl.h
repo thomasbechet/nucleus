@@ -3,27 +3,12 @@
 
 #include <nucleus/internal.h>
 
-static void *
+static nu_handle_t
 nu__resource_handler (nu_resource_action_t action,
                       nu_uid_t             type,
-                      void                *data,
+                      nu_handle_t          handle,
                       nu_seria_t           seria)
 {
-    switch (action)
-    {
-        case NU_RES_INSERTED:
-            NU_ASSERT(data);
-            break;
-        case NU_RES_DELETE:
-            NU_ASSERT(data);
-            break;
-        case NU_RES_LOAD:
-            NU_ASSERT(seria && !data);
-            break;
-        case NU_RES_SAVE:
-            NU_ASSERT(seria && data);
-            break;
-    }
     if (type == NU_RES_IMAGE)
     {
         switch (action)
@@ -31,12 +16,12 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
-                nu_image_delete(data);
+                nu_image_delete(handle);
                 break;
             case NU_RES_LOAD:
                 return nu_image_load(seria);
             case NU_RES_SAVE:
-                nu_image_save(data, seria);
+                nu_image_save(handle, seria);
                 break;
         }
     }
@@ -44,14 +29,11 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_INSERTED: {
-                nu__texture_t *tex
-                    = _ctx.graphics.textures.data + NU_HANDLE_INDEX(data);
-                NU_ASSERT(tex->image_texture);
-            }
-            break;
+            case NU_RES_INSERTED:
+                NU_ASSERT(nu_texture_image(handle));
+                break;
             case NU_RES_DELETE:
-                nu_texture_delete(data);
+                nu_texture_delete(handle);
                 break;
             case NU_RES_LOAD: {
                 nu_texture_type_t type = NU_TEXTURE_COLORMAP;
@@ -65,18 +47,17 @@ nu__resource_handler (nu_resource_action_t action,
                     = nu_texture_create_from_image(type, image);
                 nu__texture_t *tex
                     = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-                tex->image_texture = image;
+                tex->image = image;
                 return texture;
             }
             break;
             case NU_RES_SAVE: {
-                nu_texture_t   texture = data;
                 nu__texture_t *tex
-                    = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
+                    = _ctx.graphics.textures.data + NU_HANDLE_INDEX(handle);
                 nu_seria_write_u32(seria,
                                    tex->type == NU_TEXTURE_CUBEMAP ? 1 : 0);
-                NU_ASSERT(tex->image_texture);
-                nu_image_save(tex->image_texture, seria);
+                NU_ASSERT(tex->image);
+                nu_image_save(tex->image, seria);
             }
             break;
         }
@@ -88,7 +69,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
-                nu_model_delete(data);
+                nu_model_delete(handle);
                 break;
             case NU_RES_LOAD:
                 break;
@@ -103,12 +84,12 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
-                nu_ecs_delete(data);
+                nu_ecs_delete(handle);
                 break;
             case NU_RES_LOAD:
                 return nu_ecs_load(seria);
             case NU_RES_SAVE:
-                nu_ecs_save(data, seria);
+                nu_ecs_save(handle, seria);
                 break;
         }
     }
@@ -209,11 +190,14 @@ nu_resource_register (nu_uid_t              uid,
 }
 
 void
-nu_resource_insert (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
+nu_resource_insert (nu_uid_t    type,
+                    nu_uid_t    group,
+                    nu_uid_t    uid,
+                    nu_handle_t handle)
 {
     NU_ASSERT(type);
     NU_ASSERT(group);
-    NU_ASSERT(data);
+    NU_ASSERT(handle);
     NU_ASSERT(uid);
 
     const nu__resource_type_t *t = nu__resource_type_find(type);
@@ -228,9 +212,9 @@ nu_resource_insert (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
     res->type                 = type;
     res->uid                  = uid;
     res->group                = group;
-    res->data                 = data;
+    res->handle               = handle;
 
-    t->handler(NU_RES_INSERTED, type, res->data, NU_NULL);
+    t->handler(NU_RES_INSERTED, type, res->handle, NU_NULL);
 }
 static void
 nu__resource_remove_index (nu_size_t index)
@@ -241,7 +225,7 @@ nu__resource_remove_index (nu_size_t index)
     NU_ASSERT(t);
 
     // delete resource
-    t->handler(NU_RES_DELETE, res->type, res->data, NU_NULL);
+    t->handler(NU_RES_DELETE, res->type, res->handle, NU_NULL);
 
     NU_VEC_SWAP_REMOVE(&_ctx.resource.entries, index);
 }
@@ -255,18 +239,31 @@ nu_resource_delete (nu_uid_t uid)
         return;
     }
     NU_ASSERT(res);
-    NU_ASSERT(res->data);
+    NU_ASSERT(res->handle);
     NU_ASSERT(res->type);
     nu__resource_remove_index(index);
 }
-void *
-nu_resource (nu_uid_t type, nu_uid_t uid)
+nu_handle_t
+nu_resource_get (nu_uid_t type, nu_uid_t uid)
 {
     NU_ASSERT(type);
     NU_ASSERT(uid);
     nu__resource_entry_t *res = nu__resource_find(uid, NU_NULL);
     NU_ASSERT(res);
-    return res->type == type ? res->data : NU_NULL;
+    return res->type == type ? res->handle : NU_NULL;
+}
+nu_uid_t
+nu_resource_find (nu_uid_t type, nu_handle_t handle)
+{
+    for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
+    {
+        const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
+        if (res->type == type && res->handle == handle)
+        {
+            return res->uid;
+        }
+    }
+    return NU_NULL;
 }
 
 nu_uid_t
@@ -284,10 +281,10 @@ nu_resource_load_group (nu_seria_t seria)
         const nu__resource_type_t *t = nu__resource_type_find(type_uid);
         NU_ASSERT(t);
 
-        void *data = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);
-        NU_ASSERT(data);
+        nu_handle_t handle = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);
+        NU_ASSERT(handle);
 
-        nu_resource_insert(type_uid, group, uid, data);
+        nu_resource_insert(type_uid, group, uid, handle);
     }
     return group;
 }
@@ -315,7 +312,7 @@ nu_resource_save_group (nu_uid_t uid, nu_seria_t seria)
 
             nu_seria_write_u32(seria, t->uid); // write resource type
             nu_seria_write_u32(seria, uid);    // write resource uid
-            t->handler(NU_RES_SAVE, res->type, res->data, seria);
+            t->handler(NU_RES_SAVE, res->type, res->handle, seria);
         }
     }
 }

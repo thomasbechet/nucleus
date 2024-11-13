@@ -401,6 +401,7 @@ typedef nu_u8_t       nu_byte_t;
 typedef int           nu_word_t;
 typedef nu_u32_t      nu_uid_t;
 typedef nu_i32_t      nu_wchar_t;
+typedef void         *nu_handle_t;
 
 typedef void (*nu_fixedloop_callback_t)(nu_f32_t timestep);
 
