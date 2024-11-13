@@ -13,15 +13,14 @@
 typedef struct
 {
     const void *ptr;
-    nu_u16_t    index;
-} nu__model_gltf_cache_t;
-typedef NU_VEC(nu__model_gltf_cache_t) nu__model_gltf_cache_vec_t;
+    void       *handle;
+} nu__model_gltf_resource_t;
 
 typedef struct
 {
-    nu__model_gltf_cache_vec_t cache;
-    nu_bool_t                  has_default_material;
-    nu_u32_t                   default_material;
+    NU_VEC(nu__model_gltf_resource_t) resources;
+    nu_bool_t     has_default_material;
+    nu_material_t default_material;
 } nu__model_gltf_loader_t;
 #endif
 

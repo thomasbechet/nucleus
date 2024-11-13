@@ -118,9 +118,8 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
 
             // Append asset
-            nu__model_resource_t *r       = NU_VEC_PUSH(&model->resources);
             r->mesh                       = handle;
-            nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->cache);
+            nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
             cache->ptr                    = mesh;
             cache->index                  = model->resources.size - 1;
         }
@@ -146,11 +145,9 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
     nu_image_delete(image);
 
     // Append asset
-    nu__model_resource_t *asset   = NU_VEC_PUSH(&model->resources);
-    asset->texture                = handle;
-    nu__model_gltf_cache_t *cache = NU_VEC_PUSH(&loader->cache);
+    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
     cache->ptr                    = texture;
-    cache->index                  = model->resources.size - 1;
+    cache->handle                 = handle;
 
     return NU_ERROR_NONE;
 }
@@ -163,14 +160,14 @@ nu__load_material (nu__model_gltf_loader_t *loader,
 
     // Find color texture
     nu_bool_t found = NU_FALSE;
-    nu_u32_t  index;
-    for (nu_size_t i = 0; i < loader->cache.size; ++i)
+    void     *texture_handle;
+    for (nu_size_t i = 0; i < loader->resources.size; ++i)
     {
-        if (loader->cache.data[i].ptr
+        if (loader->resources.data[i].ptr
             == material->pbr_metallic_roughness.base_color_texture.texture)
         {
-            index = loader->cache.data[i].index;
-            found = NU_TRUE;
+            texture_handle = loader->resources.data[i].handle;
+            found          = NU_TRUE;
             break;
         }
     }
@@ -183,14 +180,12 @@ nu__load_material (nu__model_gltf_loader_t *loader,
 
     // Create material
     nu_material_t handle = nu_material_create(NU_MATERIAL_SURFACE);
-    nu_material_set_texture(handle, model->resources.data[index].texture);
+    nu_material_set_texture(handle, texture_handle);
 
     // Append asset
-    nu__model_resource_t *resource = NU_VEC_PUSH(&model->resources);
-    resource->material             = handle;
-    nu__model_gltf_cache_t *cache  = NU_VEC_PUSH(&loader->cache);
-    cache->ptr                     = material;
-    cache->index                   = model->resources.size - 1;
+    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
+    cache->ptr                    = material;
+    cache->handle                 = handle;
 
     return NU_ERROR_NONE;
 }
@@ -217,12 +212,12 @@ nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
 static void
 nu__model_gltf_loader_init (void)
 {
-    NU_VEC_INIT(10, &_ctx.importer.model_gltf_loader.cache);
+    NU_VEC_INIT(10, &_ctx.importer.model_gltf_loader.resources);
 }
 static void
 nu__model_gltf_loader_free (void)
 {
-    NU_VEC_FREE(&_ctx.importer.model_gltf_loader.cache);
+    NU_VEC_FREE(&_ctx.importer.model_gltf_loader.resources);
 }
 static nu_model_t
 nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
@@ -235,7 +230,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     nu_error_t   error;
 
     // Reset cache
-    NU_VEC_CLEAR(&loader->cache);
+    NU_VEC_CLEAR(&loader->resources);
     loader->has_default_material = NU_FALSE;
 
     // Parse file and load buffers
@@ -319,12 +314,12 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
                 nu_u16_t material_index;
                 {
                     nu_bool_t found = NU_FALSE;
-                    for (nu_size_t i = 0; i < loader->cache.size; ++i)
+                    for (nu_size_t i = 0; i < loader->resources.size; ++i)
                     {
-                        if (loader->cache.data[i].ptr
+                        if (loader->resources.data[i].ptr
                             == node->mesh->primitives->material)
                         {
-                            material_index = loader->cache.data[i].index;
+                            material_index = loader->resources.data[i].index;
                             found          = NU_TRUE;
                             break;
                         }
@@ -343,11 +338,11 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
                 nu_u16_t mesh_index;
                 {
                     nu_bool_t found = NU_FALSE;
-                    for (nu_size_t i = 0; i < loader->cache.size; ++i)
+                    for (nu_size_t i = 0; i < loader->resources.size; ++i)
                     {
-                        if (loader->cache.data[i].ptr == node->mesh)
+                        if (loader->resources.data[i].ptr == node->mesh)
                         {
-                            mesh_index = loader->cache.data[i].index;
+                            mesh_index = loader->resources.data[i].index;
                             found      = NU_TRUE;
                             break;
                         }

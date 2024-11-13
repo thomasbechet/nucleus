@@ -22,10 +22,10 @@ typedef struct
 
 typedef struct
 {
-    nu_texture_t             surface_color;
-    nu__font_pool_t          fonts;
-    nu__image_pool_t         images;
-    nu__model_pool_t         models;
+    nu_texture_t     surface_color;
+    nu__font_pool_t  fonts;
+    nu__image_pool_t images;
+    NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
     nu__camera_pool_t     cameras;

@@ -1,5 +1,5 @@
-#ifndef NU_RESOURCE_H
-#define NU_RESOURCE_H
+#ifndef NU_RES_H
+#define NU_RES_H
 
 #include <nucleus/resource/api.h>
 

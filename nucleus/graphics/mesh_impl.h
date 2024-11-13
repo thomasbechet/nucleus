@@ -26,9 +26,9 @@ nu_mesh_delete (nu_mesh_t mesh)
 }
 void
 nu_mesh_set_uvs (nu_mesh_t      mesh,
-                   nu_size_t      first,
-                   nu_size_t      count,
-                   const nu_v2_t *data)
+                 nu_size_t      first,
+                 nu_size_t      count,
+                 const nu_v2_t *data)
 {
     NU_ASSERT(mesh);
     nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
@@ -38,9 +38,9 @@ nu_mesh_set_uvs (nu_mesh_t      mesh,
 }
 void
 nu_mesh_set_positions (nu_mesh_t      mesh,
-                         nu_size_t      first,
-                         nu_size_t      count,
-                         const nu_v3_t *data)
+                       nu_size_t      first,
+                       nu_size_t      count,
+                       const nu_v3_t *data)
 {
     NU_ASSERT(mesh);
     nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
@@ -51,9 +51,9 @@ nu_mesh_set_positions (nu_mesh_t      mesh,
 }
 void
 nu_mesh_set_colors (nu_mesh_t         mesh,
-                      nu_size_t         first,
-                      nu_size_t         count,
-                      const nu_color_t *data)
+                    nu_size_t         first,
+                    nu_size_t         count,
+                    const nu_color_t *data)
 {
 }
 
