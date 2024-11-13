@@ -5,7 +5,7 @@
 
 typedef enum
 {
-    NU_RES_CREATE,
+    NU_RES_INSERTED,
     NU_RES_DELETE,
     NU_RES_LOAD,
     NU_RES_SAVE
@@ -20,7 +20,7 @@ NU_API void nu_resource_register(nu_uid_t              uid,
                                  nu_str_t              name,
                                  nu_resource_handler_t handler);
 
-NU_API void  nu_resource_create(nu_uid_t type,
+NU_API void  nu_resource_insert(nu_uid_t type,
                                 nu_uid_t group,
                                 nu_uid_t uid,
                                 void    *data);

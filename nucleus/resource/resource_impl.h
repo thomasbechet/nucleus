@@ -11,7 +11,7 @@ nu__resource_handler (nu_resource_action_t action,
 {
     switch (action)
     {
-        case NU_RES_CREATE:
+        case NU_RES_INSERTED:
             NU_ASSERT(data);
             break;
         case NU_RES_DELETE:
@@ -28,7 +28,7 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_CREATE:
+            case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
                 nu_image_delete(data);
@@ -44,7 +44,7 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_CREATE: {
+            case NU_RES_INSERTED: {
                 nu__texture_t *tex
                     = _ctx.graphics.textures.data + NU_HANDLE_INDEX(data);
                 NU_ASSERT(tex->image_texture);
@@ -85,7 +85,7 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_CREATE:
+            case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
                 nu_model_delete(data);
@@ -100,7 +100,7 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_CREATE:
+            case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
                 nu_ecs_delete(data);
@@ -116,7 +116,7 @@ nu__resource_handler (nu_resource_action_t action,
     {
         switch (action)
         {
-            case NU_RES_CREATE:
+            case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
                 break;
@@ -209,7 +209,7 @@ nu_resource_register (nu_uid_t              uid,
 }
 
 void
-nu_resource_create (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
+nu_resource_insert (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
 {
     NU_ASSERT(type);
     NU_ASSERT(group);
@@ -230,7 +230,7 @@ nu_resource_create (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
     res->group                = group;
     res->data                 = data;
 
-    t->handler(NU_RES_CREATE, type, res->data, NU_NULL);
+    t->handler(NU_RES_INSERTED, type, res->data, NU_NULL);
 }
 static void
 nu__resource_remove_index (nu_size_t index)
@@ -287,7 +287,7 @@ nu_resource_load_group (nu_seria_t seria)
         void *data = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);
         NU_ASSERT(data);
 
-        nu_resource_create(type_uid, group, uid, data);
+        nu_resource_insert(type_uid, group, uid, data);
     }
     return group;
 }
