@@ -64,10 +64,6 @@ nu__platform_init (void)
     _ctx.platform.mouse_motion_x_first_binding = NU__ID_NONE;
     _ctx.platform.mouse_motion_y_first_binding = NU__ID_NONE;
 
-#ifndef NU_BUILD_RESOURCE
-    nu__input_resource_register();
-#endif
-
     return NU_ERROR_NONE;
 }
 static nu_error_t

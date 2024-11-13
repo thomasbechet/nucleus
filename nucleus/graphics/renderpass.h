@@ -33,6 +33,4 @@ typedef struct
     };
 } nu__renderpass_t;
 
-typedef NU_POOL(nu__renderpass_t) nu__renderpass_pool_t;
-
 #endif

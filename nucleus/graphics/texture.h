@@ -15,6 +15,4 @@ typedef struct
     nu_image_t        image_texture;
 } nu__texture_t;
 
-typedef NU_POOL(nu__texture_t) nu__texture_pool_t;
-
 #endif

@@ -38,9 +38,7 @@ nu__emplace_vertex (const nu_v3_t *positions,
     }
 
 static nu_error_t
-nu__load_mesh (nu__model_gltf_loader_t *loader,
-               const cgltf_mesh        *mesh,
-               nu__model_t             *model)
+nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
 {
     nu_error_t error;
     NU_DEBUG("loading mesh: %s", mesh->name);
@@ -118,19 +116,16 @@ nu__load_mesh (nu__model_gltf_loader_t *loader,
             nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
 
             // Append asset
-            r->mesh                       = handle;
             nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-            cache->ptr                    = mesh;
-            cache->index                  = model->resources.size - 1;
+            cache->ptr                       = mesh;
+            cache->handle                    = handle;
         }
     }
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__load_texture (nu__model_gltf_loader_t *loader,
-                  const cgltf_texture     *texture,
-                  nu__model_t             *model)
+nu__load_texture (nu__model_gltf_loader_t *loader, const cgltf_texture *texture)
 {
     NU_DEBUG("loading texture: %s", texture->name);
 
@@ -146,33 +141,30 @@ nu__load_texture (nu__model_gltf_loader_t *loader,
 
     // Append asset
     nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-    cache->ptr                    = texture;
-    cache->handle                 = handle;
+    cache->ptr                       = texture;
+    cache->handle                    = handle;
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__load_material (nu__model_gltf_loader_t *loader,
-                   const cgltf_material    *material,
-                   nu__model_t             *model)
+                   const cgltf_material    *material)
 {
     NU_DEBUG("loading material: %s", material->name);
 
     // Find color texture
-    nu_bool_t found = NU_FALSE;
-    void     *texture_handle;
+    nu_texture_t texture = NU_NULL;
     for (nu_size_t i = 0; i < loader->resources.size; ++i)
     {
         if (loader->resources.data[i].ptr
             == material->pbr_metallic_roughness.base_color_texture.texture)
         {
-            texture_handle = loader->resources.data[i].handle;
-            found          = NU_TRUE;
+            texture = loader->resources.data[i].handle;
             break;
         }
     }
 
-    if (!found)
+    if (!texture)
     {
         NU_ERROR("texture not found");
         return NU_ERROR_RESOURCE_LOADING;
@@ -180,33 +172,28 @@ nu__load_material (nu__model_gltf_loader_t *loader,
 
     // Create material
     nu_material_t handle = nu_material_create(NU_MATERIAL_SURFACE);
-    nu_material_set_texture(handle, texture_handle);
+    nu_material_set_texture(handle, texture);
 
     // Append asset
     nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-    cache->ptr                    = material;
-    cache->handle                 = handle;
+    cache->ptr                       = material;
+    cache->handle                    = handle;
 
     return NU_ERROR_NONE;
 }
-static nu_error_t
-nu__load_material_default (nu__model_gltf_loader_t *loader, nu__model_t *model)
+static void
+nu__load_material_default (nu__model_gltf_loader_t *loader)
 {
-    if (!loader->has_default_material)
+    if (!loader->default_material)
     {
         NU_DEBUG("loading default material");
 
-        nu_texture_t texture = nu_texture_create_from_color(NU_COLOR_RED);
-        NU_VEC_PUSH(&model->resources)->texture = texture;
-
+        nu_texture_t  texture  = nu_texture_create_from_color(NU_COLOR_RED);
         nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);
         nu_material_set_texture(material, texture);
-        NU_VEC_PUSH(&model->resources)->material = material;
 
-        loader->default_material     = model->resources.size - 1;
-        loader->has_default_material = NU_TRUE;
+        loader->default_material = material;
     }
-    return NU_ERROR_NONE;
 }
 
 static void
@@ -231,7 +218,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
 
     // Reset cache
     NU_VEC_CLEAR(&loader->resources);
-    loader->has_default_material = NU_FALSE;
+    loader->default_material = NU_NULL;
 
     // Parse file and load buffers
     nu_byte_t fn[256];
@@ -247,19 +234,15 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
         return NU_NULL;
     }
 
-    // Create model
-    nu_model_t   handle = nu_model_create();
-    nu__model_t *m      = &_ctx.graphics.models.data[NU_HANDLE_INDEX(handle)];
-
     // Load resources
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
-        error = nu__load_mesh(loader, data->meshes + i, m);
+        error = nu__load_mesh(loader, data->meshes + i);
         NU_ERROR_CHECK(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
-        error = nu__load_texture(loader, data->textures + i, m);
+        error = nu__load_texture(loader, data->textures + i);
         NU_ERROR_CHECK(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
@@ -268,15 +251,20 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
         if (mat->has_pbr_metallic_roughness
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
-            error = nu__load_material(loader, mat, m);
+            error = nu__load_material(loader, mat);
             NU_ERROR_CHECK(error, return NU_NULL);
         }
     }
+
+    nu_model_t model = NU_NULL;
 
     // Load scenes and nodes
     for (nu_size_t s = 0; s < data->scenes_count; ++s)
     {
         cgltf_scene *scene = data->scenes + s;
+
+        // Create model
+        model = nu_model_create(scene->nodes_count);
 
         for (nu_size_t n = 0; n < scene->nodes_count; ++n)
         {
@@ -311,59 +299,54 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
             if (node->mesh)
             {
                 // Find material
-                nu_u16_t material_index;
+                nu_material_t material = NU_NULL;
                 {
-                    nu_bool_t found = NU_FALSE;
                     for (nu_size_t i = 0; i < loader->resources.size; ++i)
                     {
                         if (loader->resources.data[i].ptr
                             == node->mesh->primitives->material)
                         {
-                            material_index = loader->resources.data[i].index;
-                            found          = NU_TRUE;
+                            material = loader->resources.data[i].handle;
                             break;
                         }
                     }
-                    if (!found)
+                    if (!material)
                     {
                         NU_WARNING(
                             "material not found for node '%s', using default",
                             node->name);
-                        nu__load_material_default(loader, m);
-                        material_index = loader->default_material;
+                        nu__load_material_default(loader);
+                        material = loader->default_material;
                     }
                 }
 
                 // Find mesh
-                nu_u16_t mesh_index;
+                nu_mesh_t mesh = NU_NULL;
                 {
-                    nu_bool_t found = NU_FALSE;
                     for (nu_size_t i = 0; i < loader->resources.size; ++i)
                     {
                         if (loader->resources.data[i].ptr == node->mesh)
                         {
-                            mesh_index = loader->resources.data[i].index;
-                            found      = NU_TRUE;
+                            mesh = loader->resources.data[i].handle;
                             break;
                         }
                     }
-                    if (!found)
+                    if (!mesh)
                     {
                         return NU_NULL;
                     }
                 }
 
-                // Append node
-                nu__model_node_t *node = NU_VEC_PUSH(&m->nodes);
-                node->mesh             = mesh_index;
-                node->material         = material_index;
-                node->transform        = transform;
+                // Set node
+                nu_model_set(model, n, mesh, material, transform);
             }
         }
+
+        break; // TODO: support multiple scene
     }
 
     cgltf_free(data);
-    return handle;
+    return model;
 }
 
 nu_model_t

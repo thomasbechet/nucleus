@@ -235,7 +235,12 @@ NU_API nu_v3u_t   nu_image_size(nu_image_t image);
 NU_API nu_image_t nu_image_load(nu_seria_t seria);
 NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
 
-NU_API nu_model_t nu_model_create(void);
+NU_API nu_model_t nu_model_create(nu_size_t node_count);
+NU_API void       nu_model_set(nu_model_t    model,
+                               nu_size_t     index,
+                               nu_mesh_t     mesh,
+                               nu_material_t material,
+                               nu_m4_t       transform);
 NU_API void       nu_model_delete(nu_model_t model);
 
 NU_API nu_font_t nu_font_create_default(void);

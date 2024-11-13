@@ -19,7 +19,6 @@ typedef struct
 typedef struct
 {
     NU_VEC(nu__model_gltf_resource_t) resources;
-    nu_bool_t     has_default_material;
     nu_material_t default_material;
 } nu__model_gltf_loader_t;
 #endif

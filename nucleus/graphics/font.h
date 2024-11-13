@@ -15,6 +15,4 @@ typedef struct
     nu_wchar_t    max_char;
 } nu__font_t;
 
-typedef NU_POOL(nu__font_t) nu__font_pool_t;
-
 #endif

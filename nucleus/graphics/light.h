@@ -11,8 +11,6 @@ typedef struct
     nu_q4_t         rotation;
 } nu__light_t;
 
-typedef NU_POOL(nu__light_t) nu__light_pool_t;
-
 typedef struct
 {
     nu_texture_t shadowmap;
@@ -20,7 +18,5 @@ typedef struct
     nu_texture_t skybox;
     nu_m3_t      skybox_rotation;
 } nu__lightenv_t;
-
-typedef NU_POOL(nu__lightenv_t) nu__lightenv_pool_t;
 
 #endif

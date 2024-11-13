@@ -12,7 +12,6 @@ typedef struct
 
 typedef struct
 {
-    nu_allocator_t allocator;
     NU_VEC(nu__model_node_t) nodes;
 } nu__model_t;
 

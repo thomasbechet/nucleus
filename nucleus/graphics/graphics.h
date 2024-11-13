@@ -22,19 +22,19 @@ typedef struct
 
 typedef struct
 {
-    nu_texture_t     surface_color;
-    nu__font_pool_t  fonts;
-    nu__image_pool_t images;
+    nu_texture_t surface_color;
+    NU_POOL(nu__font_t) fonts;
+    NU_POOL(nu__image_t) images;
     NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
-    nu__camera_pool_t     cameras;
-    nu__texture_pool_t    textures;
-    nu__material_pool_t   materials;
-    nu__mesh_pool_t       meshes;
-    nu__light_pool_t      lights;
-    nu__lightenv_pool_t   lightenvs;
-    nu__renderpass_pool_t passes;
+    NU_POOL(nu__camera_t) cameras;
+    NU_POOL(nu__texture_t) textures;
+    NU_POOL(nu__material_t) materials;
+    NU_POOL(nu__mesh_t) meshes;
+    NU_POOL(nu__light_t) lights;
+    NU_POOL(nu__lightenv_t) lightenvs;
+    NU_POOL(nu__renderpass_t) passes;
 
 #ifdef NU_BUILD_GRAPHICS_GL
     nu__gl_t gl;

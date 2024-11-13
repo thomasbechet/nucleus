@@ -33,6 +33,7 @@ nu_texture_create_from_color (nu_color_t color)
 nu_texture_t
 nu_texture_create_from_image (nu_texture_type_t type, nu_image_t image)
 {
+    NU_ASSERT(image);
     nu__image_t *ima = &_ctx.graphics.images.data[NU_HANDLE_INDEX(image)];
     nu_texture_t tex = NU_NULL;
     switch (type)
@@ -73,10 +74,6 @@ void
 nu_texture_delete (nu_texture_t texture)
 {
     nu__texture_t *tex = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-    if (tex->image_texture) // is image_texture
-    {
-        nu_image_delete(tex->image_texture);
-    }
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
 #endif

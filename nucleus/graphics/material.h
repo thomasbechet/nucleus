@@ -27,8 +27,6 @@ typedef struct
     };
 } nu__material_t;
 
-typedef NU_POOL(nu__material_t) nu__material_pool_t;
-
 static nu_m3_t    nu__material_surface_uv_transform(nu_material_t mat);
 static GLuint     nu__material_surface_texture0(nu_material_t mat);
 static nu_color_t nu__material_surface_color(nu_material_t mat,

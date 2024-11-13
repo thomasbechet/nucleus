@@ -9,6 +9,21 @@ nu__resource_handler (nu_resource_action_t action,
                       void                *data,
                       nu_seria_t           seria)
 {
+    switch (action)
+    {
+        case NU_RES_CREATE:
+            NU_ASSERT(data);
+            break;
+        case NU_RES_DELETE:
+            NU_ASSERT(data);
+            break;
+        case NU_RES_LOAD:
+            NU_ASSERT(seria && !data);
+            break;
+        case NU_RES_SAVE:
+            NU_ASSERT(seria && data);
+            break;
+    }
     if (type == NU_RES_IMAGE)
     {
         switch (action)
@@ -53,6 +68,7 @@ nu__resource_handler (nu_resource_action_t action,
                 tex->image_texture = image;
                 return texture;
             }
+            break;
             case NU_RES_SAVE: {
                 nu_texture_t   texture = data;
                 nu__texture_t *tex
@@ -136,8 +152,7 @@ nu__resource_free (void)
 {
     while (_ctx.resource.entries.size)
     {
-        const nu__resource_entry_t *res
-            = _ctx.resource.entries.data + _ctx.resource.entries.size - 1;
+        const nu__resource_entry_t *res = NU_VEC_LAST(&_ctx.resource.entries);
         nu_resource_delete(res->uid);
     }
     NU_VEC_FREE(&_ctx.resource.entries);
@@ -197,7 +212,9 @@ void
 nu_resource_create (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
 {
     NU_ASSERT(type);
+    NU_ASSERT(group);
     NU_ASSERT(data);
+    NU_ASSERT(uid);
 
     const nu__resource_type_t *t = nu__resource_type_find(type);
     NU_ASSERT(t);
@@ -218,6 +235,7 @@ nu_resource_create (nu_uid_t type, nu_uid_t group, nu_uid_t uid, void *data)
 static void
 nu__resource_remove_index (nu_size_t index)
 {
+    NU_ASSERT(index < _ctx.resource.entries.size);
     nu__resource_entry_t      *res = _ctx.resource.entries.data + index;
     const nu__resource_type_t *t   = nu__resource_type_find(res->type);
     NU_ASSERT(t);
@@ -230,11 +248,16 @@ nu__resource_remove_index (nu_size_t index)
 void
 nu_resource_delete (nu_uid_t uid)
 {
-    nu_size_t index;
-    if (nu__resource_find(uid, &index))
+    nu_size_t             index;
+    nu__resource_entry_t *res = nu__resource_find(uid, &index);
+    if (!res)
     {
-        nu__resource_remove_index(index);
+        return;
     }
+    NU_ASSERT(res);
+    NU_ASSERT(res->data);
+    NU_ASSERT(res->type);
+    nu__resource_remove_index(index);
 }
 void *
 nu_resource (nu_uid_t type, nu_uid_t uid)
@@ -258,7 +281,7 @@ nu_resource_load_group (nu_seria_t seria)
         nu_uid_t uid      = nu_seria_read_u32(seria); // read resource uid
         NU_ASSERT(uid);
 
-        const nu__resource_type_t *t = nu__resource_type_find(uid);
+        const nu__resource_type_t *t = nu__resource_type_find(type_uid);
         NU_ASSERT(t);
 
         void *data = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);

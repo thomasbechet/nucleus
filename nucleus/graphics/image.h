@@ -12,6 +12,4 @@ typedef struct
     nu_allocator_t  allocator;
 } nu__image_t;
 
-typedef NU_POOL(nu__image_t) nu__image_pool_t;
-
 #endif

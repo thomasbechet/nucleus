@@ -289,13 +289,14 @@
         }                                                                    \
     }
 
-#define NU_VEC_SWAP_REMOVE(v, i)                \
-    {                                           \
-        if ((i) < (v)->size - 1)                \
-        {                                       \
-            NU_VEC_SWAP(v, (i), (v)->size - 1); \
-        }                                       \
-        NU_VEC_POP(v);                          \
+#define NU_VEC_SWAP_REMOVE(v, i)                  \
+    {                                             \
+        NU_ASSERT((i) < (v)->size);               \
+        if ((i) < (v)->size - 1)                  \
+        {                                         \
+            NU_VEC_SWAP((v), (i), (v)->size - 1); \
+        }                                         \
+        NU_VEC_POP((v));                          \
     }
 
 #define NU_VEC_RESIZE(v, new_size)                               \
