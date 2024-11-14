@@ -1,8 +1,8 @@
 #define NU_IMPLEMENTATION
 #include <nucleus/nucleus.h>
 
-#define WIDTH  640
-#define HEIGHT 400
+// #define WIDTH  640
+// #define HEIGHT 400
 // #define WIDTH  720
 // #define HEIGHT 480
 // #define WIDTH  1920
@@ -11,8 +11,8 @@
 // #define WIDTH  400
 // #define WIDTH  640 / 2
 // #define HEIGHT 400 / 2
-// #define WIDTH  512
-// #define HEIGHT 288
+#define WIDTH  512
+#define HEIGHT 288
 
 #define SHADOW_WIDTH  1000
 #define SHADOW_HEIGHT 1000
