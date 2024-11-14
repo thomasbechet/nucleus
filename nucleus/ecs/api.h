@@ -9,10 +9,8 @@ NU_DEFINE_HANDLE(nu_ecs_t);
     for (nu_ecs_id_t(e) = nu_ecs_begin((ecs), (iter)); (e); \
          (e)            = nu_ecs_next((ecs), (iter)))
 
-#define NU_ECS_REG_COMPONENT(name, layout) \
+#define NU_ECS_COMPONENT(name, layout) \
     nu_ecs_register(NU_STR(#name), NU_SERIA_LAYOUT(layout))
-
-#define NU_ECS_COMPONENT(name) nu_ecs_find_component(NU_STR(#name))
 
 typedef nu_u32_t nu_ecs_id_t;
 

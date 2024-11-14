@@ -97,8 +97,10 @@
         (arr)[i] = (value);              \
     }
 
-#define NU_DEFINE_HANDLE(type)      typedef struct type *type
-#define NU_HANDLE_INDEX(handle)     (nu_size_t)((nu_intptr_t)handle - 1)
+#define NU_DEFINE_HANDLE(type) typedef struct type *type
+#define NU_HANDLE_INDEX(handle) \
+    (nu_size_t)((0x00FFFFFF & (nu_intptr_t)handle) - 1)
+#define NU_HANDLE_VERSION(handle)   (0xFF000000 & (nu_intptr_t)handle >> 24)
 #define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
@@ -374,6 +376,29 @@
          : NU_NULL)
 
 #define NU_POOL_REMOVE(s, index) ((*NU_VEC_PUSH(&(s)->_freelist)) = (index))
+
+#define NU_OBJECT_POOL(type)         \
+    struct                           \
+    {                                \
+        struct                       \
+        {                            \
+            nu_u8_t version;         \
+            union                    \
+            {                        \
+                type     value;      \
+                nu_u32_t free_index; \
+            }                        \
+        }        *data;              \
+        nu_size_t capacity;          \
+        nu_u32_t  free_index;        \
+    }
+
+#define NU_OBJECT_GET(pool, handle)                           \
+    (NU_HANDLE_INDEX(handle) < (pool)->capacity               \
+     && NU_HANDLE_VERSION(handle)                             \
+            == (pool)->data[NU_HANDLE_INDEX(handle)].version) \
+        ? &(pool)->data[NU_HANDLE_INDEX(handle)].value        \
+        : NU_NULL;
 
 //////////////////////////////////////////////////////////////////////////
 //////                          Core Types                          //////

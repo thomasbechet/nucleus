@@ -29,17 +29,17 @@ static nu_ecs_id_t COMP_PLAYER;
 void
 init (void)
 {
-    NU_SERIA_REG_STRUCT(subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1);
-                        NU_SERIA_FIELD(vector, NU_SERIA_V3, 1);
-                        NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1));
-    NU_SERIA_REG_STRUCT(transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3, 1);
-                        NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
-                        NU_SERIA_FIELD(scale, NU_SERIA_V3, 1););
-    NU_SERIA_REG_STRUCT(player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
-                        NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
+    NU_SERIA_STRUCT(subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1);
+                    NU_SERIA_FIELD(vector, NU_SERIA_V3, 1);
+                    NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1));
+    NU_SERIA_STRUCT(transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3, 1);
+                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
+                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1););
+    NU_SERIA_STRUCT(player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
+                    NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
 
-    COMP_TRANSFORM = NU_ECS_REG_COMPONENT(transform, transform_t);
-    COMP_PLAYER    = NU_ECS_REG_COMPONENT(player, player_t);
+    COMP_TRANSFORM = NU_ECS_COMPONENT(transform, transform_t);
+    COMP_PLAYER    = NU_ECS_COMPONENT(player, player_t);
 
     ecs = nu_ecs_create();
 

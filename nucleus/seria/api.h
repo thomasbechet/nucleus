@@ -3,7 +3,7 @@
 
 #include <nucleus/core/api.h>
 
-#define NU_SERIA_REG_STRUCT(struct, ...)                                 \
+#define NU_SERIA_STRUCT(struct, ...)                                     \
     {                                                                    \
         typedef struct sstruct;                                          \
         nu_seria_layout_t l                                              \
@@ -19,7 +19,7 @@
                                    NU_SERIA_REQUIRED, \
                                    offsetof(sstruct, field));
 
-#define NU_SERIA_REG_ENUM(enum, ...)                               \
+#define NU_SERIA_ENUM(enum, ...)                                   \
     {                                                              \
         nu_seria_layout_t layout                                   \
             = nu_seria_register_enum(NU_STR(#enum), sizeof(enum)); \

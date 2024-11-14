@@ -114,20 +114,19 @@ init (void)
     nu_resource_save_group(NU_UID("import"), seria);
     nu_seria_close(seria);
 
-    NU_SERIA_REG_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
-                      NU_SERIA_VALUE("player", COMP_PLAYER););
-    NU_SERIA_REG_STRUCT(
+    NU_SERIA_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
+                  NU_SERIA_VALUE("player", COMP_PLAYER););
+    NU_SERIA_STRUCT(
         subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1);
         NU_SERIA_FIELD(vector, NU_SERIA_V3, 1);
         NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1);
         NU_SERIA_FIELD(component, NU_SERIA_LAYOUT(component_t), 1););
-    NU_SERIA_REG_STRUCT(
-        transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3, 1);
-        NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
-        NU_SERIA_FIELD(scale, NU_SERIA_V3, 1);
-        NU_SERIA_FIELD(subtype, NU_SERIA_LAYOUT(subtype_t), 1););
-    NU_SERIA_REG_STRUCT(player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
-                        NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
+    NU_SERIA_STRUCT(transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3, 1);
+                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
+                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1);
+                    NU_SERIA_FIELD(subtype, NU_SERIA_LAYOUT(subtype_t), 1););
+    NU_SERIA_STRUCT(player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
+                    NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
 
     // Configure inputs
     draw        = nu_input_create();
