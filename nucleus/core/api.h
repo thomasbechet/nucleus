@@ -239,6 +239,9 @@
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
+#define NU_OBJECT_TYPE_MAX 128
+#define NU_SCOPE_MAX       64
+
 //////////////////////////////////////////////////////////////////////////
 //////                        Data Structures                       //////
 //////////////////////////////////////////////////////////////////////////
@@ -671,6 +674,29 @@ typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
 typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
+
+NU_DEFINE_HANDLE(nu_scope_t);
+NU_DEFINE_HANDLE(nu_object_type_t);
+
+typedef enum
+{
+    NU_OBJECT_CREATE,
+    NU_OBJECT_DELETE,
+    NU_OBJECT_SAVE,
+    NU_OBJECT_LOAD
+} nu_object_op_t;
+
+typedef void (*nu_object_handler_t)(nu_object_op_t op, void *data);
+
+NU_API nu_object_type_t nu_object_register(nu_str_t            name,
+                                           nu_size_t           size,
+                                           nu_object_handler_t handler);
+NU_API nu_object_type_t nu_object_type_find(nu_str_t name);
+NU_API nu_handle_t      nu_object_new(nu_object_type_t object);
+
+NU_API nu_scope_t nu_scope_new(nu_size_t size);
+NU_API void       nu_scope_rewind(nu_scope_t scope);
+NU_API void       nu_scope_set_active(nu_scope_t scope);
 
 NU_API void nu_app_init_callback(nu_app_callback_t callback);
 NU_API void nu_app_free_callback(nu_app_callback_t callback);

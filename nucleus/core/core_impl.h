@@ -11,6 +11,7 @@
 #include <nucleus/core/math_impl.h>
 #include <nucleus/core/fixedloop_impl.h>
 #include <nucleus/core/app_impl.h>
+#include <nucleus/core/object_impl.h>
 
 static nu_error_t
 nu__core_init (void)
