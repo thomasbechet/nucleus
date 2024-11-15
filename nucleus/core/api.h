@@ -102,6 +102,7 @@
     (nu_size_t)((0x00FFFFFF & (nu_intptr_t)handle) - 1)
 #define NU_HANDLE_VERSION(handle)   (0xFF000000 & (nu_intptr_t)handle >> 24)
 #define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
+#define NU_DEFINE_OBJECT(object)    typedef struct object *object
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
@@ -239,8 +240,8 @@
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_OBJECT_TYPE_MAX 128
-#define NU_SCOPE_MAX       64
+#define NU_OBJECT_MAX 128
+#define NU_SCOPE_MAX  64
 
 //////////////////////////////////////////////////////////////////////////
 //////                        Data Structures                       //////
@@ -675,27 +676,28 @@ typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
 
-NU_DEFINE_HANDLE(nu_scope_t);
-NU_DEFINE_HANDLE(nu_object_type_t);
+typedef struct nu_scope  *nu_scope_t;
+typedef struct nu_object *nu_object_t;
 
 typedef enum
 {
-    NU_OBJECT_CREATE,
-    NU_OBJECT_DELETE,
+    NU_OBJECT_NEW,
+    NU_OBJECT_CLEANUP,
     NU_OBJECT_SAVE,
     NU_OBJECT_LOAD
-} nu_object_op_t;
+} nu_object_hook_t;
 
-typedef void (*nu_object_handler_t)(nu_object_op_t op, void *data);
+typedef void (*nu_object_handler_t)(nu_object_hook_t hook, void *data);
 
-NU_API nu_object_type_t nu_object_register(nu_str_t            name,
-                                           nu_size_t           size,
-                                           nu_object_handler_t handler);
-NU_API nu_object_type_t nu_object_type_find(nu_str_t name);
-NU_API nu_handle_t      nu_object_new(nu_object_type_t object);
+NU_API nu_object_t nu_object_register(nu_str_t            name,
+                                      nu_size_t           size,
+                                      nu_object_handler_t handler);
+NU_API nu_object_t nu_object_type_find(nu_str_t name);
 
-NU_API nu_scope_t nu_scope_new(nu_size_t size);
-NU_API void       nu_scope_rewind(nu_scope_t scope);
+NU_API nu_scope_t nu_scope_register(nu_str_t name, nu_size_t size);
+NU_API void      *nu_scope_alloc(nu_size_t size);
+NU_API void      *nu_scope_new(nu_object_t type);
+NU_API void       nu_scope_cleanup(nu_scope_t scope);
 NU_API void       nu_scope_set_active(nu_scope_t scope);
 
 NU_API void nu_app_init_callback(nu_app_callback_t callback);

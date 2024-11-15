@@ -105,6 +105,22 @@ typedef struct
     nu_v3_t  v;
 } player_t;
 
+static void
+transform_handler (nu_object_hook_t hook, void *data)
+{
+    switch (hook)
+    {
+        case NU_OBJECT_NEW:
+            break;
+        case NU_OBJECT_CLEANUP:
+            break;
+        case NU_OBJECT_SAVE:
+            break;
+        case NU_OBJECT_LOAD:
+            break;
+    }
+}
+
 void
 init (void)
 {
@@ -309,6 +325,13 @@ init (void)
 
     physics_loop_handle
         = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
+
+    nu_scope_t scope = nu_scope_register(NU_STR("main"), 1 << 16);
+    nu_scope_set_active(scope);
+    nu_object_t obj = nu_object_register(
+        NU_STR("transform"), sizeof(transform_t), transform_handler);
+    nu_scope_new(obj);
+    nu_scope_alloc(1024);
 }
 
 void
