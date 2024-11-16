@@ -39,8 +39,8 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t input_index;
-    nu_u32_t next;
+    nu_input_t input;
+    nu_u32_t   next;
     union
     {
         nu__binding_button_t button;
@@ -48,28 +48,25 @@ typedef struct
     };
 } nu__binding_t;
 
-typedef NU_POOL(nu__binding_t) nu__binding_pool_t;
-
 typedef struct
 {
     nu_f32_t value;
     nu_f32_t previous;
 } nu__input_state_t;
 
-typedef struct
+typedef struct nu__input
 {
     nu__input_state_t state;
-    nu_bool_t         used;
-} nu__input_entry_t;
-
-typedef NU_POOL(nu__input_entry_t) nu__input_pool_t;
+    struct nu__input *prev;
+} nu__input_t;
 
 typedef struct
 {
+    nu_object_t  obj_input;
+    nu__input_t *last_input;
 
-    nu__input_pool_t   entries;
-    nu__binding_pool_t bindings;
-    nu_u32_t           key_to_first_binding[NU__MAX_KEY_COUNT];
+    NU_FIXEDVEC(nu__binding_t) bindings;
+    nu_u32_t key_to_first_binding[NU__MAX_KEY_COUNT];
     nu_u32_t mouse_button_to_first_binding[NU__MAX_MOUSE_BUTTON_COUNT];
     nu_u32_t mouse_x_first_binding;
     nu_u32_t mouse_y_first_binding;

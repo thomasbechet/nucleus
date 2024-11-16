@@ -102,7 +102,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_input_create();
+                return nu_input_new();
             case NU_RES_SAVE:
                 break;
         }

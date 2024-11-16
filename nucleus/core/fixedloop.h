@@ -5,13 +5,12 @@
 
 typedef struct
 {
-    nu_bool_t               used;
     nu_bool_t               active;
     nu_f32_t                timestep;
     nu_f32_t                acc;
     nu_fixedloop_callback_t callback;
+    nu_fixedloop_t          next;
+    nu_fixedloop_t          prev;
 } nu__fixedloop_t;
-
-typedef NU_POOL(nu__fixedloop_t) nu__fixedloop_pool_t;
 
 #endif

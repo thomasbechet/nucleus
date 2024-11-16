@@ -3,35 +3,53 @@
 
 #include <nucleus/internal.h>
 
-nu_fixedloop_t
-nu_fixedloop_create (nu_fixedloop_callback_t callback, nu_f32_t timestep)
+static void
+nu__fixedloop_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t        index;
-    nu__fixedloop_t *loop = NU_POOL_ADD(&_ctx.core.fixedloops, &index);
+    switch (hook)
+    {
+        case NU_OBJECT_CLEANUP: {
+            nu_fixedloop_t handle = data;
+            for (nu_size_t i = 0; i < _ctx.core.fixedloops.size; ++i)
+            {
+                if (handle == _ctx.core.fixedloops.data[i])
+                {
+                    NU_FIXEDVEC_SWAP_REMOVE(&_ctx.core.fixedloops, i);
+                }
+            }
+        }
+        break;
+        case NU_OBJECT_SAVE:
+        case NU_OBJECT_LOAD:
+            break;
+    }
+}
 
-    loop->used     = NU_TRUE;
+nu_fixedloop_t
+nu_fixedloop_new (nu_fixedloop_callback_t callback, nu_f32_t timestep)
+{
+    nu_fixedloop_t *handle = NU_FIXEDVEC_PUSH(&_ctx.core.fixedloops);
+    if (!handle)
+    {
+        NU_ERROR("max fixedloop count reached");
+        return NU_NULL;
+    }
+    nu__fixedloop_t *loop = nu_object_new(_ctx.core.obj_fixedloop);
+    *handle               = (nu_fixedloop_t)loop;
+
     loop->active   = NU_TRUE;
     loop->timestep = timestep;
     loop->acc      = 0.0;
     loop->callback = callback;
 
-    return NU_HANDLE_MAKE(nu_fixedloop_t, index);
-}
-void
-nu_fixedloop_delete (nu_fixedloop_t loop)
-{
-    NU_POOL_REMOVE(&_ctx.core.fixedloops, NU_HANDLE_INDEX(loop));
+    return *handle;
 }
 void
 nu_fixedloop_update (nu_f32_t dt)
 {
-    for (nu_size_t i = 0; i < _ctx.core.fixedloops.capacity; ++i)
+    for (nu_size_t i = 0; i < _ctx.core.fixedloops.size; ++i)
     {
-        nu__fixedloop_t *loop = _ctx.core.fixedloops.data + i;
-        if (!loop->used)
-        {
-            continue;
-        }
+        nu__fixedloop_t *loop = (nu__fixedloop_t *)_ctx.core.fixedloops.data[i];
         loop->acc += dt;
 
         if (loop->acc >= loop->timestep)

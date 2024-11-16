@@ -13,7 +13,7 @@ typedef struct
 typedef struct nu__object_header
 {
     struct nu__object_header *prev;
-    nu_object_t               type;
+    nu__object_t             *type;
 } nu__object_header_t;
 
 typedef struct nu_scope

@@ -13,7 +13,9 @@ nu__platform_init (void)
     nu_error_t error;
 
     // Initialize context
-    NU_POOL_INIT(10, &_ctx.platform.entries);
+    _ctx.platform.obj_input = nu_object_register(
+        NU_STR("input"), sizeof(nu__input_t), nu__input_handler);
+    _ctx.platform.last_input = NU_NULL;
 
     // Initialize surface (and inputs)
     const nu_int_t width  = NU__DEFAULT_WINDOW_WIDTH;
@@ -50,7 +52,7 @@ nu__platform_init (void)
     _ctx.platform.mouse_motion_previous = NU_V2_ZEROS;
 
     // Initialize inputs
-    NU_POOL_INIT(10, &_ctx.platform.bindings);
+    NU_FIXEDVEC_ALLOC(&_ctx.platform.bindings, 32);
     for (nu_u32_t i = 0; i < NU__MAX_KEY_COUNT; ++i)
     {
         _ctx.platform.key_to_first_binding[i] = NU__ID_NONE;
@@ -71,9 +73,6 @@ nu__platform_free (void)
 {
     RGFW_window_close(_ctx.platform.win);
 
-    NU_POOL_FREE(&_ctx.platform.bindings);
-    NU_POOL_FREE(&_ctx.platform.entries);
-
     return NU_ERROR_NONE;
 }
 static void
@@ -82,13 +81,11 @@ nu__platform_poll_events (void)
     if (_ctx.platform.win)
     {
         // Update input states
-        for (nu_size_t i = 0; i < _ctx.platform.entries.capacity; ++i)
+        nu__input_t *input = _ctx.platform.last_input;
+        while (input)
         {
-            if (_ctx.platform.entries.data[i].used)
-            {
-                _ctx.platform.entries.data[i].state.previous
-                    = _ctx.platform.entries.data[i].state.value;
-            }
+            input->state.previous = input->state.value;
+            input                 = input->prev;
         }
 
         // Reset mouse scroll

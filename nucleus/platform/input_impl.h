@@ -3,6 +3,11 @@
 
 #include <nucleus/internal.h>
 
+static void
+nu__input_handler (nu_object_hook_t hook, void *data)
+{
+}
+
 static int nu__button_to_mouse[] = { RGFW_mouseLeft,
                                      RGFW_mouseMiddle,
                                      RGFW_mouseRight,
@@ -126,7 +131,6 @@ nu__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
     while (current != NU__ID_NONE)
     {
         const nu__binding_t *binding = &_ctx.platform.bindings.data[current];
-        NU_ASSERT(binding->input_index < _ctx.platform.entries.capacity);
 
         nu_f32_t value = NU_INPUT_RELEASED;
         if (pressed)
@@ -134,8 +138,8 @@ nu__dispatch_binding_button (nu_u32_t binding, nu_bool_t pressed)
             value = binding->button.pressed;
         }
 
-        _ctx.platform.entries.data[binding->input_index].state.value = value;
-        current = binding->next;
+        ((nu__input_t *)binding->input)->state.value = value;
+        current                                      = binding->next;
     }
 }
 static void
@@ -145,8 +149,7 @@ nu__dispatch_binding_axis (nu_u32_t binding, nu_f32_t value)
     while (current != NU__ID_NONE)
     {
         const nu__binding_t *binding = &_ctx.platform.bindings.data[current];
-        NU_ASSERT(binding->input_index < _ctx.platform.entries.capacity);
-        _ctx.platform.entries.data[binding->input_index].state.value
+        ((nu__input_t *)binding->input)->state.value
             = value * binding->axis.scale;
         current = binding->next;
     }
@@ -157,8 +160,7 @@ nu__find_binding (nu_u32_t binding, nu_input_t input)
     nu_u32_t current = binding;
     while (current != NU__ID_NONE)
     {
-        if (_ctx.platform.bindings.data[current].input_index
-            == NU_HANDLE_INDEX(input))
+        if ((nu_input_t)_ctx.platform.bindings.data[current].input == input)
         {
             return NU_TRUE;
         }
@@ -272,67 +274,64 @@ nu__first_binding_from_axis (nuext_axis_t axis)
 static nu__binding_t *
 nu__add_binding (nu_u32_t *first_binding, nu_input_t input)
 {
-    nu_size_t      index;
-    nu__binding_t *binding = NU_POOL_ADD(&_ctx.platform.bindings, &index);
-    NU_ASSERT(NU_HANDLE_INDEX(input) < _ctx.platform.entries.capacity);
-    binding->input_index = NU_HANDLE_INDEX(input);
-    binding->next        = *first_binding;
-    *first_binding       = index;
+    nu__binding_t *binding = NU_FIXEDVEC_PUSH(&_ctx.platform.bindings);
+    if (!binding)
+    {
+        NU_ERROR("max binding count reached");
+        return NU_NULL;
+    }
+    binding->input = input;
+    binding->next  = *first_binding;
+    *first_binding = NU_FIXEDVEC_INDEX(&_ctx.platform.bindings, binding);
     return binding;
 }
 
 nu_input_t
-nu_input_create (void)
+nu_input_new (void)
 {
-    nu_size_t          index;
-    nu__input_entry_t *entry = NU_POOL_ADD(&_ctx.platform.entries, &index);
-    entry->state.value       = NU_INPUT_RELEASED;
-    entry->state.previous    = NU_INPUT_RELEASED;
-    entry->used              = NU_TRUE;
-    return NU_HANDLE_MAKE(nu_input_t, index);
+    nu__input_t *input       = nu_object_new(_ctx.platform.obj_input);
+    input->state.value       = NU_INPUT_RELEASED;
+    input->state.previous    = NU_INPUT_RELEASED;
+    input->prev              = _ctx.platform.last_input;
+    _ctx.platform.last_input = input;
+    return (nu_input_t)input;
 }
 nu_bool_t
 nu_input_changed (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return state->value != state->previous;
 }
 nu_bool_t
 nu_input_pressed (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_pressed (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return NU_INPUT_IS_PRESSED(state->value)
            && !NU_INPUT_IS_PRESSED(state->previous);
 }
 nu_bool_t
 nu_input_released (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return !NU_INPUT_IS_PRESSED(state->value);
 }
 nu_bool_t
 nu_input_just_released (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return !NU_INPUT_IS_PRESSED(state->value)
            && NU_INPUT_IS_PRESSED(state->previous);
 }
 nu_f32_t
 nu_input_value (nu_input_t input)
 {
-    nu_size_t          index = NU_HANDLE_INDEX(input);
-    nu__input_state_t *state = &_ctx.platform.entries.data[index].state;
+    nu__input_state_t *state = &((nu__input_t *)input)->state;
     return state->value;
 }
 

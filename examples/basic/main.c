@@ -110,8 +110,6 @@ transform_handler (nu_object_hook_t hook, void *data)
 {
     switch (hook)
     {
-        case NU_OBJECT_NEW:
-            break;
         case NU_OBJECT_CLEANUP:
             break;
         case NU_OBJECT_SAVE:
@@ -145,18 +143,18 @@ init (void)
                     NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
 
     // Configure inputs
-    draw        = nu_input_create();
-    main_button = nu_input_create();
-    quit        = nu_input_create();
-    cursor_x    = nu_input_create();
-    cursor_y    = nu_input_create();
-    move_x      = nu_input_create();
-    move_y      = nu_input_create();
-    move_z      = nu_input_create();
-    view_yaw    = nu_input_create();
-    view_pitch  = nu_input_create();
-    view_roll   = nu_input_create();
-    switch_mode = nu_input_create();
+    draw        = nu_input_new();
+    main_button = nu_input_new();
+    quit        = nu_input_new();
+    cursor_x    = nu_input_new();
+    cursor_y    = nu_input_new();
+    move_x      = nu_input_new();
+    move_y      = nu_input_new();
+    move_z      = nu_input_new();
+    view_yaw    = nu_input_new();
+    view_pitch  = nu_input_new();
+    view_roll   = nu_input_new();
+    switch_mode = nu_input_new();
 
     // Create camera controller
     controller = nu_controller_create(
@@ -323,14 +321,13 @@ init (void)
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
 
-    physics_loop_handle
-        = nu_fixedloop_create(physics_loop, 1.0 / 60.0 * 1000.0);
+    physics_loop_handle = nu_fixedloop_new(physics_loop, 1.0 / 60.0 * 1000.0);
 
     nu_scope_t scope = nu_scope_register(NU_STR("main"), 1 << 16);
     nu_scope_set_active(scope);
     nu_object_t obj = nu_object_register(
         NU_STR("transform"), sizeof(transform_t), transform_handler);
-    nu_scope_new(obj);
+    nu_object_new(obj);
     nu_scope_alloc(1024);
 }
 

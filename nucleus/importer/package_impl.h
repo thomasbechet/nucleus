@@ -40,7 +40,7 @@ nu__import_model (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
 static void
 nu__import_input (nu_uid_t group, nu_uid_t uid)
 {
-    nu_input_t input = nu_input_create();
+    nu_input_t input = nu_input_new();
     NU_ASSERT(input);
     nu_resource_insert(NU_RES_INPUT, group, uid, input);
 }

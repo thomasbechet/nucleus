@@ -49,7 +49,7 @@ init (void)
     font = nu_font_create_default();
 
     // Exit input
-    exit_input = nu_input_create();
+    exit_input = nu_input_new();
     nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 }
 

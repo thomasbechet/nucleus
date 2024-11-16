@@ -153,7 +153,7 @@ NU_API nu_f32_t nu_surface_aspect(void);
 
 NU_API nu_error_t nuext_viewport_mode(nuext_viewport_mode_t mode);
 
-NU_API nu_input_t nu_input_create(void);
+NU_API nu_input_t nu_input_new(void);
 NU_API nu_bool_t  nu_input_changed(nu_input_t input);
 NU_API nu_bool_t  nu_input_pressed(nu_input_t input);
 NU_API nu_bool_t  nu_input_just_pressed(nu_input_t input);

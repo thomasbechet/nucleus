@@ -404,11 +404,50 @@
         ? &(pool)->data[NU_HANDLE_INDEX(handle)].value        \
         : NU_NULL;
 
+#define NU_FIXEDVEC(type)   \
+    struct                  \
+    {                       \
+        type     *data;     \
+        nu_size_t capacity; \
+        nu_size_t size;     \
+    }
+#define NU_FIXEDVEC_ALLOC(v, capa)                                   \
+    {                                                                \
+        NU_ASSERT((capa));                                           \
+        (v)->data     = nu_scope_alloc(sizeof(*(v)->data) * (capa)); \
+        (v)->capacity = (capa);                                      \
+        (v)->size     = 0;                                           \
+    }
+#define NU_FIXEDVEC_PUSH(v) \
+    (v)->size >= (v)->capacity ? NU_NULL : &(v)->data[(v)->size++]
+#define NU_FIXEDVEC_POP(v)      (v)->size ? &(v)->data[(v)->size--] : NU_NULL
+#define NU_FIXEDVEC_CLEAR(v)    (v)->size = 0
+#define NU_FIXEDVEC_INDEX(v, p) ((p) - (v)->data)
+#define NU_FIXEDVEC_SWAP(v, a, b)                                            \
+    {                                                                        \
+        NU_ASSERT((a) < (v)->size && (b) < (v)->size);                       \
+        if ((a) != (b))                                                      \
+        {                                                                    \
+            nu_memswp((v)->data + (a), (v)->data + (b), sizeof(*(v)->data)); \
+        }                                                                    \
+    }
+#define NU_FIXEDVEC_SWAP_REMOVE(v, i)             \
+    {                                             \
+        NU_ASSERT((i) < (v)->size);               \
+        if ((i) < (v)->size - 1)                  \
+        {                                         \
+            NU_VEC_SWAP((v), (i), (v)->size - 1); \
+        }                                         \
+        NU_VEC_POP((v));                          \
+    }
+#define NU_FIXEDVEC_SWAP_REMOVE_PTR(v, p) \
+    NU_FIXEDVEC_SWAP_REMOVE(v, NU_FIXEDVEC_INDEX(v, p))
+
 //////////////////////////////////////////////////////////////////////////
 //////                          Core Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-NU_DEFINE_HANDLE(nu_fixedloop_t);
+NU_DEFINE_OBJECT(nu_fixedloop_t);
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
@@ -681,7 +720,6 @@ typedef struct nu_object *nu_object_t;
 
 typedef enum
 {
-    NU_OBJECT_NEW,
     NU_OBJECT_CLEANUP,
     NU_OBJECT_SAVE,
     NU_OBJECT_LOAD
@@ -692,11 +730,11 @@ typedef void (*nu_object_handler_t)(nu_object_hook_t hook, void *data);
 NU_API nu_object_t nu_object_register(nu_str_t            name,
                                       nu_size_t           size,
                                       nu_object_handler_t handler);
-NU_API nu_object_t nu_object_type_find(nu_str_t name);
+NU_API nu_object_t nu_object_find(nu_str_t name);
 
 NU_API nu_scope_t nu_scope_register(nu_str_t name, nu_size_t size);
 NU_API void      *nu_scope_alloc(nu_size_t size);
-NU_API void      *nu_scope_new(nu_object_t type);
+NU_API void      *nu_object_new(nu_object_t type);
 NU_API void       nu_scope_cleanup(nu_scope_t scope);
 NU_API void       nu_scope_set_active(nu_scope_t scope);
 
@@ -741,8 +779,8 @@ NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
 NU_API void     nu_timer_reset(nu_timer_t *timer);
 NU_API nu_f32_t nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API nu_fixedloop_t nu_fixedloop_create(nu_fixedloop_callback_t callback,
-                                          nu_f32_t                timestep);
+NU_API nu_fixedloop_t nu_fixedloop_new(nu_fixedloop_callback_t callback,
+                                       nu_f32_t                timestep);
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);
 

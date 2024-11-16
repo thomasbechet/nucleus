@@ -337,15 +337,15 @@ void
 init (void)
 {
     // Configure inputs
-    quit        = nu_input_create();
-    move_x      = nu_input_create();
-    move_y      = nu_input_create();
-    move_z      = nu_input_create();
-    view_yaw    = nu_input_create();
-    view_pitch  = nu_input_create();
-    view_roll   = nu_input_create();
-    switch_mode = nu_input_create();
-    shoot       = nu_input_create();
+    quit        = nu_input_new();
+    move_x      = nu_input_new();
+    move_y      = nu_input_new();
+    move_z      = nu_input_new();
+    view_yaw    = nu_input_new();
+    view_pitch  = nu_input_new();
+    view_roll   = nu_input_new();
+    switch_mode = nu_input_new();
+    shoot       = nu_input_new();
 
     // Create camera controller
     controller = nu_controller_create(
@@ -429,7 +429,7 @@ init (void)
     //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
     init_context();
-    nu_fixedloop_create(update_context, 1.0 / 60.0 * 1000.0);
+    nu_fixedloop_new(update_context, 1.0 / 60.0 * 1000.0);
 }
 
 void
