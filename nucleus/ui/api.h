@@ -3,8 +3,11 @@
 
 #include <nucleus/graphics/api.h>
 
-NU_DEFINE_HANDLE(nu_ui_t);
-NU_DEFINE_HANDLE(nu_ui_style_t);
+NU_DEFINE_OBJECT(nu_ui_t);
+NU_DEFINE_OBJECT(nu_ui_style_t);
+
+#define NU_UI_CONTROLLER_MAX  4
+#define NU_UI_STYLE_STACK_MAX 8
 
 typedef enum
 {
@@ -36,16 +39,14 @@ NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_b2i_t        tex_extent,
                            nu_b2i_t        inner);
 
-NU_API nu_ui_style_t nu_ui_style_create(void);
-NU_API void          nu_ui_style_delete(nu_ui_style_t style);
+NU_API nu_ui_style_t nu_ui_style_new(nu_scope_t scope);
 NU_API void          nu_ui_style(nu_ui_style_t          style,
                                  nu_ui_style_property_t property,
                                  nu_material_t          material,
                                  nu_b2i_t               extent,
                                  nu_b2i_t               inner);
 
-NU_API nu_ui_t nu_ui_create(nu_scope_t scope);
-NU_API void    nu_ui_delete(nu_ui_t ui);
+NU_API nu_ui_t nu_ui_new(nu_scope_t scope);
 
 NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_v2i_t pos);
 NU_API void nu_ui_set_pressed(nu_ui_t   ui,

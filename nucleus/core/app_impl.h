@@ -142,9 +142,6 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_PHYSICS
     nu__physics_free();
 #endif
-#ifdef NU_BUILD_UI
-    nu__ui_free();
-#endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_free();
 #endif

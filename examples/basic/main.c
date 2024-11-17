@@ -289,8 +289,8 @@ init (void)
     nu_renderpass_set_lightenv(main_pass, lightenv);
 
     // Create UI
-    ui    = nu_ui_create(SCOPE);
-    style = nu_ui_style_create();
+    ui    = nu_ui_new(SCOPE);
+    style = nu_ui_style_new(SCOPE);
 
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_PRESSED,

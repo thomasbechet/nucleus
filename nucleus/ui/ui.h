@@ -39,19 +39,13 @@ typedef struct
     } cursor;
 } nu__ui_style_t;
 
-typedef NU_POOL(nu__ui_style_t) nu__ui_style_data_pool_t;
-
-typedef NU_VEC(nu_ui_style_t) nu__ui_style_stack_t;
-
-#define NU_UI_MAX_CONTROLLER 4
-
 typedef struct
 {
     nu_renderpass_t    active_renderpass;
-    nu_ui_controller_t controllers[NU_UI_MAX_CONTROLLER];
+    nu_ui_controller_t controllers[NU_UI_CONTROLLER_MAX];
 
-    nu__ui_style_stack_t styles;
-    nu_ui_style_t        active_style;
+    NU_FIXEDVEC(nu_ui_style_t) styles;
+    nu_ui_style_t active_style;
 
     nu_u32_t next_id;
     nu_u32_t active_id;
@@ -60,12 +54,10 @@ typedef struct
     nu_u32_t hot_controller;
 } nu__ui_instance_t;
 
-typedef NU_POOL(nu__ui_instance_t) nu__ui_pool_t;
-
 typedef struct
 {
-    nu__ui_pool_t            uis;
-    nu__ui_style_data_pool_t styles;
+    nu_object_t obj_ui;
+    nu_object_t obj_ui_style;
 } nu__ui_t;
 
 static nu_error_t nu__ui_init(void);
