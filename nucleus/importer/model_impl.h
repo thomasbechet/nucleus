@@ -173,7 +173,7 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     }
 
     // Create material
-    nu_material_t handle = nu_material_create(NU_MATERIAL_SURFACE);
+    nu_material_t handle = nu_material_new(loader->scope, NU_MATERIAL_SURFACE);
     nu_material_set_texture(handle, texture);
 
     // Append asset
@@ -192,7 +192,8 @@ nu__load_material_default (nu__model_gltf_loader_t *loader)
 
         nu_texture_t texture
             = nu_texture_new_from_color(loader->scope, NU_COLOR_RED);
-        nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);
+        nu_material_t material
+            = nu_material_new(loader->scope, NU_MATERIAL_SURFACE);
         nu_material_set_texture(material, texture);
 
         loader->default_material = material;

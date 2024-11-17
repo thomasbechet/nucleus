@@ -71,7 +71,7 @@ nu_font_create_default (nu_scope_t scope)
         = nu_texture_new_from_image(scope, NU_TEXTURE_COLORMAP, image);
 
     // Create material
-    font->material = nu_material_create(NU_MATERIAL_CANVAS);
+    font->material = nu_material_new(scope, NU_MATERIAL_CANVAS);
     nu_material_set_texture(font->material, font->texture);
     nu_material_set_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
 
@@ -83,7 +83,6 @@ nu_font_delete (nu_font_t handle)
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
     nu_free(font->glyphs, sizeof(nu_b2i_t) * font->glyphs_count);
-    nu_material_delete(font->material);
 }
 
 void

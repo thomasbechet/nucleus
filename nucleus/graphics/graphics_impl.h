@@ -21,7 +21,6 @@ nu__graphics_init (void)
     NU_POOL_INIT(10, &gfx->fonts);
     NU_POOL_INIT(10, &gfx->models);
 
-    NU_POOL_INIT(16, &gfx->materials);
     NU_POOL_INIT(16, &gfx->lights);
     NU_POOL_INIT(8, &gfx->lightenvs);
     NU_POOL_INIT(16, &gfx->passes);
@@ -37,7 +36,7 @@ nu__graphics_init (void)
     gfx->obj_texture = nu_object_register(
         NU_STR("texture"), sizeof(nu__texture_t), nu__texture_handler);
     gfx->obj_material = nu_object_register(
-        NU_STR("material"), sizeof(nu__material_t), NU_NULL);
+        NU_STR("material"), sizeof(nu__material_t), nu__material_handler);
     gfx->obj_mesh = nu_object_register(
         NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_handler);
     gfx->obj_light
@@ -70,7 +69,6 @@ nu__graphics_free (void)
     nu__renderer_free();
 
     nu__graphics_t *gfx = &_ctx.graphics;
-    NU_POOL_FREE(&gfx->materials);
     NU_POOL_FREE(&gfx->lights);
     NU_POOL_FREE(&gfx->lightenvs);
     NU_POOL_FREE(&gfx->passes);
@@ -87,14 +85,6 @@ nu__graphics_render (void)
                         _ctx.platform.viewport.viewport);
     nu__graphics_immediate_reset();
     return NU_ERROR_NONE;
-}
-
-nu_material_t
-nu_material_create_color (nu_material_type_t type, nu_color_t color)
-{
-    nu_material_t mat = nu_material_create(type);
-    nu_material_set_color(mat, color);
-    return mat;
 }
 
 void

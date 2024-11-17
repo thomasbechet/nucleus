@@ -3,11 +3,14 @@
 
 #include <nucleus/internal.h>
 
-nu_material_t
-nu_material_create (nu_material_type_t type)
+static void
+nu__material_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t       index;
-    nu__material_t *mat = NU_POOL_ADD(&_ctx.graphics.materials, &index);
+}
+nu_material_t
+nu_material_new (nu_scope_t scope, nu_material_type_t type)
+{
+    nu__material_t *mat = nu_object_new(scope, _ctx.graphics.obj_material);
     mat->type           = type;
     switch (mat->type)
     {
@@ -22,18 +25,21 @@ nu_material_create (nu_material_type_t type)
             mat->canvas.wrap_mode = NU_TEXTURE_WRAP_CLAMP;
             break;
     }
-    return NU_HANDLE_MAKE(nu_material_t, index);
+    return (nu_material_t)mat;
 }
-void
-nu_material_delete (nu_material_t material)
+nu_material_t
+nu_material_new_color (nu_scope_t         scope,
+                       nu_material_type_t type,
+                       nu_color_t         color)
 {
-    NU_POOL_REMOVE(&_ctx.graphics.materials, NU_HANDLE_INDEX(material));
+    nu_material_t mat = nu_material_new(scope, type);
+    nu_material_set_color(mat, color);
+    return mat;
 }
 void
 nu_material_set_color (nu_material_t material, nu_color_t color)
 {
-    nu__material_t *mat
-        = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
+    nu__material_t *mat = (nu__material_t *)material;
     switch (mat->type)
     {
         case NU_MATERIAL_SURFACE:
@@ -47,8 +53,7 @@ nu_material_set_color (nu_material_t material, nu_color_t color)
 void
 nu_material_set_texture (nu_material_t material, nu_texture_t texture)
 {
-    nu__material_t *mat
-        = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
+    nu__material_t *mat = (nu__material_t *)material;
     switch (mat->type)
     {
         case NU_MATERIAL_SURFACE:
@@ -62,8 +67,7 @@ nu_material_set_texture (nu_material_t material, nu_texture_t texture)
 void
 nu_material_set_uv_transform (nu_material_t material, nu_m3_t transform)
 {
-    nu__material_t *mat
-        = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
+    nu__material_t *mat = (nu__material_t *)material;
     switch (mat->type)
     {
         case NU_MATERIAL_SURFACE:
@@ -77,8 +81,7 @@ nu_material_set_uv_transform (nu_material_t material, nu_m3_t transform)
 void
 nu_material_set_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
 {
-    nu__material_t *mat
-        = _ctx.graphics.materials.data + NU_HANDLE_INDEX(material);
+    nu__material_t *mat = (nu__material_t *)material;
     switch (mat->type)
     {
         case NU_MATERIAL_CANVAS:
@@ -91,22 +94,22 @@ nu_material_set_wrap_mode (nu_material_t material, nu_texture_wrap_mode_t mode)
 }
 
 static nu_m3_t
-nu__material_surface_uv_transform (nu_material_t mat)
+nu__material_surface_uv_transform (nu_material_t material)
 {
-    if (mat)
+    if (material)
     {
-        return _ctx.graphics.materials.data[NU_HANDLE_INDEX(mat)]
-            .surface.uv_transform;
+        nu__material_t *mat = (nu__material_t *)material;
+        return mat->surface.uv_transform;
     }
     return nu_m3_identity();
 }
 static GLuint
-nu__material_surface_texture0 (nu_material_t mat)
+nu__material_surface_texture0 (nu_material_t material)
 {
-    if (mat)
+    if (material)
     {
-        nu_texture_t tex = _ctx.graphics.materials.data[NU_HANDLE_INDEX(mat)]
-                               .surface.texture0;
+        nu__material_t *mat = (nu__material_t *)material;
+        nu_texture_t    tex = mat->surface.texture0;
         if (tex)
         {
             return ((nu__texture_t *)tex)->gl.texture;
@@ -115,11 +118,12 @@ nu__material_surface_texture0 (nu_material_t mat)
     return 0;
 }
 static nu_color_t
-nu__material_surface_color (nu_material_t mat, nu_color_t vdefault)
+nu__material_surface_color (nu_material_t material, nu_color_t vdefault)
 {
-    if (mat)
+    if (material)
     {
-        return _ctx.graphics.materials.data[NU_HANDLE_INDEX(mat)].surface.color;
+        nu__material_t *mat = (nu__material_t *)material;
+        return mat->surface.color;
     }
     return vdefault;
 }

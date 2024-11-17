@@ -223,12 +223,12 @@ init (void)
     texture_gui = nu_resource_get(NU_RES_IMAGE_TEXTURE, NU_UID("GUI"));
 
     // Create material
-    material = nu_material_create(NU_MATERIAL_SURFACE);
+    material = nu_material_new(SCOPE, NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
-    material_gui_repeat = nu_material_create(NU_MATERIAL_CANVAS);
+    material_gui_repeat = nu_material_new(SCOPE, NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui_repeat, texture_gui);
     nu_material_set_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
-    material_gui = nu_material_create(NU_MATERIAL_CANVAS);
+    material_gui = nu_material_new(SCOPE, NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui, texture_gui);
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 

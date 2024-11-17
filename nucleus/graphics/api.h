@@ -123,10 +123,10 @@ NU_API void              nu_texture_set_data(nu_texture_t     texture,
 NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
 NU_API nu_image_t        nu_texture_image(nu_texture_t texture);
 
-NU_API nu_material_t nu_material_create(nu_material_type_t type);
-NU_API nu_material_t nu_material_create_color(nu_material_type_t type,
-                                              nu_color_t         color);
-NU_API void          nu_material_delete(nu_material_t material);
+NU_API nu_material_t nu_material_new(nu_scope_t scope, nu_material_type_t type);
+NU_API nu_material_t nu_material_new_color(nu_scope_t         scope,
+                                           nu_material_type_t type,
+                                           nu_color_t         color);
 NU_API void nu_material_set_color(nu_material_t material, nu_color_t color);
 NU_API void nu_material_set_texture(nu_material_t material,
                                     nu_texture_t  texture);

@@ -399,9 +399,9 @@ init (void)
         nu_geometry_delete(g);
     }
 
-    redmat   = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_RED);
-    greenmat = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
-    bluemat  = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
+    redmat   = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_RED);
+    greenmat = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
+    bluemat  = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
     font = nu_font_create_default(SCOPE);
