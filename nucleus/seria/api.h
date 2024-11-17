@@ -34,6 +34,10 @@
 NU_DEFINE_HANDLE(nu_seria_t);
 NU_DEFINE_HANDLE(nu_seria_layout_t);
 
+#define NU_SERIA_LAYOUT_MAX       64
+#define NU_SERIA_STRUCT_FIELD_MAX 128
+#define NU_SERIA_ENUM_VALUE_MAX   64
+
 #define NU_SERIA_BYTE NU_HANDLE_MAKE(nu_seria_layout_t, NU_SERIA_PRIMITIVE_BYTE)
 #define NU_SERIA_U32  NU_HANDLE_MAKE(nu_seria_layout_t, NU_SERIA_PRIMITIVE_U32)
 #define NU_SERIA_F32  NU_HANDLE_MAKE(nu_seria_layout_t, NU_SERIA_PRIMITIVE_F32)
@@ -79,8 +83,7 @@ static nu_str_t nu_seria_primitive_names[]
     = { NU_STR("byte"), NU_STR("u32"), NU_STR("f32"),
         NU_STR("str"),  NU_STR("v3"),  NU_STR("q4") };
 
-NU_API nu_seria_t nu_seria_create(void);
-NU_API void       nu_seria_delete(nu_seria_t seria);
+NU_API nu_seria_t nu_seria_new(nu_scope_t scope);
 
 NU_API nu_seria_layout_t nu_seria_register_struct(nu_str_t  name,
                                                   nu_size_t size);

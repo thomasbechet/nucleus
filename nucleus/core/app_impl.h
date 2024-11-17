@@ -154,9 +154,6 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_PLATFORM
     nu__platform_free();
 #endif
-#ifdef NU_BUILD_SERIA
-    nu__seria_free();
-#endif
     nu__core_free();
 
     return 0;

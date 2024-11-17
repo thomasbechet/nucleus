@@ -3,8 +3,8 @@
 
 #include <nucleus/graphics/api.h>
 
-NU_DEFINE_OBJECT(nu_ui_t);
-NU_DEFINE_OBJECT(nu_ui_style_t);
+NU_DEFINE_HANDLE(nu_ui_t);
+NU_DEFINE_HANDLE(nu_ui_style_t);
 
 #define NU_UI_CONTROLLER_MAX  4
 #define NU_UI_STYLE_STACK_MAX 8

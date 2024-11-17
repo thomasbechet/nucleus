@@ -32,8 +32,16 @@ typedef struct
     nu_size_t        size;
     union
     {
-        NU_VEC(nu__seria_struct_field_t) fields;
-        NU_VEC(nu__seria_enum_value_t) values;
+        struct
+        {
+            nu_size_t start;
+            nu_size_t count;
+        } fields;
+        struct
+        {
+            nu_size_t start;
+            nu_size_t count;
+        } values;
         nu_seria_primitive_t primitive;
     };
 } nu__seria_layout_t;
@@ -51,8 +59,10 @@ typedef struct
 
 typedef struct
 {
-    NU_POOL(nu__seria_ctx_t) instances;
-    NU_VEC(nu__seria_layout_t) layouts;
+    nu_object_t obj_seria;
+    NU_FIXEDVEC(nu__seria_layout_t) layouts;
+    NU_FIXEDVEC(nu__seria_struct_field_t) struct_fields;
+    NU_FIXEDVEC(nu__seria_enum_value_t) enum_values;
 } nu__seria_t;
 
 static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);
@@ -66,6 +76,5 @@ static void      nu__seria_write_1b(nu__seria_ctx_t *ctx, nu_byte_t v);
 static void      nu__seria_write_4b(nu__seria_ctx_t *ctx, nu_u32_t v);
 
 static void nu__seria_init(void);
-static void nu__seria_free(void);
 
 #endif

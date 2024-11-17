@@ -139,15 +139,16 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
             for (nu_size_t i = 0; i < size; ++i)
             {
                 nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.size; ++f)
+                for (nu_size_t f = 0; f < layout->fields.count; ++f)
                 {
                     const nu__seria_struct_field_t *field
-                        = layout->fields.data + f;
-                    const nu__seria_layout_t *sub_layout
+                        = _ctx.seria.struct_fields.data + layout->fields.start
+                          + f;
+                    const nu__seria_layout_t *subtype
                         = _ctx.seria.layouts.data
                           + NU_HANDLE_INDEX(field->layout);
                     nu_byte_t *data = ptr + field->offset;
-                    nu__seria_nbin_write(ctx, sub_layout, field->size, data);
+                    nu__seria_nbin_write(ctx, subtype, field->size, data);
                 }
             }
         }
@@ -157,12 +158,16 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
             {
                 nu_u32_t value
                     = *(nu_u32_t *)((nu_byte_t *)data + layout->size * i);
-                for (nu_size_t v = 0; v < layout->values.size; ++v)
+                for (nu_size_t v = 0; v < layout->values.count; ++v)
                 {
-                    if (value == layout->values.data[v].value)
+                    if (value
+                        == _ctx.seria.enum_values.data[layout->values.start + v]
+                               .value)
                     {
                         nu_u32_t hash
-                            = nu_str_hash(layout->values.data[v].name);
+                            = nu_str_hash(_ctx.seria.enum_values
+                                              .data[layout->values.start + v]
+                                              .name);
                         nu__seria_write_4b(ctx, nu__seria_u32_le(hash));
                         break;
                     }
@@ -250,13 +255,13 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
             for (nu_size_t i = 0; i < size; ++i)
             {
                 nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.size; ++f)
+                for (nu_size_t f = 0; f < layout->fields.count; ++f)
                 {
                     const nu__seria_struct_field_t *field
-                        = layout->fields.data + f;
+                        = _ctx.seria.struct_fields.data + layout->fields.start
+                          + f;
                     const nu__seria_layout_t *field_layout
-                        = _ctx.seria.layouts.data
-                          + NU_HANDLE_INDEX(field->layout);
+                        = (const nu__seria_layout_t *)field->layout;
                     nu_byte_t *data = ptr + field->offset;
                     nu__seria_nbin_read(ctx, field_layout, field->size, data);
                 }
@@ -269,11 +274,16 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                 nu_byte_t *ptr   = (nu_byte_t *)data + layout->size * i;
                 nu_u32_t  *value = (nu_u32_t *)ptr;
                 nu_u32_t   hash  = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                for (nu_size_t v = 0; v < layout->values.size; ++v)
+                for (nu_size_t v = 0; v < layout->values.count; ++v)
                 {
-                    if (hash == nu_str_hash(layout->values.data[v].name))
+                    if (hash
+                        == nu_str_hash(_ctx.seria.enum_values
+                                           .data[layout->values.start + v]
+                                           .name))
                     {
-                        *value = layout->values.data[v].value;
+                        *value = _ctx.seria.enum_values
+                                     .data[layout->values.start + v]
+                                     .value;
                         break;
                     }
                 }

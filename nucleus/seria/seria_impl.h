@@ -40,13 +40,14 @@ nu__seria_write_bytes (nu_str_t         filename,
     fclose(f);
 }
 
-#define NU__REGISTER_CORE(enum, corelayout)                            \
-    {                                                                  \
-        nu__seria_layout_t *layout = NU_VEC_PUSH(&_ctx.seria.layouts); \
-        layout->kind               = NU__SERIA_PRIMITIVE;              \
-        layout->name               = nu_seria_primitive_names[enum];   \
-        layout->size               = sizeof(corelayout);               \
-        layout->primitive          = enum;                             \
+#define NU__REGISTER_CORE(enum, corelayout)                                 \
+    {                                                                       \
+        nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts); \
+        NU_ASSERT(layout);                                                  \
+        layout->kind      = NU__SERIA_PRIMITIVE;                            \
+        layout->name      = nu_seria_primitive_names[enum];                 \
+        layout->size      = sizeof(corelayout);                             \
+        layout->primitive = enum;                                           \
     }
 
 static void
@@ -63,62 +64,61 @@ nu__seria_register_primitive_layouts (void)
 #undef NU__REGISTER_CORE
 
 static void
+nu__seria_handler (nu_object_hook_t hook, void *data)
+{
+    switch (hook)
+    {
+        case NU_OBJECT_CLEANUP: {
+            nu__seria_ctx_t *s = data;
+            if (s->opened)
+            {
+                nu_seria_close((nu_seria_t)s);
+            }
+        }
+        break;
+        case NU_OBJECT_SAVE:
+        case NU_OBJECT_LOAD:
+            break;
+    }
+}
+
+static void
 nu__seria_init (void)
 {
-    NU_POOL_INIT(1, &_ctx.seria.instances);
-    NU_VEC_INIT(10, &_ctx.seria.layouts);
+    _ctx.seria.obj_seria = nu_object_register(
+        NU_STR("seria"), sizeof(nu__seria_ctx_t), nu__seria_handler);
+    NU_FIXEDVEC_ALLOC(
+        nu_scope_core(), &_ctx.seria.layouts, NU_SERIA_LAYOUT_MAX);
+    NU_FIXEDVEC_ALLOC(
+        nu_scope_core(), &_ctx.seria.struct_fields, NU_SERIA_STRUCT_FIELD_MAX);
+    NU_FIXEDVEC_ALLOC(
+        nu_scope_core(), &_ctx.seria.enum_values, NU_SERIA_ENUM_VALUE_MAX);
     nu__seria_register_primitive_layouts();
-}
-static void
-nu__seria_free (void)
-{
-    for (nu_size_t i = 0; i < _ctx.seria.layouts.size; ++i)
-    {
-        nu__seria_layout_t *p = _ctx.seria.layouts.data + i;
-        switch (p->kind)
-        {
-            case NU__SERIA_PRIMITIVE:
-                break;
-            case NU__SERIA_STRUCT:
-                NU_VEC_FREE(&p->fields);
-                break;
-            case NU__SERIA_ENUM:
-                NU_VEC_FREE(&p->values);
-                break;
-        }
-    }
-    NU_VEC_FREE(&_ctx.seria.layouts);
-    NU_POOL_FREE(&_ctx.seria.instances);
 }
 
 nu_seria_t
-nu_seria_create (void)
+nu_seria_new (nu_scope_t scope)
 {
-    nu_size_t        index;
-    nu__seria_ctx_t *s = NU_POOL_ADD(&_ctx.seria.instances, &index);
+    nu__seria_ctx_t *s = nu_object_new(scope, _ctx.seria.obj_seria);
     s->opened          = NU_FALSE;
     s->bytes           = NU_NULL;
-    return NU_HANDLE_MAKE(nu_seria_t, index);
-}
-void
-nu_seria_delete (nu_seria_t seria)
-{
-    nu__seria_ctx_t *s = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
-    if (s->opened)
-    {
-        nu_seria_close(seria);
-    }
-    NU_POOL_REMOVE(&_ctx.seria.instances, NU_HANDLE_INDEX(seria));
+    return (nu_seria_t)s;
 }
 
 nu_seria_layout_t
 nu_seria_register_struct (nu_str_t name, nu_size_t size)
 {
-    nu__seria_layout_t *layout = NU_VEC_PUSH(&_ctx.seria.layouts);
-    layout->kind               = NU__SERIA_STRUCT;
-    layout->name               = name;
-    layout->size               = size;
-    NU_VEC_INIT(5, &layout->fields);
+    nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);
+    if (!layout)
+    {
+        NU_ERROR("max seria layout count reached");
+        return NU_NULL;
+    }
+    layout->kind         = NU__SERIA_STRUCT;
+    layout->name         = name;
+    layout->size         = size;
+    layout->fields.start = _ctx.seria.struct_fields.size;
+    layout->fields.count = 0;
     return NU_HANDLE_MAKE(nu_seria_layout_t, _ctx.seria.layouts.size - 1);
 }
 void
@@ -133,22 +133,29 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
     NU_ASSERT(field_layout);
     NU_ASSERT(size);
     nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
-    nu__seria_struct_field_t *a = NU_VEC_PUSH(&p->fields);
+    nu__seria_struct_field_t *a = NU_FIXEDVEC_PUSH(&_ctx.seria.struct_fields);
+    if (!a)
+    {
+        NU_ERROR("max struct field count reached");
+        return;
+    }
     NU_ASSERT(p->kind == NU__SERIA_STRUCT);
     a->name   = name;
     a->size   = size;
     a->layout = field_layout;
     a->offset = offset;
     a->flags  = flags;
+    ++p->fields.count;
 }
 nu_seria_layout_t
 nu_seria_register_enum (nu_str_t name, nu_size_t size)
 {
-    nu__seria_layout_t *layout = NU_VEC_PUSH(&_ctx.seria.layouts);
+    nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);
     layout->kind               = NU__SERIA_ENUM;
     layout->name               = name;
     layout->size               = size;
-    NU_VEC_INIT(5, &layout->values);
+    layout->values.start       = _ctx.seria.enum_values.size;
+    layout->values.count       = 0;
     return NU_HANDLE_MAKE(nu_seria_layout_t, _ctx.seria.layouts.size - 1);
 }
 void
@@ -157,10 +164,16 @@ nu_seria_register_enum_value (nu_seria_layout_t layout,
                               nu_u32_t          value)
 {
     nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
-    nu__seria_enum_value_t *v = NU_VEC_PUSH(&p->values);
+    nu__seria_enum_value_t *v = NU_FIXEDVEC_PUSH(&_ctx.seria.enum_values);
+    if (!v)
+    {
+        NU_ERROR("max seria enum value reached");
+        return;
+    }
     NU_ASSERT(p->kind == NU__SERIA_ENUM);
     v->name  = name;
     v->value = value;
+    ++p->values.count;
 }
 nu_seria_layout_t
 nu_seria_find_layout (nu_str_t name)
@@ -177,16 +190,14 @@ nu_seria_find_layout (nu_str_t name)
 nu_str_t
 nu_seria_name (nu_seria_layout_t layout)
 {
-    const nu__seria_layout_t *t
-        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
-    return t->name;
+    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    return p->name;
 }
 nu_size_t
 nu_seria_size (nu_seria_layout_t layout)
 {
-    const nu__seria_layout_t *t
-        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
-    return t->size;
+    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    return p->size;
 }
 
 void
@@ -202,10 +213,11 @@ nu_seria_dump_layouts (void)
                 break;
             case NU__SERIA_STRUCT:
                 NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
-                for (nu_size_t f = 0; f < p->fields.size; ++f)
+                for (nu_size_t f = 0; f < p->fields.count; ++f)
                 {
-                    nu__seria_struct_field_t *pf = p->fields.data + f;
-                    nu__seria_layout_t       *subtype
+                    nu__seria_struct_field_t *pf
+                        = _ctx.seria.struct_fields.data + p->fields.start + f;
+                    nu__seria_layout_t *subtype
                         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(pf->layout);
                     const char *flags;
                     if (pf->flags == NU_SERIA_REQUIRED)
@@ -229,9 +241,10 @@ nu_seria_dump_layouts (void)
                 break;
             case NU__SERIA_ENUM:
                 NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
-                for (nu_size_t v = 0; v < p->values.size; ++v)
+                for (nu_size_t v = 0; v < p->values.count; ++v)
                 {
-                    nu__seria_enum_value_t *pv = p->values.data + v;
+                    nu__seria_enum_value_t *pv
+                        = _ctx.seria.enum_values.data + p->values.start + v;
                     NU_INFO("   " NU_STR_FMT " = %d",
                             NU_STR_ARGS(pv->name),
                             pv->value);
@@ -260,7 +273,7 @@ nu__seria_dump (nu_size_t         depth,
                 nu_byte_t        *data)
 {
     NU_ASSERT(layout && data);
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
     for (nu_size_t i = 0; i < size; ++i)
     {
         nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);
@@ -301,10 +314,11 @@ nu__seria_dump (nu_size_t         depth,
                 break;
             case NU__SERIA_STRUCT: {
                 nu__seria_print_with_depth(depth, NU_STR("{"));
-                for (nu_size_t f = 0; f < p->fields.size; ++f)
+                for (nu_size_t f = 0; f < p->fields.count; ++f)
                 {
-                    nu__seria_struct_field_t *field = p->fields.data + f;
-                    nu__seria_layout_t       *subtype
+                    nu__seria_struct_field_t *field
+                        = _ctx.seria.struct_fields.data + p->fields.start + f;
+                    nu__seria_layout_t *subtype
                         = _ctx.seria.layouts.data
                           + NU_HANDLE_INDEX(field->layout);
                     nu__seria_print_with_depth(
@@ -323,12 +337,17 @@ nu__seria_dump (nu_size_t         depth,
             case NU__SERIA_ENUM: {
                 nu_u32_t  value = *(nu_u32_t *)ptr;
                 nu_bool_t found = NU_FALSE;
-                for (nu_size_t e = 0; e < p->values.size; ++e)
+                for (nu_size_t e = 0; e < p->values.count; ++e)
                 {
-                    if (value == p->values.data[e].value)
+                    if (value
+                        == _ctx.seria.enum_values.data[p->values.start + e]
+                               .value)
                     {
                         nu__seria_print_with_depth(
-                            depth, NU_STR("%s"), p->values.data[e].name);
+                            depth,
+                            NU_STR("%s"),
+                            _ctx.seria.enum_values.data[p->values.start + e]
+                                .name);
                         found = NU_TRUE;
                         break;
                     }
@@ -409,7 +428,7 @@ nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)
 void
 nu_seria_open_file (nu_seria_t seria, nu_seria_mode_t mode, nu_str_t filename)
 {
-    nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     if (ctx->opened)
     {
         nu_seria_close(seria);
@@ -445,7 +464,7 @@ nu_seria_open_bytes (nu_seria_t      seria,
                      nu_byte_t      *bytes,
                      nu_size_t       size)
 {
-    nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     if (ctx->opened)
     {
         nu_seria_close(seria);
@@ -463,7 +482,7 @@ nu_seria_open_bytes (nu_seria_t      seria,
 nu_size_t
 nu_seria_close (nu_seria_t seria)
 {
-    nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     if (ctx->mode == NU_SERIA_WRITE)
     {
         nu_size_t size = ctx->ptr - ctx->bytes;
@@ -492,7 +511,7 @@ nu_seria_write (nu_seria_t        seria,
                 const void       *data)
 {
     NU_ASSERT(seria);
-    nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
     const nu__seria_layout_t *l
         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
@@ -506,7 +525,7 @@ nu_seria_read (nu_seria_t        seria,
                void             *data)
 {
     NU_ASSERT(seria);
-    nu__seria_ctx_t *ctx = _ctx.seria.instances.data + NU_HANDLE_INDEX(seria);
+    nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
     const nu__seria_layout_t *l
         = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     NU_ASSERT(ctx->mode == NU_SERIA_READ);

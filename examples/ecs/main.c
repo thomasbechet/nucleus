@@ -59,7 +59,7 @@ init (void)
     NU_INFO("saved:");
     nu_ecs_dump(ecs);
 
-    nu_seria_t ser = nu_seria_create();
+    nu_seria_t ser = nu_seria_new(SCOPE);
     nu_seria_open_file(ser, NU_SERIA_WRITE, NU_STR("dump.bin"));
     nu_ecs_save(ecs, ser);
     nu_size_t n = nu_seria_close(ser);

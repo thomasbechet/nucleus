@@ -102,7 +102,6 @@
     (nu_size_t)((0x00FFFFFF & (nu_intptr_t)handle) - 1)
 #define NU_HANDLE_VERSION(handle)   (0xFF000000 & (nu_intptr_t)handle >> 24)
 #define NU_HANDLE_MAKE(type, index) ((type)((nu_intptr_t)index + 1))
-#define NU_DEFINE_OBJECT(object)    typedef struct object *object
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
@@ -480,7 +479,7 @@
 //////                          Core Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
-NU_DEFINE_OBJECT(nu_fixedloop_t);
+NU_DEFINE_HANDLE(nu_fixedloop_t);
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
