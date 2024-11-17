@@ -19,14 +19,13 @@ nu__graphics_init (void)
 {
     nu__graphics_t *gfx = &_ctx.graphics;
     NU_POOL_INIT(10, &gfx->fonts);
-    NU_POOL_INIT(10, &gfx->models);
 
     gfx->obj_font
         = nu_object_register(NU_STR("font"), sizeof(nu__font_t), NU_NULL);
     gfx->obj_image = nu_object_register(
         NU_STR("image"), sizeof(nu__image_t), nu__image_handler);
-    gfx->obj_model
-        = nu_object_register(NU_STR("model"), sizeof(nu__model_t), NU_NULL);
+    gfx->obj_model = nu_object_register(
+        NU_STR("model"), sizeof(nu__model_t), nu__model_handler);
     gfx->obj_camera = nu_object_register(
         NU_STR("camera"), sizeof(nu__camera_t), nu__camera_handler);
     gfx->obj_texture = nu_object_register(
@@ -67,7 +66,6 @@ nu__graphics_free (void)
     nu__graphics_t *gfx = &_ctx.graphics;
 
     // TODO: free fonts and models
-    NU_POOL_FREE(&gfx->models);
     NU_POOL_FREE(&gfx->fonts);
     return NU_ERROR_NONE;
 }

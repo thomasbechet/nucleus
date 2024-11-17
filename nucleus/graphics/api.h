@@ -238,8 +238,7 @@ NU_API nu_v3u_t   nu_image_size(nu_image_t image);
 NU_API nu_image_t nu_image_load(nu_scope_t scope, nu_seria_t seria);
 NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
 
-NU_API nu_model_t nu_model_create(nu_size_t node_count);
-NU_API void       nu_model_delete(nu_model_t model);
+NU_API nu_model_t nu_model_new(nu_scope_t scope, nu_size_t node_count);
 NU_API void       nu_model_set(nu_model_t    model,
                                nu_size_t     index,
                                nu_mesh_t     mesh,

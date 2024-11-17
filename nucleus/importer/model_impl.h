@@ -271,7 +271,7 @@ nu__model_gltf_load (nu_scope_t               scope,
         cgltf_scene *scene = data->scenes + s;
 
         // Create model
-        model = nu_model_create(scene->nodes_count);
+        model = nu_model_new(scope, scene->nodes_count);
 
         for (nu_size_t n = 0; n < scene->nodes_count; ++n)
         {

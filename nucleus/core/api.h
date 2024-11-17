@@ -470,10 +470,10 @@
         type     *data; \
         nu_size_t size; \
     }
-#define NU_ARRAY_ALLOC(s, a, size)                                  \
-    {                                                               \
-        (a)->data = nu_scope_alloc((s), sizeof(*(a)->data) * size); \
-        (a)->size = size;                                           \
+#define NU_ARRAY_ALLOC(s, a, ss)                                  \
+    {                                                             \
+        (a)->data = nu_scope_alloc((s), sizeof(*(a)->data) * ss); \
+        (a)->size = ss;                                           \
     }
 
 //////////////////////////////////////////////////////////////////////////

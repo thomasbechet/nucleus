@@ -24,7 +24,6 @@ typedef struct
 {
     nu_texture_t surface_color;
     NU_POOL(nu__font_t) fonts;
-    NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
     nu_object_t obj_font;

@@ -12,7 +12,7 @@ typedef struct
 
 typedef struct
 {
-    NU_VEC(nu__model_node_t) nodes;
+    NU_ARRAY(nu__model_node_t) nodes;
 } nu__model_t;
 
 #endif
