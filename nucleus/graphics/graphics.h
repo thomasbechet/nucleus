@@ -27,8 +27,6 @@ typedef struct
     NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
-    NU_POOL(nu__renderpass_t) passes;
-
     nu_object_t obj_font;
     nu_object_t obj_image;
     nu_object_t obj_model;

@@ -139,7 +139,7 @@ nu_draw_box (nu_renderpass_t pass,
              nu_m4_t         transform)
 {
 
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     switch (p->type)
     {
         case NU_RENDERPASS_FORWARD: {

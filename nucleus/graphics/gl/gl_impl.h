@@ -141,7 +141,7 @@ nugl__init (void)
 
     // Initialize containers
     NU_VEC_INIT(16, &gl->targets);
-    NU_VEC_INIT(16, &gl->passes_order);
+    NU_FIXEDVEC_ALLOC(nu_scope_core(), &gl->passes_order, 64);
 
     // Initialize GL functions
     if (!gladLoadGL((GLADloadfunc)RGFW_getProcAddress))
@@ -221,8 +221,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
 
     for (nu_u32_t i = 0; i < gl->passes_order.size; ++i)
     {
-        nu_size_t         pass_index = gl->passes_order.data[i];
-        nu__renderpass_t *pass       = &_ctx.graphics.passes.data[pass_index];
+        nu__renderpass_t *pass = (nu__renderpass_t *)gl->passes_order.data[i];
         nugl__execute_renderpass(pass);
     }
 

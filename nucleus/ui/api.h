@@ -44,7 +44,7 @@ NU_API void          nu_ui_style(nu_ui_style_t          style,
                                  nu_b2i_t               extent,
                                  nu_b2i_t               inner);
 
-NU_API nu_ui_t nu_ui_create(void);
+NU_API nu_ui_t nu_ui_create(nu_scope_t scope);
 NU_API void    nu_ui_delete(nu_ui_t ui);
 
 NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_v2i_t pos);

@@ -148,8 +148,8 @@ NU_API void          nu_lightenv_set_skybox(nu_lightenv_t env,
                                             nu_texture_t  cubemap,
                                             nu_q4_t       rotation);
 
-NU_API nu_renderpass_t nu_renderpass_create(nu_renderpass_type_t type);
-NU_API void            nu_renderpass_delete(nu_renderpass_t pass);
+NU_API nu_renderpass_t nu_renderpass_new(nu_scope_t           scope,
+                                         nu_renderpass_type_t type);
 NU_API void            nu_renderpass_reset(nu_renderpass_t pass);
 NU_API void            nu_renderpass_submit(nu_renderpass_t pass);
 

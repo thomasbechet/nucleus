@@ -417,17 +417,17 @@ init (void)
     surface_tex = nu_surface_color_target();
     clear_color = NU_COLOR_BLACK;
 
-    main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
 
-    gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    wireframe_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);

@@ -128,7 +128,7 @@ typedef struct
     GLuint nearest_sampler;
 
     nugl__rendertarget_vec_t targets;
-    nu_size_vec_t            passes_order;
+    NU_FIXEDVEC(nu_renderpass_t) passes_order;
 } nu__gl_t;
 
 #endif

@@ -166,8 +166,14 @@ nugl__renderpass_submit (nu_renderpass_t pass)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
 
-    *NU_VEC_PUSH(&gl->passes_order) = NU_HANDLE_INDEX(pass);
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu_renderpass_t *pushed = NU_FIXEDVEC_PUSH(&gl->passes_order);
+    if (!pushed)
+    {
+        NU_ERROR("max renderpass submitted count reached");
+        return;
+    }
+    *pushed             = pass;
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
 
     switch (p->type)
     {

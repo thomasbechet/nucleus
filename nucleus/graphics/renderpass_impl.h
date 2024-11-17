@@ -4,12 +4,28 @@
 #include <nucleus/internal.h>
 #include <nucleus/graphics/backend_impl.h>
 
-nu_renderpass_t
-nu_renderpass_create (nu_renderpass_type_t type)
+static void
+nu__renderpass_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t         index;
-    nu__renderpass_t *pass   = NU_POOL_ADD(&_ctx.graphics.passes, &index);
-    pass->type               = type;
+    switch (hook)
+    {
+        case NU_OBJECT_CLEANUP: {
+            nu__renderpass_t *p = data;
+#ifdef NU_BUILD_GRAPHICS_GL
+            nugl__renderpass_free(p);
+#endif
+        }
+        break;
+        case NU_OBJECT_SAVE:
+        case NU_OBJECT_LOAD:
+            break;
+    }
+}
+nu_renderpass_t
+nu_renderpass_new (nu_scope_t scope, nu_renderpass_type_t type)
+{
+    nu__renderpass_t *pass = nu_object_new(scope, _ctx.graphics.obj_renderpass);
+    pass->type             = type;
     pass->reset_after_submit = NU_TRUE;
     pass->has_clear_color    = NU_FALSE;
     pass->clear_color        = NU_COLOR_BLACK;
@@ -31,21 +47,12 @@ nu_renderpass_create (nu_renderpass_type_t type)
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_init(pass);
 #endif
-    return NU_HANDLE_MAKE(nu_renderpass_t, index);
-}
-void
-nu_renderpass_delete (nu_renderpass_t pass)
-{
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
-#ifdef NU_BUILD_GRAPHICS_GL
-    nugl__renderpass_free(p);
-#endif
-    NU_POOL_REMOVE(&_ctx.graphics.passes, NU_HANDLE_INDEX(pass));
+    return (nu_renderpass_t)pass;
 }
 void
 nu_renderpass_reset (nu_renderpass_t pass)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__renderpass_reset(p);
 #endif
@@ -64,13 +71,13 @@ nu_renderpass_submit (nu_renderpass_t pass)
 void
 nu_renderpass_set_reset_after_submit (nu_renderpass_t pass, nu_bool_t bool)
 {
-    nu__renderpass_t *p   = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p   = (nu__renderpass_t *)pass;
     p->reset_after_submit = bool;
 }
 void
 nu_renderpass_set_clear_color (nu_renderpass_t pass, nu_color_t *color)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     if (color)
     {
         p->clear_color     = *color;
@@ -84,7 +91,7 @@ nu_renderpass_set_clear_color (nu_renderpass_t pass, nu_color_t *color)
 void
 nu_renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     NU_ASSERT(camera);
     switch (p->type)
     {
@@ -102,13 +109,13 @@ nu_renderpass_set_camera (nu_renderpass_t pass, nu_camera_t camera)
 void
 nu_renderpass_set_color_target (nu_renderpass_t pass, nu_texture_t texture)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     p->color_target     = texture;
 }
 void
 nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     p->depth_target     = texture;
 #ifdef NU_BUILD_GRAPHICS_GL
     if (p->type == NU_RENDERPASS_SHADOW)
@@ -120,7 +127,7 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 void
 nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     NU_ASSERT(p->type == NU_RENDERPASS_FORWARD);
     p->forward.mode = mode;
 #ifdef NU_BUILD_GRAPHICS_GL
@@ -130,7 +137,7 @@ nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
 void
 nu_renderpass_set_lightenv (nu_renderpass_t pass, nu_lightenv_t env)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
     NU_ASSERT(p->type == NU_RENDERPASS_FORWARD);
     p->forward.lightenv = env;
 }
@@ -144,7 +151,7 @@ nu_draw_submesh_instanced (nu_renderpass_t pass,
                            const nu_m4_t  *transforms,
                            nu_size_t       instance_count)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__draw_submesh_instanced(
         p, mesh, first, count, material, transforms, instance_count);
@@ -174,7 +181,7 @@ nu_draw_blit (nu_renderpass_t pass,
               nu_b2i_t        tex_extent,
               nu_material_t   material)
 {
-    nu__renderpass_t *p = _ctx.graphics.passes.data + NU_HANDLE_INDEX(pass);
+    nu__renderpass_t *p = (nu__renderpass_t *)pass;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__draw_blit(p, extent, tex_extent, material);
 #endif

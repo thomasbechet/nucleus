@@ -254,17 +254,17 @@ init (void)
     surface_tex = nu_surface_color_target();
     clear_color = NU_COLOR_BLUE_SKY;
 
-    main_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
 
-    gui_pass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    wireframe_pass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
@@ -278,7 +278,7 @@ init (void)
     nu_camera_set_proj(shadow_camera, nu_ortho(-50, 50, -50, 50, 1, 500));
     nu_camera_set_view(shadow_camera,
                        nu_lookat(nu_v3s(100.0), nu_v3(0, 0, 10), NU_V3_UP));
-    shadow_pass = nu_renderpass_create(NU_RENDERPASS_SHADOW);
+    shadow_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_SHADOW);
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
     nu_renderpass_set_camera(shadow_pass, shadow_camera);
 
@@ -289,7 +289,7 @@ init (void)
     nu_renderpass_set_lightenv(main_pass, lightenv);
 
     // Create UI
-    ui    = nu_ui_create();
+    ui    = nu_ui_create(SCOPE);
     style = nu_ui_style_create();
 
     nu_ui_style(style,

@@ -21,8 +21,6 @@ nu__graphics_init (void)
     NU_POOL_INIT(10, &gfx->fonts);
     NU_POOL_INIT(10, &gfx->models);
 
-    NU_POOL_INIT(16, &gfx->passes);
-
     gfx->obj_font
         = nu_object_register(NU_STR("font"), sizeof(nu__font_t), NU_NULL);
     gfx->obj_image = nu_object_register(
@@ -42,7 +40,7 @@ nu__graphics_init (void)
     gfx->obj_lightenv = nu_object_register(
         NU_STR("lightenv"), sizeof(nu__lightenv_t), nu__lightenv_handler);
     gfx->obj_renderpass = nu_object_register(
-        NU_STR("renderpass"), sizeof(nu__renderpass_t), NU_NULL);
+        NU_STR("renderpass"), sizeof(nu__renderpass_t), nu__renderpass_handler);
 
     // Initialize backend
     nu__renderer_init();
@@ -67,7 +65,6 @@ nu__graphics_free (void)
     nu__renderer_free();
 
     nu__graphics_t *gfx = &_ctx.graphics;
-    NU_POOL_FREE(&gfx->passes);
 
     // TODO: free fonts and models
     NU_POOL_FREE(&gfx->models);

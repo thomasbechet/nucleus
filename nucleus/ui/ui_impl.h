@@ -70,7 +70,7 @@ nu_ui_style (nu_ui_style_t          style,
 }
 
 nu_ui_t
-nu_ui_create (void)
+nu_ui_create (nu_scope_t scope)
 {
     nu_size_t          index;
     nu__ui_instance_t *ui = NU_POOL_ADD(&_ctx.ui.uis, &index);
@@ -83,7 +83,7 @@ nu_ui_create (void)
     ui->hot_controller    = 0;
 
     // Create main renderpass
-    ui->active_renderpass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    ui->active_renderpass = nu_renderpass_new(scope, NU_RENDERPASS_CANVAS);
     nu_renderpass_set_reset_after_submit(ui->active_renderpass, NU_FALSE);
 
     // Initialize controllers

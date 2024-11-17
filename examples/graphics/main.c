@@ -40,14 +40,14 @@ init (void)
     nu_color_t clear_color = NU_COLOR_BLACK;
     surface_color          = nu_surface_color_target();
 
-    renderpass = nu_renderpass_create(NU_RENDERPASS_FORWARD);
+    renderpass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
     nu_renderpass_set_shade(renderpass, NU_SHADE_WIREFRAME);
     nu_renderpass_set_camera(renderpass, camera);
     nu_renderpass_set_clear_color(renderpass, &clear_color);
     nu_renderpass_set_color_target(renderpass, surface_color);
     nu_renderpass_set_depth_target(renderpass, depth_buffer);
 
-    guipass = nu_renderpass_create(NU_RENDERPASS_CANVAS);
+    guipass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(guipass, surface_color);
 
     font = nu_font_create_default(SCOPE);
