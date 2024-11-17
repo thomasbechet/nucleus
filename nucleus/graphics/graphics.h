@@ -27,8 +27,6 @@ typedef struct
     NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
-    NU_POOL(nu__light_t) lights;
-    NU_POOL(nu__lightenv_t) lightenvs;
     NU_POOL(nu__renderpass_t) passes;
 
     nu_object_t obj_font;

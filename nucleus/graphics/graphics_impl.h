@@ -21,8 +21,6 @@ nu__graphics_init (void)
     NU_POOL_INIT(10, &gfx->fonts);
     NU_POOL_INIT(10, &gfx->models);
 
-    NU_POOL_INIT(16, &gfx->lights);
-    NU_POOL_INIT(8, &gfx->lightenvs);
     NU_POOL_INIT(16, &gfx->passes);
 
     gfx->obj_font
@@ -39,10 +37,10 @@ nu__graphics_init (void)
         NU_STR("material"), sizeof(nu__material_t), nu__material_handler);
     gfx->obj_mesh = nu_object_register(
         NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_handler);
-    gfx->obj_light
-        = nu_object_register(NU_STR("light"), sizeof(nu__light_t), NU_NULL);
+    gfx->obj_light = nu_object_register(
+        NU_STR("light"), sizeof(nu__light_t), nu__light_handler);
     gfx->obj_lightenv = nu_object_register(
-        NU_STR("lightenv"), sizeof(nu__lightenv_t), NU_NULL);
+        NU_STR("lightenv"), sizeof(nu__lightenv_t), nu__lightenv_handler);
     gfx->obj_renderpass = nu_object_register(
         NU_STR("renderpass"), sizeof(nu__renderpass_t), NU_NULL);
 
@@ -69,8 +67,6 @@ nu__graphics_free (void)
     nu__renderer_free();
 
     nu__graphics_t *gfx = &_ctx.graphics;
-    NU_POOL_FREE(&gfx->lights);
-    NU_POOL_FREE(&gfx->lightenvs);
     NU_POOL_FREE(&gfx->passes);
 
     // TODO: free fonts and models

@@ -64,8 +64,8 @@ nugl__forward_render (nu__renderpass_t *pass)
 
     if (pass->forward.lightenv)
     {
-        const nu__lightenv_t *penv = _ctx.graphics.lightenvs.data
-                                     + NU_HANDLE_INDEX(pass->forward.lightenv);
+        const nu__lightenv_t *penv
+            = (const nu__lightenv_t *)pass->forward.lightenv;
         NU_ASSERT(penv->shadowmap && penv->shadowmap_camera);
         const nu__texture_t *shadowmap = (const nu__texture_t *)penv->shadowmap;
         const nu__camera_t  *shadowmap_camera
@@ -135,8 +135,8 @@ nugl__forward_render (nu__renderpass_t *pass)
     // Render skybox
     if (pass->forward.lightenv)
     {
-        const nu__lightenv_t *penv = _ctx.graphics.lightenvs.data
-                                     + NU_HANDLE_INDEX(pass->forward.lightenv);
+        const nu__lightenv_t *penv
+            = (const nu__lightenv_t *)pass->forward.lightenv;
         nu__texture_t *cubemap = (nu__texture_t *)penv->skybox;
 
         // Bind program

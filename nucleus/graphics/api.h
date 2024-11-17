@@ -134,14 +134,12 @@ NU_API void nu_material_set_uv_transform(nu_material_t material, nu_m3_t mat);
 NU_API void nu_material_set_wrap_mode(nu_material_t          material,
                                       nu_texture_wrap_mode_t mode);
 
-NU_API nu_light_t nu_light_create(nu_light_type_t type);
-NU_API void       nu_light_delete(nu_light_t light);
+NU_API nu_light_t nu_light_new(nu_scope_t scope, nu_light_type_t type);
 NU_API void       nu_light_set_position(nu_light_t light, nu_v3_t v);
 NU_API void       nu_light_set_rotation(nu_light_t light, nu_q4_t q);
 NU_API void       nu_light_set_color(nu_light_t light, nu_color_t v);
 
-NU_API nu_lightenv_t nu_lightenv_create(void);
-NU_API void          nu_lightenv_delete(nu_lightenv_t env);
+NU_API nu_lightenv_t nu_lightenv_new(nu_scope_t scope);
 NU_API void          nu_lightenv_add_light(nu_lightenv_t env, nu_light_t light);
 NU_API void          nu_lightenv_add_shadowmap(nu_lightenv_t env,
                                                nu_texture_t  shadowmap,

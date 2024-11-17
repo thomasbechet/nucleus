@@ -282,8 +282,8 @@ init (void)
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
     nu_renderpass_set_camera(shadow_pass, shadow_camera);
 
-    nu_light_t light = nu_light_create(NU_LIGHT_DIRECTIONAL);
-    lightenv         = nu_lightenv_create();
+    nu_light_t light = nu_light_new(SCOPE, NU_LIGHT_DIRECTIONAL);
+    lightenv         = nu_lightenv_new(SCOPE);
     nu_lightenv_add_shadowmap(lightenv, shadow_map, shadow_camera);
     nu_lightenv_set_skybox(lightenv, skybox, nu_q4_identity());
     nu_renderpass_set_lightenv(main_pass, lightenv);

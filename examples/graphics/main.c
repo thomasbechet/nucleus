@@ -24,7 +24,7 @@ init (void)
 
     // Material
     texture  = nu_texture_new_from_color(SCOPE, NU_COLOR_WHITE);
-    material = nu_material_new(NU_MATERIAL_SURFACE);
+    material = nu_material_new(SCOPE, NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
 
     // Camera
