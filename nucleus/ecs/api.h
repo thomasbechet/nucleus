@@ -20,7 +20,7 @@ typedef nu_u32_t nu_ecs_id_t;
 NU_API nu_ecs_id_t nu_ecs_register(nu_str_t name, nu_seria_layout_t layout);
 NU_API nu_ecs_id_t nu_ecs_find_component(nu_str_t name);
 
-NU_API nu_ecs_t    nu_ecs_new(nu_size_t capacity);
+NU_API nu_ecs_t    nu_ecs_new(nu_scope_t scope, nu_size_t capacity);
 NU_API nu_ecs_id_t nu_ecs_add(nu_ecs_t ecs);
 NU_API void        nu_ecs_add_at(nu_ecs_t ecs, nu_ecs_id_t e);
 NU_API void        nu_ecs_remove(nu_ecs_t ecs, nu_ecs_id_t e);
@@ -42,7 +42,7 @@ NU_API nu_ecs_id_t nu_ecs_begin(nu_ecs_t ecs, nu_ecs_id_t iter);
 NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
 NU_API void     nu_ecs_save(nu_ecs_t ecs, nu_seria_t seria);
-NU_API nu_ecs_t nu_ecs_load(nu_seria_t seria);
+NU_API nu_ecs_t nu_ecs_load(nu_scope_t scope, nu_seria_t seria);
 NU_API void     nu_ecs_dump(nu_ecs_t ecs);
 
 #endif

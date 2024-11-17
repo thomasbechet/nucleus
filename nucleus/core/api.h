@@ -411,12 +411,12 @@
         nu_size_t capacity; \
         nu_size_t size;     \
     }
-#define NU_FIXEDVEC_ALLOC(v, capa)                                   \
-    {                                                                \
-        NU_ASSERT((capa));                                           \
-        (v)->data     = nu_scope_alloc(sizeof(*(v)->data) * (capa)); \
-        (v)->capacity = (capa);                                      \
-        (v)->size     = 0;                                           \
+#define NU_FIXEDVEC_ALLOC(s, v, capa)                                     \
+    {                                                                     \
+        NU_ASSERT((capa));                                                \
+        (v)->data     = nu_scope_alloc((s), sizeof(*(v)->data) * (capa)); \
+        (v)->capacity = (capa);                                           \
+        (v)->size     = 0;                                                \
     }
 #define NU_FIXEDVEC_PUSH(v) \
     (v)->size >= (v)->capacity ? NU_NULL : &(v)->data[(v)->size++]
@@ -449,10 +449,10 @@
         type     *data; \
         nu_size_t size; \
     }
-#define NU_ARRAY_ALLOC(a, size)                                \
-    {                                                          \
-        (a)->data = nu_scope_alloc(sizeof(*(a)->data) * size); \
-        (a)->size = size;                                      \
+#define NU_ARRAY_ALLOC(s, a, size)                                  \
+    {                                                               \
+        (a)->data = nu_scope_alloc((s), sizeof(*(a)->data) * size); \
+        (a)->size = size;                                           \
     }
 
 //////////////////////////////////////////////////////////////////////////
@@ -745,10 +745,11 @@ NU_API nu_object_t nu_object_register(nu_str_t            name,
 NU_API nu_object_t nu_object_find(nu_str_t name);
 
 NU_API nu_scope_t nu_scope_register(nu_str_t name, nu_size_t size);
-NU_API void      *nu_scope_alloc(nu_size_t size);
-NU_API void      *nu_object_new(nu_object_t type);
+NU_API nu_scope_t nu_scope_find(nu_str_t name);
+NU_API void      *nu_scope_alloc(nu_scope_t scope, nu_size_t size);
+NU_API void      *nu_object_new(nu_scope_t scope, nu_object_t type);
 NU_API void       nu_scope_cleanup(nu_scope_t scope);
-NU_API void       nu_scope_set_active(nu_scope_t scope);
+NU_API nu_scope_t nu_scope_core(void);
 
 NU_API void nu_app_init_callback(nu_app_callback_t callback);
 NU_API void nu_app_free_callback(nu_app_callback_t callback);
@@ -791,7 +792,8 @@ NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
 NU_API void     nu_timer_reset(nu_timer_t *timer);
 NU_API nu_f32_t nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API nu_fixedloop_t nu_fixedloop_new(nu_fixedloop_callback_t callback,
+NU_API nu_fixedloop_t nu_fixedloop_new(nu_scope_t              scope,
+                                       nu_fixedloop_callback_t callback,
                                        nu_f32_t                timestep);
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);

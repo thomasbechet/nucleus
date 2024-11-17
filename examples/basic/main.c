@@ -17,6 +17,8 @@
 #define SHADOW_WIDTH  1000
 #define SHADOW_HEIGHT 1000
 
+static nu_scope_t SCOPE;
+
 static nu_input_t draw;
 static nu_input_t main_button;
 static nu_input_t quit;
@@ -122,6 +124,8 @@ transform_handler (nu_object_hook_t hook, void *data)
 void
 init (void)
 {
+    SCOPE = nu_scope_register(NU_STR("main"), 1 << 20);
+
     nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
     nu_seria_t seria = nu_seria_create();
     nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
@@ -143,18 +147,18 @@ init (void)
                     NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
 
     // Configure inputs
-    draw        = nu_input_new();
-    main_button = nu_input_new();
-    quit        = nu_input_new();
-    cursor_x    = nu_input_new();
-    cursor_y    = nu_input_new();
-    move_x      = nu_input_new();
-    move_y      = nu_input_new();
-    move_z      = nu_input_new();
-    view_yaw    = nu_input_new();
-    view_pitch  = nu_input_new();
-    view_roll   = nu_input_new();
-    switch_mode = nu_input_new();
+    draw        = nu_input_new(SCOPE);
+    main_button = nu_input_new(SCOPE);
+    quit        = nu_input_new(SCOPE);
+    cursor_x    = nu_input_new(SCOPE);
+    cursor_y    = nu_input_new(SCOPE);
+    move_x      = nu_input_new(SCOPE);
+    move_y      = nu_input_new(SCOPE);
+    move_z      = nu_input_new(SCOPE);
+    view_yaw    = nu_input_new(SCOPE);
+    view_pitch  = nu_input_new(SCOPE);
+    view_roll   = nu_input_new(SCOPE);
+    switch_mode = nu_input_new(SCOPE);
 
     // Create camera controller
     controller = nu_controller_create(
@@ -321,14 +325,8 @@ init (void)
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
 
-    physics_loop_handle = nu_fixedloop_new(physics_loop, 1.0 / 60.0 * 1000.0);
-
-    nu_scope_t scope = nu_scope_register(NU_STR("main"), 1 << 16);
-    nu_scope_set_active(scope);
-    nu_object_t obj = nu_object_register(
-        NU_STR("transform"), sizeof(transform_t), transform_handler);
-    nu_object_new(obj);
-    nu_scope_alloc(1024);
+    physics_loop_handle
+        = nu_fixedloop_new(SCOPE, physics_loop, 1.0 / 60.0 * 1000.0);
 }
 
 void

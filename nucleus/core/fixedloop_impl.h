@@ -26,7 +26,9 @@ nu__fixedloop_handler (nu_object_hook_t hook, void *data)
 }
 
 nu_fixedloop_t
-nu_fixedloop_new (nu_fixedloop_callback_t callback, nu_f32_t timestep)
+nu_fixedloop_new (nu_scope_t              scope,
+                  nu_fixedloop_callback_t callback,
+                  nu_f32_t                timestep)
 {
     nu_fixedloop_t *handle = NU_FIXEDVEC_PUSH(&_ctx.core.fixedloops);
     if (!handle)
@@ -34,7 +36,7 @@ nu_fixedloop_new (nu_fixedloop_callback_t callback, nu_f32_t timestep)
         NU_ERROR("max fixedloop count reached");
         return NU_NULL;
     }
-    nu__fixedloop_t *loop = nu_object_new(_ctx.core.obj_fixedloop);
+    nu__fixedloop_t *loop = nu_object_new(scope, _ctx.core.obj_fixedloop);
     *handle               = (nu_fixedloop_t)loop;
 
     loop->active   = NU_TRUE;

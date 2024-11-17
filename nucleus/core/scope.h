@@ -32,8 +32,8 @@ typedef struct
     nu_size_t    objects_count;
     nu__scope_t  scopes[NU_SCOPE_MAX];
     nu_size_t    scopes_count;
-    nu_scope_t   active_scope;
     nu_scope_t   last_scope;
+    nu_scope_t   core_scope;
 } nu__scope_manager_t;
 
 static void nu__scope_init(void);

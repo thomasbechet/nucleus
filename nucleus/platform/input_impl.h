@@ -287,9 +287,9 @@ nu__add_binding (nu_u32_t *first_binding, nu_input_t input)
 }
 
 nu_input_t
-nu_input_new (void)
+nu_input_new (nu_scope_t scope)
 {
-    nu__input_t *input       = nu_object_new(_ctx.platform.obj_input);
+    nu__input_t *input       = nu_object_new(scope, _ctx.platform.obj_input);
     input->state.value       = NU_INPUT_RELEASED;
     input->state.previous    = NU_INPUT_RELEASED;
     input->prev              = _ctx.platform.last_input;

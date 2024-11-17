@@ -126,8 +126,9 @@ nu__ecs_handler (nu_object_hook_t hook, void *data)
 static void
 nu__ecs_init (void)
 {
-    NU_FIXEDVEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
-    NU_FIXEDVEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
+    NU_FIXEDVEC_ALLOC(
+        nu_scope_core(), &_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
+    NU_FIXEDVEC_ALLOC(nu_scope_core(), &_ctx.ecs.iters, NU_ECS_ITER_MAX);
     _ctx.ecs.obj_ecs = nu_object_register(
         NU_STR("ecs"), sizeof(nu__ecs_instance_t), nu__ecs_handler);
 }
@@ -163,11 +164,13 @@ nu_ecs_find_component (nu_str_t name)
 }
 
 nu_ecs_t
-nu_ecs_new (nu_size_t capacity)
+nu_ecs_new (nu_scope_t scope, nu_size_t capacity)
 {
-    nu__ecs_instance_t *ins = nu_object_new(_ctx.ecs.obj_ecs);
-    NU_FIXEDVEC_ALLOC(&ins->pools, _ctx.ecs.components.size);
-    NU_FIXEDVEC_ALLOC(&ins->bitset, (capacity / NU__ECS_ENTITY_PER_MASK) + 1);
+    nu__ecs_instance_t *ins = nu_object_new(scope, _ctx.ecs.obj_ecs);
+    ins->scope              = scope;
+    NU_FIXEDVEC_ALLOC(scope, &ins->pools, _ctx.ecs.components.size);
+    NU_FIXEDVEC_ALLOC(
+        scope, &ins->bitset, (capacity / NU__ECS_ENTITY_PER_MASK) + 1);
     return (nu_ecs_t)ins;
 }
 nu_ecs_id_t
@@ -264,8 +267,8 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
                 = nu_seria_size(_ctx.ecs.components.data[i].layout);
             nu__ecs_component_pool_t *pool = ins->pools.data + i;
             pool->component_size           = component_size;
-            NU_FIXEDVEC_ALLOC(&pool->chunks, ins->bitset.capacity);
-            NU_FIXEDVEC_ALLOC(&pool->bitset, ins->bitset.capacity);
+            NU_FIXEDVEC_ALLOC(ins->scope, &pool->chunks, ins->bitset.capacity);
+            NU_FIXEDVEC_ALLOC(ins->scope, &pool->bitset, ins->bitset.capacity);
             for (nu_size_t i = 0; i < ins->bitset.capacity; ++i)
             {
                 pool->chunks.data[i] = NU_NULL;
@@ -287,8 +290,8 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         if (!pool->chunks.data[mask])
         {
             // allocate new chunk
-            pool->chunks.data[mask] = nu_scope_alloc(pool->component_size
-                                                     * NU__ECS_ENTITY_PER_MASK);
+            pool->chunks.data[mask] = nu_scope_alloc(
+                ins->scope, pool->component_size * NU__ECS_ENTITY_PER_MASK);
             // expect zero memory by default
             nu_memset(pool->chunks.data[mask],
                       0,
@@ -342,8 +345,8 @@ nu_ecs_iter (nu_size_t include_count, nu_size_t exclude_count)
         NU_ERROR("max ecs iter count reached");
         return NU_NULL;
     }
-    NU_FIXEDVEC_ALLOC(&it->includes, include_count);
-    NU_FIXEDVEC_ALLOC(&it->excludes, exclude_count);
+    NU_FIXEDVEC_ALLOC(nu_scope_core(), &it->includes, include_count);
+    NU_FIXEDVEC_ALLOC(nu_scope_core(), &it->excludes, exclude_count);
     return _ctx.ecs.iters.size - 1;
 }
 void
@@ -470,13 +473,13 @@ nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
     }
 }
 nu_ecs_t
-nu_ecs_load (nu_seria_t seria)
+nu_ecs_load (nu_scope_t scope, nu_seria_t seria)
 {
     // read ecs header
     nu_size_t capacity   = nu_seria_read_u32(seria);
     nu_u32_t  pool_count = nu_seria_read_u32(seria);
 
-    nu_ecs_t            ecs = nu_ecs_new(capacity);
+    nu_ecs_t            ecs = nu_ecs_new(scope, capacity);
     nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
 
     for (nu_size_t p = 0; p < pool_count; ++p)

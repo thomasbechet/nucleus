@@ -86,7 +86,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_ecs_load(seria);
+                return nu_ecs_load(nu_scope_core(), seria);
             case NU_RES_SAVE:
                 nu_ecs_save(handle, seria);
                 break;
@@ -101,7 +101,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_input_new();
+                return nu_input_new(nu_scope_core());
             case NU_RES_SAVE:
                 break;
         }

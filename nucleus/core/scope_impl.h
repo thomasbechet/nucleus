@@ -8,11 +8,8 @@ nu__scope_init (void)
 {
     _ctx.core.scope.scopes_count  = 0;
     _ctx.core.scope.objects_count = 0;
-    _ctx.core.scope.active_scope  = NU_NULL;
     _ctx.core.scope.last_scope    = NU_NULL;
-
-    nu_scope_t root = nu_scope_register(NU_STR("root"), 1 << 17);
-    nu_scope_set_active(root);
+    _ctx.core.scope.core_scope    = nu_scope_register(NU_STR("core"), 1 << 17);
 }
 static void
 nu__scope_cleanup_all (void)
@@ -39,6 +36,8 @@ nu__scope_alloc (nu__scope_t *scope, nu_size_t size)
 {
     if (scope->ptr + size >= scope->end)
     {
+        NU_ERROR("scope out of memory '" NU_STR_FMT "'",
+                 NU_STR_ARGS(scope->name));
         return NU_NULL;
     }
     nu_byte_t *p = scope->ptr;
@@ -91,6 +90,11 @@ nu_scope_register (nu_str_t name, nu_size_t size)
         NU_ERROR("max scope count reached");
         return NU_NULL;
     }
+    if (nu_scope_find(name))
+    {
+        NU_ERROR("scope already exists '" NU_STR_FMT "'", NU_STR_ARGS(name));
+        return NU_NULL;
+    }
     NU_INFO(
         "[register scope '" NU_STR_FMT "' size %llu]", NU_STR_ARGS(name), size);
     nu__scope_t *s = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
@@ -103,10 +107,24 @@ nu_scope_register (nu_str_t name, nu_size_t size)
     _ctx.core.scope.last_scope = (nu_scope_t)s;
     return (nu_scope_t)s;
 }
-void *
-nu_scope_alloc (nu_size_t size)
+nu_scope_t
+nu_scope_find (nu_str_t name)
 {
-    nu__scope_t *s = (nu__scope_t *)_ctx.core.scope.active_scope;
+    for (nu_size_t i = 0; i < _ctx.core.scope.scopes_count; ++i)
+    {
+        if (nu_str_eq(name, _ctx.core.scope.scopes[i].name))
+        {
+            return (nu_scope_t)(_ctx.core.scope.scopes + i);
+        }
+    }
+    return NU_NULL;
+}
+void *
+nu_scope_alloc (nu_scope_t scope, nu_size_t size)
+{
+    NU_ASSERT(scope);
+    NU_ASSERT(size);
+    nu__scope_t *s = (nu__scope_t *)scope;
     void        *p = nu__scope_alloc(s, size);
     NU_INFO("[alloc '" NU_STR_FMT "' raw s:%llu p:%p u:%lf%]",
             NU_STR_ARGS(s->name),
@@ -116,9 +134,9 @@ nu_scope_alloc (nu_size_t size)
     return p;
 }
 void *
-nu_object_new (nu_object_t type)
+nu_object_new (nu_scope_t scope, nu_object_t type)
 {
-    nu__scope_t  *s = (nu__scope_t *)_ctx.core.scope.active_scope;
+    nu__scope_t  *s = (nu__scope_t *)scope;
     nu__object_t *t = (nu__object_t *)type;
 
     nu__object_header_t *header
@@ -156,11 +174,10 @@ nu_scope_cleanup (nu_scope_t scope)
     s->last_object = NU_NULL;
     s->ptr         = s->start;
 }
-void
-nu_scope_set_active (nu_scope_t scope)
+nu_scope_t
+nu_scope_core (void)
 {
-    NU_ASSERT(scope);
-    _ctx.core.scope.active_scope = scope;
+    return _ctx.core.scope.core_scope;
 }
 
 #endif
