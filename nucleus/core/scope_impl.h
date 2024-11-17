@@ -11,7 +11,7 @@ nu__scope_init (void)
     _ctx.core.scope.active_scope  = NU_NULL;
     _ctx.core.scope.last_scope    = NU_NULL;
 
-    nu_scope_t root = nu_scope_register(NU_STR("root"), 1 << 20);
+    nu_scope_t root = nu_scope_register(NU_STR("root"), 1 << 17);
     nu_scope_set_active(root);
 }
 static void
@@ -25,6 +25,13 @@ nu__scope_cleanup_all (void)
         nu_free(s->start, (nu_size_t)s->end - (nu_size_t)s->start);
         scope = s->prev;
     }
+}
+static nu_f32_t
+nu__scope_usage (const nu__scope_t *scope)
+{
+    nu_size_t usage    = (nu_size_t)scope->ptr - (nu_size_t)scope->start;
+    nu_size_t capacity = (nu_size_t)scope->end - (nu_size_t)scope->start;
+    return (nu_f32_t)usage / (nu_f32_t)capacity * 100.0;
 }
 
 static void *
@@ -101,10 +108,11 @@ nu_scope_alloc (nu_size_t size)
 {
     nu__scope_t *s = (nu__scope_t *)_ctx.core.scope.active_scope;
     void        *p = nu__scope_alloc(s, size);
-    NU_INFO("[scope '" NU_STR_FMT "' alloc %llu %p]",
+    NU_INFO("[alloc '" NU_STR_FMT "' raw s:%llu p:%p u:%lf%]",
             NU_STR_ARGS(s->name),
             size,
-            p);
+            p,
+            nu__scope_usage(s));
     return p;
 }
 void *
@@ -120,10 +128,12 @@ nu_object_new (nu_object_t type)
     s->last_object = header;
 
     void *obj = nu__scope_alloc(s, t->size);
-    NU_INFO("[scope '" NU_STR_FMT "' new '" NU_STR_FMT "' %p]",
+    NU_INFO("[alloc '" NU_STR_FMT "' obj '" NU_STR_FMT "' s:%llu p:%p u:%lf%]",
             NU_STR_ARGS(s->name),
             NU_STR_ARGS(t->name),
-            obj);
+            t->size,
+            obj,
+            nu__scope_usage(s));
     return obj;
 }
 void
@@ -135,7 +145,7 @@ nu_scope_cleanup (nu_scope_t scope)
     while (header)
     {
         nu__object_t *t = (nu__object_t *)header->type;
-        NU_INFO("[scope '" NU_STR_FMT "' cleanup '" NU_STR_FMT "' %p]",
+        NU_INFO("[cleanup '" NU_STR_FMT "' obj '" NU_STR_FMT "' %p]",
                 NU_STR_ARGS(s->name),
                 NU_STR_ARGS(t->name),
                 header + 1);

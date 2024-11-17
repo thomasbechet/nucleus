@@ -443,6 +443,18 @@
 #define NU_FIXEDVEC_SWAP_REMOVE_PTR(v, p) \
     NU_FIXEDVEC_SWAP_REMOVE(v, NU_FIXEDVEC_INDEX(v, p))
 
+#define NU_ARRAY(type)  \
+    struct              \
+    {                   \
+        type     *data; \
+        nu_size_t size; \
+    }
+#define NU_ARRAY_ALLOC(a, size)                                \
+    {                                                          \
+        (a)->data = nu_scope_alloc(sizeof(*(a)->data) * size); \
+        (a)->size = size;                                      \
+    }
+
 //////////////////////////////////////////////////////////////////////////
 //////                          Core Types                          //////
 //////////////////////////////////////////////////////////////////////////

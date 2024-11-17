@@ -139,9 +139,6 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_RESOURCE
     nu__resource_free();
 #endif
-#ifdef NU_BUILD_ECS
-    nu__ecs_free();
-#endif
 #ifdef NU_BUILD_PHYSICS
     nu__physics_free();
 #endif

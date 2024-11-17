@@ -84,7 +84,6 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
-                nu_ecs_delete(handle);
                 break;
             case NU_RES_LOAD:
                 return nu_ecs_load(seria);
