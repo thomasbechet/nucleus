@@ -84,13 +84,13 @@ typedef enum
 // Backend api
 NU_API nu_texture_t nu_surface_color_target(void);
 
-NU_API nu_camera_t nu_camera_create(void);
-NU_API void        nu_camera_delete(nu_camera_t camera);
+NU_API nu_camera_t nu_camera_new(nu_scope_t scope);
 NU_API void        nu_camera_set_view(nu_camera_t camera, nu_m4_t view);
 NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_m4_t proj);
 
-NU_API nu_mesh_t nu_mesh_create(nu_primitive_t primitive, nu_size_t capacity);
-NU_API void      nu_mesh_delete(nu_mesh_t mesh);
+NU_API nu_mesh_t nu_mesh_new(nu_scope_t     scope,
+                             nu_primitive_t primitive,
+                             nu_size_t      capacity);
 NU_API void      nu_mesh_set_uvs(nu_mesh_t      mesh,
                                  nu_size_t      first,
                                  nu_size_t      count,
@@ -103,16 +103,20 @@ NU_API void      nu_mesh_set_colors(nu_mesh_t         mesh,
                                     nu_size_t         first,
                                     nu_size_t         count,
                                     const nu_color_t *data);
+NU_API size_t    nu_mesh_capacity(nu_mesh_t mesh);
 
-NU_API nu_texture_t      nu_texture_create(nu_texture_type_t type,
-                                           nu_v3u_t          size,
-                                           nu_size_t         layer);
-NU_API nu_texture_t      nu_texture_create_from_color(nu_color_t color);
-NU_API nu_texture_t      nu_texture_create_from_image(nu_texture_type_t type,
+NU_API nu_texture_t      nu_texture_new(nu_scope_t        scope,
+                                        nu_texture_type_t type,
+                                        nu_v3u_t          size,
+                                        nu_size_t         layer);
+NU_API nu_texture_t      nu_texture_new_from_color(nu_scope_t scope,
+                                                   nu_color_t color);
+NU_API nu_texture_t      nu_texture_new_from_image(nu_scope_t        scope,
+                                                   nu_texture_type_t type,
+                                                   nu_image_t        image);
+NU_API nu_texture_t      nu_texture_new_image_texture(nu_scope_t        scope,
+                                                      nu_texture_type_t type,
                                                       nu_image_t        image);
-NU_API nu_texture_t      nu_texture_create_image_texture(nu_texture_type_t type,
-                                                         nu_image_t        image);
-NU_API void              nu_texture_delete(nu_texture_t texture);
 NU_API void              nu_texture_set_data(nu_texture_t     texture,
                                              nu_size_t        layer,
                                              const nu_byte_t *data);
@@ -227,13 +231,13 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_material_t   material,
                         nu_m4_t         transform);
 
-NU_API nu_image_t nu_image_create(nu_image_type_t type,
-                                  nu_v3u_t        size,
-                                  nu_size_t       layer);
-NU_API void       nu_image_delete(nu_image_t image);
+NU_API nu_image_t nu_image_new(nu_scope_t      scope,
+                               nu_image_type_t type,
+                               nu_v3u_t        size,
+                               nu_size_t       layer);
 NU_API nu_byte_t *nu_image_data(nu_image_t image, nu_size_t layer);
 NU_API nu_v3u_t   nu_image_size(nu_image_t image);
-NU_API nu_image_t nu_image_load(nu_seria_t seria);
+NU_API nu_image_t nu_image_load(nu_scope_t scope, nu_seria_t seria);
 NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_model_t nu_model_create(nu_size_t node_count);
@@ -244,7 +248,7 @@ NU_API void       nu_model_set(nu_model_t    model,
                                nu_material_t material,
                                nu_m4_t       transform);
 
-NU_API nu_font_t nu_font_create_default(void);
+NU_API nu_font_t nu_font_create_default(nu_scope_t scope);
 NU_API void      nu_font_delete(nu_font_t font);
 
 #endif

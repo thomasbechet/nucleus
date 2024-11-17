@@ -19,47 +19,57 @@ nu__graphics_init (void)
 {
     nu__graphics_t *gfx = &_ctx.graphics;
     NU_POOL_INIT(10, &gfx->fonts);
-    NU_POOL_INIT(10, &gfx->images);
     NU_POOL_INIT(10, &gfx->models);
 
-    NU_POOL_INIT(16, &gfx->cameras);
-    NU_POOL_INIT(16, &gfx->meshes);
-    NU_POOL_INIT(16, &gfx->textures);
     NU_POOL_INIT(16, &gfx->materials);
     NU_POOL_INIT(16, &gfx->lights);
     NU_POOL_INIT(8, &gfx->lightenvs);
     NU_POOL_INIT(16, &gfx->passes);
+
+    gfx->obj_font
+        = nu_object_register(NU_STR("font"), sizeof(nu__font_t), NU_NULL);
+    gfx->obj_image = nu_object_register(
+        NU_STR("image"), sizeof(nu__image_t), nu__image_handler);
+    gfx->obj_model
+        = nu_object_register(NU_STR("model"), sizeof(nu__model_t), NU_NULL);
+    gfx->obj_camera = nu_object_register(
+        NU_STR("camera"), sizeof(nu__camera_t), nu__camera_handler);
+    gfx->obj_texture = nu_object_register(
+        NU_STR("texture"), sizeof(nu__texture_t), nu__texture_handler);
+    gfx->obj_material = nu_object_register(
+        NU_STR("material"), sizeof(nu__material_t), NU_NULL);
+    gfx->obj_mesh = nu_object_register(
+        NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_handler);
+    gfx->obj_light
+        = nu_object_register(NU_STR("light"), sizeof(nu__light_t), NU_NULL);
+    gfx->obj_lightenv = nu_object_register(
+        NU_STR("lightenv"), sizeof(nu__lightenv_t), NU_NULL);
+    gfx->obj_renderpass = nu_object_register(
+        NU_STR("renderpass"), sizeof(nu__renderpass_t), NU_NULL);
 
     // Initialize backend
     nu__renderer_init();
 
     // Create surface texture
     {
-        nu_size_t      index;
-        nu__texture_t *tex = NU_POOL_ADD(&_ctx.graphics.textures, &index);
+        nu__texture_t *tex = nu_object_new(nu_scope_core(), gfx->obj_texture);
         tex->type          = NU_TEXTURE_COLORMAP_TARGET;
         tex->size = nu_v3u(_ctx.platform.size.x, _ctx.platform.size.y, 0);
         nugl__init_surface_texture(tex);
-        _ctx.graphics.surface_color = NU_HANDLE_MAKE(nu_texture_t, index);
+        _ctx.graphics.surface_color = (nu_texture_t)tex;
     }
 
     // Initialize immediate context
-    nu__graphics_immediate_init();
+    nu__graphics_immediate_init(nu_scope_core());
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
 nu__graphics_free (void)
 {
-    // Terminate immediate context
-    nu__graphics_immediate_free();
-
     nu__renderer_free();
 
     nu__graphics_t *gfx = &_ctx.graphics;
-    NU_POOL_FREE(&gfx->cameras);
-    NU_POOL_FREE(&gfx->meshes);
-    NU_POOL_FREE(&gfx->textures);
     NU_POOL_FREE(&gfx->materials);
     NU_POOL_FREE(&gfx->lights);
     NU_POOL_FREE(&gfx->lightenvs);
@@ -67,7 +77,6 @@ nu__graphics_free (void)
 
     // TODO: free fonts and models
     NU_POOL_FREE(&gfx->models);
-    NU_POOL_FREE(&gfx->images);
     NU_POOL_FREE(&gfx->fonts);
     return NU_ERROR_NONE;
 }
@@ -262,8 +271,7 @@ nu_draw_mesh_instanced (nu_renderpass_t pass,
                         const nu_m4_t  *transforms,
                         nu_size_t       instance_count)
 {
-    nu_size_t capacity
-        = _ctx.graphics.meshes.data[NU_HANDLE_INDEX(mesh)].capacity;
+    nu_size_t capacity = nu_mesh_capacity(mesh);
     nu_draw_submesh_instanced(
         pass, mesh, 0, capacity, material, transforms, instance_count);
 }

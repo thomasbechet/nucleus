@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 nu_font_t
-nu_font_create_default (void)
+nu_font_create_default (nu_scope_t scope)
 {
     nu_error_t error;
 
@@ -34,7 +34,8 @@ nu_font_create_default (void)
     // Load default font data into image
     nu_v3u_t image_size
         = nu_v3u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT, 1);
-    nu_image_t image      = nu_image_create(NU_IMAGE_RGBA, image_size, 1);
+    // TODO: avoid temporary image ?
+    nu_image_t image      = nu_image_new(scope, NU_IMAGE_RGBA, image_size, 1);
     nu_byte_t *image_data = nu_image_data(image, 0);
 
     nu_b2i_t extent
@@ -66,15 +67,13 @@ nu_font_create_default (void)
     }
 
     // Create renderer image
-    font->texture = nu_texture_create_from_image(NU_TEXTURE_COLORMAP, image);
+    font->texture
+        = nu_texture_new_from_image(scope, NU_TEXTURE_COLORMAP, image);
 
     // Create material
     font->material = nu_material_create(NU_MATERIAL_CANVAS);
     nu_material_set_texture(font->material, font->texture);
     nu_material_set_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
-
-    // Free resources
-    nu_image_delete(image);
 
     return NU_HANDLE_MAKE(nu_font_t, index);
 }
@@ -84,7 +83,6 @@ nu_font_delete (nu_font_t handle)
     nu_size_t   index = NU_HANDLE_INDEX(handle);
     nu__font_t *font  = &_ctx.graphics.fonts.data[index];
     nu_free(font->glyphs, sizeof(nu_b2i_t) * font->glyphs_count);
-    nu_texture_delete(font->texture);
     nu_material_delete(font->material);
 }
 

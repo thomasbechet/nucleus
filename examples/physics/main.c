@@ -59,6 +59,8 @@ static nu_renderpass_t main_pass;
 static nu_renderpass_t gui_pass;
 static nu_renderpass_t wireframe_pass;
 
+static nu_scope_t SCOPE;
+
 typedef struct
 {
     point_mass_vec_t           point_masses;
@@ -336,16 +338,18 @@ update_context (float dt)
 void
 init (void)
 {
+    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_1M);
+
     // Configure inputs
-    quit        = nu_input_new();
-    move_x      = nu_input_new();
-    move_y      = nu_input_new();
-    move_z      = nu_input_new();
-    view_yaw    = nu_input_new();
-    view_pitch  = nu_input_new();
-    view_roll   = nu_input_new();
-    switch_mode = nu_input_new();
-    shoot       = nu_input_new();
+    quit        = nu_input_new(SCOPE);
+    move_x      = nu_input_new(SCOPE);
+    move_y      = nu_input_new(SCOPE);
+    move_z      = nu_input_new(SCOPE);
+    view_yaw    = nu_input_new(SCOPE);
+    view_pitch  = nu_input_new(SCOPE);
+    view_roll   = nu_input_new(SCOPE);
+    switch_mode = nu_input_new(SCOPE);
+    shoot       = nu_input_new(SCOPE);
 
     // Create camera controller
     controller = nu_controller_create(
@@ -375,14 +379,14 @@ init (void)
     boxes[1] = BOX1;
 
     // Create depth buffer
-    depth_buffer = nu_texture_create(
-        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
+    depth_buffer = nu_texture_new(
+        SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     // Grid mesh
     {
         nu_geometry_t g = nu_geometry_create();
         nu_geometry_grid(g, 30, 30, 1, 1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3(-15, 0, -15)));
-        grid = nu_geometry_create_mesh(g, NU_PRIMITIVE_LINES);
+        grid = nu_geometry_new_mesh(SCOPE, g, NU_PRIMITIVE_LINES);
         nu_geometry_delete(g);
     }
 
@@ -391,7 +395,7 @@ init (void)
         nu_geometry_t g = nu_geometry_create();
         nu_geometry_cube(g, 0.1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3s(-0.05)));
-        cube = nu_geometry_create_mesh(g, NU_PRIMITIVE_LINES);
+        cube = nu_geometry_new_mesh(SCOPE, g, NU_PRIMITIVE_LINES);
         nu_geometry_delete(g);
     }
 
@@ -400,10 +404,10 @@ init (void)
     bluemat  = nu_material_create_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
-    font = nu_font_create_default();
+    font = nu_font_create_default(SCOPE);
 
     // Create camera
-    camera = nu_camera_create();
+    camera = nu_camera_new(SCOPE);
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(70), nu_surface_aspect(), 0.01, 500));
 
@@ -429,7 +433,7 @@ init (void)
     //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
     init_context();
-    nu_fixedloop_new(update_context, 1.0 / 60.0 * 1000.0);
+    nu_fixedloop_new(SCOPE, update_context, 1.0 / 60.0 * 1000.0);
 }
 
 void

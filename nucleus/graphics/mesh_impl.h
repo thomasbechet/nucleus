@@ -3,26 +3,33 @@
 
 #include <nucleus/internal.h>
 
-nu_mesh_t
-nu_mesh_create (nu_primitive_t primitive, nu_size_t count)
+static void
+nu__mesh_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t   index;
-    nu__mesh_t *mesh = NU_POOL_ADD(&_ctx.graphics.meshes, &index);
+    switch (hook)
+    {
+        case NU_OBJECT_CLEANUP: {
+            nu__mesh_t *mesh = data;
+#ifdef NU_BUILD_GRAPHICS_GL
+            nugl__mesh_free(mesh);
+#endif
+        }
+        break;
+        case NU_OBJECT_SAVE:
+        case NU_OBJECT_LOAD:
+            break;
+    }
+}
+nu_mesh_t
+nu_mesh_new (nu_scope_t scope, nu_primitive_t primitive, nu_size_t capacity)
+{
+    nu__mesh_t *mesh = nu_object_new(scope, _ctx.graphics.obj_mesh);
     mesh->primitive  = primitive;
-    mesh->capacity   = count;
+    mesh->capacity   = capacity;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_init(mesh);
 #endif
-    return NU_HANDLE_MAKE(nu_mesh_t, index);
-}
-void
-nu_mesh_delete (nu_mesh_t mesh)
-{
-    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
-#ifdef NU_BUILD_GRAPHICS_GL
-    nugl__mesh_free(pmesh);
-#endif
-    NU_POOL_REMOVE(&_ctx.graphics.meshes, NU_HANDLE_INDEX(mesh));
+    return (nu_mesh_t)mesh;
 }
 void
 nu_mesh_set_uvs (nu_mesh_t      mesh,
@@ -31,7 +38,7 @@ nu_mesh_set_uvs (nu_mesh_t      mesh,
                  const nu_v2_t *data)
 {
     NU_ASSERT(mesh);
-    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
+    nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_write_uvs(pmesh, first, count, data);
 #endif
@@ -43,7 +50,7 @@ nu_mesh_set_positions (nu_mesh_t      mesh,
                        const nu_v3_t *data)
 {
     NU_ASSERT(mesh);
-    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
+    nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     NU_ASSERT(first + count <= pmesh->capacity);
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__mesh_write_positions(pmesh, first, count, data);
@@ -55,6 +62,12 @@ nu_mesh_set_colors (nu_mesh_t         mesh,
                     nu_size_t         count,
                     const nu_color_t *data)
 {
+}
+size_t
+nu_mesh_capacity (nu_mesh_t mesh)
+{
+    NU_ASSERT(mesh);
+    return ((nu__mesh_t *)mesh)->capacity;
 }
 
 #endif

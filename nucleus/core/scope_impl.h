@@ -36,8 +36,9 @@ nu__scope_alloc (nu__scope_t *scope, nu_size_t size)
 {
     if (scope->ptr + size >= scope->end)
     {
-        NU_ERROR("scope out of memory '" NU_STR_FMT "'",
-                 NU_STR_ARGS(scope->name));
+        NU_ERROR("scope out of memory '" NU_STR_FMT "' allocating %llu bytes",
+                 NU_STR_ARGS(scope->name),
+                 size);
         return NU_NULL;
     }
     nu_byte_t *p = scope->ptr;
@@ -126,7 +127,7 @@ nu_scope_alloc (nu_scope_t scope, nu_size_t size)
     NU_ASSERT(size);
     nu__scope_t *s = (nu__scope_t *)scope;
     void        *p = nu__scope_alloc(s, size);
-    NU_INFO("[alloc '" NU_STR_FMT "' raw s:%llu p:%p u:%lf%]",
+    NU_INFO("[alloc '" NU_STR_FMT "' raw s:%llu p:%p u:%.2lf%]",
             NU_STR_ARGS(s->name),
             size,
             p,
@@ -146,7 +147,8 @@ nu_object_new (nu_scope_t scope, nu_object_t type)
     s->last_object = header;
 
     void *obj = nu__scope_alloc(s, t->size);
-    NU_INFO("[alloc '" NU_STR_FMT "' obj '" NU_STR_FMT "' s:%llu p:%p u:%lf%]",
+    NU_INFO("[alloc '" NU_STR_FMT "' obj '" NU_STR_FMT
+            "' s:%llu p:%p u:%.2lf%]",
             NU_STR_ARGS(s->name),
             NU_STR_ARGS(t->name),
             t->size,

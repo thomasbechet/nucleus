@@ -4,36 +4,48 @@
 #include <nucleus/internal.h>
 
 static void
-nu__import_image (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
+nu__import_image (nu_scope_t scope,
+                  nu_str_t   filename,
+                  nu_uid_t   group,
+                  nu_uid_t   uid)
 {
-    nu_image_t image = nuext_image_load_file(filename);
+    nu_image_t image = nuext_image_load_file(scope, filename);
     NU_ASSERT(image);
     nu_resource_insert(NU_RES_IMAGE, group, uid, image);
 }
 static void
-nu__import_colormap (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
+nu__import_colormap (nu_scope_t scope,
+                     nu_str_t   filename,
+                     nu_uid_t   group,
+                     nu_uid_t   uid)
 {
-    nu_image_t image = nuext_image_load_file(filename);
+    nu_image_t image = nuext_image_load_file(scope, filename);
     NU_ASSERT(image);
     nu_texture_t texture
-        = nu_texture_create_image_texture(NU_TEXTURE_COLORMAP, image);
+        = nu_texture_new_image_texture(scope, NU_TEXTURE_COLORMAP, image);
     NU_ASSERT(texture);
     nu_resource_insert(NU_RES_IMAGE_TEXTURE, group, uid, texture);
 }
 static void
-nu__import_cubemap (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
+nu__import_cubemap (nu_scope_t scope,
+                    nu_str_t   filename,
+                    nu_uid_t   group,
+                    nu_uid_t   uid)
 {
-    nu_image_t image = nuext_image_load_file(filename);
+    nu_image_t image = nuext_image_load_file(scope, filename);
     NU_ASSERT(image);
     nu_texture_t texture
-        = nu_texture_create_image_texture(NU_TEXTURE_CUBEMAP, image);
+        = nu_texture_new_image_texture(scope, NU_TEXTURE_CUBEMAP, image);
     NU_ASSERT(texture);
     nu_resource_insert(NU_RES_IMAGE_TEXTURE, group, uid, texture);
 }
 static void
-nu__import_model (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
+nu__import_model (nu_scope_t scope,
+                  nu_str_t   filename,
+                  nu_uid_t   group,
+                  nu_uid_t   uid)
 {
-    nu_model_t model = nuext_model_load_file(filename);
+    nu_model_t model = nuext_model_load_file(scope, filename);
     NU_ASSERT(model);
     nu_resource_insert(NU_RES_MODEL, group, uid, model);
 }
@@ -45,7 +57,7 @@ nu__import_input (nu_uid_t group, nu_uid_t uid)
     nu_resource_insert(NU_RES_INPUT, group, uid, input);
 }
 nu_error_t
-nuext_import_package (nu_str_t filename, nu_uid_t group)
+nuext_import_package (nu_scope_t scope, nu_str_t filename, nu_uid_t group)
 {
     nu_error_t error = NU_ERROR_RESOURCE_LOADING;
 
@@ -114,19 +126,20 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             }
             if (nu__json_eq(json, ttype, NU_STR("model")))
             {
-                nu__import_model(final_path, group, nu_str_hash(name));
+                nu__import_model(scope, final_path, group, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("colormap")))
             {
-                nu__import_colormap(final_path, group, nu_str_hash(name));
+                nu__import_colormap(
+                    scope, final_path, group, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("cubemap")))
             {
-                nu__import_cubemap(final_path, group, nu_str_hash(name));
+                nu__import_cubemap(scope, final_path, group, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("image")))
             {
-                nu__import_image(final_path, group, nu_str_hash(name));
+                nu__import_image(scope, final_path, group, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("input")))
             {

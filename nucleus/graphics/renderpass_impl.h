@@ -150,7 +150,7 @@ nu_draw_submesh_instanced (nu_renderpass_t pass,
         p, mesh, first, count, material, transforms, instance_count);
 #endif
 #ifdef NU_BUILD_UTILS
-    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
+    nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     switch (pmesh->primitive)
     {
         case NU_PRIMITIVE_POINTS:

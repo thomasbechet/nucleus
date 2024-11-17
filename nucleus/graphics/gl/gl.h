@@ -118,8 +118,6 @@ static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
 
 typedef struct
 {
-    nu_u32_t surface_color_index;
-
     GLuint screen_blit_program;
     GLuint unlit_program;
     GLuint lit_program;

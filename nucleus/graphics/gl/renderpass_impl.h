@@ -16,7 +16,7 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
                               const nu_m4_t            *transforms,
                               nu_size_t                 instance_count)
 {
-    nu__mesh_t *pmesh = _ctx.graphics.meshes.data + NU_HANDLE_INDEX(mesh);
+    nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
         nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
@@ -112,12 +112,8 @@ nugl__prepare_color_depth (nu__renderpass_t *pass,
                            nu_texture_t      color_target,
                            nu_texture_t      depth_target)
 {
-    nu__texture_t *color = color_target ? _ctx.graphics.textures.data
-                                              + NU_HANDLE_INDEX(color_target)
-                                        : NU_NULL;
-    nu__texture_t *depth = depth_target ? _ctx.graphics.textures.data
-                                              + NU_HANDLE_INDEX(depth_target)
-                                        : NU_NULL;
+    nu__texture_t *color = (nu__texture_t *)color_target;
+    nu__texture_t *depth = (nu__texture_t *)depth_target;
     if (color_target || depth_target)
     {
         pass->gl.fbo = nugl__find_or_create_framebuffer(

@@ -44,9 +44,11 @@ NU_API void          nu_geometry_grid(nu_geometry_t geometry,
                                       nu_f32_t      uv_scale);
 NU_API void          nu_geometry_transform(nu_geometry_t geometry, nu_m4_t m);
 NU_API void          nu_geometry_merge(nu_geometry_t dst, nu_geometry_t src);
-NU_API nu_mesh_t     nu_geometry_create_mesh(nu_geometry_t  geometry,
-                                             nu_primitive_t primitive);
-NU_API nu_mesh_t     nu_geometry_create_mesh_normals(nu_geometry_t geometry);
+NU_API nu_mesh_t     nu_geometry_new_mesh(nu_scope_t     scope,
+                                          nu_geometry_t  geometry,
+                                          nu_primitive_t primitive);
+NU_API nu_mesh_t     nu_geometry_new_mesh_normals(nu_scope_t    scope,
+                                                  nu_geometry_t geometry);
 NU_API nu_b3_t       nu_geometry_bounds(nu_geometry_t geometry);
 #ifdef NU_BUILD_UTILS_SERIA
 NU_API void nu_geometry_write(nu_geometry_t geometry, nu_seria_t seria);

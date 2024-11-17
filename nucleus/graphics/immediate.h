@@ -15,8 +15,7 @@ typedef struct
     nu_size_t triangles_count;
 } nu__graphics_immediate_t;
 
-static void nu__graphics_immediate_init(void);
-static void nu__graphics_immediate_free(void);
+static void nu__graphics_immediate_init(nu_scope_t scope);
 static void nu__graphics_immediate_reset(void);
 
 #endif

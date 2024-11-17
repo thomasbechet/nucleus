@@ -24,17 +24,24 @@ typedef struct
 {
     nu_texture_t surface_color;
     NU_POOL(nu__font_t) fonts;
-    NU_POOL(nu__image_t) images;
     NU_POOL(nu__model_t) models;
     nu__graphics_immediate_t im;
 
-    NU_POOL(nu__camera_t) cameras;
-    NU_POOL(nu__texture_t) textures;
     NU_POOL(nu__material_t) materials;
-    NU_POOL(nu__mesh_t) meshes;
     NU_POOL(nu__light_t) lights;
     NU_POOL(nu__lightenv_t) lightenvs;
     NU_POOL(nu__renderpass_t) passes;
+
+    nu_object_t obj_font;
+    nu_object_t obj_image;
+    nu_object_t obj_model;
+    nu_object_t obj_camera;
+    nu_object_t obj_texture;
+    nu_object_t obj_material;
+    nu_object_t obj_mesh;
+    nu_object_t obj_light;
+    nu_object_t obj_lightenv;
+    nu_object_t obj_renderpass;
 
 #ifdef NU_BUILD_GRAPHICS_GL
     nu__gl_t gl;

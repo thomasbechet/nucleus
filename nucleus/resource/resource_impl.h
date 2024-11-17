@@ -16,10 +16,9 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_INSERTED:
                 break;
             case NU_RES_DELETE:
-                nu_image_delete(handle);
                 break;
             case NU_RES_LOAD:
-                return nu_image_load(seria);
+                return nu_image_load(nu_scope_core(), seria);
             case NU_RES_SAVE:
                 nu_image_save(handle, seria);
                 break;
@@ -33,7 +32,6 @@ nu__resource_handler (nu_resource_action_t action,
                 NU_ASSERT(nu_texture_image(handle));
                 break;
             case NU_RES_DELETE:
-                nu_texture_delete(handle);
                 break;
             case NU_RES_LOAD: {
                 nu_texture_type_t type = NU_TEXTURE_COLORMAP;
@@ -41,19 +39,17 @@ nu__resource_handler (nu_resource_action_t action,
                 {
                     type = NU_TEXTURE_CUBEMAP;
                 }
-                nu_image_t image = nu_image_load(seria);
+                nu_image_t image = nu_image_load(nu_scope_core(), seria);
                 NU_ASSERT(image);
                 nu_texture_t texture
-                    = nu_texture_create_from_image(type, image);
-                nu__texture_t *tex
-                    = _ctx.graphics.textures.data + NU_HANDLE_INDEX(texture);
-                tex->image = image;
+                    = nu_texture_new_from_image(nu_scope_core(), type, image);
+                nu__texture_t *tex = (nu__texture_t *)texture;
+                tex->image         = image;
                 return texture;
             }
             break;
             case NU_RES_SAVE: {
-                nu__texture_t *tex
-                    = _ctx.graphics.textures.data + NU_HANDLE_INDEX(handle);
+                nu__texture_t *tex = (nu__texture_t *)handle;
                 nu_seria_write_u32(seria,
                                    tex->type == NU_TEXTURE_CUBEMAP ? 1 : 0);
                 NU_ASSERT(tex->image);

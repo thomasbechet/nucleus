@@ -19,8 +19,7 @@ nugl__forward_render (nu__renderpass_t *pass)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(pass->forward.camera);
-    nu__camera_t *cam
-        = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(pass->forward.camera);
+    nu__camera_t *cam = (nu__camera_t *)pass->forward.camera;
 
     glUseProgram(pass->gl.forward.program);
 
@@ -68,11 +67,9 @@ nugl__forward_render (nu__renderpass_t *pass)
         const nu__lightenv_t *penv = _ctx.graphics.lightenvs.data
                                      + NU_HANDLE_INDEX(pass->forward.lightenv);
         NU_ASSERT(penv->shadowmap && penv->shadowmap_camera);
-        const nu__texture_t *shadowmap
-            = _ctx.graphics.textures.data + NU_HANDLE_INDEX(penv->shadowmap);
-        const nu__camera_t *shadowmap_camera
-            = _ctx.graphics.cameras.data
-              + NU_HANDLE_INDEX(penv->shadowmap_camera);
+        const nu__texture_t *shadowmap = (const nu__texture_t *)penv->shadowmap;
+        const nu__camera_t  *shadowmap_camera
+            = (const nu__camera_t *)penv->shadowmap_camera;
         NU_ASSERT(shadowmap->type == NU_TEXTURE_SHADOWMAP_TARGET);
 
         glUniformMatrix4fv(glGetUniformLocation(pass->gl.forward.program,
@@ -140,8 +137,7 @@ nugl__forward_render (nu__renderpass_t *pass)
     {
         const nu__lightenv_t *penv = _ctx.graphics.lightenvs.data
                                      + NU_HANDLE_INDEX(pass->forward.lightenv);
-        nu__texture_t *cubemap
-            = _ctx.graphics.textures.data + NU_HANDLE_INDEX(penv->skybox);
+        nu__texture_t *cubemap = (nu__texture_t *)penv->skybox;
 
         // Bind program
         glUseProgram(gl->skybox_program);

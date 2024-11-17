@@ -4,35 +4,16 @@
 #include <nucleus/internal.h>
 
 static void
-nu__graphics_immediate_init (void)
+nu__graphics_immediate_init (nu_scope_t scope)
 {
     nu__graphics_immediate_reset();
 
-    _ctx.graphics.im.points = nu_mesh_create(NU_PRIMITIVE_POINTS, 1000);
-    _ctx.graphics.im.lines  = nu_mesh_create(NU_PRIMITIVE_LINES, 5000);
+    _ctx.graphics.im.points = nu_mesh_new(scope, NU_PRIMITIVE_POINTS, 1000);
+    _ctx.graphics.im.lines  = nu_mesh_new(scope, NU_PRIMITIVE_LINES, 5000);
     _ctx.graphics.im.lines_strip
-        = nu_mesh_create(NU_PRIMITIVE_LINES_STRIP, 1000);
-    _ctx.graphics.im.triangles = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, 1000);
-}
-static void
-nu__graphics_immediate_free (void)
-{
-    if (_ctx.graphics.im.points)
-    {
-        nu_mesh_delete(_ctx.graphics.im.points);
-    }
-    if (_ctx.graphics.im.lines)
-    {
-        nu_mesh_delete(_ctx.graphics.im.lines);
-    }
-    if (_ctx.graphics.im.lines_strip)
-    {
-        nu_mesh_delete(_ctx.graphics.im.lines_strip);
-    }
-    if (_ctx.graphics.im.triangles)
-    {
-        nu_mesh_delete(_ctx.graphics.im.triangles);
-    }
+        = nu_mesh_new(scope, NU_PRIMITIVE_LINES_STRIP, 1000);
+    _ctx.graphics.im.triangles
+        = nu_mesh_new(scope, NU_PRIMITIVE_TRIANGLES, 1000);
 }
 static void
 nu__graphics_immediate_reset (void)

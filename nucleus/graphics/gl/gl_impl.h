@@ -238,9 +238,8 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     glViewport(viewport.min.x, viewport.min.y, size.x, size.y);
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindTexture(
-        GL_TEXTURE_2D,
-        _ctx.graphics.textures.data[gl->surface_color_index].gl.texture);
+    glBindTexture(GL_TEXTURE_2D,
+                  ((nu__texture_t *)_ctx.graphics.surface_color)->gl.texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glUseProgram(0);
 

@@ -3,12 +3,15 @@
 
 #include <nucleus/internal.h>
 
-nu_camera_t
-nu_camera_create (void)
+static void
+nu__camera_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t     index;
-    nu__camera_t *camera = NU_POOL_ADD(&_ctx.graphics.cameras, &index);
-    nu_camera_t   handle = NU_HANDLE_MAKE(nu_camera_t, index);
+}
+nu_camera_t
+nu_camera_new (nu_scope_t scope)
+{
+    nu__camera_t *camera = nu_object_new(scope, _ctx.graphics.obj_camera);
+    nu_camera_t   handle = (nu_camera_t)camera;
     nu_camera_set_view(handle, nu_lookat(NU_V3_UP, NU_V3_FORWARD, NU_V3_ZEROS));
     nu_f32_t aspect
         = (nu_f32_t)_ctx.platform.size.x / (nu_f32_t)_ctx.platform.size.y;
@@ -17,23 +20,18 @@ nu_camera_create (void)
     return handle;
 }
 void
-nu_camera_delete (nu_camera_t camera)
-{
-    NU_POOL_REMOVE(&_ctx.graphics.cameras, NU_HANDLE_INDEX(camera));
-}
-void
 nu_camera_set_view (nu_camera_t camera, nu_m4_t view)
 {
-    nu__camera_t *pcam = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(camera);
-    pcam->view         = view;
-    pcam->vp           = nu_m4_mul(pcam->projection, view);
+    nu__camera_t *cam = (nu__camera_t *)camera;
+    cam->view         = view;
+    cam->vp           = nu_m4_mul(cam->projection, view);
 }
 void
 nu_camera_set_proj (nu_camera_t camera, nu_m4_t proj)
 {
-    nu__camera_t *pcam = _ctx.graphics.cameras.data + NU_HANDLE_INDEX(camera);
-    pcam->projection   = proj;
-    pcam->vp           = nu_m4_mul(proj, pcam->view);
+    nu__camera_t *cam = (nu__camera_t *)camera;
+    cam->projection   = proj;
+    cam->vp           = nu_m4_mul(proj, cam->view);
 }
 
 #endif

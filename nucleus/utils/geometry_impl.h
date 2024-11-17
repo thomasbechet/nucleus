@@ -1,7 +1,6 @@
 #ifndef NU_GEOMETRY_IMPL_H
 #define NU_GEOMETRY_IMPL_H
 
-#include "nucleus/seria/api.h"
 #include <nucleus/internal.h>
 
 static nu__primitive_type_t *
@@ -230,7 +229,7 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
 }
 
 static nu_mesh_t
-nu__geometry_create_mesh_lines (nu__geometry_t *g)
+nu__geometry_new_mesh_lines (nu_scope_t scope, nu__geometry_t *g)
 {
     nu_size_t max_line_count = 0;
     for (nu_size_t i = 0; i < g->primitives.size; ++i)
@@ -312,7 +311,7 @@ nu__geometry_create_mesh_lines (nu__geometry_t *g)
         positions.data[e + 1] = g->positions.data[edges.data[e + 1]];
     }
 
-    nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, edges.size / 2);
+    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_LINES, edges.size / 2);
     nu_mesh_set_positions(mesh, 0, edges.size / 2, positions.data);
 
     NU_VEC_FREE(&edges);
@@ -321,7 +320,7 @@ nu__geometry_create_mesh_lines (nu__geometry_t *g)
     return mesh;
 }
 static nu_mesh_t
-nu__geometry_create_mesh_triangles (nu__geometry_t *g)
+nu__geometry_new_mesh_triangles (nu_scope_t scope, nu__geometry_t *g)
 {
     nu_size_t triangle_count = 0;
     for (nu_size_t i = 0; i < g->primitives.size; ++i)
@@ -375,7 +374,7 @@ nu__geometry_create_mesh_triangles (nu__geometry_t *g)
         }
     }
 
-    nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, triangle_count);
+    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_TRIANGLES, triangle_count);
     nu_mesh_set_positions(mesh, 0, triangle_count, positions.data);
     nu_mesh_set_uvs(mesh, 0, triangle_count, uvs.data);
 
@@ -385,15 +384,17 @@ nu__geometry_create_mesh_triangles (nu__geometry_t *g)
     return mesh;
 }
 nu_mesh_t
-nu_geometry_create_mesh (nu_geometry_t geometry, nu_primitive_t primitive)
+nu_geometry_new_mesh (nu_scope_t     scope,
+                      nu_geometry_t  geometry,
+                      nu_primitive_t primitive)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     switch (primitive)
     {
         case NU_PRIMITIVE_LINES:
-            return nu__geometry_create_mesh_lines(g);
+            return nu__geometry_new_mesh_lines(scope, g);
         case NU_PRIMITIVE_TRIANGLES:
-            return nu__geometry_create_mesh_triangles(g);
+            return nu__geometry_new_mesh_triangles(scope, g);
         default:
             break;
     }
@@ -401,7 +402,7 @@ nu_geometry_create_mesh (nu_geometry_t geometry, nu_primitive_t primitive)
     return NU_NULL;
 }
 nu_mesh_t
-nu_geometry_create_mesh_normals (nu_geometry_t geometry)
+nu_geometry_new_mesh_normals (nu_scope_t scope, nu_geometry_t geometry)
 {
     nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
     nu_size_t       face_count = 0;
@@ -444,7 +445,7 @@ nu_geometry_create_mesh_normals (nu_geometry_t geometry)
         }
     }
 
-    nu_mesh_t mesh = nu_mesh_create(NU_PRIMITIVE_LINES, face_count);
+    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_LINES, face_count);
     nu_mesh_set_positions(mesh, 0, face_count, positions.data);
 
     NU_VEC_FREE(&positions);

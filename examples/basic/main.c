@@ -124,9 +124,10 @@ transform_handler (nu_object_hook_t hook, void *data)
 void
 init (void)
 {
-    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_1M);
+    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_256M);
 
-    nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
+    nuext_import_package(
+        SCOPE, NU_STR("../../../assets/pkg.json"), NU_UID("import"));
     nu_seria_t seria = nu_seria_create();
     nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
     nu_resource_save_group(NU_UID("import"), seria);
@@ -186,8 +187,8 @@ init (void)
     nuext_input_bind_button(switch_mode, NUEXT_BUTTON_C);
 
     // Create depth buffer
-    depth_buffer = nu_texture_create(
-        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
+    depth_buffer = nu_texture_new(
+        SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
 
     // Create meshes
     {
@@ -210,8 +211,9 @@ init (void)
         nu_geometry_grid(sub, 5, 10, 1, 75);
         nu_geometry_merge(final, sub);
         // nu_geometry_plane(final, 10, 10);
-        custom_mesh = nu_geometry_create_mesh(final, NU_PRIMITIVE_TRIANGLES);
-        custom_mesh_normals = nu_geometry_create_mesh_normals(final);
+        custom_mesh
+            = nu_geometry_new_mesh(SCOPE, final, NU_PRIMITIVE_TRIANGLES);
+        custom_mesh_normals = nu_geometry_new_mesh_normals(SCOPE, final);
         bounds              = nu_geometry_bounds(final);
         nu_geometry_delete(final);
     }
@@ -241,10 +243,10 @@ init (void)
     // Create lightenv
 
     // Create font
-    font = nu_font_create_default();
+    font = nu_font_create_default(SCOPE);
 
     // Create camera
-    camera = nu_camera_create();
+    camera = nu_camera_new(SCOPE);
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
 
@@ -268,9 +270,11 @@ init (void)
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
 
-    shadow_map = nu_texture_create(
-        NU_TEXTURE_SHADOWMAP_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 1), 1);
-    shadow_camera = nu_camera_create();
+    shadow_map    = nu_texture_new(SCOPE,
+                                NU_TEXTURE_SHADOWMAP_TARGET,
+                                nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 1),
+                                1);
+    shadow_camera = nu_camera_new(SCOPE);
     nu_camera_set_proj(shadow_camera, nu_ortho(-50, 50, -50, 50, 1, 500));
     nu_camera_set_view(shadow_camera,
                        nu_lookat(nu_v3s(100.0), nu_v3(0, 0, 10), NU_V3_UP));

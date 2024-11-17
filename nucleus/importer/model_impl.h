@@ -106,8 +106,8 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
 
             // Create mesh
             nu_size_t primitive_count = indice_count / 3;
-            nu_mesh_t handle
-                = nu_mesh_create(NU_PRIMITIVE_TRIANGLES, primitive_count);
+            nu_mesh_t handle          = nu_mesh_new(
+                loader->scope, NU_PRIMITIVE_TRIANGLES, primitive_count);
             nu_mesh_set_positions(handle, 0, primitive_count, buf_positions);
             nu_mesh_set_uvs(handle, 0, primitive_count, buf_uvs);
 
@@ -131,13 +131,15 @@ nu__load_texture (nu__model_gltf_loader_t *loader, const cgltf_texture *texture)
 
     cgltf_buffer_view *tview = texture->image->buffer_view;
 
+    // TODO: avoid temporary image ?
     nu_image_t image = nuext_image_load_memory(
-        (const nu_byte_t *)tview->buffer->data + tview->offset, tview->size);
+        loader->scope,
+        (const nu_byte_t *)tview->buffer->data + tview->offset,
+        tview->size);
 
     // Create texture
     nu_texture_t handle
-        = nu_texture_create_from_image(NU_TEXTURE_COLORMAP, image);
-    nu_image_delete(image);
+        = nu_texture_new_from_image(loader->scope, NU_TEXTURE_COLORMAP, image);
 
     // Append asset
     nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
@@ -188,7 +190,8 @@ nu__load_material_default (nu__model_gltf_loader_t *loader)
     {
         NU_DEBUG("loading default material");
 
-        nu_texture_t  texture  = nu_texture_create_from_color(NU_COLOR_RED);
+        nu_texture_t texture
+            = nu_texture_new_from_color(loader->scope, NU_COLOR_RED);
         nu_material_t material = nu_material_create(NU_MATERIAL_SURFACE);
         nu_material_set_texture(material, texture);
 
@@ -207,7 +210,9 @@ nu__model_gltf_loader_free (void)
     NU_VEC_FREE(&_ctx.importer.model_gltf_loader.resources);
 }
 static nu_model_t
-nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
+nu__model_gltf_load (nu_scope_t               scope,
+                     nu__model_gltf_loader_t *loader,
+                     nu_str_t                 filename)
 {
     cgltf_options options;
     nu_memset(&options, 0, sizeof(options));
@@ -219,6 +224,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     // Reset cache
     NU_VEC_CLEAR(&loader->resources);
     loader->default_material = NU_NULL;
+    loader->scope            = scope;
 
     // Parse file and load buffers
     nu_byte_t fn[256];
@@ -350,10 +356,11 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
 }
 
 nu_model_t
-nuext_model_load_file (nu_str_t filename)
+nuext_model_load_file (nu_scope_t scope, nu_str_t filename)
 {
 #ifdef NU_BUILD_IMPORTER_CGLTF
-    return nu__model_gltf_load(&_ctx.importer.model_gltf_loader, filename);
+    return nu__model_gltf_load(
+        scope, &_ctx.importer.model_gltf_loader, filename);
 #endif
     return NU_NULL;
 }

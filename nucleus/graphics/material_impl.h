@@ -109,7 +109,7 @@ nu__material_surface_texture0 (nu_material_t mat)
                                .surface.texture0;
         if (tex)
         {
-            return _ctx.graphics.textures.data[NU_HANDLE_INDEX(tex)].gl.texture;
+            return ((nu__texture_t *)tex)->gl.texture;
         }
     }
     return 0;
