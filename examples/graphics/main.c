@@ -50,7 +50,7 @@ init (void)
     guipass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(guipass, surface_color);
 
-    font = nu_font_create_default(SCOPE);
+    font = nu_font_new_default(SCOPE);
 
     // Exit input
     exit_input = nu_input_new(SCOPE);

@@ -243,7 +243,7 @@ init (void)
     // Create lightenv
 
     // Create font
-    font = nu_font_create_default(SCOPE);
+    font = nu_font_new_default(SCOPE);
 
     // Create camera
     camera = nu_camera_new(SCOPE);

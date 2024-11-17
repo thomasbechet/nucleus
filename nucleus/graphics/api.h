@@ -245,7 +245,6 @@ NU_API void       nu_model_set(nu_model_t    model,
                                nu_material_t material,
                                nu_m4_t       transform);
 
-NU_API nu_font_t nu_font_create_default(nu_scope_t scope);
-NU_API void      nu_font_delete(nu_font_t font);
+NU_API nu_font_t nu_font_new_default(nu_scope_t scope);
 
 #endif

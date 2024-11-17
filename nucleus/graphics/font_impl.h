@@ -3,13 +3,17 @@
 
 #include <nucleus/internal.h>
 
+static void
+nu__font_handler (nu_object_hook_t hook, void *data)
+{
+}
 nu_font_t
-nu_font_create_default (nu_scope_t scope)
+nu_font_new_default (nu_scope_t scope)
 {
     nu_error_t error;
 
-    nu_size_t   index;
-    nu__font_t *font = NU_POOL_ADD(&_ctx.graphics.fonts, &index);
+    nu__font_t *font
+        = (nu__font_t *)nu_object_new(scope, _ctx.graphics.obj_font);
 
     // Find min/max characters
     font->min_char             = 127;
@@ -26,7 +30,8 @@ nu_font_create_default (nu_scope_t scope)
 
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_v2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
-    font->glyphs = (nu_b2i_t *)nu_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
+    font->glyphs       = (nu_b2i_t *)nu_scope_alloc(
+        scope, sizeof(nu_b2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
@@ -75,14 +80,7 @@ nu_font_create_default (nu_scope_t scope)
     nu_material_set_texture(font->material, font->texture);
     nu_material_set_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
 
-    return NU_HANDLE_MAKE(nu_font_t, index);
-}
-void
-nu_font_delete (nu_font_t handle)
-{
-    nu_size_t   index = NU_HANDLE_INDEX(handle);
-    nu__font_t *font  = &_ctx.graphics.fonts.data[index];
-    nu_free(font->glyphs, sizeof(nu_b2i_t) * font->glyphs_count);
+    return (nu_font_t)font;
 }
 
 void
@@ -91,8 +89,7 @@ nu_draw_text (nu_renderpass_t pass,
               nu_font_t       handle,
               nu_v2i_t        pos)
 {
-    nu_size_t   index = NU_HANDLE_INDEX(handle);
-    nu__font_t *font  = &_ctx.graphics.fonts.data[index];
+    nu__font_t *font = (nu__font_t *)handle;
     nu_b2i_t    extent
         = nu_b2i_xywh(pos.x, pos.y, font->glyph_size.x, font->glyph_size.y);
     nu_size_t  it = 0;

@@ -406,7 +406,7 @@ init (void)
         = nu_material_new_color(SCOPE, NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
-    font = nu_font_create_default(SCOPE);
+    font = nu_font_new_default(SCOPE);
 
     // Create camera
     camera = nu_camera_new(SCOPE);
