@@ -9,7 +9,7 @@ nu__scope_init (void)
     _ctx.core.scope.scopes_count  = 0;
     _ctx.core.scope.objects_count = 0;
     _ctx.core.scope.last_scope    = NU_NULL;
-    _ctx.core.scope.core_scope    = nu_scope_register(NU_STR("core"), 1 << 17);
+    _ctx.core.scope.core_scope = nu_scope_register(NU_STR("core"), NU_MEM_1M);
 }
 static void
 nu__scope_cleanup_all (void)

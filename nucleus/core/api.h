@@ -243,6 +243,23 @@
 #define NU_OBJECT_MAX 128
 #define NU_SCOPE_MAX  64
 
+#define NU_MEM_1K  (1 << 10)
+#define NU_MEM_2K  (1 << 11)
+#define NU_MEM_4K  (1 << 12)
+#define NU_MEM_8K  (1 << 13)
+#define NU_MEM_16K (1 << 14)
+#define NU_MEM_32K (1 << 15)
+#define NU_MEM_64K (1 << 16)
+#define NU_MEM_1M  (1 << 20)
+#define NU_MEM_2M  (1 << 21)
+#define NU_MEM_4M  (1 << 22)
+#define NU_MEM_8M  (1 << 23)
+#define NU_MEM_16M (1 << 24)
+#define NU_MEM_32M (1 << 25)
+#define NU_MEM_1G  (1 << 30)
+#define NU_MEM_2G  (1 << 31)
+#define NU_MEM_4G  (1 << 32)
+
 //////////////////////////////////////////////////////////////////////////
 //////                        Data Structures                       //////
 //////////////////////////////////////////////////////////////////////////

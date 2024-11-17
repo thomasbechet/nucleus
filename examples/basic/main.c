@@ -124,7 +124,7 @@ transform_handler (nu_object_hook_t hook, void *data)
 void
 init (void)
 {
-    SCOPE = nu_scope_register(NU_STR("main"), 1 << 20);
+    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_1M);
 
     nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
     nu_seria_t seria = nu_seria_create();
