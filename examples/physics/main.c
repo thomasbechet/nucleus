@@ -441,6 +441,10 @@ init (void)
 void
 update (void)
 {
+    if (nu_input_just_pressed(quit))
+    {
+        nu_request_stop();
+    }
     if (nu_input_just_pressed(shoot))
     {
         nu_m4_t transform = nu_controller_transform(controller);
