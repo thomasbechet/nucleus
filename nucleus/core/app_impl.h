@@ -145,9 +145,6 @@ main (int argc, char *argv[])
 #ifdef NU_BUILD_IMPORTER
     nu__importer_free();
 #endif
-#ifdef NU_BUILD_UTILS
-    nu__utils_free();
-#endif
 #ifdef NU_BUILD_GRAPHICS
     nu__graphics_free();
 #endif

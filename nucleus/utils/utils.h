@@ -7,12 +7,11 @@
 
 typedef struct
 {
-    nu__camera_controller_pool_t controllers;
-    nu__geometry_pool_t          geometries;
-    nu__stats_t                  stats;
+    nu_object_t         obj_camera_controller;
+    nu__geometry_pool_t geometries;
+    nu__stats_t         stats;
 } nu__utils_t;
 
 static nu_error_t nu__utils_init(void);
-static void       nu__utils_free(void);
 
 #endif

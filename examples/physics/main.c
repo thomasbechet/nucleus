@@ -352,7 +352,7 @@ init (void)
     shoot       = nu_input_new(SCOPE);
 
     // Create camera controller
-    controller = nu_controller_create(
+    controller = nu_controller_new(
         view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs

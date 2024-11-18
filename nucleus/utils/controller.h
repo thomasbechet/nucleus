@@ -27,6 +27,4 @@ typedef struct
     nu_bool_t on_ground;
 } nu__camera_controller_t;
 
-typedef NU_POOL(nu__camera_controller_t) nu__camera_controller_pool_t;
-
 #endif

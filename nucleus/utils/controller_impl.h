@@ -3,18 +3,22 @@
 
 #include <nucleus/internal.h>
 
-nu_controller_t
-nu_controller_create (nu_input_t view_pitch,
-                      nu_input_t view_yaw,
-                      nu_input_t view_roll,
-                      nu_input_t move_x,
-                      nu_input_t move_y,
-                      nu_input_t move_z,
-                      nu_input_t switch_mode)
+static void
+nu__camera_controller_handler (nu_object_hook_t hook, void *data)
 {
-    nu_size_t                index;
+}
+nu_controller_t
+nu_controller_new (nu_scope_t scope,
+                   nu_input_t view_pitch,
+                   nu_input_t view_yaw,
+                   nu_input_t view_roll,
+                   nu_input_t move_x,
+                   nu_input_t move_y,
+                   nu_input_t move_z,
+                   nu_input_t switch_mode)
+{
     nu__camera_controller_t *ctrl
-        = NU_POOL_ADD(&_ctx.utils.controllers, &index);
+        = nu_object_new(scope, _ctx.utils.obj_camera_controller);
 
     ctrl->view_pitch  = view_pitch;
     ctrl->view_yaw    = view_yaw;
@@ -37,16 +41,15 @@ nu_controller_create (nu_input_t view_pitch,
     ctrl->speed     = 20;
     ctrl->on_ground = NU_FALSE;
 
-    return NU_HANDLE_MAKE(nu_controller_t, index);
+    return (nu_controller_t)ctrl;
 }
 void
 nu_controller_update (nu_controller_t controller,
                       nu_f32_t        dt,
                       nu_camera_t     camera)
 {
-    nu__camera_controller_t *ctrl
-        = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
-    nu_v3_t look = nu_v3(nu_input_value(ctrl->view_yaw),
+    nu__camera_controller_t *ctrl = (nu__camera_controller_t *)controller;
+    nu_v3_t                  look = nu_v3(nu_input_value(ctrl->view_yaw),
                          nu_input_value(ctrl->view_pitch),
                          nu_input_value(ctrl->view_roll));
     nu_v3_t move = nu_v3_normalize(nu_v3(nu_input_value(ctrl->move_x),
@@ -198,8 +201,7 @@ nu_controller_update (nu_controller_t controller,
 nu_m4_t
 nu_controller_transform (nu_controller_t controller)
 {
-    nu__camera_controller_t *ctrl
-        = &_ctx.utils.controllers.data[NU_HANDLE_INDEX(controller)];
+    nu__camera_controller_t *ctrl = (nu__camera_controller_t *)controller;
     return nu_m4_mul(nu_m4_translate(ctrl->pos), nu_q4_mat4(ctrl->rot));
 }
 

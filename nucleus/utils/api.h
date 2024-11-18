@@ -17,14 +17,14 @@ typedef enum
     NU_CONTROLLER_CHARACTER
 } nu_controller_mode_t;
 
-NU_API nu_controller_t nu_controller_create(nu_input_t view_pitch,
-                                            nu_input_t view_yaw,
-                                            nu_input_t view_roll,
-                                            nu_input_t move_x,
-                                            nu_input_t move_y,
-                                            nu_input_t move_z,
-                                            nu_input_t switch_mode);
-NU_API void            nu_controller_delete(nu_controller_t controller);
+NU_API nu_controller_t nu_controller_new(nu_scope_t scope,
+                                         nu_input_t view_pitch,
+                                         nu_input_t view_yaw,
+                                         nu_input_t view_roll,
+                                         nu_input_t move_x,
+                                         nu_input_t move_y,
+                                         nu_input_t move_z,
+                                         nu_input_t switch_mode);
 NU_API void            nu_controller_update(nu_controller_t controller,
                                             nu_f32_t        dt,
                                             nu_camera_t     camera);

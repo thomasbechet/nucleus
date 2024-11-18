@@ -162,8 +162,14 @@ init (void)
     switch_mode = nu_input_new(SCOPE);
 
     // Create camera controller
-    controller = nu_controller_create(
-        view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
+    controller = nu_controller_new(SCOPE,
+                                   view_pitch,
+                                   view_yaw,
+                                   view_roll,
+                                   move_x,
+                                   move_y,
+                                   move_z,
+                                   switch_mode);
 
     // Bind inputs
     nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_LEFT);
