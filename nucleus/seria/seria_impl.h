@@ -273,7 +273,7 @@ nu__seria_dump (nu_size_t         depth,
                 nu_byte_t        *data)
 {
     NU_ASSERT(layout && data);
-    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
+    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
     for (nu_size_t i = 0; i < size; ++i)
     {
         nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);
