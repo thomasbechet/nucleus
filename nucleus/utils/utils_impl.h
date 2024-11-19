@@ -12,7 +12,8 @@ nu__utils_init (void)
         = nu_object_register(NU_STR("camera_controller"),
                              sizeof(nu__camera_controller_t),
                              nu__camera_controller_handler);
-    NU_POOL_INIT(1, &_ctx.utils.geometries);
+    _ctx.utils.obj_geometry = nu_object_register(
+        NU_STR("geometry"), sizeof(nu__geometry_t), nu__geometry_handler);
     nu__stats_init();
     return NU_ERROR_NONE;
 }

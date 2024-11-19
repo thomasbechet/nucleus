@@ -383,19 +383,19 @@ init (void)
         SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     // Grid mesh
     {
-        nu_geometry_t g = nu_geometry_create();
+        nu_geometry_t g = nu_mesh_new_geometry();
         nu_geometry_grid(g, 30, 30, 1, 1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3(-15, 0, -15)));
-        grid = nu_geometry_new_mesh(SCOPE, g, NU_PRIMITIVE_LINES);
+        grid = nu_mesh_new_geometry(SCOPE, g, NU_PRIMITIVE_LINES);
         nu_geometry_delete(g);
     }
 
     // Cube mesh
     {
-        nu_geometry_t g = nu_geometry_create();
+        nu_geometry_t g = nu_mesh_new_geometry();
         nu_geometry_cube(g, 0.1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3s(-0.05)));
-        cube = nu_geometry_new_mesh(SCOPE, g, NU_PRIMITIVE_LINES);
+        cube = nu_mesh_new_geometry(SCOPE, g, NU_PRIMITIVE_LINES);
         nu_geometry_delete(g);
     }
 
