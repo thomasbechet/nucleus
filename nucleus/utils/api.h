@@ -37,8 +37,9 @@ NU_API nu_m4_t         nu_controller_transform(nu_controller_t controller);
 
 NU_API nu_geometry_t nu_geometry_new_mesh(nu_scope_t     scope,
                                           nu_primitive_t primitive,
-                                          nu_size_t      vertex_capacity,
-                                          nu_size_t      index_count);
+                                          nu_size_t      position_capacity,
+                                          nu_size_t      uv_capacity,
+                                          nu_size_t      vertex_capacity);
 NU_API void          nu_geometry_reset(nu_geometry_t geometry);
 NU_API void          nu_geometry_cube(nu_geometry_t geometry, nu_f32_t unit);
 NU_API void          nu_geometry_plane(nu_geometry_t geometry,

@@ -462,6 +462,21 @@
     }
 #define NU_FIXEDVEC_SWAP_REMOVE_PTR(v, p) \
     NU_FIXEDVEC_SWAP_REMOVE(v, NU_FIXEDVEC_INDEX(v, p))
+#define NU_FIXEDVEC_APPEND(dst, src)                             \
+    do                                                           \
+    {                                                            \
+        NU_ASSERT(sizeof(*(dst)->data) == sizeof(*(src)->data)); \
+        nu_size_t dst_size = (dst)->size;                        \
+        nu_size_t src_size = (src)->size;                        \
+        nu_size_t new_size = dst_size + src_size;                \
+        if (new_size <= (dst)->capacity)                         \
+        {                                                        \
+            (dst)->size = new_size;                              \
+            nu_memcpy((dst)->data + dst_size,                    \
+                      (src)->data,                               \
+                      sizeof(*(src)->data) * src_size);          \
+        }                                                        \
+    } while (0)
 
 #define NU_ARRAY(type)  \
     struct              \
