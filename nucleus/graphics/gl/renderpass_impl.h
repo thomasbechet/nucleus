@@ -37,8 +37,8 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
                 cmd->primitive = GL_TRIANGLES;
                 break;
         }
-        cmd->vfirst   = nu__primitive_vertex_first(pmesh->primitive, first);
-        cmd->vcount   = nu__primitive_vertex_count(pmesh->primitive, count);
+        cmd->vfirst   = first;
+        cmd->vcount   = count;
         cmd->material = mat;
     }
 }
@@ -46,6 +46,7 @@ nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
 static void
 nugl__renderpass_init (nu__renderpass_t *pass)
 {
+    pass->gl.fbo = NU_NULL;
     switch (pass->type)
     {
         case NU_RENDERPASS_FORWARD:

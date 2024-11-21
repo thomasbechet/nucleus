@@ -215,6 +215,7 @@ nu__generate_plane (nu__geometry_t *g, nu_f32_t width, nu_f32_t height)
 static void
 nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
 {
+    NU_ASSERT(g->type == NU_GEOMETRY_MESH);
     const nu_v3_t positions[8] = {
         nu_v3(0, 0, unit),    nu_v3(unit, 0, unit), nu_v3(unit, 0, 0),
         nu_v3(0, 0, 0),       nu_v3(0, unit, unit), nu_v3(unit, unit, unit),
@@ -237,22 +238,17 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
     {
         nu__append_uv(g, uvs[i]);
     }
-    switch (g->mesh.primitive)
-    {
-        case NU_PRIMITIVE_POINTS:
-        case NU_PRIMITIVE_LINES:
-        case NU_PRIMITIVE_LINES_STRIP:
-        case NU_PRIMITIVE_TRIANGLES:
-            break;
-    }
     for (nu_size_t i = 0; i < 6; ++i)
     {
+        nu_u16_t ip[4];
+        nu_u16_t iu[4];
         for (nu_size_t j = 0; j < 4; ++j)
         {
-            nu__append_vertex(g,
-                              pos_offset + position_indices[i * 4 + j],
-                              uv_offset + uv_indices[j]);
+            ip[j] = pos_offset + position_indices[i * 4 + j];
+            iu[j] = uv_offset + uv_indices[j];
         }
+        nu__append_quad(
+            g, ip[0], ip[1], ip[2], ip[3], iu[0], iu[1], iu[2], iu[3]);
     }
 }
 
@@ -342,6 +338,14 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
             NU_ASSERT(s->mesh.primitive == d->mesh.primitive);
             nu_size_t pos_offset = d->mesh.positions.size;
             nu_size_t uv_offset  = d->mesh.uvs.size;
+
+            NU_ASSERT(d->mesh.positions.size + s->mesh.positions.size
+                      <= d->mesh.positions.capacity);
+            NU_ASSERT(d->mesh.uvs.size + s->mesh.uvs.size
+                      <= d->mesh.uvs.capacity);
+            NU_ASSERT(d->mesh.positions_indices.size
+                          + s->mesh.positions_indices.size
+                      <= d->mesh.positions_indices.capacity);
 
             // append indices (destination indices must be updated)
             nu_size_t first_pos_index = d->mesh.positions_indices.size;
@@ -525,71 +529,57 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
 //     return mesh;
 // }
 nu_mesh_t
-nu_mesh_new_geometry (nu_scope_t     scope,
-                      nu_geometry_t  geometry,
-                      nu_primitive_t primitive)
+nu_mesh_new_geometry (nu_scope_t scope, nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
-    switch (primitive)
+    nu__geometry_t *g = (nu__geometry_t *)geometry;
+    NU_ASSERT(g->type == NU_GEOMETRY_MESH);
+    nu_mesh_t mesh
+        = nu_mesh_new(scope, g->mesh.primitive, g->mesh.positions_indices.size);
+    NU_ASSERT(mesh);
+    const nu_size_t bufsize = 256;
+    for (nu_size_t c = 0; c < g->mesh.positions_indices.size; c += bufsize)
     {
-        case NU_PRIMITIVE_LINES:
-            return nu__geometry_new_mesh_lines(scope, g);
-        case NU_PRIMITIVE_TRIANGLES:
-            return nu__geometry_new_mesh_triangles(scope, g);
-        default:
-            break;
+        nu_size_t size = NU_MIN(bufsize, g->mesh.positions_indices.size - c);
+        NU_ASSERT(size);
+        nu_v3_t positions[256];
+        nu_v2_t uvs[256];
+        for (nu_size_t v = 0; v < size; ++v)
+        {
+            positions[v]
+                = g->mesh.positions.data[g->mesh.positions_indices.data[c + v]];
+            uvs[v] = g->mesh.uvs.data[g->mesh.uvs_indices.data[c + v]];
+        }
+        nu_mesh_set_positions(mesh, c, size, positions);
+        nu_mesh_set_uvs(mesh, c, size, uvs);
     }
-    NU_ERROR("unsupported geometry primitive mesh generation");
-    return NU_NULL;
+
+    return mesh;
 }
 nu_mesh_t
 nu_mesh_new_geometry_normals (nu_scope_t scope, nu_geometry_t geometry)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
-    nu_size_t       face_count = 0;
-    for (nu_size_t i = 0; i < g->primitives.size; ++i)
+    nu__geometry_t *g = (nu__geometry_t *)geometry;
+    NU_ASSERT(g->type == NU_GEOMETRY_MESH);
+    NU_ASSERT(g->mesh.primitive == NU_PRIMITIVE_TRIANGLES);
+
+    nu_size_t tricount = g->mesh.positions_indices.size / 3;
+    NU_ASSERT(tricount);
+    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_LINES, tricount * 2);
+    NU_ASSERT(mesh);
+    for (nu_size_t i = 0; i < tricount; ++i)
     {
-        nu__primitive_type_t *p = g->primitives.data + i;
-        if (p->count >= 3)
-        {
-            face_count += p->positions.size / p->count;
-        }
+        nu_v3_t p0
+            = g->mesh.positions.data[g->mesh.positions_indices.data[i * 3 + 0]];
+        nu_v3_t p1
+            = g->mesh.positions.data[g->mesh.positions_indices.data[i * 3 + 1]];
+        nu_v3_t p2
+            = g->mesh.positions.data[g->mesh.positions_indices.data[i * 3 + 2]];
+        nu_v3_t n = nu_triangle_normal(p0, p1, p2);
+        nu_v3_t line[2];
+        line[0] = nu_v3_divs(nu_v3_add(nu_v3_add(p0, p1), p2), 3.0);
+        line[1] = nu_v3_add(line[0], n);
+        nu_mesh_set_positions(mesh, i * 2, 2, line);
     }
-    NU_ASSERT(face_count);
-
-    nu_v3_vec_t positions;
-    NU_VEC_INIT(face_count * 2, &positions);
-
-    for (nu_size_t i = 0; i < g->primitives.size; ++i)
-    {
-        nu__primitive_type_t *p = g->primitives.data + i;
-        if (p->count >= 3)
-        {
-            for (nu_size_t f = 0; f < p->positions.size; f += p->count)
-            {
-                // Computer the face center of mass
-                nu_v3_t center = NU_V3_ZEROS;
-                for (nu_size_t i = f; i < f + p->count; ++i)
-                {
-                    center = nu_v3_add(center,
-                                       g->positions.data[p->positions.data[i]]);
-                }
-                center = nu_v3_divs(center, p->count);
-                // Compute normal (expect all points to be coplanar)
-                nu_v3_t p0 = g->positions.data[p->positions.data[f + 0]];
-                nu_v3_t p1 = g->positions.data[p->positions.data[f + 1]];
-                nu_v3_t p2 = g->positions.data[p->positions.data[f + 2]];
-                nu_v3_t n  = nu_triangle_normal(p0, p1, p2);
-                *NU_VEC_PUSH(&positions) = center;
-                *NU_VEC_PUSH(&positions) = nu_v3_add(center, n);
-            }
-        }
-    }
-
-    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_LINES, face_count);
-    nu_mesh_set_positions(mesh, 0, face_count, positions.data);
-
-    NU_VEC_FREE(&positions);
 
     return mesh;
 }
@@ -597,13 +587,14 @@ nu_b3_t
 nu_geometry_bounds (nu_geometry_t geometry)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
-    NU_ASSERT(g->positions.size);
+    NU_ASSERT(g->type == NU_GEOMETRY_MESH);
+    NU_ASSERT(g->mesh.positions.size);
     nu_v3_t min, max;
-    min = max = g->positions.data[0];
-    for (nu_size_t i = 1; i < g->positions.size; ++i)
+    min = max = g->mesh.positions.data[0];
+    for (nu_size_t i = 1; i < g->mesh.positions.size; ++i)
     {
-        min = nu_v3_min(min, g->positions.data[i]);
-        max = nu_v3_max(max, g->positions.data[i]);
+        min = nu_v3_min(min, g->mesh.positions.data[i]);
+        max = nu_v3_max(max, g->mesh.positions.data[i]);
     }
     return nu_b3(min, max);
 }
@@ -611,12 +602,10 @@ nu_geometry_bounds (nu_geometry_t geometry)
 void
 nu_geometry_write (nu_geometry_t geometry, nu_seria_t seria)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
 }
 void
 nu_geometry_read (nu_geometry_t geometry, nu_seria_t seria)
 {
-    nu__geometry_t *g = &_ctx.utils.geometries.data[NU_HANDLE_INDEX(geometry)];
 }
 #endif
 

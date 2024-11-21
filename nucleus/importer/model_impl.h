@@ -9,32 +9,28 @@
 #endif
 
 static void
-nu__emplace_vertex (const nu_v3_t *positions,
+nu__emplace_vertex (nu_mesh_t      mesh,
+                    const nu_v3_t *positions,
                     const nu_v2_t *uvs,
-                    nu_v3_t       *buf_positions,
-                    nu_v2_t       *buf_uvs,
                     nu_u32_t       vertex_index,
                     nu_u32_t       index)
 {
 
-    buf_positions[vertex_index] = positions[index];
+    nu_mesh_set_positions(mesh, vertex_index, 1, &positions[index]);
+    nu_v2_t uv = NU_V2_ZEROS;
     if (uvs)
     {
-        buf_uvs[vertex_index] = uvs[index];
+        uv = uvs[index];
     }
-    else
-    {
-        buf_uvs[vertex_index] = NU_V2_ZEROS;
-    }
+    nu_mesh_set_uvs(mesh, vertex_index, 1, &uv);
 }
 
-#define NU__EMPLACE_VERTEX(index_type)                              \
-    index_type *indices                                             \
-        = (index_type *)(data + view->offset + accessor->offset);   \
-    for (nu_size_t i = 0; i < indice_count; ++i)                    \
-    {                                                               \
-        nu__emplace_vertex(                                         \
-            positions, uvs, buf_positions, buf_uvs, i, indices[i]); \
+#define NU__EMPLACE_VERTEX(index_type)                             \
+    index_type *indices                                            \
+        = (index_type *)(data + view->offset + accessor->offset);  \
+    for (nu_size_t i = 0; i < indice_count; ++i)                   \
+    {                                                              \
+        nu__emplace_vertex(handle, positions, uvs, i, indices[i]); \
     }
 
 static nu_error_t
@@ -76,12 +72,9 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
             nu_byte_t         *data         = (nu_byte_t *)view->buffer->data;
             nu_size_t          indice_count = accessor->count;
 
-            nu_v3_t *buf_positions = NU_NULL;
-            nu_v2_t *buf_uvs       = NU_NULL;
-            nu_v3_t *buf_normals   = NU_NULL;
-            buf_positions
-                = (nu_v3_t *)nu_alloc(sizeof(*buf_positions) * indice_count);
-            buf_uvs = (nu_v2_t *)nu_alloc(sizeof(*buf_uvs) * indice_count);
+            // Create mesh
+            nu_mesh_t handle = nu_mesh_new(
+                loader->scope, NU_PRIMITIVE_TRIANGLES, indice_count);
 
             switch (accessor->component_type)
             {
@@ -103,17 +96,6 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
                 default:
                     break;
             }
-
-            // Create mesh
-            nu_size_t primitive_count = indice_count / 3;
-            nu_mesh_t handle          = nu_mesh_new(
-                loader->scope, NU_PRIMITIVE_TRIANGLES, primitive_count);
-            nu_mesh_set_positions(handle, 0, primitive_count, buf_positions);
-            nu_mesh_set_uvs(handle, 0, primitive_count, buf_uvs);
-
-            // Free resources
-            nu_free(buf_positions, sizeof(*buf_positions) * indice_count);
-            nu_free(buf_uvs, sizeof(*buf_uvs) * indice_count);
 
             // Append asset
             nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);

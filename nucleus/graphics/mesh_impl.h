@@ -2,6 +2,7 @@
 #define NU_MESH_IMPL_H
 
 #include <nucleus/internal.h>
+#include <nucleus/graphics/backend_impl.h>
 
 static void
 nu__mesh_handler (nu_object_hook_t hook, void *data)

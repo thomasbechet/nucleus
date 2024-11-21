@@ -198,8 +198,10 @@ init (void)
 
     // Create meshes
     {
-        nu_geometry_t final = nu_mesh_new_geometry();
-        nu_geometry_t sub   = nu_mesh_new_geometry();
+        nu_geometry_t final = nu_geometry_new_mesh(
+            SCOPE, NU_PRIMITIVE_TRIANGLES, 10000, 10000, 5000);
+        nu_geometry_t sub = nu_geometry_new_mesh(
+            SCOPE, NU_PRIMITIVE_TRIANGLES, 1000, 1000, 500);
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_geometry_cube(sub, 1);
@@ -217,11 +219,9 @@ init (void)
         nu_geometry_grid(sub, 5, 10, 1, 75);
         nu_geometry_merge(final, sub);
         // nu_geometry_plane(final, 10, 10);
-        custom_mesh
-            = nu_mesh_new_geometry(SCOPE, final, NU_PRIMITIVE_TRIANGLES);
+        custom_mesh         = nu_mesh_new_geometry(SCOPE, final);
         custom_mesh_normals = nu_mesh_new_geometry_normals(SCOPE, final);
         bounds              = nu_geometry_bounds(final);
-        nu_geometry_delete(final);
     }
 
     // Load resources

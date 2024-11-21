@@ -98,7 +98,7 @@ nu__draw_box_lines (nu_renderpass_t pass,
         = { v0, v1, v1, v2, v2, v3, v3, v0, v4, v5, v5, v6,
             v6, v7, v7, v4, v0, v4, v1, v5, v2, v6, v3, v7 };
 
-    nu_draw_lines(pass, positions, 12, material, transform);
+    nu_draw_lines(pass, positions, 12 * 2, material, transform);
 }
 static void
 nu__draw_box_triangles (nu_renderpass_t pass,
@@ -130,7 +130,7 @@ nu__draw_box_triangles (nu_renderpass_t pass,
             uv0, uv1, uv2, uv0, uv2, uv3, uv0, uv1, uv2, uv0, uv2, uv3,
             uv0, uv1, uv2, uv0, uv2, uv3, uv0, uv1, uv2, uv0, uv2, uv3 };
 
-    nu_draw_triangles(pass, positions, uvs, 6 * 2, material, transform);
+    nu_draw_triangles(pass, positions, uvs, 6 * 2 * 3, material, transform);
 }
 void
 nu_draw_box (nu_renderpass_t pass,
