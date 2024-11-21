@@ -11,6 +11,7 @@
 #include <nucleus/graphics/renderpass_impl.h>
 #include <nucleus/graphics/font_impl.h>
 #include <nucleus/graphics/image_impl.h>
+#include <nucleus/graphics/geometry_impl.h>
 #include <nucleus/graphics/model_impl.h>
 #include <nucleus/graphics/immediate_impl.h>
 
@@ -23,6 +24,8 @@ nu__graphics_init (void)
         NU_STR("font"), sizeof(nu__font_t), nu__font_handler);
     gfx->obj_image = nu_object_register(
         NU_STR("image"), sizeof(nu__image_t), nu__image_handler);
+    gfx->obj_geometry = nu_object_register(
+        NU_STR("geometry"), sizeof(nu__geometry_t), nu__geometry_handler);
     gfx->obj_model = nu_object_register(
         NU_STR("model"), sizeof(nu__model_t), nu__model_handler);
     gfx->obj_camera = nu_object_register(

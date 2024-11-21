@@ -186,6 +186,9 @@
 #define NU_ERROR(format, ...) \
     nu_log(NU_LOG_ERROR, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 
+#define NU_PANIC(format, ...) \
+    nu__panic(NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
+
 //////////////////////////////////////////////////////////////////////////
 //////                            Constants                         //////
 //////////////////////////////////////////////////////////////////////////

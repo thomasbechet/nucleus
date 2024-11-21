@@ -352,8 +352,14 @@ init (void)
     shoot       = nu_input_new(SCOPE);
 
     // Create camera controller
-    controller = nu_controller_new(
-        view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
+    controller = nu_controller_new(SCOPE,
+                                   view_pitch,
+                                   view_yaw,
+                                   view_roll,
+                                   move_x,
+                                   move_y,
+                                   move_z,
+                                   switch_mode);
 
     // Bind inputs
     nuext_input_bind_button(quit, NUEXT_BUTTON_ESCAPE);
@@ -383,20 +389,20 @@ init (void)
         SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     // Grid mesh
     {
-        nu_geometry_t g = nu_mesh_new_geometry();
+        nu_geometry_t g = nu_geometry_new_mesh(
+            SCOPE, NU_PRIMITIVE_TRIANGLES, 1000, 1000, 10000);
         nu_geometry_grid(g, 30, 30, 1, 1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3(-15, 0, -15)));
-        grid = nu_mesh_new_geometry(SCOPE, g, NU_PRIMITIVE_LINES);
-        nu_geometry_delete(g);
+        grid = nu_mesh_new_geometry(SCOPE, g);
     }
 
     // Cube mesh
     {
-        nu_geometry_t g = nu_mesh_new_geometry();
+        nu_geometry_t g = nu_geometry_new_mesh(
+            SCOPE, NU_PRIMITIVE_LINES, 1000, 1000, 10000);
         nu_geometry_cube(g, 0.1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3s(-0.05)));
-        cube = nu_mesh_new_geometry(SCOPE, g, NU_PRIMITIVE_LINES);
-        nu_geometry_delete(g);
+        cube = nu_mesh_new_geometry(SCOPE, g);
     }
 
     redmat = nu_material_new_color(SCOPE, NU_MATERIAL_SURFACE, NU_COLOR_RED);
@@ -469,7 +475,7 @@ update (void)
         nu_v3_t p1
             = ctx.point_masses.data[ctx.distance_constraints.data[i].b].x;
         const nu_v3_t points[] = { p0, p1 };
-        nu_draw_lines(wireframe_pass, points, 1, greenmat, nu_m4_identity());
+        nu_draw_lines(wireframe_pass, points, 2, greenmat, nu_m4_identity());
     }
 
     // Update camera controller

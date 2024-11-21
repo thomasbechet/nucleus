@@ -10,8 +10,7 @@ nu__append_position (nu__geometry_t *g, nu_v3_t pos)
     nu_v3_t *p = NU_FIXEDVEC_PUSH(&g->mesh.positions);
     if (!p)
     {
-        NU_ERROR("out of geometry positions");
-        return;
+        NU_PANIC("out of geometry positions");
     }
     *p = pos;
 }
@@ -22,8 +21,7 @@ nu__append_uv (nu__geometry_t *g, nu_v2_t uv)
     nu_v2_t *p = NU_FIXEDVEC_PUSH(&g->mesh.uvs);
     if (!p)
     {
-        NU_ERROR("out of geometry uvs");
-        return;
+        NU_PANIC("out of geometry uvs");
     }
     *p = uv;
 }
@@ -35,8 +33,7 @@ nu__append_vertex (nu__geometry_t *g, nu_u16_t ip, nu_u16_t iu)
     nu_u16_t *pu = NU_FIXEDVEC_PUSH(&g->mesh.uvs_indices);
     if (!pp)
     {
-        NU_ERROR("out of geometry mesh indices");
-        return;
+        NU_PANIC("out of geometry mesh indices");
     }
     *pp = ip;
     *pu = iu;
@@ -223,13 +220,6 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
     };
     const nu_v2_t uvs[4]
         = { nu_v2(0, 0), nu_v2(1, 0), nu_v2(1, 1), nu_v2(0, 1) };
-    const nu_u32_t position_indices[4 * 6]
-        = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
-            3, 0, 4, 7, 4, 5, 6, 7, 3, 2, 1, 0 };
-    const nu_u32_t uv_indices[4] = { 0, 1, 2, 3 };
-
-    nu_size_t pos_offset = g->mesh.positions.size;
-    nu_size_t uv_offset  = g->mesh.uvs.size;
     for (nu_size_t i = 0; i < NU_ARRAY_SIZE(positions); ++i)
     {
         nu__append_position(g, positions[i]);
@@ -238,17 +228,43 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
     {
         nu__append_uv(g, uvs[i]);
     }
-    for (nu_size_t i = 0; i < 6; ++i)
+    switch (g->mesh.primitive)
     {
-        nu_u16_t ip[4];
-        nu_u16_t iu[4];
-        for (nu_size_t j = 0; j < 4; ++j)
-        {
-            ip[j] = pos_offset + position_indices[i * 4 + j];
-            iu[j] = uv_offset + uv_indices[j];
+        case NU_PRIMITIVE_POINTS: {
+            for (nu_size_t i = 0; i < NU_ARRAY_SIZE(positions); ++i)
+            {
+                nu__append_vertex(g, i, i);
+            }
         }
-        nu__append_quad(
-            g, ip[0], ip[1], ip[2], ip[3], iu[0], iu[1], iu[2], iu[3]);
+        break;
+        case NU_PRIMITIVE_LINES: {
+        }
+        break;
+        case NU_PRIMITIVE_LINES_STRIP: {
+        }
+        break;
+        case NU_PRIMITIVE_TRIANGLES: {
+            const nu_u32_t position_indices[4 * 6]
+                = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
+                    3, 0, 4, 7, 4, 5, 6, 7, 3, 2, 1, 0 };
+            const nu_u32_t uv_indices[4] = { 0, 1, 2, 3 };
+
+            nu_size_t pos_offset = g->mesh.positions.size;
+            nu_size_t uv_offset  = g->mesh.uvs.size;
+            for (nu_size_t i = 0; i < 6; ++i)
+            {
+                nu_u16_t ip[4];
+                nu_u16_t iu[4];
+                for (nu_size_t j = 0; j < 4; ++j)
+                {
+                    ip[j] = pos_offset + position_indices[i * 4 + j];
+                    iu[j] = uv_offset + uv_indices[j];
+                }
+                nu__append_quad(
+                    g, ip[0], ip[1], ip[2], ip[3], iu[0], iu[1], iu[2], iu[3]);
+            }
+        }
+        break;
     }
 }
 
@@ -263,7 +279,7 @@ nu_geometry_new_mesh (nu_scope_t     scope,
                       nu_size_t      uv_capacity,
                       nu_size_t      vertex_capacity)
 {
-    nu__geometry_t *g = nu_object_new(scope, _ctx.utils.obj_geometry);
+    nu__geometry_t *g = nu_object_new(scope, _ctx.graphics.obj_geometry);
 
     g->type = NU_GEOMETRY_MESH;
 
@@ -276,7 +292,7 @@ nu_geometry_new_mesh (nu_scope_t     scope,
     return (nu_geometry_t)g;
 }
 void
-nu_geometry_reset (nu_geometry_t geometry)
+nu_geometry_clear (nu_geometry_t geometry)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
     switch (g->type)
@@ -295,14 +311,14 @@ void
 nu_geometry_cube (nu_geometry_t geometry, nu_f32_t side_length)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
-    nu_geometry_reset(geometry);
+    nu_geometry_clear(geometry);
     nu__generate_cube(g, side_length);
 }
 void
 nu_geometry_plane (nu_geometry_t geometry, nu_f32_t width, nu_f32_t height)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
-    nu_geometry_reset(geometry);
+    nu_geometry_clear(geometry);
     nu__generate_plane(g, width, height);
 }
 void
@@ -313,7 +329,7 @@ nu_geometry_grid (nu_geometry_t geometry,
                   nu_f32_t      uv_scale)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
-    nu_geometry_reset(geometry);
+    nu_geometry_clear(geometry);
     nu__generate_mesh_grid(g, width, height, unit, uv_scale);
 }
 void
