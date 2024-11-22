@@ -810,15 +810,9 @@ NU_API void nu_vlog(nu_log_level_t level,
                     nu_str_t       format,
                     va_list        args);
 
-NU_API nu_allocator_t *nu_allocator_core(void);
-
 NU_API void *nu_alloc_a(nu_allocator_t *a, nu_size_t n);
 NU_API void *nu_realloc_a(nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n);
 NU_API void  nu_free_a(nu_allocator_t *a, void *p, nu_size_t s);
-
-NU_API void *nu_alloc(nu_size_t n);
-NU_API void *nu_realloc(void *p, nu_size_t s, nu_size_t n);
-NU_API void  nu_free(void *p, nu_size_t s);
 
 NU_API nu_int_t nu_memcmp(const void *p0, const void *p1, nu_size_t n);
 NU_API void    *nu_memset(void *dst, nu_word_t c, nu_size_t n);

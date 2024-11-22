@@ -20,7 +20,9 @@ nu__scope_cleanup_all (void)
     {
         nu_scope_cleanup(scope);
         nu__scope_t *s = (nu__scope_t *)scope;
-        nu_free(s->start, (nu_size_t)s->end - (nu_size_t)s->start);
+        nu_free_a(&_ctx.core.allocator,
+                  s->start,
+                  (nu_size_t)s->end - (nu_size_t)s->start);
         scope = s->prev;
     }
 }
@@ -141,7 +143,7 @@ nu_scope_register (nu_str_t name, nu_size_t size)
     nu__scope_t *s = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
     s->name        = name;
     s->last_header = NU_NULL;
-    s->ptr         = nu_alloc(size);
+    s->ptr         = nu_alloc_a(&_ctx.core.allocator, size);
     s->start       = s->ptr;
     s->end         = s->start + size;
     s->prev        = _ctx.core.scope.last_scope;

@@ -38,12 +38,6 @@ nu__allocator_stdlib (void)
 
 #endif
 
-nu_allocator_t *
-nu_allocator_core (void)
-{
-    return &_ctx.core.allocator;
-}
-
 void *
 nu_alloc_a (nu_allocator_t *a, nu_size_t n)
 {
@@ -66,22 +60,6 @@ nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
         return;
     }
     a->callback(p, s, 0, NU_DEFAULT_ALIGN, a->userdata);
-}
-
-void *
-nu_alloc (nu_size_t n)
-{
-    return nu_alloc_a(&_ctx.core.allocator, n);
-}
-void *
-nu_realloc (void *p, nu_size_t s, nu_size_t n)
-{
-    return nu_realloc_a(&_ctx.core.allocator, p, s, n);
-}
-void
-nu_free (void *p, nu_size_t s)
-{
-    nu_free_a(&_ctx.core.allocator, p, s);
 }
 
 nu_int_t

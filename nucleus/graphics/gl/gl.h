@@ -68,8 +68,8 @@ typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
 
 typedef struct
 {
-    nugl__mesh_command_vec_t cmds;
-    GLuint                   program;
+    NU_VEC(nugl__mesh_command_t) cmds;
+    GLuint program;
 } nugl__renderpass_forward_t;
 
 typedef struct
