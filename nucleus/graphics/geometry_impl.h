@@ -220,6 +220,8 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
     };
     const nu_v2_t uvs[4]
         = { nu_v2(0, 0), nu_v2(1, 0), nu_v2(1, 1), nu_v2(0, 1) };
+    nu_size_t pos_offset = g->mesh.positions.size;
+    nu_size_t uv_offset  = g->mesh.uvs.size;
     for (nu_size_t i = 0; i < NU_ARRAY_SIZE(positions); ++i)
     {
         nu__append_position(g, positions[i]);
@@ -238,19 +240,25 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
         }
         break;
         case NU_PRIMITIVE_LINES: {
+            const nu_u16_t position_indices[]
+                = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6,
+                    6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };
+            for (nu_size_t i = 0; i < NU_ARRAY_SIZE(position_indices); ++i)
+            {
+                nu__append_vertex(
+                    g, pos_offset + position_indices[i], uv_offset);
+            }
         }
         break;
         case NU_PRIMITIVE_LINES_STRIP: {
         }
         break;
         case NU_PRIMITIVE_TRIANGLES: {
-            const nu_u32_t position_indices[4 * 6]
+            const nu_u16_t position_indices[4 * 6]
                 = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
                     3, 0, 4, 7, 4, 5, 6, 7, 3, 2, 1, 0 };
-            const nu_u32_t uv_indices[4] = { 0, 1, 2, 3 };
+            const nu_u16_t uv_indices[4] = { 0, 1, 2, 3 };
 
-            nu_size_t pos_offset = g->mesh.positions.size;
-            nu_size_t uv_offset  = g->mesh.uvs.size;
             for (nu_size_t i = 0; i < 6; ++i)
             {
                 nu_u16_t ip[4];
