@@ -8,11 +8,11 @@ nu__model_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_model_t
-nu_model_new (nu_scope_t scope, nu_size_t node_count)
+nu_model_new (nu_size_t node_count)
 {
     NU_ASSERT(node_count);
-    nu__model_t *m = nu_object_new(scope, _ctx.graphics.obj_model);
-    NU_ARRAY_ALLOC(scope, &m->nodes, node_count);
+    nu__model_t *m = nu_object_new(_ctx.graphics.obj_model);
+    NU_ARRAY_ALLOC(&m->nodes, node_count);
     for (nu_size_t i = 0; i < m->nodes.size; ++i)
     {
         m->nodes.data[i].mesh      = NU_NULL;

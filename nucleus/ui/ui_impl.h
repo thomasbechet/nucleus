@@ -20,9 +20,9 @@ nu__ui_style_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_ui_style_t
-nu_ui_style_new (nu_scope_t scope)
+nu_ui_style_new (void)
 {
-    nu__ui_style_t *style = nu_object_new(scope, _ctx.ui.obj_ui_style);
+    nu__ui_style_t *style = nu_object_new(_ctx.ui.obj_ui_style);
     return (nu_ui_style_t)style;
 }
 void
@@ -73,11 +73,11 @@ nu__ui_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_ui_t
-nu_ui_new (nu_scope_t scope)
+nu_ui_new (void)
 {
-    nu__ui_instance_t *ui = nu_object_new(scope, _ctx.ui.obj_ui);
+    nu__ui_instance_t *ui = nu_object_new(_ctx.ui.obj_ui);
 
-    NU_FIXEDVEC_ALLOC(scope, &ui->styles, NU_UI_STYLE_STACK_MAX);
+    NU_FIXEDVEC_ALLOC(&ui->styles, NU_UI_STYLE_STACK_MAX);
     ui->active_style      = NU_NULL;
     ui->active_id         = 0;
     ui->hot_id            = 0;
@@ -85,7 +85,7 @@ nu_ui_new (nu_scope_t scope)
     ui->hot_controller    = 0;
 
     // Create main renderpass
-    ui->active_renderpass = nu_renderpass_new(scope, NU_RENDERPASS_CANVAS);
+    ui->active_renderpass = nu_renderpass_new(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_reset_after_submit(ui->active_renderpass, NU_FALSE);
 
     // Initialize controllers

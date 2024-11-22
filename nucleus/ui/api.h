@@ -39,14 +39,14 @@ NU_API void nu_blit_sliced(nu_renderpass_t pass,
                            nu_b2i_t        tex_extent,
                            nu_b2i_t        inner);
 
-NU_API nu_ui_style_t nu_ui_style_new(nu_scope_t scope);
+NU_API nu_ui_style_t nu_ui_style_new(void);
 NU_API void          nu_ui_style(nu_ui_style_t          style,
                                  nu_ui_style_property_t property,
                                  nu_material_t          material,
                                  nu_b2i_t               extent,
                                  nu_b2i_t               inner);
 
-NU_API nu_ui_t nu_ui_new(nu_scope_t scope);
+NU_API nu_ui_t nu_ui_new(void);
 
 NU_API void nu_ui_set_cursor(nu_ui_t ui, nu_u32_t controller, nu_v2i_t pos);
 NU_API void nu_ui_set_pressed(nu_ui_t   ui,

@@ -126,9 +126,9 @@ init (void)
 {
     SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_32M);
 
-    nuext_import_package(
-        SCOPE, NU_STR("../../../assets/pkg.json"), NU_UID("import"));
-    nu_seria_t seria = nu_seria_new(SCOPE);
+    nu_scope_set_active(SCOPE);
+    nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
+    nu_seria_t seria = nu_seria_new();
     nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"));
     nu_resource_save_group(NU_UID("import"), seria);
     nu_seria_close(seria);
@@ -148,28 +148,22 @@ init (void)
                     NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
 
     // Configure inputs
-    draw        = nu_input_new(SCOPE);
-    main_button = nu_input_new(SCOPE);
-    quit        = nu_input_new(SCOPE);
-    cursor_x    = nu_input_new(SCOPE);
-    cursor_y    = nu_input_new(SCOPE);
-    move_x      = nu_input_new(SCOPE);
-    move_y      = nu_input_new(SCOPE);
-    move_z      = nu_input_new(SCOPE);
-    view_yaw    = nu_input_new(SCOPE);
-    view_pitch  = nu_input_new(SCOPE);
-    view_roll   = nu_input_new(SCOPE);
-    switch_mode = nu_input_new(SCOPE);
+    draw        = nu_input_new();
+    main_button = nu_input_new();
+    quit        = nu_input_new();
+    cursor_x    = nu_input_new();
+    cursor_y    = nu_input_new();
+    move_x      = nu_input_new();
+    move_y      = nu_input_new();
+    move_z      = nu_input_new();
+    view_yaw    = nu_input_new();
+    view_pitch  = nu_input_new();
+    view_roll   = nu_input_new();
+    switch_mode = nu_input_new();
 
     // Create camera controller
-    controller = nu_controller_new(SCOPE,
-                                   view_pitch,
-                                   view_yaw,
-                                   view_roll,
-                                   move_x,
-                                   move_y,
-                                   move_z,
-                                   switch_mode);
+    controller = nu_controller_new(
+        view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs
     nuext_input_bind_button(main_button, NUEXT_BUTTON_MOUSE_LEFT);
@@ -194,14 +188,14 @@ init (void)
 
     // Create depth buffer
     depth_buffer = nu_texture_new(
-        SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
+        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
 
     // Create meshes
     {
-        nu_geometry_t final = nu_geometry_new_mesh(
-            SCOPE, NU_PRIMITIVE_TRIANGLES, 10000, 10000, 5000);
-        nu_geometry_t sub = nu_geometry_new_mesh(
-            SCOPE, NU_PRIMITIVE_TRIANGLES, 1000, 1000, 500);
+        nu_geometry_t final
+            = nu_geometry_new_mesh(NU_PRIMITIVE_TRIANGLES, 10000, 10000, 5000);
+        nu_geometry_t sub
+            = nu_geometry_new_mesh(NU_PRIMITIVE_TRIANGLES, 1000, 1000, 500);
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_geometry_cube(sub, 1);
@@ -219,8 +213,8 @@ init (void)
         nu_geometry_grid(sub, 5, 10, 1, 75);
         nu_geometry_merge(final, sub);
         // nu_geometry_plane(final, 10, 10);
-        custom_mesh         = nu_mesh_new_geometry(SCOPE, final);
-        custom_mesh_normals = nu_mesh_new_geometry_normals(SCOPE, final);
+        custom_mesh         = nu_mesh_new_geometry(final);
+        custom_mesh_normals = nu_mesh_new_geometry_normals(final);
         bounds              = nu_geometry_bounds(final);
     }
 
@@ -229,12 +223,12 @@ init (void)
     texture_gui = nu_resource_get(NU_RES_IMAGE_TEXTURE, NU_UID("GUI"));
 
     // Create material
-    material = nu_material_new(SCOPE, NU_MATERIAL_SURFACE);
+    material = nu_material_new(NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
-    material_gui_repeat = nu_material_new(SCOPE, NU_MATERIAL_CANVAS);
+    material_gui_repeat = nu_material_new(NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui_repeat, texture_gui);
     nu_material_set_wrap_mode(material_gui_repeat, NU_TEXTURE_WRAP_REPEAT);
-    material_gui = nu_material_new(SCOPE, NU_MATERIAL_CANVAS);
+    material_gui = nu_material_new(NU_MATERIAL_CANVAS);
     nu_material_set_texture(material_gui, texture_gui);
     nu_material_set_wrap_mode(material_gui, NU_TEXTURE_WRAP_CLAMP);
 
@@ -249,10 +243,10 @@ init (void)
     // Create lightenv
 
     // Create font
-    font = nu_font_new_default(SCOPE);
+    font = nu_font_new_default();
 
     // Create camera
-    camera = nu_camera_new(SCOPE);
+    camera = nu_camera_new();
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 500));
 
@@ -260,43 +254,41 @@ init (void)
     surface_tex = nu_surface_color_target();
     clear_color = NU_COLOR_BLUE_SKY;
 
-    main_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_UNLIT);
 
-    gui_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_new(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    wireframe_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_depth_target(wireframe_pass, depth_buffer);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
 
-    shadow_map    = nu_texture_new(SCOPE,
-                                NU_TEXTURE_SHADOWMAP_TARGET,
-                                nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 1),
-                                1);
-    shadow_camera = nu_camera_new(SCOPE);
+    shadow_map = nu_texture_new(
+        NU_TEXTURE_SHADOWMAP_TARGET, nu_v3u(SHADOW_WIDTH, SHADOW_HEIGHT, 1), 1);
+    shadow_camera = nu_camera_new();
     nu_camera_set_proj(shadow_camera, nu_ortho(-50, 50, -50, 50, 1, 500));
     nu_camera_set_view(shadow_camera,
                        nu_lookat(nu_v3s(100.0), nu_v3(0, 0, 10), NU_V3_UP));
-    shadow_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_SHADOW);
+    shadow_pass = nu_renderpass_new(NU_RENDERPASS_SHADOW);
     nu_renderpass_set_depth_target(shadow_pass, shadow_map);
     nu_renderpass_set_camera(shadow_pass, shadow_camera);
 
-    nu_light_t light = nu_light_new(SCOPE, NU_LIGHT_DIRECTIONAL);
-    lightenv         = nu_lightenv_new(SCOPE);
+    nu_light_t light = nu_light_new(NU_LIGHT_DIRECTIONAL);
+    lightenv         = nu_lightenv_new();
     nu_lightenv_add_shadowmap(lightenv, shadow_map, shadow_camera);
     nu_lightenv_set_skybox(lightenv, skybox, nu_q4_identity());
     nu_renderpass_set_lightenv(main_pass, lightenv);
 
     // Create UI
-    ui    = nu_ui_new(SCOPE);
-    style = nu_ui_style_new(SCOPE);
+    ui    = nu_ui_new();
+    style = nu_ui_style_new();
 
     nu_ui_style(style,
                 NU_UI_STYLE_BUTTON_PRESSED,
@@ -335,8 +327,11 @@ init (void)
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
 
-    physics_loop_handle
-        = nu_fixedloop_new(SCOPE, physics_loop, 1.0 / 60.0 * 1000.0);
+    nu_scope_push();
+    nu_image_new(NU_IMAGE_RGBA, nu_v3u(100, 100, 100), 1);
+    nu_scope_pop();
+
+    physics_loop_handle = nu_fixedloop_new(physics_loop, 1.0 / 60.0 * 1000.0);
 }
 
 void

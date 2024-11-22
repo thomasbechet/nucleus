@@ -8,9 +8,9 @@ nu__material_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_material_t
-nu_material_new (nu_scope_t scope, nu_material_type_t type)
+nu_material_new (nu_material_type_t type)
 {
-    nu__material_t *mat = nu_object_new(scope, _ctx.graphics.obj_material);
+    nu__material_t *mat = nu_object_new(_ctx.graphics.obj_material);
     mat->type           = type;
     switch (mat->type)
     {
@@ -28,11 +28,9 @@ nu_material_new (nu_scope_t scope, nu_material_type_t type)
     return (nu_material_t)mat;
 }
 nu_material_t
-nu_material_new_color (nu_scope_t         scope,
-                       nu_material_type_t type,
-                       nu_color_t         color)
+nu_material_new_color (nu_material_type_t type, nu_color_t color)
 {
-    nu_material_t mat = nu_material_new(scope, type);
+    nu_material_t mat = nu_material_new(type);
     nu_material_set_color(mat, color);
     return mat;
 }

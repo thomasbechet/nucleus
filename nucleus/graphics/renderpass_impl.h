@@ -22,10 +22,10 @@ nu__renderpass_handler (nu_object_hook_t hook, void *data)
     }
 }
 nu_renderpass_t
-nu_renderpass_new (nu_scope_t scope, nu_renderpass_type_t type)
+nu_renderpass_new (nu_renderpass_type_t type)
 {
-    nu__renderpass_t *pass = nu_object_new(scope, _ctx.graphics.obj_renderpass);
-    pass->type             = type;
+    nu__renderpass_t *pass   = nu_object_new(_ctx.graphics.obj_renderpass);
+    pass->type               = type;
     pass->reset_after_submit = NU_TRUE;
     pass->has_clear_color    = NU_FALSE;
     pass->clear_color        = NU_COLOR_BLACK;

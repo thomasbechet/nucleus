@@ -339,27 +339,22 @@ void
 init (void)
 {
     SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_1M);
+    nu_scope_set_active(SCOPE);
 
     // Configure inputs
-    quit        = nu_input_new(SCOPE);
-    move_x      = nu_input_new(SCOPE);
-    move_y      = nu_input_new(SCOPE);
-    move_z      = nu_input_new(SCOPE);
-    view_yaw    = nu_input_new(SCOPE);
-    view_pitch  = nu_input_new(SCOPE);
-    view_roll   = nu_input_new(SCOPE);
-    switch_mode = nu_input_new(SCOPE);
-    shoot       = nu_input_new(SCOPE);
+    quit        = nu_input_new();
+    move_x      = nu_input_new();
+    move_y      = nu_input_new();
+    move_z      = nu_input_new();
+    view_yaw    = nu_input_new();
+    view_pitch  = nu_input_new();
+    view_roll   = nu_input_new();
+    switch_mode = nu_input_new();
+    shoot       = nu_input_new();
 
     // Create camera controller
-    controller = nu_controller_new(SCOPE,
-                                   view_pitch,
-                                   view_yaw,
-                                   view_roll,
-                                   move_x,
-                                   move_y,
-                                   move_z,
-                                   switch_mode);
+    controller = nu_controller_new(
+        view_pitch, view_yaw, view_roll, move_x, move_y, move_z, switch_mode);
 
     // Bind inputs
     nuext_input_bind_button(quit, NUEXT_BUTTON_ESCAPE);
@@ -386,36 +381,34 @@ init (void)
 
     // Create depth buffer
     depth_buffer = nu_texture_new(
-        SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
+        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     // Grid mesh
     {
-        nu_geometry_t g = nu_geometry_new_mesh(
-            SCOPE, NU_PRIMITIVE_TRIANGLES, 1000, 1000, 10000);
+        nu_geometry_t g
+            = nu_geometry_new_mesh(NU_PRIMITIVE_TRIANGLES, 1000, 1000, 10000);
         nu_geometry_grid(g, 30, 30, 1, 1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3(-15, 0, -15)));
-        grid = nu_mesh_new_geometry(SCOPE, g);
+        grid = nu_mesh_new_geometry(g);
     }
 
     // Cube mesh
     {
-        nu_geometry_t g = nu_geometry_new_mesh(
-            SCOPE, NU_PRIMITIVE_LINES, 1000, 1000, 10000);
+        nu_geometry_t g
+            = nu_geometry_new_mesh(NU_PRIMITIVE_LINES, 1000, 1000, 10000);
         nu_geometry_cube(g, 0.1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3s(-0.05)));
-        cube = nu_mesh_new_geometry(SCOPE, g);
+        cube = nu_mesh_new_geometry(g);
     }
 
-    redmat = nu_material_new_color(SCOPE, NU_MATERIAL_SURFACE, NU_COLOR_RED);
-    greenmat
-        = nu_material_new_color(SCOPE, NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
-    bluemat
-        = nu_material_new_color(SCOPE, NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
+    redmat   = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_RED);
+    greenmat = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_GREEN);
+    bluemat  = nu_material_new_color(NU_MATERIAL_SURFACE, NU_COLOR_BLUE_SKY);
 
     // Create font
-    font = nu_font_new_default(SCOPE);
+    font = nu_font_new_default();
 
     // Create camera
-    camera = nu_camera_new(SCOPE);
+    camera = nu_camera_new();
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(70), nu_surface_aspect(), 0.01, 500));
 
@@ -423,17 +416,17 @@ init (void)
     surface_tex = nu_surface_color_target();
     clear_color = NU_COLOR_BLACK;
 
-    main_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
+    main_pass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(main_pass, camera);
     nu_renderpass_set_color_target(main_pass, surface_tex);
     nu_renderpass_set_depth_target(main_pass, depth_buffer);
     nu_renderpass_set_clear_color(main_pass, &clear_color);
     nu_renderpass_set_shade(main_pass, NU_SHADE_LIT);
 
-    gui_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
+    gui_pass = nu_renderpass_new(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(gui_pass, surface_tex);
 
-    wireframe_pass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
+    wireframe_pass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_camera(wireframe_pass, camera);
     nu_renderpass_set_color_target(wireframe_pass, surface_tex);
     nu_renderpass_set_shade(wireframe_pass, NU_SHADE_WIREFRAME);
@@ -441,7 +434,7 @@ init (void)
     //     wireframe_pass, NU_RENDERPASS_DEPTH_TARGET, depth_buffer);
 
     init_context();
-    nu_fixedloop_new(SCOPE, update_context, 1.0 / 60.0 * 1000.0);
+    nu_fixedloop_new(update_context, 1.0 / 60.0 * 1000.0);
 }
 
 void

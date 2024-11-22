@@ -8,9 +8,9 @@ nu__light_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_light_t
-nu_light_new (nu_scope_t scope, nu_light_type_t type)
+nu_light_new (nu_light_type_t type)
 {
-    nu__light_t *p = nu_object_new(scope, _ctx.graphics.obj_light);
+    nu__light_t *p = nu_object_new(_ctx.graphics.obj_light);
     p->type        = type;
     return (nu_light_t)p;
 }
@@ -32,9 +32,9 @@ nu__lightenv_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_lightenv_t
-nu_lightenv_new (nu_scope_t scope)
+nu_lightenv_new (void)
 {
-    nu__lightenv_t *p   = nu_object_new(scope, _ctx.graphics.obj_lightenv);
+    nu__lightenv_t *p   = nu_object_new(_ctx.graphics.obj_lightenv);
     p->shadowmap        = NU_NULL;
     p->shadowmap_camera = NU_NULL;
     p->skybox           = NU_NULL;

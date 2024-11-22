@@ -21,14 +21,15 @@ void
 init (void)
 {
     SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_1M);
+    nu_scope_set_active(SCOPE);
 
     // Material
-    texture  = nu_texture_new_from_color(SCOPE, NU_COLOR_WHITE);
-    material = nu_material_new(SCOPE, NU_MATERIAL_SURFACE);
+    texture  = nu_texture_new_from_color(NU_COLOR_WHITE);
+    material = nu_material_new(NU_MATERIAL_SURFACE);
     nu_material_set_texture(material, texture);
 
     // Camera
-    camera = nu_camera_new(SCOPE);
+    camera = nu_camera_new();
     nu_camera_set_proj(
         camera, nu_perspective(nu_radian(60), nu_surface_aspect(), 0.01, 100));
     nu_camera_set_view(camera,
@@ -36,24 +37,24 @@ init (void)
 
     // Renderpass
     depth_buffer = nu_texture_new(
-        SCOPE, NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
+        NU_TEXTURE_DEPTHBUFFER_TARGET, nu_v3u(WIDTH, HEIGHT, 1), 1);
     nu_color_t clear_color = NU_COLOR_BLACK;
     surface_color          = nu_surface_color_target();
 
-    renderpass = nu_renderpass_new(SCOPE, NU_RENDERPASS_FORWARD);
+    renderpass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
     nu_renderpass_set_shade(renderpass, NU_SHADE_WIREFRAME);
     nu_renderpass_set_camera(renderpass, camera);
     nu_renderpass_set_clear_color(renderpass, &clear_color);
     nu_renderpass_set_color_target(renderpass, surface_color);
     nu_renderpass_set_depth_target(renderpass, depth_buffer);
 
-    guipass = nu_renderpass_new(SCOPE, NU_RENDERPASS_CANVAS);
+    guipass = nu_renderpass_new(NU_RENDERPASS_CANVAS);
     nu_renderpass_set_color_target(guipass, surface_color);
 
-    font = nu_font_new_default(SCOPE);
+    font = nu_font_new_default();
 
     // Exit input
-    exit_input = nu_input_new(SCOPE);
+    exit_input = nu_input_new();
     nuext_input_bind_button(exit_input, NUEXT_BUTTON_ESCAPE);
 }
 

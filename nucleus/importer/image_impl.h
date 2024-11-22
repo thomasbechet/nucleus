@@ -31,7 +31,7 @@ nu__parse_rgba (const nu_byte_t *src,
     }
 }
 static nu_image_t
-nu__image_load_file (nu_scope_t scope, nu_str_t filename)
+nu__image_load_file (nu_str_t filename)
 {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
     int       w, h, n;
@@ -40,7 +40,7 @@ nu__image_load_file (nu_scope_t scope, nu_str_t filename)
     nu_byte_t *img = stbi_load((char *)fn, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_NULL);
     nu_v3u_t   size   = nu_v3u(w, h, 1);
-    nu_image_t handle = nu_image_new(scope, NU_IMAGE_RGBA, size, 1);
+    nu_image_t handle = nu_image_new(NU_IMAGE_RGBA, size, 1);
     nu__parse_rgba(img, nu_image_data(handle, 0), size.x * size.y, n);
     stbi_image_free(img);
     return handle;
@@ -48,7 +48,7 @@ nu__image_load_file (nu_scope_t scope, nu_str_t filename)
     return NU_NULL;
 }
 static nu_image_t
-nu__image_load_memory (nu_scope_t scope, const nu_byte_t *data, nu_size_t size)
+nu__image_load_memory (const nu_byte_t *data, nu_size_t size)
 {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
     int        w, h, n;
@@ -56,7 +56,7 @@ nu__image_load_memory (nu_scope_t scope, const nu_byte_t *data, nu_size_t size)
         = stbi_load_from_memory(data, size, &w, &h, &n, STBI_default);
     NU_CHECK(img, return NU_NULL);
     nu_v3u_t   image_size = nu_v3u(w, h, 1);
-    nu_image_t handle     = nu_image_new(scope, NU_IMAGE_RGBA, image_size, 1);
+    nu_image_t handle     = nu_image_new(NU_IMAGE_RGBA, image_size, 1);
     nu__parse_rgba(
         img, nu_image_data(handle, 0), image_size.x * image_size.y, n);
     stbi_image_free(img);
@@ -65,7 +65,7 @@ nu__image_load_memory (nu_scope_t scope, const nu_byte_t *data, nu_size_t size)
     return NU_NULL;
 }
 static nu_image_t
-nu__image_load_cubemap (nu_scope_t scope, nu_str_t filename)
+nu__image_load_cubemap (nu_str_t filename)
 {
     nu_image_t images[NU_CUBEMAP_FACE_COUNT];
     nu_image_t cubemap = NU_NULL;
@@ -106,7 +106,7 @@ nu__image_load_cubemap (nu_scope_t scope, nu_str_t filename)
             NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
             nu_str_t final_path
                 = nuext_path_concat(final_path_buf, json_path, path);
-            images[f] = nuext_image_load_file(scope, final_path);
+            images[f] = nuext_image_load_file(final_path);
             if (!images[f])
             {
                 NU_ERROR("cubemap face loading error '%s'", path);
@@ -117,7 +117,7 @@ nu__image_load_cubemap (nu_scope_t scope, nu_str_t filename)
 
     nu_v3u_t size = nu_image_size(images[0]);
     cubemap       = nu_image_new(
-        scope, NU_IMAGE_RGBA, nu_v3u(size.x, size.y, 1), NU_CUBEMAP_FACE_COUNT);
+        NU_IMAGE_RGBA, nu_v3u(size.x, size.y, 1), NU_CUBEMAP_FACE_COUNT);
     for (nu_size_t i = 0; i < NU_CUBEMAP_FACE_COUNT; ++i)
     {
         nu_memcpy(nu_image_data(cubemap, i),
@@ -133,27 +133,25 @@ cleanup0:
 }
 
 nu_image_t
-nuext_image_load_file (nu_scope_t scope, nu_str_t filename)
+nuext_image_load_file (nu_str_t filename)
 {
     if (nuext_path_extension(filename) == NUEXT_EXTENSION_JSON)
     {
-        return nu__image_load_cubemap(scope, filename);
+        return nu__image_load_cubemap(filename);
     }
     else
     {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
-        return nu__image_load_file(scope, filename);
+        return nu__image_load_file(filename);
 #endif
     }
     return NU_NULL;
 }
 nu_image_t
-nuext_image_load_memory (nu_scope_t       scope,
-                         const nu_byte_t *data,
-                         nu_size_t        size)
+nuext_image_load_memory (const nu_byte_t *data, nu_size_t size)
 {
 #ifdef NU_BUILD_IMPORTER_STBIMAGE
-    return nu__image_load_memory(scope, data, size);
+    return nu__image_load_memory(data, size);
 #endif
     return NU_NULL;
 }

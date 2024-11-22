@@ -48,7 +48,7 @@ nu__graphics_init (void)
 
     // Create surface texture
     {
-        nu__texture_t *tex = nu_object_new(nu_scope_core(), gfx->obj_texture);
+        nu__texture_t *tex = nu_object_new(gfx->obj_texture);
         tex->type          = NU_TEXTURE_COLORMAP_TARGET;
         tex->size = nu_v3u(_ctx.platform.size.x, _ctx.platform.size.y, 0);
         nugl__init_surface_texture(tex);
@@ -56,7 +56,7 @@ nu__graphics_init (void)
     }
 
     // Initialize immediate context
-    nu__graphics_immediate_init(nu_scope_core());
+    nu__graphics_immediate_init();
 
     return NU_ERROR_NONE;
 }

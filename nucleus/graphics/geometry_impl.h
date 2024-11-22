@@ -273,21 +273,20 @@ nu__geometry_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_geometry_t
-nu_geometry_new_mesh (nu_scope_t     scope,
-                      nu_primitive_t primitive,
+nu_geometry_new_mesh (nu_primitive_t primitive,
                       nu_size_t      position_capacity,
                       nu_size_t      uv_capacity,
                       nu_size_t      vertex_capacity)
 {
-    nu__geometry_t *g = nu_object_new(scope, _ctx.graphics.obj_geometry);
+    nu__geometry_t *g = nu_object_new(_ctx.graphics.obj_geometry);
 
     g->type = NU_GEOMETRY_MESH;
 
     g->mesh.primitive = primitive;
-    NU_FIXEDVEC_ALLOC(scope, &g->mesh.positions, position_capacity);
-    NU_FIXEDVEC_ALLOC(scope, &g->mesh.uvs, uv_capacity);
-    NU_FIXEDVEC_ALLOC(scope, &g->mesh.positions_indices, vertex_capacity);
-    NU_FIXEDVEC_ALLOC(scope, &g->mesh.uvs_indices, vertex_capacity);
+    NU_FIXEDVEC_ALLOC(&g->mesh.positions, position_capacity);
+    NU_FIXEDVEC_ALLOC(&g->mesh.uvs, uv_capacity);
+    NU_FIXEDVEC_ALLOC(&g->mesh.positions_indices, vertex_capacity);
+    NU_FIXEDVEC_ALLOC(&g->mesh.uvs_indices, vertex_capacity);
 
     return (nu_geometry_t)g;
 }
@@ -545,12 +544,12 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
 //     return mesh;
 // }
 nu_mesh_t
-nu_mesh_new_geometry (nu_scope_t scope, nu_geometry_t geometry)
+nu_mesh_new_geometry (nu_geometry_t geometry)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
     nu_mesh_t mesh
-        = nu_mesh_new(scope, g->mesh.primitive, g->mesh.positions_indices.size);
+        = nu_mesh_new(g->mesh.primitive, g->mesh.positions_indices.size);
     NU_ASSERT(mesh);
     const nu_size_t bufsize = 256;
     for (nu_size_t c = 0; c < g->mesh.positions_indices.size; c += bufsize)
@@ -572,7 +571,7 @@ nu_mesh_new_geometry (nu_scope_t scope, nu_geometry_t geometry)
     return mesh;
 }
 nu_mesh_t
-nu_mesh_new_geometry_normals (nu_scope_t scope, nu_geometry_t geometry)
+nu_mesh_new_geometry_normals (nu_geometry_t geometry)
 {
     nu__geometry_t *g = (nu__geometry_t *)geometry;
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
@@ -580,7 +579,7 @@ nu_mesh_new_geometry_normals (nu_scope_t scope, nu_geometry_t geometry)
 
     nu_size_t tricount = g->mesh.positions_indices.size / 3;
     NU_ASSERT(tricount);
-    nu_mesh_t mesh = nu_mesh_new(scope, NU_PRIMITIVE_LINES, tricount * 2);
+    nu_mesh_t mesh = nu_mesh_new(NU_PRIMITIVE_LINES, tricount * 2);
     NU_ASSERT(mesh);
     for (nu_size_t i = 0; i < tricount; ++i)
     {

@@ -141,7 +141,7 @@ nugl__init (void)
 
     // Initialize containers
     NU_VEC_INIT(16, &gl->targets);
-    NU_FIXEDVEC_ALLOC(nu_scope_core(), &gl->passes_order, 64);
+    NU_FIXEDVEC_ALLOC(&gl->passes_order, 64);
 
     // Initialize GL functions
     if (!gladLoadGL((GLADloadfunc)RGFW_getProcAddress))

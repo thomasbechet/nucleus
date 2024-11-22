@@ -8,8 +8,7 @@ nu__camera_controller_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_controller_t
-nu_controller_new (nu_scope_t scope,
-                   nu_input_t view_pitch,
+nu_controller_new (nu_input_t view_pitch,
                    nu_input_t view_yaw,
                    nu_input_t view_roll,
                    nu_input_t move_x,
@@ -18,7 +17,7 @@ nu_controller_new (nu_scope_t scope,
                    nu_input_t switch_mode)
 {
     nu__camera_controller_t *ctrl
-        = nu_object_new(scope, _ctx.utils.obj_camera_controller);
+        = nu_object_new(_ctx.utils.obj_camera_controller);
 
     ctrl->view_pitch  = view_pitch;
     ctrl->view_yaw    = view_yaw;

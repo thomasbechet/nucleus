@@ -13,17 +13,17 @@ typedef struct
 typedef struct nu__object_header
 {
     struct nu__object_header *prev;
-    nu__object_t             *type;
-} nu__object_header_t;
+    nu__object_t             *object; // if NULL, interpreted as frame stack
+} nu__scope_header_t;
 
 typedef struct nu_scope
 {
-    nu_str_t             name;
-    nu__object_header_t *last_object;
-    nu_byte_t           *start;
-    nu_byte_t           *ptr;
-    nu_byte_t           *end;
-    nu_scope_t           prev;
+    nu_str_t            name;
+    nu__scope_header_t *last_header;
+    nu_byte_t          *start;
+    nu_byte_t          *ptr;
+    nu_byte_t          *end;
+    nu_scope_t          prev;
 } nu__scope_t;
 
 typedef struct
@@ -34,6 +34,7 @@ typedef struct
     nu_size_t    scopes_count;
     nu_scope_t   last_scope;
     nu_scope_t   core_scope;
+    nu_scope_t   active_scope; // TODO: per thread scope
 } nu__scope_manager_t;
 
 static void nu__scope_init(void);

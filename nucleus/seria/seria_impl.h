@@ -87,19 +87,16 @@ nu__seria_init (void)
 {
     _ctx.seria.obj_seria = nu_object_register(
         NU_STR("seria"), sizeof(nu__seria_ctx_t), nu__seria_handler);
-    NU_FIXEDVEC_ALLOC(
-        nu_scope_core(), &_ctx.seria.layouts, NU_SERIA_LAYOUT_MAX);
-    NU_FIXEDVEC_ALLOC(
-        nu_scope_core(), &_ctx.seria.struct_fields, NU_SERIA_STRUCT_FIELD_MAX);
-    NU_FIXEDVEC_ALLOC(
-        nu_scope_core(), &_ctx.seria.enum_values, NU_SERIA_ENUM_VALUE_MAX);
+    NU_FIXEDVEC_ALLOC(&_ctx.seria.layouts, NU_SERIA_LAYOUT_MAX);
+    NU_FIXEDVEC_ALLOC(&_ctx.seria.struct_fields, NU_SERIA_STRUCT_FIELD_MAX);
+    NU_FIXEDVEC_ALLOC(&_ctx.seria.enum_values, NU_SERIA_ENUM_VALUE_MAX);
     nu__seria_register_primitive_layouts();
 }
 
 nu_seria_t
-nu_seria_new (nu_scope_t scope)
+nu_seria_new (void)
 {
-    nu__seria_ctx_t *s = nu_object_new(scope, _ctx.seria.obj_seria);
+    nu__seria_ctx_t *s = nu_object_new(_ctx.seria.obj_seria);
     s->opened          = NU_FALSE;
     s->bytes           = NU_NULL;
     return (nu_seria_t)s;

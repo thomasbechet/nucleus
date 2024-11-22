@@ -16,18 +16,15 @@ nu__image_handler (nu_object_hook_t hook, void *data)
     }
 }
 nu_image_t
-nu_image_new (nu_scope_t      scope,
-              nu_image_type_t type,
-              nu_v3u_t        size,
-              nu_size_t       layer)
+nu_image_new (nu_image_type_t type, nu_v3u_t size, nu_size_t layer)
 {
     NU_ASSERT(size.x && size.y && size.z && layer);
-    nu__image_t *im = nu_object_new(scope, _ctx.graphics.obj_image);
+    nu__image_t *im = nu_object_new(_ctx.graphics.obj_image);
     im->type        = type;
     im->size        = size;
     im->layer       = layer;
-    im->data        = (nu_byte_t *)nu_scope_alloc(
-        scope, 4 * size.x * size.y * size.z * layer);
+    im->data
+        = (nu_byte_t *)nu_scope_alloc(4 * size.x * size.y * size.z * layer);
     return (nu_image_t)im;
 }
 nu_byte_t *
@@ -45,16 +42,15 @@ nu_image_size (nu_image_t image)
     return im->size;
 }
 nu_image_t
-nu_image_load (nu_scope_t scope, nu_seria_t seria)
+nu_image_load (nu_seria_t seria)
 {
     nu_u32_t x     = nu_seria_read_u32(seria);
     nu_u32_t y     = nu_seria_read_u32(seria);
     nu_u32_t z     = nu_seria_read_u32(seria);
     nu_u32_t layer = nu_seria_read_u32(seria);
     NU_ASSERT(layer);
-    nu_image_t image
-        = nu_image_new(scope, NU_IMAGE_RGBA, nu_v3u(x, y, z), layer);
-    nu__image_t *im = (nu__image_t *)image;
+    nu_image_t   image = nu_image_new(NU_IMAGE_RGBA, nu_v3u(x, y, z), layer);
+    nu__image_t *im    = (nu__image_t *)image;
     nu_seria_read(seria, NU_SERIA_BYTE, 4 * x * y * z * layer, im->data);
     return image;
 }

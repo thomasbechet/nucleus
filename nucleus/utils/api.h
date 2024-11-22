@@ -21,8 +21,7 @@ typedef enum
     NU_CONTROLLER_CHARACTER
 } nu_controller_mode_t;
 
-NU_API nu_controller_t nu_controller_new(nu_scope_t scope,
-                                         nu_input_t view_pitch,
+NU_API nu_controller_t nu_controller_new(nu_input_t view_pitch,
                                          nu_input_t view_yaw,
                                          nu_input_t view_roll,
                                          nu_input_t move_x,

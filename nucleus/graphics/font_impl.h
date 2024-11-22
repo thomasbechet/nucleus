@@ -8,12 +8,11 @@ nu__font_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_font_t
-nu_font_new_default (nu_scope_t scope)
+nu_font_new_default (void)
 {
     nu_error_t error;
 
-    nu__font_t *font
-        = (nu__font_t *)nu_object_new(scope, _ctx.graphics.obj_font);
+    nu__font_t *font = (nu__font_t *)nu_object_new(_ctx.graphics.obj_font);
 
     // Find min/max characters
     font->min_char             = 127;
@@ -30,8 +29,8 @@ nu_font_new_default (nu_scope_t scope)
 
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_v2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
-    font->glyphs       = (nu_b2i_t *)nu_scope_alloc(
-        scope, sizeof(nu_b2i_t) * font->glyphs_count);
+    font->glyphs
+        = (nu_b2i_t *)nu_scope_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
@@ -40,7 +39,7 @@ nu_font_new_default (nu_scope_t scope)
     nu_v3u_t image_size
         = nu_v3u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT, 1);
     // TODO: avoid temporary image ?
-    nu_image_t image      = nu_image_new(scope, NU_IMAGE_RGBA, image_size, 1);
+    nu_image_t image      = nu_image_new(NU_IMAGE_RGBA, image_size, 1);
     nu_byte_t *image_data = nu_image_data(image, 0);
 
     nu_b2i_t extent
@@ -72,11 +71,10 @@ nu_font_new_default (nu_scope_t scope)
     }
 
     // Create renderer image
-    font->texture
-        = nu_texture_new_from_image(scope, NU_TEXTURE_COLORMAP, image);
+    font->texture = nu_texture_new_from_image(NU_TEXTURE_COLORMAP, image);
 
     // Create material
-    font->material = nu_material_new(scope, NU_MATERIAL_CANVAS);
+    font->material = nu_material_new(NU_MATERIAL_CANVAS);
     nu_material_set_texture(font->material, font->texture);
     nu_material_set_wrap_mode(font->material, NU_TEXTURE_WRAP_CLAMP);
 

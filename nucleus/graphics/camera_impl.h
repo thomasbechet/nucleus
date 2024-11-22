@@ -8,9 +8,9 @@ nu__camera_handler (nu_object_hook_t hook, void *data)
 {
 }
 nu_camera_t
-nu_camera_new (nu_scope_t scope)
+nu_camera_new (void)
 {
-    nu__camera_t *camera = nu_object_new(scope, _ctx.graphics.obj_camera);
+    nu__camera_t *camera = nu_object_new(_ctx.graphics.obj_camera);
     nu_camera_t   handle = (nu_camera_t)camera;
     nu_camera_set_view(handle, nu_lookat(NU_V3_UP, NU_V3_FORWARD, NU_V3_ZEROS));
     nu_f32_t aspect

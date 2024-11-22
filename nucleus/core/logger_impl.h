@@ -4,15 +4,15 @@
 #include <nucleus/internal.h>
 
 void
-nu__panic (nu_str_t source, nu_str_t format, ...)
+nu_panic (nu_str_t source, nu_str_t format, ...)
 {
     va_list args;
     va_start(args, format);
-    nu__vpanic(source, format, args);
+    nu_vpanic(source, format, args);
     va_end(args);
 }
 void
-nu__vpanic (nu_str_t source, nu_str_t format, va_list args)
+nu_vpanic (nu_str_t source, nu_str_t format, va_list args)
 {
     nu_vlog(NU_LOG_ERROR, source, format, args);
     abort();

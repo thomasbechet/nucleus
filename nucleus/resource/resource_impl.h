@@ -18,7 +18,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_image_load(nu_scope_core(), seria);
+                return nu_image_load(seria);
             case NU_RES_SAVE:
                 nu_image_save(handle, seria);
                 break;
@@ -39,12 +39,11 @@ nu__resource_handler (nu_resource_action_t action,
                 {
                     type = NU_TEXTURE_CUBEMAP;
                 }
-                nu_image_t image = nu_image_load(nu_scope_core(), seria);
+                nu_image_t image = nu_image_load(seria);
                 NU_ASSERT(image);
-                nu_texture_t texture
-                    = nu_texture_new_from_image(nu_scope_core(), type, image);
-                nu__texture_t *tex = (nu__texture_t *)texture;
-                tex->image         = image;
+                nu_texture_t   texture = nu_texture_new_from_image(type, image);
+                nu__texture_t *tex     = (nu__texture_t *)texture;
+                tex->image             = image;
                 return texture;
             }
             break;
@@ -81,7 +80,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_ecs_load(nu_scope_core(), seria);
+                return nu_ecs_load(seria);
             case NU_RES_SAVE:
                 nu_ecs_save(handle, seria);
                 break;
@@ -96,7 +95,7 @@ nu__resource_handler (nu_resource_action_t action,
             case NU_RES_DELETE:
                 break;
             case NU_RES_LOAD:
-                return nu_input_new(nu_scope_core());
+                return nu_input_new();
             case NU_RES_SAVE:
                 break;
         }

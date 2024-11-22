@@ -22,9 +22,9 @@ nu__mesh_handler (nu_object_hook_t hook, void *data)
     }
 }
 nu_mesh_t
-nu_mesh_new (nu_scope_t scope, nu_primitive_t primitive, nu_size_t capacity)
+nu_mesh_new (nu_primitive_t primitive, nu_size_t capacity)
 {
-    nu__mesh_t *mesh = nu_object_new(scope, _ctx.graphics.obj_mesh);
+    nu__mesh_t *mesh = nu_object_new(_ctx.graphics.obj_mesh);
     mesh->primitive  = primitive;
     mesh->capacity   = capacity;
 #ifdef NU_BUILD_GRAPHICS_GL

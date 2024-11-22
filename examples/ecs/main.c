@@ -42,8 +42,9 @@ init (void)
     COMP_TRANSFORM = NU_ECS_COMPONENT(transform, transform_t);
     COMP_PLAYER    = NU_ECS_COMPONENT(player, player_t);
     SCOPE          = nu_scope_register(NU_STR("main"), NU_MEM_4M);
+    nu_scope_set_active(SCOPE);
 
-    ecs = nu_ecs_new(SCOPE, 512);
+    ecs = nu_ecs_new(512);
 
     nu_ecs_id_t  e = nu_ecs_add(ecs);
     transform_t *p = nu_ecs_set(ecs, e, COMP_TRANSFORM);
@@ -59,13 +60,13 @@ init (void)
     NU_INFO("saved:");
     nu_ecs_dump(ecs);
 
-    nu_seria_t ser = nu_seria_new(SCOPE);
+    nu_seria_t ser = nu_seria_new();
     nu_seria_open_file(ser, NU_SERIA_WRITE, NU_STR("dump.bin"));
     nu_ecs_save(ecs, ser);
     nu_size_t n = nu_seria_close(ser);
 
     nu_seria_open_file(ser, NU_SERIA_READ, NU_STR("dump.bin"));
-    ecs = nu_ecs_load(SCOPE, ser);
+    ecs = nu_ecs_load(ser);
     nu_seria_close(ser);
 
     NU_INFO("loaded:");
