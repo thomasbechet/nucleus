@@ -8,20 +8,21 @@
 #include <nucleus/graphics/gl/shadow_impl.h>
 
 static void
-nugl__submesh_draw_instanced (nugl__mesh_command_vec_t *cmds,
-                              nu_mesh_t                 mesh,
-                              nu_size_t                 first,
-                              nu_size_t                 count,
-                              nu_material_t             mat,
-                              const nu_m4_t            *transforms,
-                              nu_size_t                 instance_count)
+nugl__submesh_draw_instanced (nugl__mesh_command_buffer_t *cmds,
+                              nu_mesh_t                    mesh,
+                              nu_size_t                    first,
+                              nu_size_t                    count,
+                              nu_material_t                mat,
+                              const nu_m4_t               *transforms,
+                              nu_size_t                    instance_count)
 {
     nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
-        nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
-        cmd->transform            = transforms[i];
-        cmd->vao                  = pmesh->gl.vao;
+        nugl__mesh_command_t *cmd = NU_FIXEDVEC_PUSH(cmds);
+        NU_CHECK_PANIC(cmd, "out of draw mesh command");
+        cmd->transform = transforms[i];
+        cmd->vao       = pmesh->gl.vao;
         switch (pmesh->primitive)
         {
             case NU_PRIMITIVE_POINTS:
@@ -80,9 +81,10 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
 
     NU_DEBUG("new framebuffer created for color: %d depth: %d", color, depth);
 
-    nugl__rendertarget_t *target = NU_VEC_PUSH(&gl->targets);
-    target->color                = color;
-    target->depth                = depth;
+    nugl__rendertarget_t *target = NU_FIXEDVEC_PUSH(&gl->targets);
+    NU_CHECK_PANIC(target, "out of render target");
+    target->color = color;
+    target->depth = depth;
 
     glGenFramebuffers(1, &target->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, target->fbo);

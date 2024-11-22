@@ -31,7 +31,7 @@ typedef struct
     nu_material_t material;
 } nugl__mesh_command_t;
 
-typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_vec_t;
+typedef NU_FIXEDVEC(nugl__mesh_command_t) nugl__mesh_command_buffer_t;
 
 typedef enum
 {
@@ -54,7 +54,7 @@ typedef struct
     };
 } nugl__canvas_command_t;
 
-typedef NU_VEC(nugl__canvas_command_t) nugl__canvas_command_vec_t;
+typedef NU_FIXEDVEC(nugl__canvas_command_t) nugl__canvas_command_buffer_t;
 
 typedef struct
 {
@@ -64,27 +64,27 @@ typedef struct
     nu_f32_t depth;
 } nugl__gpu_blit_t;
 
-typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_vec_t;
+typedef NU_FIXEDVEC(nugl__gpu_blit_t) nugl__gpu_blit_buffer_t;
 
 typedef struct
 {
-    NU_VEC(nugl__mesh_command_t) cmds;
-    GLuint program;
+    nugl__mesh_command_buffer_t cmds;
+    GLuint                      program;
 } nugl__renderpass_forward_t;
 
 typedef struct
 {
-    nugl__canvas_command_vec_t cmds;
-    nugl__gpu_blit_vec_t       blit_transfer;
-    GLuint                     blit_vbo;
-    nu_size_t                  blit_vbo_size;
-    GLuint                     blit_vao;
-    nu_f32_t                   depth;
+    nugl__canvas_command_buffer_t cmds;
+    nugl__gpu_blit_buffer_t       blit_transfer;
+    GLuint                        blit_vbo;
+    nu_size_t                     blit_vbo_size;
+    GLuint                        blit_vao;
+    nu_f32_t                      depth;
 } nugl__renderpass_canvas_t;
 
 typedef struct
 {
-    nugl__mesh_command_vec_t cmds;
+    nugl__mesh_command_buffer_t cmds;
 } nugl__renderpass_shadow_t;
 
 typedef struct
@@ -106,15 +106,13 @@ typedef struct
     GLuint fbo;
 } nugl__rendertarget_t;
 
-typedef NU_VEC(nugl__rendertarget_t) nugl__rendertarget_vec_t;
-
-static void nugl__submesh_draw_instanced(nugl__mesh_command_vec_t *cmds,
-                                         nu_mesh_t                 mesh,
-                                         nu_size_t                 first,
-                                         nu_size_t                 count,
-                                         nu_material_t             mat,
-                                         const nu_m4_t            *transforms,
-                                         nu_size_t instance_count);
+static void nugl__submesh_draw_instanced(nugl__mesh_command_buffer_t *cmds,
+                                         nu_mesh_t                    mesh,
+                                         nu_size_t                    first,
+                                         nu_size_t                    count,
+                                         nu_material_t                mat,
+                                         const nu_m4_t *transforms,
+                                         nu_size_t      instance_count);
 
 typedef struct
 {
@@ -127,7 +125,7 @@ typedef struct
     GLuint shadow_program;
     GLuint nearest_sampler;
 
-    nugl__rendertarget_vec_t targets;
+    NU_FIXEDVEC(nugl__rendertarget_t) targets;
     NU_FIXEDVEC(nu_renderpass_t) passes_order;
 } nu__gl_t;
 

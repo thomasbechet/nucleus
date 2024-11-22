@@ -108,7 +108,8 @@ NU_API void nu_seria_dump_values(nu_seria_layout_t layout,
 
 NU_API void      nu_seria_open_file(nu_seria_t      seria,
                                     nu_seria_mode_t mode,
-                                    nu_str_t        filename);
+                                    nu_str_t        filename,
+                                    nu_size_t       buffer_size);
 NU_API void      nu_seria_open_bytes(nu_seria_t      seria,
                                      nu_seria_mode_t mode,
                                      nu_byte_t      *bytes,

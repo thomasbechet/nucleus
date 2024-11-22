@@ -53,6 +53,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
 
     NU_INFO("loading package " NU_STR_FMT, NU_STR_ARGS(filename));
 
+    nu_scope_push();
     nu_size_t  json_size;
     nu_byte_t *json_buf = nu__seria_load_bytes(filename, &json_size);
     nu_str_t   json     = nu_str(json_buf, json_size);
@@ -67,13 +68,13 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
     if (!toks)
     {
         NU_ERROR("failed to parse json package");
-        goto cleanup1;
+        goto cleanup0;
     }
 
     if (toks[0].type != JSMN_ARRAY)
     {
         NU_ERROR("top level json must be an array for packages");
-        goto cleanup2;
+        goto cleanup0;
     }
     nu_size_t max_asset_count = toks[0].size;
 
@@ -88,7 +89,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             if (!tname)
             {
                 NU_ERROR("name member not found");
-                goto cleanup2;
+                goto cleanup0;
             }
             nu_str_t name = nu__json_value(json, tname);
 
@@ -98,7 +99,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             if (!tpath)
             {
                 NU_ERROR("path member not found");
-                goto cleanup2;
+                goto cleanup0;
             }
             nu_str_t path = nu__json_value(json, tpath);
             NU_STR_BUF(final_path_buf, NUEXT_PATH_MAX);
@@ -110,7 +111,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             if (!ttype)
             {
                 NU_ERROR("type member not found");
-                goto cleanup2;
+                goto cleanup0;
             }
             if (nu__json_eq(json, ttype, NU_STR("model")))
             {
@@ -136,7 +137,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             {
                 NU_ERROR("unknown asset type " NU_STR_FMT,
                          nu__json_value(json, ttype));
-                goto cleanup2;
+                goto cleanup0;
             }
 
             NU_INFO("'" NU_STR_FMT "' resource added (%llu)",
@@ -147,11 +148,8 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
     }
 
     error = NU_ERROR_NONE;
-cleanup2:
-    nu_free(toks, toks_size);
-cleanup1:
-    nu_free(json_buf, json_size);
 cleanup0:
+    nu_scope_pop();
     return error;
 }
 

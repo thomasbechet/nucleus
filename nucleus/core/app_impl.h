@@ -57,21 +57,21 @@ main (int argc, char *argv[])
     // Initialize modules
 
     error = nu__core_init();
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 #ifdef NU_BUILD_SERIA
     nu__seria_init();
 #endif
 #ifdef NU_BUILD_PLATFORM
     error = nu__platform_init();
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 #endif
 #ifdef NU_BUILD_GRAPHICS
     error = nu__graphics_init();
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 #endif
 #ifdef NU_BUILD_UTILS
     error = nu__utils_init();
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 #endif
 #ifdef NU_BUILD_IMPORTER
     nu__importer_init();
@@ -87,7 +87,7 @@ main (int argc, char *argv[])
 #endif
 #ifdef NU_BUILD_RESOURCE
     error = nu__resource_init();
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 #endif
 
     // Run app

@@ -71,18 +71,19 @@ nu__image_load_cubemap (nu_str_t filename)
     nu_image_t cubemap = NU_NULL;
     NU_ARRAY_FILL(images, NU_CUBEMAP_FACE_COUNT, NU_NULL);
 
+    nu_scope_push();
     nu_size_t  json_size;
     nu_byte_t *json_buf = nu__seria_load_bytes(filename, &json_size);
     nu_str_t   json     = nu_str(json_buf, json_size);
-    NU_CHECK(json_buf, goto cleanup0);
+    NU_CHECK(json_buf, goto cleanup);
     nu_size_t  toks_size, toks_count;
     jsmntok_t *toks = nu__json_parse(json, &toks_size, &toks_count);
-    NU_CHECK(toks, goto cleanup1);
+    NU_CHECK(toks, goto cleanup);
 
     nu_str_t json_path = nuext_path_dirname(filename);
 
     nu_size_t image_count = 0;
-    NU_CHECK(toks[0].type == JSMN_OBJECT, goto cleanup0);
+    NU_CHECK(toks[0].type == JSMN_OBJECT, goto cleanup);
 
     static nu_str_t faces[]
         = { NU_STR("posx"), NU_STR("negx"), NU_STR("posy"),
@@ -93,12 +94,12 @@ nu__image_load_cubemap (nu_str_t filename)
         if (!tok)
         {
             NU_ERROR("cubemap face not found '%s'", faces[f]);
-            goto cleanup1;
+            goto cleanup;
         }
         if (tok->type != JSMN_STRING)
         {
             NU_ERROR("invalid face path");
-            goto cleanup1;
+            goto cleanup;
         }
         if (!images[f])
         {
@@ -110,7 +111,7 @@ nu__image_load_cubemap (nu_str_t filename)
             if (!images[f])
             {
                 NU_ERROR("cubemap face loading error '%s'", path);
-                goto cleanup1;
+                goto cleanup;
             }
         }
     }
@@ -125,10 +126,8 @@ nu__image_load_cubemap (nu_str_t filename)
                   4 * size.x * size.y);
     }
 
-cleanup1:
-    nu_free(toks, toks_size);
-cleanup0:
-    nu_free(json_buf, json_size);
+cleanup:
+    nu_scope_pop();
     return cubemap;
 }
 

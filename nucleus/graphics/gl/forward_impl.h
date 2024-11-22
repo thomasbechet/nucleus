@@ -6,12 +6,12 @@
 static void
 nugl__forward_reset (nugl__renderpass_forward_t *pass)
 {
-    NU_VEC_CLEAR(&pass->cmds);
+    NU_FIXEDVEC_CLEAR(&pass->cmds);
 }
 static void
 nugl__forward_init (nugl__renderpass_forward_t *pass)
 {
-    NU_VEC_INIT(128, &pass->cmds);
+    NU_FIXEDVEC_ALLOC(&pass->cmds, 128);
     nugl__forward_reset(pass);
 }
 static void
@@ -82,10 +82,9 @@ nugl__forward_render (nu__renderpass_t *pass)
         glBindTexture(GL_TEXTURE_2D, shadowmap->gl.texture);
     }
 
-    const nugl__mesh_command_vec_t *cmds = &pass->gl.forward.cmds;
-    for (nu_size_t i = 0; i < cmds->size; ++i)
+    for (nu_size_t i = 0; i < pass->gl.forward.cmds.size; ++i)
     {
-        const nugl__mesh_command_t *cmd = &cmds->data[i];
+        const nugl__mesh_command_t *cmd = &pass->gl.forward.cmds.data[i];
 
         // points and lines are skipped for non wireframe shading
         if ((pass->forward.mode != NU_SHADE_WIREFRAME)

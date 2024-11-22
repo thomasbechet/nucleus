@@ -9,10 +9,11 @@ nugl__canvas_add_blit (nugl__renderpass_canvas_t *pass,
                        nu_v2u_t                   tex,
                        nu_v2u_t                   size)
 {
-    nugl__gpu_blit_t *blit = NU_VEC_PUSH(&pass->blit_transfer);
-    blit->pos              = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
-    blit->tex              = (tex.y << 16) | tex.x;
-    blit->size             = (size.y << 16) | size.x;
+    nugl__gpu_blit_t *blit = NU_FIXEDVEC_PUSH(&pass->blit_transfer);
+    NU_CHECK_PANIC(blit, "out of gpu blit transfer");
+    blit->pos  = ((nu_u32_t)pos.y << 16) | (nu_u32_t)pos.x;
+    blit->tex  = (tex.y << 16) | tex.x;
+    blit->size = (size.y << 16) | size.x;
     blit->depth
         = (pass->depth - NUGL__MIN_DEPTH) / (NUGL__MAX_DEPTH - NUGL__MIN_DEPTH);
 }
@@ -20,15 +21,15 @@ nugl__canvas_add_blit (nugl__renderpass_canvas_t *pass,
 static void
 nugl__canvas_reset (nugl__renderpass_canvas_t *pass)
 {
-    NU_VEC_CLEAR(&pass->cmds);
-    NU_VEC_CLEAR(&pass->blit_transfer);
+    NU_FIXEDVEC_CLEAR(&pass->cmds);
+    NU_FIXEDVEC_CLEAR(&pass->blit_transfer);
     pass->depth = 0;
 }
 static void
 nugl__canvas_init (nugl__renderpass_canvas_t *pass)
 {
-    NU_VEC_INIT(128, &pass->cmds);
-    NU_VEC_INIT(32, &pass->blit_transfer);
+    NU_FIXEDVEC_ALLOC(&pass->cmds, 128);
+    NU_FIXEDVEC_ALLOC(&pass->blit_transfer, 128);
 
     // Create VAO
     GLuint vao;
@@ -204,7 +205,7 @@ nugl__canvas_draw_blit (nu__renderpass_t *pass,
     }
     pass->gl.canvas.depth += NUGL__DEPTH_INCREMENT;
 
-    nugl__canvas_command_t *last = NU_VEC_LAST(&pass->gl.canvas.cmds);
+    nugl__canvas_command_t *last = NU_FIXEDVEC_LAST(&pass->gl.canvas.cmds);
     NU_ASSERT(pmat->canvas.texture0);
     const nu__texture_t *tex0    = (const nu__texture_t *)pmat->canvas.texture0;
     GLuint               texture = tex0->gl.texture;
@@ -215,7 +216,8 @@ nugl__canvas_draw_blit (nu__renderpass_t *pass,
     }
     else
     {
-        last               = NU_VEC_PUSH(&pass->gl.canvas.cmds);
+        last = NU_FIXEDVEC_PUSH(&pass->gl.canvas.cmds);
+        NU_CHECK_PANIC(last, "out of canvas commands");
         last->type         = NUGL__CANVAS_BLIT;
         last->blit.texture = texture;
         last->blit.instance_start

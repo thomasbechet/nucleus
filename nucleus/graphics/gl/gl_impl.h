@@ -19,13 +19,13 @@ nugl__compile_shader (nu_str_t source, GLuint shader_type, GLuint *shader)
     glGetShaderiv(*shader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE)
     {
+        nu_scope_push();
         GLint max_length = 0;
         glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &max_length);
-        GLchar *log = (GLchar *)malloc(sizeof(GLchar) * max_length);
+        GLchar *log = (GLchar *)nu_scope_alloc(sizeof(GLchar) * max_length);
         glGetShaderInfoLog(*shader, max_length, &max_length, log);
         NU_ERROR("%s", log);
-        nu_free(log, sizeof(GLchar) * max_length);
-
+        nu_scope_pop();
         glDeleteShader(*shader);
         return NU_ERROR_SHADER_COMPILATION;
     }
@@ -40,10 +40,10 @@ nugl__compile_program (nu_str_t vert, nu_str_t frag, GLuint *program)
     nu_error_t error;
 
     error = nugl__compile_shader(vert, GL_VERTEX_SHADER, &vertex_shader);
-    NU_ERROR_CHECK(error, goto cleanup0);
+    NU_CHECK_ERROR(error, goto cleanup0);
 
     error = nugl__compile_shader(frag, GL_FRAGMENT_SHADER, &fragment_shader);
-    NU_ERROR_CHECK(error, goto cleanup1);
+    NU_CHECK_ERROR(error, goto cleanup1);
 
     *program = glCreateProgram();
     glAttachShader(*program, vertex_shader);
@@ -55,10 +55,11 @@ nugl__compile_program (nu_str_t vert, nu_str_t frag, GLuint *program)
     {
         GLint max_length = 0;
         glGetProgramiv(*program, GL_INFO_LOG_LENGTH, &max_length);
-        GLchar *log = (GLchar *)malloc(sizeof(GLchar) * max_length);
+        nu_scope_push();
+        GLchar *log = (GLchar *)nu_scope_alloc(sizeof(GLchar) * max_length);
         glGetProgramInfoLog(*program, max_length, &max_length, log);
         NU_ERROR("%s", log);
-        nu_free(log, sizeof(GLchar) * max_length);
+        nu_scope_pop();
 
         glDeleteProgram(*program);
         glDeleteShader(vertex_shader);
@@ -140,7 +141,7 @@ nugl__init (void)
     nu__gl_t *gl = &_ctx.graphics.gl;
 
     // Initialize containers
-    NU_VEC_INIT(16, &gl->targets);
+    NU_FIXEDVEC_ALLOC(&gl->targets, 16);
     NU_FIXEDVEC_ALLOC(&gl->passes_order, 64);
 
     // Initialize GL functions
@@ -158,20 +159,20 @@ nugl__init (void)
     error = nugl__compile_program(nugl__shader_screen_blit_vert,
                                   nugl__shader_screen_blit_frag,
                                   &gl->screen_blit_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     error = nugl__compile_program(
         nugl__shader_unlit_vert, nugl__shader_unlit_frag, &gl->unlit_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     error = nugl__compile_program(
         nugl__shader_lit_vert, nugl__shader_lit_frag, &gl->lit_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
     glUseProgram(gl->lit_program);
     glUniform1i(glGetUniformLocation(gl->lit_program, "texture0"), 0);
     glUniform1i(glGetUniformLocation(gl->lit_program, "shadow_map"), 1);
@@ -179,7 +180,7 @@ nugl__init (void)
     error = nugl__compile_program(nugl__shader_skybox_vert,
                                   nugl__shader_skybox_frag,
                                   &gl->skybox_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -188,19 +189,19 @@ nugl__init (void)
     error = nugl__compile_program(nugl__shader_canvas_blit_vert,
                                   nugl__shader_canvas_blit_frag,
                                   &gl->canvas_blit_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     glEnableVertexAttribArray(0);
     error = nugl__compile_program(nugl__shader_wireframe_vert,
                                   nugl__shader_wireframe_frag,
                                   &gl->wireframe_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     glEnableVertexAttribArray(0);
     error = nugl__compile_program(nugl__shader_shadow_vert,
                                   nugl__shader_shadow_frag,
                                   &gl->shadow_program);
-    NU_ERROR_CHECK(error, return error);
+    NU_CHECK_ERROR(error, return error);
 
     // Create nearest sampler
     glGenSamplers(1, &gl->nearest_sampler);
@@ -243,7 +244,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     glUseProgram(0);
 
     // Reset for next frame
-    NU_VEC_CLEAR(&gl->passes_order);
+    NU_FIXEDVEC_CLEAR(&gl->passes_order);
 
     return NU_ERROR_NONE;
 }

@@ -127,25 +127,22 @@
 #define __SOURCE__ ""
 #endif
 
-#ifdef NU_DEBUG
-#define _NU_CHECK(check, action, source) \
-    if (!(check))                        \
-    {                                    \
-        action;                          \
-    }
-#else
-#define _NU_CHECK(check, action, source) \
-    if (!(check))                        \
-    {                                    \
-        action;                          \
-    }
-#endif
+#define NU_PANIC(format, ...) \
+    nu_panic(NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 
+#define _NU_CHECK(check, action, source) \
+    if (!(check))                        \
+    {                                    \
+        action;                          \
+    }
 #define NU_CHECK(check, action) _NU_CHECK(check, action, __SOURCE__)
-
-#define NU_ERROR_CHECK(error, action) \
+#define NU_CHECK_ERROR(error, action) \
     _NU_CHECK(error == NU_ERROR_NONE, action, __SOURCE__)
-#define NU_ERROR_ASSERT(error) NU_ASSERT(error == NU_ERROR_NONE)
+#define NU_CHECK_PANIC(check, format, ...) \
+    if (!(check))                          \
+    {                                      \
+        NU_PANIC(format, ##__VA_ARGS__);   \
+    }
 
 #define NU_UID(name) nu_str_hash(NU_STR(name))
 
@@ -185,9 +182,6 @@
     nu_log(NU_LOG_WARNING, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 #define NU_ERROR(format, ...) \
     nu_log(NU_LOG_ERROR, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
-
-#define NU_PANIC(format, ...) \
-    nu_panic(NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 //////                            Constants                         //////
@@ -269,95 +263,6 @@
 //////////////////////////////////////////////////////////////////////////
 //////                        Data Structures                       //////
 //////////////////////////////////////////////////////////////////////////
-
-#define NU_VEC(type)               \
-    struct                         \
-    {                              \
-        type           *data;      \
-        nu_size_t       size;      \
-        nu_size_t       capacity;  \
-        nu_allocator_t *allocator; \
-    }
-
-#define NU_VEC_INIT(cap, v) NU_VEC_INIT_A(nu_allocator_core(), cap, v)
-
-#define NU_VEC_INIT_A(alloc, cap, v)                                     \
-    do                                                                   \
-    {                                                                    \
-        (v)->data = NU_VOID_CAST(                                        \
-            (v)->data, nu_alloc_a((alloc), sizeof(*(v)->data) * (cap))); \
-        (v)->capacity  = (cap);                                          \
-        (v)->size      = 0;                                              \
-        (v)->allocator = (alloc);                                        \
-    } while (0)
-
-#define NU_VEC_FREE(v) \
-    nu_free_a((v)->allocator, (v)->data, sizeof(*(v)->data) * (v)->capacity)
-
-#define NU_VEC_CLEAR(v) ((v)->size = 0)
-
-#define NU_VEC_PUSH(v)                                            \
-    (((v)->data = NU_VOID_CAST((v)->data,                         \
-                               nu__vec_push((v)->allocator,       \
-                                            sizeof(*((v)->data)), \
-                                            (v)->data,            \
-                                            &(v)->size,           \
-                                            &(v)->capacity)))     \
-         ? (v)->data + ((v)->size - 1)                            \
-         : NU_NULL)
-
-#define NU_VEC_POP(v) \
-    (nu__vec_pop(&(v)->size) ? ((v)->data + (v)->size) : NU_NULL)
-
-#define NU_VEC_SWAP(v, a, b)                                                 \
-    {                                                                        \
-        NU_ASSERT((a) < (v)->size && (b) < (v)->size);                       \
-        if ((a) != (b))                                                      \
-        {                                                                    \
-            nu_memswp((v)->data + (a), (v)->data + (b), sizeof(*(v)->data)); \
-        }                                                                    \
-    }
-
-#define NU_VEC_SWAP_REMOVE(v, i)                  \
-    {                                             \
-        NU_ASSERT((i) < (v)->size);               \
-        if ((i) < (v)->size - 1)                  \
-        {                                         \
-            NU_VEC_SWAP((v), (i), (v)->size - 1); \
-        }                                         \
-        NU_VEC_POP((v));                          \
-    }
-
-#define NU_VEC_RESIZE(v, new_size)                               \
-    do                                                           \
-    {                                                            \
-        if ((v)->size != (new_size))                             \
-        {                                                        \
-            (v)->data = NU_VOID_CAST(                            \
-                (v)->data,                                       \
-                nu_realloc_a((v)->allocator,                     \
-                             (v)->data,                          \
-                             sizeof(*(v)->data) * (v)->capacity, \
-                             sizeof(*(v)->data) * (new_size)));  \
-            (v)->capacity = (new_size);                          \
-            (v)->size     = (new_size);                          \
-        }                                                        \
-    } while (0)
-
-#define NU_VEC_APPEND(dst, src)                                  \
-    do                                                           \
-    {                                                            \
-        NU_ASSERT(sizeof(*(dst)->data) == sizeof(*(src)->data)); \
-        nu_size_t dst_size = (dst)->size;                        \
-        nu_size_t src_size = (src)->size;                        \
-        nu_size_t new_size = dst_size + src_size;                \
-        NU_VEC_RESIZE((dst), new_size);                          \
-        nu_memcpy((dst)->data + dst_size,                        \
-                  (src)->data,                                   \
-                  sizeof(*(src)->data) * src_size);              \
-    } while (0)
-
-#define NU_VEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 #define NU_POOL(type)            \
     struct                       \
@@ -454,14 +359,14 @@
             nu_memswp((v)->data + (a), (v)->data + (b), sizeof(*(v)->data)); \
         }                                                                    \
     }
-#define NU_FIXEDVEC_SWAP_REMOVE(v, i)             \
-    {                                             \
-        NU_ASSERT((i) < (v)->size);               \
-        if ((i) < (v)->size - 1)                  \
-        {                                         \
-            NU_VEC_SWAP((v), (i), (v)->size - 1); \
-        }                                         \
-        NU_VEC_POP((v));                          \
+#define NU_FIXEDVEC_SWAP_REMOVE(v, i)                  \
+    {                                                  \
+        NU_ASSERT((i) < (v)->size);                    \
+        if ((i) < (v)->size - 1)                       \
+        {                                              \
+            NU_FIXEDVEC_SWAP((v), (i), (v)->size - 1); \
+        }                                              \
+        NU_FIXEDVEC_POP((v));                          \
     }
 #define NU_FIXEDVEC_SWAP_REMOVE_PTR(v, p) \
     NU_FIXEDVEC_SWAP_REMOVE(v, NU_FIXEDVEC_INDEX(v, p))
@@ -480,6 +385,7 @@
                       sizeof(*(src)->data) * src_size);          \
         }                                                        \
     } while (0)
+#define NU_FIXEDVEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 #define NU_ARRAY(type)  \
     struct              \
@@ -757,11 +663,11 @@ typedef struct
     nu_size_t  size;
 } nu_str_t;
 
-typedef NU_VEC(nu_v2_t) nu_v2_vec_t;
-typedef NU_VEC(nu_v3_t) nu_v3_vec_t;
-typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
-typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
-typedef NU_VEC(nu_size_t) nu_size_vec_t;
+typedef NU_FIXEDVEC(nu_v2_t) nu_v2_vec_t;
+typedef NU_FIXEDVEC(nu_v3_t) nu_v3_vec_t;
+typedef NU_FIXEDVEC(nu_bool_t) nu_bool_vec_t;
+typedef NU_FIXEDVEC(nu_u32_t) nu_u32_vec_t;
+typedef NU_FIXEDVEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
 
@@ -866,12 +772,12 @@ NU_API void *nu__pool_add(nu_size_t      tsize,
                           nu_size_vec_t *freelist,
                           nu_size_t     *pindex);
 
-NU_API void     *nu__vec_push(nu_allocator_t *alloc,
-                              nu_size_t       tsize,
-                              void           *data,
-                              nu_size_t      *size,
-                              nu_size_t      *capacity);
-NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
+// NU_API void     *nu__vec_push(nu_allocator_t *alloc,
+//                               nu_size_t       tsize,
+//                               void           *data,
+//                               nu_size_t      *size,
+//                               nu_size_t      *capacity);
+// NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 
 NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
 NU_API nu_size_t nu_log2(nu_size_t n);

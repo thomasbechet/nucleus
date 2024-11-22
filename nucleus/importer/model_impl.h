@@ -98,9 +98,11 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
             }
 
             // Append asset
-            nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-            cache->ptr                       = mesh;
-            cache->handle                    = handle;
+            nu__model_gltf_resource_t *cache
+                = NU_FIXEDVEC_PUSH(&loader->resources);
+            NU_CHECK_PANIC(cache, "out of loader resource cache");
+            cache->ptr    = mesh;
+            cache->handle = handle;
         }
     }
 
@@ -121,9 +123,10 @@ nu__load_texture (nu__model_gltf_loader_t *loader, const cgltf_texture *texture)
     nu_texture_t handle = nu_texture_new_from_image(NU_TEXTURE_COLORMAP, image);
 
     // Append asset
-    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-    cache->ptr                       = texture;
-    cache->handle                    = handle;
+    nu__model_gltf_resource_t *cache = NU_FIXEDVEC_PUSH(&loader->resources);
+    NU_CHECK_PANIC(cache, "out of loader resource cache");
+    cache->ptr    = texture;
+    cache->handle = handle;
 
     return NU_ERROR_NONE;
 }
@@ -156,9 +159,10 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     nu_material_set_texture(handle, texture);
 
     // Append asset
-    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
-    cache->ptr                       = material;
-    cache->handle                    = handle;
+    nu__model_gltf_resource_t *cache = NU_FIXEDVEC_PUSH(&loader->resources);
+    NU_CHECK_PANIC(cache, "out of loader resource cache");
+    cache->ptr    = material;
+    cache->handle = handle;
 
     return NU_ERROR_NONE;
 }
@@ -180,12 +184,11 @@ nu__load_material_default (nu__model_gltf_loader_t *loader)
 static void
 nu__model_gltf_loader_init (void)
 {
-    NU_VEC_INIT(10, &_ctx.importer.model_gltf_loader.resources);
+    NU_FIXEDVEC_ALLOC(&_ctx.importer.model_gltf_loader.resources, 512);
 }
 static void
 nu__model_gltf_loader_free (void)
 {
-    NU_VEC_FREE(&_ctx.importer.model_gltf_loader.resources);
 }
 static nu_model_t
 nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
@@ -198,7 +201,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     nu_error_t   error;
 
     // Reset cache
-    NU_VEC_CLEAR(&loader->resources);
+    NU_FIXEDVEC_CLEAR(&loader->resources);
     loader->default_material = NU_NULL;
 
     // Parse file and load buffers
@@ -219,12 +222,12 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     for (nu_size_t i = 0; i < data->meshes_count; ++i)
     {
         error = nu__load_mesh(loader, data->meshes + i);
-        NU_ERROR_CHECK(error, return NU_NULL);
+        NU_CHECK_ERROR(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->textures_count; ++i)
     {
         error = nu__load_texture(loader, data->textures + i);
-        NU_ERROR_CHECK(error, return NU_NULL);
+        NU_CHECK_ERROR(error, return NU_NULL);
     }
     for (nu_size_t i = 0; i < data->materials_count; ++i)
     {
@@ -233,7 +236,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
             && mat->pbr_metallic_roughness.base_color_texture.texture)
         {
             error = nu__load_material(loader, mat);
-            NU_ERROR_CHECK(error, return NU_NULL);
+            NU_CHECK_ERROR(error, return NU_NULL);
         }
     }
 

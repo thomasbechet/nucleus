@@ -18,7 +18,7 @@ nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
     fseek(f, 0, SEEK_END);
     nu_size_t fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
-    nu_byte_t *bytes = (nu_byte_t *)nu_alloc(fsize);
+    nu_byte_t *bytes = (nu_byte_t *)nu_scope_alloc(fsize);
     fread(bytes, fsize, 1, f);
     *size = fsize;
     return bytes;
@@ -393,20 +393,7 @@ nu__seria_write (nu__seria_ctx_t *ctx, void *p, nu_size_t n)
 {
     if (ctx->ptr + n >= ctx->end)
     {
-        if (ctx->fileopen)
-        {
-            nu_size_t offset   = ctx->ptr - ctx->bytes;
-            nu_size_t size     = ctx->end - ctx->bytes;
-            nu_size_t new_size = size * 2;
-            ctx->bytes         = nu_realloc(ctx->bytes, size, new_size);
-            ctx->end           = ctx->bytes + new_size;
-            ctx->ptr           = ctx->bytes + offset;
-        }
-        else
-        {
-            NU_ERROR("out of memory");
-            return;
-        }
+        NU_PANIC("out of seria file buffer memory");
     }
     nu_memcpy(ctx->ptr, p, n);
     ctx->ptr += n;
@@ -423,7 +410,10 @@ nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)
 }
 
 void
-nu_seria_open_file (nu_seria_t seria, nu_seria_mode_t mode, nu_str_t filename)
+nu_seria_open_file (nu_seria_t      seria,
+                    nu_seria_mode_t mode,
+                    nu_str_t        filename,
+                    nu_size_t       buffer_size)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     if (ctx->opened)
@@ -446,11 +436,10 @@ nu_seria_open_file (nu_seria_t seria, nu_seria_mode_t mode, nu_str_t filename)
     }
     else
     {
-        const nu_size_t size = 1000;
-        ctx->bytes           = nu_alloc(size);
+        ctx->bytes = nu_scope_alloc(buffer_size);
         NU_ASSERT(ctx->bytes);
         ctx->ptr = ctx->bytes;
-        ctx->end = ctx->bytes + size;
+        ctx->end = ctx->bytes + buffer_size;
     }
 
     nu__seria_nbin_open(ctx);
@@ -493,10 +482,6 @@ nu_seria_close (nu_seria_t seria)
     {
         nu__seria_nbin_close(ctx);
         ctx->opened = NU_FALSE;
-        if (ctx->fileopen && ctx->bytes) // free owned bytes
-        {
-            nu_free(ctx->bytes, ctx->end - ctx->bytes);
-        }
     }
     return 0;
 }

@@ -8,10 +8,7 @@ nu__append_position (nu__geometry_t *g, nu_v3_t pos)
 {
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
     nu_v3_t *p = NU_FIXEDVEC_PUSH(&g->mesh.positions);
-    if (!p)
-    {
-        NU_PANIC("out of geometry positions");
-    }
+    NU_CHECK_PANIC(p, "out of geometry positions");
     *p = pos;
 }
 static void
@@ -19,10 +16,7 @@ nu__append_uv (nu__geometry_t *g, nu_v2_t uv)
 {
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
     nu_v2_t *p = NU_FIXEDVEC_PUSH(&g->mesh.uvs);
-    if (!p)
-    {
-        NU_PANIC("out of geometry uvs");
-    }
+    NU_CHECK_PANIC(p, "out of geometry uvs");
     *p = uv;
 }
 static void
@@ -31,10 +25,7 @@ nu__append_vertex (nu__geometry_t *g, nu_u16_t ip, nu_u16_t iu)
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
     nu_u16_t *pp = NU_FIXEDVEC_PUSH(&g->mesh.positions_indices);
     nu_u16_t *pu = NU_FIXEDVEC_PUSH(&g->mesh.uvs_indices);
-    if (!pp)
-    {
-        NU_PANIC("out of geometry mesh indices");
-    }
+    NU_CHECK_PANIC(pp, "out of geometry mesh indices");
     *pp = ip;
     *pu = iu;
 }

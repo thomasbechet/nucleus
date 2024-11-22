@@ -11,8 +11,6 @@ typedef struct
     nu_bool_t               main_pressed;
 } nu_ui_controller_t;
 
-typedef NU_VEC(nu_ui_controller_t *) nu__ui_controller_vec_t;
-
 typedef struct
 {
     nu_material_t material;
