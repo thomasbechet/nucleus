@@ -19,6 +19,18 @@ static void
 nugl__mesh_free (nu__mesh_t *mesh)
 {
     glDeleteVertexArrays(1, &mesh->gl.vao);
+    if (mesh->gl.positions)
+    {
+        glDeleteBuffers(1, &mesh->gl.positions);
+    }
+    if (mesh->gl.normals)
+    {
+        glDeleteBuffers(1, &mesh->gl.normals);
+    }
+    if (mesh->gl.uvs)
+    {
+        glDeleteBuffers(1, &mesh->gl.uvs);
+    }
 }
 static void
 nugl__mesh_write_uvs (nu__mesh_t    *mesh,

@@ -17,7 +17,7 @@ static nu_error_t
 nu__core_init (void)
 {
     _ctx.core.allocator    = nu__allocator_stdlib();
-    _ctx.core.logger.level = NU_LOG_INFO;
+    _ctx.core.logger.level = NU_LOG_DEBUG;
     nu__scope_init();
     _ctx.core.obj_fixedloop = nu_object_register(
         NU_STR("fixedloop"), sizeof(nu__fixedloop_t), nu__fixedloop_handler);
@@ -27,6 +27,7 @@ nu__core_init (void)
 static nu_error_t
 nu__core_free (void)
 {
+    nu__scope_free();
     return NU_ERROR_NONE;
 }
 

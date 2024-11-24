@@ -133,9 +133,11 @@ main (int argc, char *argv[])
         _ctx.core.app.free();
     }
 
+    // Cleanup remaining objects
+    nu__scope_cleanup_all_user();
+
     // Terminate modules
 
-    nu__scope_cleanup_all();
 #ifdef NU_BUILD_RESOURCE
     nu__resource_free();
 #endif

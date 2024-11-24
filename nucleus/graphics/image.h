@@ -9,7 +9,6 @@ typedef struct
     nu_v3u_t        size;
     nu_size_t       layer;
     nu_byte_t      *data;
-    nu_allocator_t  allocator;
 } nu__image_t;
 
 #endif

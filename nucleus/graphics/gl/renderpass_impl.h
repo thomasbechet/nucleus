@@ -64,6 +64,10 @@ nugl__renderpass_init (nu__renderpass_t *pass)
 static void
 nugl__renderpass_free (nu__renderpass_t *pass)
 {
+    if (pass->gl.fbo)
+    {
+        glDeleteFramebuffers(1, &pass->gl.fbo);
+    }
 }
 
 static GLuint

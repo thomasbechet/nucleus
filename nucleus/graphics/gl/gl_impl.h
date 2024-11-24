@@ -213,6 +213,15 @@ nugl__init (void)
 static nu_error_t
 nugl__free (void)
 {
+    nu__gl_t *gl = &_ctx.graphics.gl;
+    glDeleteProgram(gl->screen_blit_program);
+    glDeleteProgram(gl->unlit_program);
+    glDeleteProgram(gl->lit_program);
+    glDeleteProgram(gl->skybox_program);
+    glDeleteProgram(gl->canvas_blit_program);
+    glDeleteProgram(gl->wireframe_program);
+    glDeleteProgram(gl->shadow_program);
+    glDeleteSamplers(1, &gl->nearest_sampler);
     return NU_ERROR_NONE;
 }
 static nu_error_t

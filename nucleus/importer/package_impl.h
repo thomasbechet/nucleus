@@ -149,7 +149,7 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
 
     error = NU_ERROR_NONE;
 cleanup0:
-    nu_scope_pop();
+    // nu_scope_pop();
     return error;
 }
 

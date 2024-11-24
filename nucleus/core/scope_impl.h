@@ -13,16 +13,29 @@ nu__scope_init (void)
     _ctx.core.scope.active_scope = _ctx.core.scope.core_scope;
 }
 static void
-nu__scope_cleanup_all (void)
+nu__scope_free (void)
 {
     nu_scope_t scope = _ctx.core.scope.last_scope;
     while (scope)
     {
-        nu_scope_cleanup(scope);
         nu__scope_t *s = (nu__scope_t *)scope;
         nu_free_a(&_ctx.core.allocator,
                   s->start,
                   (nu_size_t)s->end - (nu_size_t)s->start);
+        scope = s->prev;
+    }
+}
+static void
+nu__scope_cleanup_all_user (void)
+{
+    nu_scope_t scope = _ctx.core.scope.last_scope;
+    while (scope)
+    {
+        nu__scope_t *s = (nu__scope_t *)scope;
+        if (s->is_user)
+        {
+            nu_scope_cleanup(s);
+        }
         scope = s->prev;
     }
 }
@@ -65,6 +78,32 @@ nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
                  header + 1);
         object->handler(NU_OBJECT_CLEANUP, header + 1);
     }
+}
+static nu_scope_t
+nu__scope_register (nu_str_t name, nu_size_t size, nu_bool_t user)
+{
+    if (_ctx.core.scope.scopes_count >= NU_SCOPE_MAX)
+    {
+        NU_ERROR("max scope count reached");
+        return NU_NULL;
+    }
+    if (nu_scope_find(name))
+    {
+        NU_ERROR("scope already exists '" NU_STR_FMT "'", NU_STR_ARGS(name));
+        return NU_NULL;
+    }
+    NU_DEBUG(
+        "[register scope '" NU_STR_FMT "' size %llu]", NU_STR_ARGS(name), size);
+    nu__scope_t *s = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
+    s->name        = name;
+    s->last_header = NU_NULL;
+    s->ptr         = nu_alloc_a(&_ctx.core.allocator, size);
+    s->start       = s->ptr;
+    s->end         = s->start + size;
+    s->prev        = _ctx.core.scope.last_scope;
+    s->is_user     = user;
+    _ctx.core.scope.last_scope = (nu_scope_t)s;
+    return (nu_scope_t)s;
 }
 
 nu_object_t
@@ -128,27 +167,7 @@ nu_object_new (nu_object_t type)
 nu_scope_t
 nu_scope_register (nu_str_t name, nu_size_t size)
 {
-    if (_ctx.core.scope.scopes_count >= NU_SCOPE_MAX)
-    {
-        NU_ERROR("max scope count reached");
-        return NU_NULL;
-    }
-    if (nu_scope_find(name))
-    {
-        NU_ERROR("scope already exists '" NU_STR_FMT "'", NU_STR_ARGS(name));
-        return NU_NULL;
-    }
-    NU_DEBUG(
-        "[register scope '" NU_STR_FMT "' size %llu]", NU_STR_ARGS(name), size);
-    nu__scope_t *s = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
-    s->name        = name;
-    s->last_header = NU_NULL;
-    s->ptr         = nu_alloc_a(&_ctx.core.allocator, size);
-    s->start       = s->ptr;
-    s->end         = s->start + size;
-    s->prev        = _ctx.core.scope.last_scope;
-    _ctx.core.scope.last_scope = (nu_scope_t)s;
-    return (nu_scope_t)s;
+    return nu__scope_register(name, size, NU_TRUE);
 }
 void
 nu_scope_cleanup (nu_scope_t scope)

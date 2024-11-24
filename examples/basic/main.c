@@ -128,10 +128,10 @@ init (void)
 
     nu_scope_set_active(SCOPE);
     nuext_import_package(NU_STR("../../../assets/pkg.json"), NU_UID("import"));
-    nu_seria_t seria = nu_seria_new();
-    nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"), NU_MEM_64M);
-    nu_resource_save_group(NU_UID("import"), seria);
-    nu_seria_close(seria);
+    // nu_seria_t seria = nu_seria_new();
+    // nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"), NU_MEM_64M);
+    // nu_resource_save_group(NU_UID("import"), seria);
+    // nu_seria_close(seria);
 
     NU_SERIA_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
                   NU_SERIA_VALUE("player", COMP_PLAYER););
@@ -330,8 +330,6 @@ init (void)
     nu_scope_push();
     nu_image_new(NU_IMAGE_RGBA, nu_v3u(100, 100, 100), 1);
     nu_scope_pop();
-
-    physics_loop_handle = nu_fixedloop_new(physics_loop, 1.0 / 60.0 * 1000.0);
 }
 
 void
@@ -380,11 +378,6 @@ update (void)
     nu_renderpass_submit(main_pass);
     nu_renderpass_submit(wireframe_pass);
     nu_renderpass_submit(gui_pass);
-}
-
-void
-physics_loop (nu_f32_t timestep)
-{
 }
 
 void

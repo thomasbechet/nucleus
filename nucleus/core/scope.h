@@ -24,6 +24,7 @@ typedef struct nu_scope
     nu_byte_t          *ptr;
     nu_byte_t          *end;
     nu_scope_t          prev;
+    nu_bool_t           is_user;
 } nu__scope_t;
 
 typedef struct
@@ -38,6 +39,7 @@ typedef struct
 } nu__scope_manager_t;
 
 static void nu__scope_init(void);
-static void nu__scope_cleanup_all(void);
+static void nu__scope_free(void);
+static void nu__scope_cleanup_all_user(void);
 
 #endif

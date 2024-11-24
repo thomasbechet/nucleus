@@ -11,7 +11,7 @@ nugl__forward_reset (nugl__renderpass_forward_t *pass)
 static void
 nugl__forward_init (nugl__renderpass_forward_t *pass)
 {
-    NU_FIXEDVEC_ALLOC(&pass->cmds, 128);
+    NU_FIXEDVEC_ALLOC(&pass->cmds, 2048);
     nugl__forward_reset(pass);
 }
 static void
