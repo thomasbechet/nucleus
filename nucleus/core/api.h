@@ -671,8 +671,8 @@ typedef NU_FIXEDVEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
 
-typedef struct nu_scope  *nu_scope_t;
-typedef struct nu_object *nu_object_t;
+NU_DEFINE_HANDLE(nu_scope_t);
+NU_DEFINE_HANDLE(nu_object_type_t);
 
 typedef enum
 {
@@ -683,11 +683,15 @@ typedef enum
 
 typedef void (*nu_object_handler_t)(nu_object_hook_t hook, void *data);
 
-NU_API nu_object_t nu_object_register(nu_str_t            name,
-                                      nu_size_t           size,
-                                      nu_object_handler_t handler);
-NU_API nu_object_t nu_object_find(nu_str_t name);
-NU_API void       *nu_object_new(nu_object_t type);
+NU_API nu_object_type_t nu_object_register(nu_str_t            name,
+                                           nu_size_t           size,
+                                           nu_object_handler_t handler);
+NU_API nu_object_type_t nu_object_find_type(nu_str_t name);
+NU_API nu_handle_t      nu_object_new(nu_object_type_t type);
+NU_API nu_uid_t         nu_object_uid(nu_handle_t obj);
+NU_API nu_object_type_t nu_object_type(nu_handle_t obj);
+NU_API nu_handle_t      nu_object_find(nu_object_type_t type, nu_uid_t uid);
+NU_API void             nu_object_set_uid(nu_handle_t obj, nu_uid_t uid);
 
 NU_API nu_scope_t nu_scope_register(nu_str_t name, nu_size_t size);
 NU_API void       nu_scope_cleanup(nu_scope_t scope);

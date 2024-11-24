@@ -62,7 +62,7 @@ typedef struct nu__input
 
 typedef struct
 {
-    nu_object_t  obj_input;
+    nu_object_type_t  obj_input;
     nu__input_t *last_input;
 
     NU_FIXEDVEC(nu__binding_t) bindings;

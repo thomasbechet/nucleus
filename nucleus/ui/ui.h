@@ -54,8 +54,8 @@ typedef struct
 
 typedef struct
 {
-    nu_object_t obj_ui;
-    nu_object_t obj_ui_style;
+    nu_object_type_t obj_ui;
+    nu_object_type_t obj_ui_style;
 } nu__ui_t;
 
 static nu_error_t nu__ui_init(void);

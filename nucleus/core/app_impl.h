@@ -134,7 +134,7 @@ main (int argc, char *argv[])
     }
 
     // Cleanup remaining objects
-    nu__scope_cleanup_all_user();
+    nu__scope_cleanup_all_auto();
 
     // Terminate modules
 

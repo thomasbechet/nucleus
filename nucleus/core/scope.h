@@ -10,11 +10,16 @@ typedef struct
     nu_object_handler_t handler;
 } nu__object_t;
 
-typedef struct nu__object_header
+typedef struct nu__scope_header
 {
-    struct nu__object_header *prev;
-    nu__object_t             *object; // if NULL, interpreted as frame stack
+    struct nu__scope_header *prev;
+    nu__object_t            *object; // if NULL, interpreted as frame stack
 } nu__scope_header_t;
+
+typedef struct
+{
+    nu_uid_t uid;
+} nu__object_header_t;
 
 typedef struct nu_scope
 {
@@ -24,7 +29,7 @@ typedef struct nu_scope
     nu_byte_t          *ptr;
     nu_byte_t          *end;
     nu_scope_t          prev;
-    nu_bool_t           is_user;
+    nu_bool_t           auto_cleanup;
 } nu__scope_t;
 
 typedef struct
@@ -40,6 +45,6 @@ typedef struct
 
 static void nu__scope_init(void);
 static void nu__scope_free(void);
-static void nu__scope_cleanup_all_user(void);
+static void nu__scope_cleanup_all_auto(void);
 
 #endif

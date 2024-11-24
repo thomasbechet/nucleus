@@ -44,7 +44,7 @@ typedef struct
 {
     NU_FIXEDVEC(nu__ecs_component_t) components;
     NU_FIXEDVEC(nu__ecs_iter_t) iters;
-    nu_object_t obj_ecs;
+    nu_object_type_t obj_ecs;
 } nu__ecs_t;
 
 static void nu__ecs_init(void);
