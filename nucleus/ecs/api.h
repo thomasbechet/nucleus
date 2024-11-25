@@ -3,7 +3,7 @@
 
 #include <nucleus/seria/api.h>
 
-NU_DEFINE_HANDLE(nu_ecs_t);
+NU_DEFINE_OBJECT(nu_ecs_t);
 
 #define NU_ECS_COMPONENT_MAX 32
 #define NU_ECS_ITER_MAX      32

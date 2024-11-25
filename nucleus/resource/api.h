@@ -11,9 +11,9 @@ typedef enum
     NU_RES_SAVE
 } nu_resource_action_t;
 
-typedef nu_handle_t (*nu_resource_handler_t)(nu_resource_action_t action,
+typedef nu_object_t (*nu_resource_handler_t)(nu_resource_action_t action,
                                              nu_uid_t             type,
-                                             nu_handle_t          handle,
+                                             nu_object_t          handle,
                                              nu_seria_t           seria);
 
 NU_API void nu_resource_register(nu_uid_t              uid,
@@ -25,8 +25,8 @@ NU_API void        nu_resource_insert(nu_uid_t type,
                                       nu_uid_t uid,
                                       void    *data);
 NU_API void        nu_resource_delete(nu_uid_t uid);
-NU_API nu_handle_t nu_resource_get(nu_uid_t type, nu_uid_t uid);
-NU_API nu_uid_t    nu_resource_find(nu_uid_t type, nu_handle_t handle);
+NU_API nu_object_t nu_resource_get(nu_uid_t type, nu_uid_t uid);
+NU_API nu_uid_t    nu_resource_find(nu_uid_t type, nu_object_t handle);
 
 NU_API nu_uid_t nu_resource_load_group(nu_seria_t seria);
 NU_API void     nu_resource_save_group(nu_uid_t group, nu_seria_t seria);

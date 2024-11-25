@@ -15,7 +15,7 @@ typedef struct
     nu_uid_t    type;
     nu_uid_t    group;
     nu_uid_t    uid;
-    nu_handle_t handle;
+    nu_object_t handle;
 } nu__resource_entry_t;
 
 typedef struct

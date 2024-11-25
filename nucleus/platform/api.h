@@ -6,7 +6,7 @@
 #include <nucleus/resource/api.h>
 #endif
 
-NU_DEFINE_HANDLE(nu_input_t);
+NU_DEFINE_OBJECT(nu_input_t);
 
 #define NU_INPUT_PRESSED       1.0f
 #define NU_INPUT_RELEASED      0.0f

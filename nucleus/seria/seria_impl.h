@@ -40,25 +40,26 @@ nu__seria_write_bytes (nu_str_t         filename,
     fclose(f);
 }
 
-#define NU__REGISTER_CORE(enum, corelayout)                                 \
-    {                                                                       \
-        nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts); \
-        NU_ASSERT(layout);                                                  \
-        layout->kind      = NU__SERIA_PRIMITIVE;                            \
-        layout->name      = nu_seria_primitive_names[enum];                 \
-        layout->size      = sizeof(corelayout);                             \
-        layout->primitive = enum;                                           \
+#define NU__REGISTER_CORE(enum, ident, type)                                 \
+    {                                                                        \
+        nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);  \
+        NU_ASSERT(layout);                                                   \
+        layout->kind                       = NU__SERIA_PRIMITIVE;            \
+        layout->name                       = nu_seria_primitive_names[enum]; \
+        layout->size                       = sizeof(type);                   \
+        layout->primitive                  = enum;                           \
+        _ctx.seria.primitive_layouts[enum] = (nu_seria_layout_t)layout;      \
     }
 
 static void
 nu__seria_register_primitive_layouts (void)
 {
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_BYTE, nu_byte_t);
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_U32, nu_u32_t);
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_F32, nu_f32_t);
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_STR, nu_byte_t);
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_V3, nu_v3_t);
-    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_Q4, nu_q4_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_BYTE, byte, nu_byte_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_U32, u32, nu_u32_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_F32, f32, nu_f32_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_STR, byte, nu_byte_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_V3, v3, nu_v3_t);
+    NU__REGISTER_CORE(NU_SERIA_PRIMITIVE_Q4, q4, nu_q4_t);
 }
 
 #undef NU__REGISTER_CORE
@@ -116,7 +117,7 @@ nu_seria_register_struct (nu_str_t name, nu_size_t size)
     layout->size         = size;
     layout->fields.start = _ctx.seria.struct_fields.size;
     layout->fields.count = 0;
-    return NU_HANDLE_MAKE(nu_seria_layout_t, _ctx.seria.layouts.size - 1);
+    return (nu_seria_layout_t)layout;
 }
 void
 nu_seria_register_struct_field (nu_seria_layout_t layout,
@@ -129,7 +130,7 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
     NU_ASSERT(layout);
     NU_ASSERT(field_layout);
     NU_ASSERT(size);
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t       *p = (nu__seria_layout_t *)layout;
     nu__seria_struct_field_t *a = NU_FIXEDVEC_PUSH(&_ctx.seria.struct_fields);
     if (!a)
     {
@@ -137,11 +138,39 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
         return;
     }
     NU_ASSERT(p->kind == NU__SERIA_STRUCT);
-    a->name   = name;
-    a->size   = size;
-    a->layout = field_layout;
-    a->offset = offset;
-    a->flags  = flags;
+    a->is_objref = NU_FALSE;
+    a->name      = name;
+    a->size      = size;
+    a->layout    = field_layout;
+    a->offset    = offset;
+    a->flags     = flags;
+    ++p->fields.count;
+}
+void
+nu_seria_register_struct_objref (nu_seria_layout_t layout,
+                                 nu_str_t          name,
+                                 nu_object_type_t  type,
+                                 nu_size_t         size,
+                                 nu_seria_flag_t   flags,
+                                 nu_size_t         offset)
+{
+    NU_ASSERT(layout);
+    NU_ASSERT(type);
+    NU_ASSERT(size);
+    nu__seria_layout_t       *p = (nu__seria_layout_t *)layout;
+    nu__seria_struct_field_t *a = NU_FIXEDVEC_PUSH(&_ctx.seria.struct_fields);
+    if (!a)
+    {
+        NU_ERROR("max struct field count reached");
+        return;
+    }
+    NU_ASSERT(p->kind == NU__SERIA_STRUCT);
+    a->is_objref = NU_TRUE;
+    a->name      = name;
+    a->size      = size;
+    a->type      = type;
+    a->offset    = offset;
+    a->flags     = flags;
     ++p->fields.count;
 }
 nu_seria_layout_t
@@ -153,14 +182,14 @@ nu_seria_register_enum (nu_str_t name, nu_size_t size)
     layout->size               = size;
     layout->values.start       = _ctx.seria.enum_values.size;
     layout->values.count       = 0;
-    return NU_HANDLE_MAKE(nu_seria_layout_t, _ctx.seria.layouts.size - 1);
+    return (nu_seria_layout_t)layout;
 }
 void
 nu_seria_register_enum_value (nu_seria_layout_t layout,
                               nu_str_t          name,
                               nu_u32_t          value)
 {
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t     *p = (nu__seria_layout_t *)layout;
     nu__seria_enum_value_t *v = NU_FIXEDVEC_PUSH(&_ctx.seria.enum_values);
     if (!v)
     {
@@ -179,7 +208,7 @@ nu_seria_find_layout (nu_str_t name)
     {
         if (NU_MATCH(name, _ctx.seria.layouts.data[i].name))
         {
-            return NU_HANDLE_MAKE(nu_seria_layout_t, i);
+            return (nu_seria_layout_t)(_ctx.seria.layouts.data + i);
         }
     }
     return NU_NULL;
@@ -187,13 +216,13 @@ nu_seria_find_layout (nu_str_t name)
 nu_str_t
 nu_seria_name (nu_seria_layout_t layout)
 {
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
     return p->name;
 }
 nu_size_t
 nu_seria_size (nu_seria_layout_t layout)
 {
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
     return p->size;
 }
 
@@ -212,12 +241,10 @@ nu_seria_dump_layouts (void)
                 NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
                 for (nu_size_t f = 0; f < p->fields.count; ++f)
                 {
-                    nu__seria_struct_field_t *pf
+                    nu__seria_struct_field_t *field
                         = _ctx.seria.struct_fields.data + p->fields.start + f;
-                    nu__seria_layout_t *subtype
-                        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(pf->layout);
                     const char *flags;
-                    if (pf->flags == NU_SERIA_REQUIRED)
+                    if (field->flags == NU_SERIA_REQUIRED)
                     {
                         flags = "REQ";
                     }
@@ -225,14 +252,30 @@ nu_seria_dump_layouts (void)
                     {
                         flags = "OPT";
                     }
-                    NU_INFO("   " NU_STR_FMT " " NU_STR_FMT
-                            " [%d] %s = <%d,%d>",
-                            NU_STR_ARGS(pf->name),
-                            NU_STR_ARGS(subtype->name),
-                            pf->size,
-                            flags,
-                            pf->offset,
-                            subtype->size * pf->size);
+                    if (field->is_objref)
+                    {
+                        NU_INFO("   " NU_STR_FMT " ref " NU_STR_FMT
+                                " [%d] %s = <%d,%d>",
+                                NU_STR_ARGS(field->name),
+                                NU_STR_ARGS(nu_object_type_name(field->type)),
+                                field->size,
+                                flags,
+                                field->offset,
+                                sizeof(nu_object_t) * field->size);
+                    }
+                    else
+                    {
+                        nu__seria_layout_t *subtype
+                            = (nu__seria_layout_t *)field->layout;
+                        NU_INFO("   " NU_STR_FMT " " NU_STR_FMT
+                                " [%d] %s = <%d,%d>",
+                                NU_STR_ARGS(field->name),
+                                NU_STR_ARGS(subtype->name),
+                                field->size,
+                                flags,
+                                field->offset,
+                                subtype->size * field->size);
+                    }
                 }
                 NU_INFO("}");
                 break;
@@ -270,7 +313,7 @@ nu__seria_dump (nu_size_t         depth,
                 nu_byte_t        *data)
 {
     NU_ASSERT(layout && data);
-    nu__seria_layout_t *p = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
     for (nu_size_t i = 0; i < size; ++i)
     {
         nu_byte_t *ptr = (nu_byte_t *)((nu_size_t)data + i * p->size);
@@ -307,6 +350,9 @@ nu__seria_dump (nu_size_t         depth,
                             depth, NU_STR("[ " NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
                     }
                     break;
+                    case NU_SERIA_PRIMITIVE_COUNT:
+                        NU_UNREACHABLE();
+                        break;
                 }
                 break;
             case NU__SERIA_STRUCT: {
@@ -315,18 +361,41 @@ nu__seria_dump (nu_size_t         depth,
                 {
                     nu__seria_struct_field_t *field
                         = _ctx.seria.struct_fields.data + p->fields.start + f;
-                    nu__seria_layout_t *subtype
-                        = _ctx.seria.layouts.data
-                          + NU_HANDLE_INDEX(field->layout);
-                    nu__seria_print_with_depth(
-                        depth + 1,
-                        NU_STR(NU_STR_FMT " (" NU_STR_FMT "):"),
-                        NU_STR_ARGS(field->name),
-                        NU_STR_ARGS(subtype->name));
-                    nu__seria_dump(depth + 2,
-                                   field->layout,
-                                   field->size,
-                                   ptr + field->offset);
+                    if (field->is_objref)
+                    {
+                        nu__seria_print_with_depth(
+                            depth + 1,
+                            NU_STR(NU_STR_FMT " (ref " NU_STR_FMT "):"),
+                            NU_STR_ARGS(field->name),
+                            NU_STR_ARGS(nu_object_type_name(field->type)));
+                        nu_object_t *objref
+                            = (nu_object_t *)((nu_byte_t *)ptr + field->offset);
+                        if (*objref)
+                        {
+                            nu__seria_print_with_depth(depth + 2,
+                                                       NU_STR("%llu"),
+                                                       nu_object_uid(objref));
+                        }
+                        else
+                        {
+                            nu__seria_print_with_depth(depth + 2,
+                                                       NU_STR("null"));
+                        }
+                    }
+                    else
+                    {
+                        nu__seria_layout_t *subtype
+                            = (nu__seria_layout_t *)field->layout;
+                        nu__seria_print_with_depth(
+                            depth + 1,
+                            NU_STR(NU_STR_FMT " (" NU_STR_FMT "):"),
+                            NU_STR_ARGS(field->name),
+                            NU_STR_ARGS(subtype->name));
+                        nu__seria_dump(depth + 2,
+                                       field->layout,
+                                       field->size,
+                                       ptr + field->offset);
+                    }
                 }
                 nu__seria_print_with_depth(depth, NU_STR("}"));
             }
@@ -494,8 +563,7 @@ nu_seria_write (nu_seria_t        seria,
 {
     NU_ASSERT(seria);
     nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
-    const nu__seria_layout_t *l
-        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    const nu__seria_layout_t *l   = (const nu__seria_layout_t *)layout;
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
     nu__seria_nbin_write(ctx, l, size, data);
 }
@@ -508,23 +576,72 @@ nu_seria_read (nu_seria_t        seria,
 {
     NU_ASSERT(seria);
     nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
-    const nu__seria_layout_t *l
-        = _ctx.seria.layouts.data + NU_HANDLE_INDEX(layout);
+    const nu__seria_layout_t *l   = (const nu__seria_layout_t *)layout;
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
     nu__seria_nbin_read(ctx, l, size, data);
 }
 
-nu_u32_t
-nu_seria_read_u32 (nu_seria_t seria)
+nu_seria_layout_t
+nu_seria_primitive (nu_seria_primitive_t primitive)
 {
-    nu_u32_t v;
-    nu_seria_read(seria, NU_SERIA_U32, 1, &v);
-    return v;
+    return _ctx.seria.primitive_layouts[primitive];
+}
+
+#define NU_IMPL_SERIA_PRIMITIVE(enum, ident, type)                             \
+    void nu_seria_read_##ident(nu_seria_t seria, nu_size_t size, type *data)   \
+    {                                                                          \
+        nu_seria_read(seria, _ctx.seria.primitive_layouts[enum], size, data);  \
+    }                                                                          \
+    void nu_seria_write_##ident(                                               \
+        nu_seria_t seria, nu_size_t size, const type *data)                    \
+    {                                                                          \
+        nu_seria_write(seria, _ctx.seria.primitive_layouts[enum], size, data); \
+    }                                                                          \
+    type nu_seria_read_1##ident(nu_seria_t seria)                              \
+    {                                                                          \
+        type v;                                                                \
+        nu_seria_read(seria, _ctx.seria.primitive_layouts[enum], 1, &v);       \
+        return v;                                                              \
+    }                                                                          \
+    void nu_seria_write_1##ident(nu_seria_t seria, type v)                     \
+    {                                                                          \
+        nu_seria_write(seria, _ctx.seria.primitive_layouts[enum], 1, &v);      \
+    }
+
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_PRIMITIVE_BYTE, byte, nu_byte_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_PRIMITIVE_U32, u32, nu_u32_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_PRIMITIVE_F32, f32, nu_f32_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_PRIMITIVE_V3, v3, nu_v3_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_PRIMITIVE_Q4, q4, nu_q4_t);
+
+void
+nu_seria_write_str (nu_seria_t seria, nu_str_t str)
+{
+    nu_seria_write(seria,
+                   _ctx.seria.primitive_layouts[NU_SERIA_PRIMITIVE_STR],
+                   str.size,
+                   str.data);
+}
+nu_str_t
+nu_seria_read_str (nu_seria_t seria, nu_size_t capacity, nu_byte_t *buffer)
+{
+    nu_seria_read(seria,
+                  _ctx.seria.primitive_layouts[NU_SERIA_PRIMITIVE_STR],
+                  capacity,
+                  buffer);
+    return nu_str_from_cstr(buffer);
 }
 void
-nu_seria_write_u32 (nu_seria_t seria, nu_u32_t value)
+nu_seria_write_objref (nu_seria_t seria, nu_object_t objref)
 {
-    nu_seria_write(seria, NU_SERIA_U32, 1, &value);
+    nu_uid_t uid = nu_object_uid(objref);
+    nu_seria_write_1u32(seria, uid);
+}
+nu_object_t
+nu_seria_read_objref (nu_seria_t seria, nu_object_type_t type)
+{
+    nu_uid_t uid = nu_seria_read_1u32(seria);
+    return nu_object_find(type, uid);
 }
 
 #endif

@@ -3,17 +3,17 @@
 
 #include <nucleus/seria/api.h>
 
-NU_DEFINE_HANDLE(nu_image_t);
-NU_DEFINE_HANDLE(nu_geometry_t);
-NU_DEFINE_HANDLE(nu_camera_t);
-NU_DEFINE_HANDLE(nu_texture_t);
-NU_DEFINE_HANDLE(nu_model_t);
-NU_DEFINE_HANDLE(nu_font_t);
-NU_DEFINE_HANDLE(nu_mesh_t);
-NU_DEFINE_HANDLE(nu_material_t);
-NU_DEFINE_HANDLE(nu_light_t);
-NU_DEFINE_HANDLE(nu_lightenv_t);
-NU_DEFINE_HANDLE(nu_renderpass_t);
+NU_DEFINE_OBJECT(nu_image_t);
+NU_DEFINE_OBJECT(nu_geometry_t);
+NU_DEFINE_OBJECT(nu_camera_t);
+NU_DEFINE_OBJECT(nu_texture_t);
+NU_DEFINE_OBJECT(nu_model_t);
+NU_DEFINE_OBJECT(nu_font_t);
+NU_DEFINE_OBJECT(nu_mesh_t);
+NU_DEFINE_OBJECT(nu_material_t);
+NU_DEFINE_OBJECT(nu_light_t);
+NU_DEFINE_OBJECT(nu_lightenv_t);
+NU_DEFINE_OBJECT(nu_renderpass_t);
 
 #define NU_CUBEMAP_FACE_COUNT 6
 

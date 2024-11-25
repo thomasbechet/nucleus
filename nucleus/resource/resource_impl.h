@@ -3,10 +3,10 @@
 
 #include <nucleus/internal.h>
 
-static nu_handle_t
+static nu_object_t
 nu__resource_handler (nu_resource_action_t action,
                       nu_uid_t             type,
-                      nu_handle_t          handle,
+                      nu_object_t          handle,
                       nu_seria_t           seria)
 {
     if (type == NU_RES_IMAGE)
@@ -35,7 +35,7 @@ nu__resource_handler (nu_resource_action_t action,
                 break;
             case NU_RES_LOAD: {
                 nu_texture_type_t type = NU_TEXTURE_COLORMAP;
-                if (nu_seria_read_u32(seria))
+                if (nu_seria_read_1u32(seria))
                 {
                     type = NU_TEXTURE_CUBEMAP;
                 }
@@ -49,8 +49,8 @@ nu__resource_handler (nu_resource_action_t action,
             break;
             case NU_RES_SAVE: {
                 nu__texture_t *tex = (nu__texture_t *)handle;
-                nu_seria_write_u32(seria,
-                                   tex->type == NU_TEXTURE_CUBEMAP ? 1 : 0);
+                nu_seria_write_1u32(seria,
+                                    tex->type == NU_TEXTURE_CUBEMAP ? 1 : 0);
                 NU_ASSERT(tex->image);
                 nu_image_save(tex->image, seria);
             }
@@ -186,7 +186,7 @@ void
 nu_resource_insert (nu_uid_t    type,
                     nu_uid_t    group,
                     nu_uid_t    uid,
-                    nu_handle_t handle)
+                    nu_object_t handle)
 {
     NU_ASSERT(type);
     NU_ASSERT(group);
@@ -237,7 +237,7 @@ nu_resource_delete (nu_uid_t uid)
     NU_ASSERT(res->type);
     nu__resource_remove_index(index);
 }
-nu_handle_t
+nu_object_t
 nu_resource_get (nu_uid_t type, nu_uid_t uid)
 {
     NU_ASSERT(type);
@@ -247,7 +247,7 @@ nu_resource_get (nu_uid_t type, nu_uid_t uid)
     return res->type == type ? res->handle : NU_NULL;
 }
 nu_uid_t
-nu_resource_find (nu_uid_t type, nu_handle_t handle)
+nu_resource_find (nu_uid_t type, nu_object_t handle)
 {
     for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
     {
@@ -263,19 +263,19 @@ nu_resource_find (nu_uid_t type, nu_handle_t handle)
 nu_uid_t
 nu_resource_load_group (nu_seria_t seria)
 {
-    nu_uid_t  group     = nu_seria_read_u32(seria); // read group uid
-    nu_size_t res_count = nu_seria_read_u32(seria); // read resource count
+    nu_uid_t  group     = nu_seria_read_1u32(seria); // read group uid
+    nu_size_t res_count = nu_seria_read_1u32(seria); // read resource count
 
     for (nu_size_t i = 0; i < res_count; ++i)
     {
-        nu_uid_t type_uid = nu_seria_read_u32(seria); // read type uid
-        nu_uid_t uid      = nu_seria_read_u32(seria); // read resource uid
+        nu_uid_t type_uid = nu_seria_read_1u32(seria); // read type uid
+        nu_uid_t uid      = nu_seria_read_1u32(seria); // read resource uid
         NU_ASSERT(uid);
 
         const nu__resource_type_t *t = nu__resource_type_find(type_uid);
         NU_ASSERT(t);
 
-        nu_handle_t handle = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);
+        nu_object_t handle = t->handler(NU_RES_LOAD, type_uid, NU_NULL, seria);
         NU_ASSERT(handle);
 
         nu_resource_insert(type_uid, group, uid, handle);
@@ -285,7 +285,7 @@ nu_resource_load_group (nu_seria_t seria)
 void
 nu_resource_save_group (nu_uid_t uid, nu_seria_t seria)
 {
-    nu_seria_write_u32(seria, uid); // write bundle uid
+    nu_seria_write_1u32(seria, uid); // write bundle uid
     nu_size_t res_count = 0;
     for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
     {
@@ -295,7 +295,7 @@ nu_resource_save_group (nu_uid_t uid, nu_seria_t seria)
             ++res_count;
         }
     }
-    nu_seria_write_u32(seria, res_count); // write resource count
+    nu_seria_write_1u32(seria, res_count); // write resource count
     for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
     {
         const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
@@ -304,8 +304,8 @@ nu_resource_save_group (nu_uid_t uid, nu_seria_t seria)
             const nu__resource_type_t *t = nu__resource_type_find(res->type);
             NU_ASSERT(t);
 
-            nu_seria_write_u32(seria, t->uid); // write resource type
-            nu_seria_write_u32(seria, uid);    // write resource uid
+            nu_seria_write_1u32(seria, t->uid); // write resource type
+            nu_seria_write_1u32(seria, uid);    // write resource uid
             t->handler(NU_RES_SAVE, res->type, res->handle, seria);
         }
     }

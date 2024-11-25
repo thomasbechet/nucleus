@@ -67,6 +67,24 @@ nu__seria_nbin_close (nu__seria_ctx_t *ctx)
 }
 
 static void
+nu__seria_nbin_write_objref (nu__seria_ctx_t   *ctx,
+                             nu_object_type_t   type,
+                             nu_size_t          size,
+                             const nu_object_t *objref)
+{
+    for (nu_size_t i = 0; i < size; ++i)
+    {
+        if (objref[i])
+        {
+            nu__seria_write_4b(ctx, NU_NULL);
+        }
+        else
+        {
+            nu__seria_write_4b(ctx, nu_object_uid(objref[i]));
+        }
+    }
+}
+static void
 nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
                       const nu__seria_layout_t *layout,
                       nu_size_t                 size,
@@ -132,6 +150,9 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
                     }
                 }
                 break;
+                case NU_SERIA_PRIMITIVE_COUNT:
+                    NU_UNREACHABLE();
+                    break;
             }
         }
         break;
@@ -144,11 +165,20 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
                     const nu__seria_struct_field_t *field
                         = _ctx.seria.struct_fields.data + layout->fields.start
                           + f;
-                    const nu__seria_layout_t *subtype
-                        = _ctx.seria.layouts.data
-                          + NU_HANDLE_INDEX(field->layout);
-                    nu_byte_t *data = ptr + field->offset;
-                    nu__seria_nbin_write(ctx, subtype, field->size, data);
+                    const nu_byte_t *data = ptr + field->offset;
+                    if (field->is_objref)
+                    {
+                        nu__seria_nbin_write_objref(ctx,
+                                                    field->type,
+                                                    field->size,
+                                                    (const nu_object_t *)data);
+                    }
+                    else
+                    {
+                        const nu__seria_layout_t *subtype
+                            = (const nu__seria_layout_t *)field->layout;
+                        nu__seria_nbin_write(ctx, subtype, field->size, data);
+                    }
                 }
             }
         }
@@ -178,6 +208,25 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
     }
 }
 
+static void
+nu__seria_nbin_read_objref (nu__seria_ctx_t *ctx,
+                            nu_object_type_t type,
+                            nu_size_t        size,
+                            nu_object_t     *objref)
+{
+    for (nu_size_t i = 0; i < size; ++i)
+    {
+        nu_uid_t uid = nu__seria_read_4b(ctx);
+        if (uid)
+        {
+            objref[i] = nu_object_find(type, uid);
+        }
+        else
+        {
+            objref[i] = NU_NULL;
+        }
+    }
+}
 static void
 nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                      const nu__seria_layout_t *layout,
@@ -248,6 +297,9 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                     }
                 }
                 break;
+                case NU_SERIA_PRIMITIVE_COUNT:
+                    NU_UNREACHABLE();
+                    break;
             }
         }
         break;
@@ -260,10 +312,19 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                     const nu__seria_struct_field_t *field
                         = _ctx.seria.struct_fields.data + layout->fields.start
                           + f;
-                    const nu__seria_layout_t *field_layout
-                        = (const nu__seria_layout_t *)field->layout;
                     nu_byte_t *data = ptr + field->offset;
-                    nu__seria_nbin_read(ctx, field_layout, field->size, data);
+                    if (field->is_objref)
+                    {
+                        nu__seria_nbin_read_objref(
+                            ctx, field->type, field->size, (nu_object_t *)data);
+                    }
+                    else
+                    {
+                        const nu__seria_layout_t *field_layout
+                            = (const nu__seria_layout_t *)field->layout;
+                        nu__seria_nbin_read(
+                            ctx, field_layout, field->size, data);
+                    }
                 }
             }
         }

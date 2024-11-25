@@ -44,28 +44,28 @@ nu_image_size (nu_image_t image)
 nu_image_t
 nu_image_load (nu_seria_t seria)
 {
-    nu_u32_t x     = nu_seria_read_u32(seria);
-    nu_u32_t y     = nu_seria_read_u32(seria);
-    nu_u32_t z     = nu_seria_read_u32(seria);
-    nu_u32_t layer = nu_seria_read_u32(seria);
+    nu_u32_t x     = nu_seria_read_1u32(seria);
+    nu_u32_t y     = nu_seria_read_1u32(seria);
+    nu_u32_t z     = nu_seria_read_1u32(seria);
+    nu_u32_t layer = nu_seria_read_1u32(seria);
     NU_ASSERT(layer);
     nu_image_t   image = nu_image_new(NU_IMAGE_RGBA, nu_v3u(x, y, z), layer);
     nu__image_t *im    = (nu__image_t *)image;
-    nu_seria_read(seria, NU_SERIA_BYTE, 4 * x * y * z * layer, im->data);
+    nu_seria_read_byte(seria, 4 * x * y * z * layer, im->data);
     return image;
 }
 void
 nu_image_save (nu_image_t image, nu_seria_t seria)
 {
     nu__image_t *ima = (nu__image_t *)image;
-    nu_seria_write_u32(seria, ima->size.x);
-    nu_seria_write_u32(seria, ima->size.y);
-    nu_seria_write_u32(seria, ima->size.z);
-    nu_seria_write_u32(seria, ima->layer);
-    nu_seria_write(seria,
-                   NU_SERIA_BYTE,
-                   4 * ima->size.x * ima->size.y * ima->size.z * ima->layer,
-                   ima->data);
+    nu_seria_write_1u32(seria, ima->size.x);
+    nu_seria_write_1u32(seria, ima->size.y);
+    nu_seria_write_1u32(seria, ima->size.z);
+    nu_seria_write_1u32(seria, ima->layer);
+    nu_seria_write_byte(seria,
+                        4 * ima->size.x * ima->size.y * ima->size.z
+                            * ima->layer,
+                        ima->data);
 }
 
 #endif

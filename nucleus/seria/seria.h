@@ -12,11 +12,16 @@ typedef enum
 
 typedef struct
 {
-    nu_str_t          name;
-    nu_seria_layout_t layout;
-    nu_size_t         offset;
-    nu_size_t         size;
-    nu_seria_flag_t   flags;
+    nu_str_t name;
+    union
+    {
+        nu_seria_layout_t layout;
+        nu_object_type_t  type;
+    };
+    nu_size_t       offset;
+    nu_size_t       size;
+    nu_seria_flag_t flags;
+    nu_bool_t       is_objref;
 } nu__seria_struct_field_t;
 
 typedef struct
@@ -32,6 +37,7 @@ typedef struct
     nu_size_t        size;
     union
     {
+        nu_seria_primitive_t primitive;
         struct
         {
             nu_size_t start;
@@ -42,7 +48,6 @@ typedef struct
             nu_size_t start;
             nu_size_t count;
         } values;
-        nu_seria_primitive_t primitive;
     };
 } nu__seria_layout_t;
 
@@ -63,6 +68,7 @@ typedef struct
     NU_FIXEDVEC(nu__seria_layout_t) layouts;
     NU_FIXEDVEC(nu__seria_struct_field_t) struct_fields;
     NU_FIXEDVEC(nu__seria_enum_value_t) enum_values;
+    nu_seria_layout_t primitive_layouts[NU_SERIA_PRIMITIVE_COUNT];
 } nu__seria_t;
 
 static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);

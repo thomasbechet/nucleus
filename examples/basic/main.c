@@ -103,8 +103,9 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t stat;
-    nu_v3_t  v;
+    nu_u32_t   stat;
+    nu_v3_t    v;
+    nu_image_t image;
 } player_t;
 
 static void
@@ -144,8 +145,17 @@ init (void)
                     NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
                     NU_SERIA_FIELD(scale, NU_SERIA_V3, 1);
                     NU_SERIA_FIELD(subtype, NU_SERIA_LAYOUT(subtype_t), 1););
-    NU_SERIA_STRUCT(player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
-                    NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
+    NU_SERIA_STRUCT(
+        player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
+        NU_SERIA_FIELD(v, NU_SERIA_V3, 1);
+        NU_SERIA_OBJREF(image, nu_object_find_type(NU_STR("image")), 1););
+
+    player_t player;
+    player.image = NU_NULL;
+    player.v     = NU_V3_ONES;
+    player.stat  = 123;
+    nu_seria_dump_layouts();
+    nu_seria_dump_values(NU_SERIA_LAYOUT(player_t), 1, &player);
 
     // Configure inputs
     draw        = nu_input_new();

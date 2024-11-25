@@ -144,7 +144,7 @@ nu_object_find_type (nu_str_t name)
     }
     return NU_NULL;
 }
-nu_handle_t
+nu_object_t
 nu_object_new (nu_object_type_t type)
 {
     nu__scope_t  *s = nu__scope_active();
@@ -173,7 +173,7 @@ nu_object_new (nu_object_type_t type)
     return data;
 }
 nu_uid_t
-nu_object_uid (nu_handle_t obj)
+nu_object_uid (nu_object_t obj)
 {
     const nu__object_header_t *object_header
         = (const nu__object_header_t *)((const nu_byte_t *)obj
@@ -181,7 +181,7 @@ nu_object_uid (nu_handle_t obj)
     return object_header->uid;
 }
 nu_object_type_t
-nu_object_type (nu_handle_t obj)
+nu_object_type (nu_object_t obj)
 {
     const nu__scope_header_t *scope_header
         = (const nu__scope_header_t *)((const nu_byte_t *)obj
@@ -190,13 +190,13 @@ nu_object_type (nu_handle_t obj)
     NU_ASSERT(scope_header->object);
     return (nu_object_type_t)scope_header->object;
 }
-nu_handle_t
+nu_object_t
 nu_object_find (nu_object_type_t type, nu_uid_t uid)
 {
     return NU_NULL;
 }
 void
-nu_object_set_uid (nu_handle_t obj, nu_uid_t uid)
+nu_object_set_uid (nu_object_t obj, nu_uid_t uid)
 {
     if (nu_object_find(nu_object_type(obj), uid))
     {
@@ -208,6 +208,12 @@ nu_object_set_uid (nu_handle_t obj, nu_uid_t uid)
         = (nu__object_header_t *)((nu_byte_t *)obj
                                   - sizeof(nu__object_header_t));
     object_header->uid = uid;
+}
+nu_str_t
+nu_object_type_name (nu_object_type_t type)
+{
+    const nu__object_t *t = (const nu__object_t *)type;
+    return t->name;
 }
 
 nu_scope_t

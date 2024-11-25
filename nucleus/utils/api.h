@@ -7,7 +7,7 @@
 #include <nucleus/seria/api.h>
 #endif
 
-NU_DEFINE_HANDLE(nu_controller_t);
+NU_DEFINE_OBJECT(nu_controller_t);
 
 typedef enum
 {
