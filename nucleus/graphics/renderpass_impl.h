@@ -5,21 +5,12 @@
 #include <nucleus/graphics/backend_impl.h>
 
 static void
-nu__renderpass_handler (nu_object_hook_t hook, void *data)
+nu__renderpass_cleanup (void *data)
 {
-    switch (hook)
-    {
-        case NU_OBJECT_CLEANUP: {
-            nu__renderpass_t *p = data;
+    nu__renderpass_t *p = data;
 #ifdef NU_BUILD_GRAPHICS_GL
-            nugl__renderpass_free(p);
+    nugl__renderpass_free(p);
 #endif
-        }
-        break;
-        case NU_OBJECT_SAVE:
-        case NU_OBJECT_LOAD:
-            break;
-    }
 }
 nu_renderpass_t
 nu_renderpass_new (nu_renderpass_type_t type)

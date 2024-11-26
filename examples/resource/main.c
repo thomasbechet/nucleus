@@ -4,7 +4,7 @@
 void
 init (void)
 {
-    nu_scope_t scope = nu_scope_register(NU_STR("main"), NU_MEM_1M);
+    nu_scope_id_t scope = nu_scope_register(NU_STR("main"), NU_MEM_1M);
     nu_scope_set_active(scope);
     nuext_import_package(NU_STR("../../../assets/pkg2.json"), NU_UID("import"));
     // nu_seria_t seria = nu_seria_create();

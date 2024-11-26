@@ -59,7 +59,7 @@ static nu_renderpass_t main_pass;
 static nu_renderpass_t gui_pass;
 static nu_renderpass_t wireframe_pass;
 
-static nu_scope_t SCOPE;
+static nu_scope_id_t SCOPE;
 
 typedef struct
 {

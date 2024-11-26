@@ -4,6 +4,10 @@
 #include <nucleus/internal.h>
 #include <nucleus/seria/nbin_impl.h>
 
+static nu_str_t nu_seria_primitive_names[]
+    = { NU_STR("byte"), NU_STR("u32"), NU_STR("f32"),
+        NU_STR("str"),  NU_STR("v3"),  NU_STR("q4") };
+
 static nu_byte_t *
 nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
 {
@@ -65,21 +69,12 @@ nu__seria_register_primitive_layouts (void)
 #undef NU__REGISTER_CORE
 
 static void
-nu__seria_handler (nu_object_hook_t hook, void *data)
+nu__seria_cleanup (void *data)
 {
-    switch (hook)
+    nu__seria_ctx_t *s = data;
+    if (s->opened)
     {
-        case NU_OBJECT_CLEANUP: {
-            nu__seria_ctx_t *s = data;
-            if (s->opened)
-            {
-                nu_seria_close((nu_seria_t)s);
-            }
-        }
-        break;
-        case NU_OBJECT_SAVE:
-        case NU_OBJECT_LOAD:
-            break;
+        nu_seria_close((nu_seria_t)s);
     }
 }
 
@@ -87,7 +82,7 @@ static void
 nu__seria_init (void)
 {
     _ctx.seria.obj_seria = nu_object_register(
-        NU_STR("seria"), sizeof(nu__seria_ctx_t), nu__seria_handler);
+        NU_STR(NU_SERIA), sizeof(nu__seria_ctx_t), nu__seria_cleanup);
     NU_FIXEDVEC_ALLOC(&_ctx.seria.layouts, NU_SERIA_LAYOUT_MAX);
     NU_FIXEDVEC_ALLOC(&_ctx.seria.struct_fields, NU_SERIA_STRUCT_FIELD_MAX);
     NU_FIXEDVEC_ALLOC(&_ctx.seria.enum_values, NU_SERIA_ENUM_VALUE_MAX);
@@ -149,7 +144,7 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
 void
 nu_seria_register_struct_objref (nu_seria_layout_t layout,
                                  nu_str_t          name,
-                                 nu_object_type_t  type,
+                                 nu_object_type_id_t  type,
                                  nu_size_t         size,
                                  nu_seria_flag_t   flags,
                                  nu_size_t         offset)
@@ -638,10 +633,37 @@ nu_seria_write_objref (nu_seria_t seria, nu_object_t objref)
     nu_seria_write_1u32(seria, uid);
 }
 nu_object_t
-nu_seria_read_objref (nu_seria_t seria, nu_object_type_t type)
+nu_seria_read_objref (nu_seria_t seria, nu_object_type_id_t type)
 {
     nu_uid_t uid = nu_seria_read_1u32(seria);
     return nu_object_find(type, uid);
+}
+
+void
+nu_object_set_seria (nu_object_type_id_t       type,
+                     nu_object_seria_load_t load,
+                     nu_object_seria_save_t save)
+{
+    nu__object_type_t *t = (nu__object_type_t *)type;
+    t->load              = load;
+    t->save              = save;
+}
+nu_object_t
+nu_object_load (nu_object_type_id_t type, nu_seria_t seria)
+{
+    const nu__object_type_t *t = (const nu__object_type_t *)type;
+    NU_ASSERT(t && t->load);
+    nu_object_t object = nu_object_new(type);
+    t->load(seria, object);
+    return object;
+}
+void
+nu_object_save (nu_object_t object, nu_seria_t seria)
+{
+    const nu__object_type_t *t
+        = (const nu__object_type_t *)nu_object_type(object);
+    NU_ASSERT(t && t->save);
+    t->save(seria, object);
 }
 
 #endif

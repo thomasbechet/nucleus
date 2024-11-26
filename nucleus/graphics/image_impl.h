@@ -3,18 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__image_handler (nu_object_hook_t hook, void *data)
-{
-    switch (hook)
-    {
-        case NU_OBJECT_CLEANUP:
-            break;
-        case NU_OBJECT_SAVE:
-        case NU_OBJECT_LOAD:
-            break;
-    }
-}
 nu_image_t
 nu_image_new (nu_image_type_t type, nu_v3u_t size, nu_size_t layer)
 {

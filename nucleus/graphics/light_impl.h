@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__light_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_light_t
 nu_light_new (nu_light_type_t type)
 {
@@ -27,10 +23,6 @@ nu_light_set_rotation (nu_light_t light, nu_q4_t q)
     p->rotation    = q;
 }
 
-static void
-nu__lightenv_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_lightenv_t
 nu_lightenv_new (void)
 {

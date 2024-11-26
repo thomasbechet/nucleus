@@ -13,7 +13,7 @@ typedef struct
     nu__app_t        app;
     nu__logger_t     logger;
     nu_allocator_t   allocator;
-    nu_object_type_t obj_fixedloop;
+    nu_object_type_id_t obj_fixedloop;
     NU_FIXEDVEC(nu_fixedloop_t) fixedloops;
     nu__scope_manager_t scope;
 } nu__core_t;

@@ -5,21 +5,12 @@
 #include <nucleus/graphics/backend_impl.h>
 
 static void
-nu__texture_handler (nu_object_hook_t hook, void *data)
+nu__texture_cleanup (void *data)
 {
-    switch (hook)
-    {
-        case NU_OBJECT_CLEANUP: {
-            nu__texture_t *tex = data;
+    nu__texture_t *tex = data;
 #ifdef NU_BUILD_GRAPHICS_GL
-            nugl__texture_free(tex);
+    nugl__texture_free(tex);
 #endif
-        }
-        break;
-        case NU_OBJECT_SAVE:
-        case NU_OBJECT_LOAD:
-            break;
-    }
 }
 nu_texture_t
 nu_texture_new (nu_texture_type_t type, nu_v3u_t size, nu_size_t layer)

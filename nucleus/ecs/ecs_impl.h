@@ -109,27 +109,12 @@ nu__ecs_bitset_capacity (const nu__ecs_bitset_t *bitset)
 }
 
 static void
-nu__ecs_handler (nu_object_hook_t hook, void *data)
-{
-    nu__ecs_instance_t *ins = data;
-    switch (hook)
-    {
-        case NU_OBJECT_CLEANUP:
-            break;
-        case NU_OBJECT_SAVE:
-            break;
-        case NU_OBJECT_LOAD:
-            break;
-    }
-}
-
-static void
 nu__ecs_init (void)
 {
     NU_FIXEDVEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
     NU_FIXEDVEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
     _ctx.ecs.obj_ecs = nu_object_register(
-        NU_STR("ecs"), sizeof(nu__ecs_instance_t), nu__ecs_handler);
+        NU_STR(NU_ECS), sizeof(nu__ecs_instance_t), NU_NULL);
 }
 
 nu_ecs_id_t

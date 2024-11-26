@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__camera_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_camera_t
 nu_camera_new (void)
 {

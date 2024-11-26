@@ -25,7 +25,7 @@ static nu_ecs_t ecs;
 
 static nu_ecs_id_t COMP_TRANSFORM;
 static nu_ecs_id_t COMP_PLAYER;
-static nu_scope_t  SCOPE;
+static nu_scope_id_t  SCOPE;
 
 void
 init (void)

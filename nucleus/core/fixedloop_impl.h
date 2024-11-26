@@ -4,24 +4,15 @@
 #include <nucleus/internal.h>
 
 static void
-nu__fixedloop_handler (nu_object_hook_t hook, void *data)
+nu__fixedloop_cleanup (void *data)
 {
-    switch (hook)
+    nu_fixedloop_t handle = data;
+    for (nu_size_t i = 0; i < _ctx.core.fixedloops.size; ++i)
     {
-        case NU_OBJECT_CLEANUP: {
-            nu_fixedloop_t handle = data;
-            for (nu_size_t i = 0; i < _ctx.core.fixedloops.size; ++i)
-            {
-                if (handle == _ctx.core.fixedloops.data[i])
-                {
-                    NU_FIXEDVEC_SWAP_REMOVE(&_ctx.core.fixedloops, i);
-                }
-            }
+        if (handle == _ctx.core.fixedloops.data[i])
+        {
+            NU_FIXEDVEC_SWAP_REMOVE(&_ctx.core.fixedloops, i);
         }
-        break;
-        case NU_OBJECT_SAVE:
-        case NU_OBJECT_LOAD:
-            break;
     }
 }
 

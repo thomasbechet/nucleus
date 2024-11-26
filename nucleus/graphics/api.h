@@ -15,6 +15,18 @@ NU_DEFINE_OBJECT(nu_light_t);
 NU_DEFINE_OBJECT(nu_lightenv_t);
 NU_DEFINE_OBJECT(nu_renderpass_t);
 
+#define NU_IMAGE      "image"
+#define NU_GEOMETRY   "geometry"
+#define NU_CAMERA     "camera"
+#define NU_TEXTURE    "texture"
+#define NU_MODEL      "model"
+#define NU_FONT       "font"
+#define NU_MESH       "mesh"
+#define NU_MATERIAL   "material"
+#define NU_LIGHT      "light"
+#define NU_LIGHTENV   "lightenv"
+#define NU_RENDERPASS "renderpass"
+
 #define NU_CUBEMAP_FACE_COUNT 6
 
 typedef enum

@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__camera_controller_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_controller_t
 nu_controller_new (nu_input_t view_pitch,
                    nu_input_t view_yaw,

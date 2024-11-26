@@ -3,11 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__input_handler (nu_object_hook_t hook, void *data)
-{
-}
-
 static int nu__button_to_mouse[] = { RGFW_mouseLeft,
                                      RGFW_mouseMiddle,
                                      RGFW_mouseRight,

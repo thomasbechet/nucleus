@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__font_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_font_t
 nu_font_new_default (void)
 {

@@ -17,7 +17,7 @@
 #define SHADOW_WIDTH  1000
 #define SHADOW_HEIGHT 1000
 
-static nu_scope_t SCOPE;
+static nu_scope_id_t SCOPE;
 
 static nu_input_t draw;
 static nu_input_t main_button;
@@ -107,20 +107,6 @@ typedef struct
     nu_v3_t    v;
     nu_image_t image;
 } player_t;
-
-static void
-transform_handler (nu_object_hook_t hook, void *data)
-{
-    switch (hook)
-    {
-        case NU_OBJECT_CLEANUP:
-            break;
-        case NU_OBJECT_SAVE:
-            break;
-        case NU_OBJECT_LOAD:
-            break;
-    }
-}
 
 void
 init (void)

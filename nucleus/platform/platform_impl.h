@@ -13,8 +13,8 @@ nu__platform_init (void)
     nu_error_t error;
 
     // Initialize context
-    _ctx.platform.obj_input = nu_object_register(
-        NU_STR("input"), sizeof(nu__input_t), nu__input_handler);
+    _ctx.platform.obj_input
+        = nu_object_register(NU_STR(NU_INPUT), sizeof(nu__input_t), NU_NULL);
     _ctx.platform.last_input = NU_NULL;
 
     // Initialize surface (and inputs)

@@ -15,7 +15,7 @@ nu__scope_init (void)
 static void
 nu__scope_free (void)
 {
-    nu_scope_t scope = _ctx.core.scope.last_scope;
+    nu_scope_id_t scope = _ctx.core.scope.last_scope;
     while (scope)
     {
         nu__scope_t *s = (nu__scope_t *)scope;
@@ -28,7 +28,7 @@ nu__scope_free (void)
 static void
 nu__scope_cleanup_all_auto (void)
 {
-    nu_scope_t scope = _ctx.core.scope.last_scope;
+    nu_scope_id_t scope = _ctx.core.scope.last_scope;
     while (scope)
     {
         nu__scope_t *s = (nu__scope_t *)scope;
@@ -69,7 +69,7 @@ nu__scope_active (void)
 static void
 nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
 {
-    nu__object_t *object = (nu__object_t *)header->object;
+    nu__object_type_t *object = (nu__object_type_t *)header->object;
     if (object)
     {
         void *data
@@ -78,10 +78,13 @@ nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
                  NU_STR_ARGS(scope->name),
                  NU_STR_ARGS(object->name),
                  data);
-        object->handler(NU_OBJECT_CLEANUP, data);
+        if (object->cleanup)
+        {
+            object->cleanup(data);
+        }
     }
 }
-static nu_scope_t
+static nu_scope_id_t
 nu__scope_register (nu_str_t name, nu_size_t size, nu_bool_t auto_cleanup)
 {
     if (_ctx.core.scope.scopes_count >= NU_SCOPE_MAX)
@@ -104,12 +107,12 @@ nu__scope_register (nu_str_t name, nu_size_t size, nu_bool_t auto_cleanup)
     s->end          = s->start + size;
     s->prev         = _ctx.core.scope.last_scope;
     s->auto_cleanup = auto_cleanup;
-    _ctx.core.scope.last_scope = (nu_scope_t)s;
-    return (nu_scope_t)s;
+    _ctx.core.scope.last_scope = (nu_scope_id_t)s;
+    return (nu_scope_id_t)s;
 }
 
-nu_object_type_t
-nu_object_register (nu_str_t name, nu_size_t size, nu_object_handler_t handler)
+nu_object_type_id_t
+nu_object_register (nu_str_t name, nu_size_t size, nu_object_cleanup_t cleanup)
 {
     if (_ctx.core.scope.objects_count >= NU_OBJECT_MAX)
     {
@@ -125,30 +128,30 @@ nu_object_register (nu_str_t name, nu_size_t size, nu_object_handler_t handler)
     NU_DEBUG("[register object '" NU_STR_FMT "' size %llu]",
              NU_STR_ARGS(name),
              size);
-    nu__object_t *type
+    nu__object_type_t *type
         = &_ctx.core.scope.objects[_ctx.core.scope.objects_count++];
     type->name    = name;
     type->size    = size;
-    type->handler = handler;
-    return (nu_object_type_t)type;
+    type->cleanup = cleanup;
+    return (nu_object_type_id_t)type;
 }
-nu_object_type_t
+nu_object_type_id_t
 nu_object_find_type (nu_str_t name)
 {
     for (nu_size_t i = 0; i < _ctx.core.scope.objects_count; ++i)
     {
         if (nu_str_eq(name, _ctx.core.scope.objects[i].name))
         {
-            return (nu_object_type_t)(_ctx.core.scope.objects + i);
+            return (nu_object_type_id_t)(_ctx.core.scope.objects + i);
         }
     }
     return NU_NULL;
 }
 nu_object_t
-nu_object_new (nu_object_type_t type)
+nu_object_new (nu_object_type_id_t type)
 {
     nu__scope_t  *s = nu__scope_active();
-    nu__object_t *t = (nu__object_t *)type;
+    nu__object_type_t *t = (nu__object_type_t *)type;
 
     nu__scope_header_t *scope_header
         = nu__scope_alloc(s, sizeof(nu__scope_header_t));
@@ -180,7 +183,7 @@ nu_object_uid (nu_object_t obj)
                                         - sizeof(nu__object_header_t));
     return object_header->uid;
 }
-nu_object_type_t
+nu_object_type_id_t
 nu_object_type (nu_object_t obj)
 {
     const nu__scope_header_t *scope_header
@@ -188,10 +191,10 @@ nu_object_type (nu_object_t obj)
                                        - sizeof(nu__object_header_t)
                                        - sizeof(nu__scope_header_t));
     NU_ASSERT(scope_header->object);
-    return (nu_object_type_t)scope_header->object;
+    return (nu_object_type_id_t)scope_header->object;
 }
 nu_object_t
-nu_object_find (nu_object_type_t type, nu_uid_t uid)
+nu_object_find (nu_object_type_id_t type, nu_uid_t uid)
 {
     return NU_NULL;
 }
@@ -210,19 +213,19 @@ nu_object_set_uid (nu_object_t obj, nu_uid_t uid)
     object_header->uid = uid;
 }
 nu_str_t
-nu_object_type_name (nu_object_type_t type)
+nu_object_type_name (nu_object_type_id_t type)
 {
-    const nu__object_t *t = (const nu__object_t *)type;
+    const nu__object_type_t *t = (const nu__object_type_t *)type;
     return t->name;
 }
 
-nu_scope_t
+nu_scope_id_t
 nu_scope_register (nu_str_t name, nu_size_t size)
 {
     return nu__scope_register(name, size, NU_TRUE);
 }
 void
-nu_scope_cleanup (nu_scope_t scope)
+nu_scope_cleanup (nu_scope_id_t scope)
 {
     nu__scope_t *s = (nu__scope_t *)scope;
 
@@ -239,25 +242,25 @@ nu_scope_cleanup (nu_scope_t scope)
     s->last_header = NU_NULL;
     s->ptr         = s->start;
 }
-nu_scope_t
+nu_scope_id_t
 nu_scope_find (nu_str_t name)
 {
     for (nu_size_t i = 0; i < _ctx.core.scope.scopes_count; ++i)
     {
         if (nu_str_eq(name, _ctx.core.scope.scopes[i].name))
         {
-            return (nu_scope_t)(_ctx.core.scope.scopes + i);
+            return (nu_scope_id_t)(_ctx.core.scope.scopes + i);
         }
     }
     return NU_NULL;
 }
-nu_scope_t
+nu_scope_id_t
 nu_scope_active (void)
 {
     return _ctx.core.scope.active_scope;
 }
 void
-nu_scope_set_active (nu_scope_t scope)
+nu_scope_set_active (nu_scope_id_t scope)
 {
     _ctx.core.scope.active_scope = scope;
 }
@@ -291,7 +294,7 @@ nu_scope_pop (void)
         header = header->prev;
     }
 }
-nu_scope_t
+nu_scope_id_t
 nu_scope_core (void)
 {
     return _ctx.core.scope.core_scope;

@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    nu_object_type_t obj_camera_controller;
+    nu_object_type_id_t obj_camera_controller;
     nu__stats_t      stats;
 } nu__utils_t;
 

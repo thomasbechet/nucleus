@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__model_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_model_t
 nu_model_new (nu_size_t node_count)
 {

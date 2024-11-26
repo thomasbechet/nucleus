@@ -20,28 +20,29 @@ nu__graphics_init (void)
 {
     nu__graphics_t *gfx = &_ctx.graphics;
 
-    gfx->obj_font = nu_object_register(
-        NU_STR("font"), sizeof(nu__font_t), nu__font_handler);
-    gfx->obj_image = nu_object_register(
-        NU_STR("image"), sizeof(nu__image_t), nu__image_handler);
+    gfx->obj_font
+        = nu_object_register(NU_STR(NU_FONT), sizeof(nu__font_t), NU_NULL);
+    gfx->obj_image
+        = nu_object_register(NU_STR(NU_IMAGE), sizeof(nu__image_t), NU_NULL);
     gfx->obj_geometry = nu_object_register(
-        NU_STR("geometry"), sizeof(nu__geometry_t), nu__geometry_handler);
-    gfx->obj_model = nu_object_register(
-        NU_STR("model"), sizeof(nu__model_t), nu__model_handler);
-    gfx->obj_camera = nu_object_register(
-        NU_STR("camera"), sizeof(nu__camera_t), nu__camera_handler);
+        NU_STR(NU_GEOMETRY), sizeof(nu__geometry_t), NU_NULL);
+    gfx->obj_model
+        = nu_object_register(NU_STR(NU_MODEL), sizeof(nu__model_t), NU_NULL);
+    gfx->obj_camera
+        = nu_object_register(NU_STR(NU_CAMERA), sizeof(nu__camera_t), NU_NULL);
     gfx->obj_texture = nu_object_register(
-        NU_STR("texture"), sizeof(nu__texture_t), nu__texture_handler);
+        NU_STR(NU_TEXTURE), sizeof(nu__texture_t), nu__texture_cleanup);
     gfx->obj_material = nu_object_register(
-        NU_STR("material"), sizeof(nu__material_t), nu__material_handler);
+        NU_STR(NU_MATERIAL), sizeof(nu__material_t), NU_NULL);
     gfx->obj_mesh = nu_object_register(
-        NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_handler);
-    gfx->obj_light = nu_object_register(
-        NU_STR("light"), sizeof(nu__light_t), nu__light_handler);
+        NU_STR(NU_MESH), sizeof(nu__mesh_t), nu__mesh_cleanup);
+    gfx->obj_light
+        = nu_object_register(NU_STR(NU_LIGHT), sizeof(nu__light_t), NU_NULL);
     gfx->obj_lightenv = nu_object_register(
-        NU_STR("lightenv"), sizeof(nu__lightenv_t), nu__lightenv_handler);
-    gfx->obj_renderpass = nu_object_register(
-        NU_STR("renderpass"), sizeof(nu__renderpass_t), nu__renderpass_handler);
+        NU_STR(NU_LIGHTENV), sizeof(nu__lightenv_t), NU_NULL);
+    gfx->obj_renderpass = nu_object_register(NU_STR(NU_RENDERPASS),
+                                             sizeof(nu__renderpass_t),
+                                             nu__renderpass_cleanup);
 
     // Initialize backend
     nu__renderer_init();

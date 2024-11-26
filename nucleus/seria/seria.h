@@ -16,7 +16,7 @@ typedef struct
     union
     {
         nu_seria_layout_t layout;
-        nu_object_type_t  type;
+        nu_object_type_id_t  type;
     };
     nu_size_t       offset;
     nu_size_t       size;
@@ -64,7 +64,7 @@ typedef struct
 
 typedef struct
 {
-    nu_object_type_t obj_seria;
+    nu_object_type_id_t obj_seria;
     NU_FIXEDVEC(nu__seria_layout_t) layouts;
     NU_FIXEDVEC(nu__seria_struct_field_t) struct_fields;
     NU_FIXEDVEC(nu__seria_enum_value_t) enum_values;

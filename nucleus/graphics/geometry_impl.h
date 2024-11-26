@@ -267,10 +267,6 @@ nu__generate_cube (nu__geometry_t *g, nu_f32_t unit)
     }
 }
 
-static void
-nu__geometry_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_geometry_t
 nu_geometry_new_mesh (nu_primitive_t primitive,
                       nu_size_t      position_capacity,

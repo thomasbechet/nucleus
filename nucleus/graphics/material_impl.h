@@ -3,10 +3,6 @@
 
 #include <nucleus/internal.h>
 
-static void
-nu__material_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_material_t
 nu_material_new (nu_material_type_t type)
 {

@@ -15,10 +15,6 @@ nu__draw_image (nu__ui_instance_t          *ui,
                         style->material);
 }
 
-static void
-nu__ui_style_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_ui_style_t
 nu_ui_style_new (void)
 {
@@ -68,10 +64,6 @@ nu_ui_style (nu_ui_style_t          style,
     }
 }
 
-static void
-nu__ui_handler (nu_object_hook_t hook, void *data)
-{
-}
 nu_ui_t
 nu_ui_new (void)
 {
@@ -287,10 +279,10 @@ nu_ui_checkbox (nu_ui_t handle, nu_b2i_t extent, nu_bool_t *state)
 static nu_error_t
 nu__ui_init (void)
 {
+    _ctx.ui.obj_ui
+        = nu_object_register(NU_STR(NU_UI), sizeof(nu__ui_instance_t), NU_NULL);
     _ctx.ui.obj_ui_style = nu_object_register(
-        NU_STR("ui_style"), sizeof(nu__ui_style_t), nu__ui_style_handler);
-    _ctx.ui.obj_ui = nu_object_register(
-        NU_STR("ui"), sizeof(nu__ui_instance_t), nu__ui_handler);
+        NU_STR(NU_UI_STYLE), sizeof(nu__ui_style_t), NU_NULL);
     return NU_ERROR_NONE;
 }
 

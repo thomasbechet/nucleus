@@ -15,7 +15,7 @@ static nu_renderpass_t guipass;
 static nu_font_t       font;
 static nu_texture_t    surface_color;
 
-static nu_scope_t SCOPE;
+static nu_scope_id_t SCOPE;
 
 void
 init (void)

@@ -400,6 +400,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 NU_DEFINE_OBJECT(nu_fixedloop_t);
+#define NU_FIXEDLOOP "fixedloop"
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
@@ -667,36 +668,29 @@ typedef NU_FIXEDVEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
 
-NU_DEFINE_OBJECT(nu_scope_t);
-NU_DEFINE_OBJECT(nu_object_type_t);
+typedef struct nu_scope_t       *nu_scope_id_t;
+typedef struct nu_object_type_t *nu_object_type_id_t;
 
-typedef enum
-{
-    NU_OBJECT_CLEANUP,
-    NU_OBJECT_SAVE,
-    NU_OBJECT_LOAD
-} nu_object_hook_t;
+typedef void (*nu_object_cleanup_t)(void *data);
 
-typedef void (*nu_object_handler_t)(nu_object_hook_t hook, void *data);
+NU_API nu_object_type_id_t nu_object_register(nu_str_t            name,
+                                              nu_size_t           size,
+                                              nu_object_cleanup_t cleanup);
+NU_API nu_object_type_id_t nu_object_find_type(nu_str_t name);
+NU_API nu_object_t         nu_object_new(nu_object_type_id_t type);
+NU_API nu_uid_t            nu_object_uid(nu_object_t obj);
+NU_API nu_object_type_id_t nu_object_type(nu_object_t obj);
+NU_API nu_object_t nu_object_find(nu_object_type_id_t type, nu_uid_t uid);
+NU_API void        nu_object_set_uid(nu_object_t obj, nu_uid_t uid);
+NU_API nu_str_t    nu_object_type_name(nu_object_type_id_t type);
 
-NU_API nu_object_type_t nu_object_register(nu_str_t            name,
-                                           nu_size_t           size,
-                                           nu_object_handler_t handler);
-NU_API nu_object_type_t nu_object_find_type(nu_str_t name);
-NU_API nu_object_t      nu_object_new(nu_object_type_t type);
-NU_API nu_uid_t         nu_object_uid(nu_object_t obj);
-NU_API nu_object_type_t nu_object_type(nu_object_t obj);
-NU_API nu_object_t      nu_object_find(nu_object_type_t type, nu_uid_t uid);
-NU_API void             nu_object_set_uid(nu_object_t obj, nu_uid_t uid);
-NU_API nu_str_t         nu_object_type_name(nu_object_type_t type);
-
-NU_API nu_scope_t nu_scope_register(nu_str_t name, nu_size_t size);
-NU_API void       nu_scope_cleanup(nu_scope_t scope);
-NU_API nu_scope_t nu_scope_find(nu_str_t name);
-NU_API nu_scope_t nu_scope_active(void);
-NU_API void       nu_scope_set_active(nu_scope_t scope);
-NU_API void       nu_scope_push(void);
-NU_API void       nu_scope_pop(void);
+NU_API nu_scope_id_t nu_scope_register(nu_str_t name, nu_size_t size);
+NU_API void          nu_scope_cleanup(nu_scope_id_t scope);
+NU_API nu_scope_id_t nu_scope_find(nu_str_t name);
+NU_API nu_scope_id_t nu_scope_active(void);
+NU_API void          nu_scope_set_active(nu_scope_id_t scope);
+NU_API void          nu_scope_push(void);
+NU_API void          nu_scope_pop(void);
 
 NU_API void *nu_scope_alloc(nu_size_t size);
 
