@@ -98,6 +98,10 @@
     }
 
 #define NU_DEFINE_OBJECT(type) typedef struct type *type
+#define NU_DEFINE_ID(id)       typedef nu_u32_t id
+
+#define NU_ID_INDEX(id)   (id - 1)
+#define NU_ID_MAKE(index) (index + 1)
 
 #if !defined(NU_NDEBUG) && defined(NU_STDLIB)
 #define NU_ASSERT(x) assert(x)
@@ -668,8 +672,8 @@ typedef NU_FIXEDVEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_callback_t)(void);
 
-typedef struct nu_scope_t       *nu_scope_id_t;
-typedef struct nu_object_type_t *nu_object_type_id_t;
+NU_DEFINE_ID(nu_scope_id_t);
+NU_DEFINE_ID(nu_object_type_id_t);
 
 typedef void (*nu_object_cleanup_t)(void *data);
 

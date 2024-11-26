@@ -130,7 +130,7 @@ nu_ecs_register (nu_str_t name, nu_seria_layout_t layout)
     comp->layout = layout;
     nu_str_to_cstr(name, comp->name, NU__ECS_COMPONENT_NAME_LEN);
 
-    return _ctx.ecs.components.size - 1;
+    return NU_ID_MAKE(_ctx.ecs.components.size - 1);
 }
 nu_ecs_id_t
 nu_ecs_find_component (nu_str_t name)
@@ -140,11 +140,10 @@ nu_ecs_find_component (nu_str_t name)
         const nu__ecs_component_t *comp = _ctx.ecs.components.data + i;
         if (nu_str_eq(name, nu_str_from_cstr((nu_byte_t *)comp->name)))
         {
-            return i;
+            return NU_ID_MAKE(i);
         }
     }
-    NU_UNREACHABLE();
-    return 0;
+    return NU_NULL;
 }
 
 nu_ecs_t
@@ -164,7 +163,7 @@ nu_ecs_add (nu_ecs_t ecs)
     nu_size_t index = nu__ecs_bitset_find_unset(&ins->bitset);
     nu__ecs_bitset_set(&ins->bitset, index);
 
-    return index + 1;
+    return NU_ID_MAKE(index);
 }
 void
 nu_ecs_add_at (nu_ecs_t ecs, nu_ecs_id_t id)
@@ -175,19 +174,19 @@ nu_ecs_add_at (nu_ecs_t ecs, nu_ecs_id_t id)
     {
         return;
     }
-    nu__ecs_bitset_set(&ins->bitset, id - 1);
+    nu__ecs_bitset_set(&ins->bitset, NU_ID_INDEX(id));
 }
 void
 nu_ecs_remove (nu_ecs_t ecs, nu_ecs_id_t e)
 {
     NU_ASSERT(e);
     nu__ecs_instance_t *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t           index = e - 1;
+    nu_size_t           index = NU_ID_INDEX(e);
 
     // remove from components
     for (nu_size_t i = 0; i < ins->pools.size; ++i)
     {
-        nu_ecs_unset(ecs, e, i);
+        nu_ecs_unset(ecs, e, NU_ID_MAKE(i));
     }
 
     // mask entity as invalid
@@ -198,7 +197,7 @@ nu_ecs_valid (nu_ecs_t ecs, nu_ecs_id_t e)
 {
     NU_ASSERT(e);
     nu__ecs_instance_t *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t           index = e - 1;
+    nu_size_t           index = NU_ID_INDEX(e);
     return nu__ecs_bitset_isset(&ins->bitset, index);
 }
 nu_size_t
@@ -230,20 +229,21 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
 {
     NU_ASSERT(e);
     nu__ecs_instance_t *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t           index = e - 1;
+    nu_size_t           index = NU_ID_INDEX(e);
 
-    const nu__ecs_component_t *component = _ctx.ecs.components.data + c;
+    nu_size_t                  c_index   = NU_ID_INDEX(c);
+    const nu__ecs_component_t *component = _ctx.ecs.components.data + c_index;
 
     // initialize pool if component missing
-    if (c >= ins->pools.size)
+    if (c_index >= ins->pools.size)
     {
-        if (c >= ins->pools.capacity)
+        if (c_index >= ins->pools.capacity)
         {
             NU_ERROR("invalid ecs component id");
             return NU_NULL;
         }
         nu_size_t prev_size = ins->pools.size;
-        ins->pools.size     = c + 1;
+        ins->pools.size     = c_index + 1;
         for (nu_size_t i = prev_size; i < ins->pools.size; ++i)
         {
             nu_size_t component_size
@@ -260,7 +260,7 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         }
     }
 
-    nu__ecs_component_pool_t *pool = ins->pools.data + c;
+    nu__ecs_component_pool_t *pool = ins->pools.data + c_index;
 
     // check existing component
     if (!nu__ecs_bitset_isset(&pool->bitset, index))
@@ -289,8 +289,8 @@ nu_ecs_unset (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
 {
     NU_ASSERT(e);
     nu__ecs_instance_t       *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t                 index = e - 1;
-    nu__ecs_component_pool_t *pool  = ins->pools.data + c;
+    nu_size_t                 index = NU_ID_INDEX(e);
+    nu__ecs_component_pool_t *pool  = ins->pools.data + NU_ID_INDEX(c);
     nu__ecs_bitset_unset(&pool->bitset, index);
 }
 void *
@@ -302,10 +302,10 @@ nu_ecs_get (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         return NU_NULL;
     }
     nu__ecs_instance_t       *ins    = (nu__ecs_instance_t *)ecs;
-    nu_size_t                 index  = e - 1;
+    nu_size_t                 index  = NU_ID_INDEX(e);
     nu_size_t                 mask   = index / NU__ECS_ENTITY_PER_MASK;
     nu_size_t                 offset = index % NU__ECS_ENTITY_PER_MASK;
-    nu__ecs_component_pool_t *pool   = ins->pools.data + c;
+    nu__ecs_component_pool_t *pool   = ins->pools.data + NU_ID_INDEX(c);
     return (void *)((nu_size_t)pool->chunks.data[mask]
                     + pool->component_size * offset);
 }
@@ -314,8 +314,8 @@ nu_ecs_has (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
 {
     NU_ASSERT(e);
     nu__ecs_instance_t       *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t                 index = e - 1;
-    nu__ecs_component_pool_t *pool  = ins->pools.data + c;
+    nu_size_t                 index = NU_ID_INDEX(e);
+    nu__ecs_component_pool_t *pool  = ins->pools.data + NU_ID_INDEX(c);
     return nu__ecs_bitset_isset(&pool->bitset, index);
 }
 
@@ -330,12 +330,12 @@ nu_ecs_iter (nu_size_t include_count, nu_size_t exclude_count)
     }
     NU_FIXEDVEC_ALLOC(&it->includes, include_count);
     NU_FIXEDVEC_ALLOC(&it->excludes, exclude_count);
-    return _ctx.ecs.iters.size - 1;
+    return NU_ID_MAKE(_ctx.ecs.iters.size - 1);
 }
 void
 nu_ecs_includes (nu_ecs_id_t iter, nu_ecs_id_t c)
 {
-    nu__ecs_iter_t *it   = _ctx.ecs.iters.data + iter;
+    nu__ecs_iter_t *it   = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
     nu_ecs_id_t    *incl = NU_FIXEDVEC_PUSH(&it->includes);
     NU_ASSERT(incl);
     *incl = c;
@@ -343,7 +343,7 @@ nu_ecs_includes (nu_ecs_id_t iter, nu_ecs_id_t c)
 void
 nu_ecs_excludes (nu_ecs_id_t iter, nu_ecs_id_t c)
 {
-    nu__ecs_iter_t *it   = _ctx.ecs.iters.data + iter;
+    nu__ecs_iter_t *it   = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
     nu_ecs_id_t    *excl = NU_FIXEDVEC_PUSH(&it->excludes);
     NU_ASSERT(excl);
     *excl = c;
@@ -368,14 +368,14 @@ nu__ecs_iter_next (const nu__ecs_instance_t *ins, nu__ecs_iter_t *it)
         for (nu_size_t i = 0; i < it->includes.size; ++i)
         {
             nu__ecs_component_pool_t *pool
-                = ins->pools.data + it->includes.data[i];
+                = ins->pools.data + NU_ID_INDEX(it->includes.data[i]);
             it->mask &= nu__ecs_bitset_mask(&pool->bitset, it->mask_index);
         }
         // must be processed after includes
         for (nu_size_t i = 0; i < it->excludes.size; ++i)
         {
             nu__ecs_component_pool_t *pool
-                = ins->pools.data + it->excludes.data[i];
+                = ins->pools.data + NU_ID_INDEX(it->excludes.data[i]);
             it->mask &= ~nu__ecs_bitset_mask(&pool->bitset, it->mask_index);
         }
 
@@ -390,13 +390,13 @@ nu__ecs_iter_next (const nu__ecs_instance_t *ins, nu__ecs_iter_t *it)
     }
     it->mask >>= 1;
     nu_size_t offset = it->mask_offset++;
-    return (it->mask_index * NU__ECS_ENTITY_PER_MASK + offset) + 1;
+    return NU_ID_MAKE(it->mask_index * NU__ECS_ENTITY_PER_MASK + offset);
 }
 nu_ecs_id_t
 nu_ecs_begin (nu_ecs_t ecs, nu_ecs_id_t iter)
 {
     nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
-    nu__ecs_iter_t     *it  = _ctx.ecs.iters.data + iter;
+    nu__ecs_iter_t     *it  = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
     it->mask                = 0;
     it->mask_offset         = 0;
     it->mask_index          = (nu_size_t)-1; // trick for first iteration
@@ -406,7 +406,7 @@ nu_ecs_id_t
 nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
 {
     nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
-    nu__ecs_iter_t     *it  = _ctx.ecs.iters.data + iter;
+    nu__ecs_iter_t     *it  = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
     return nu__ecs_iter_next(ins, it);
 }
 
@@ -444,7 +444,7 @@ nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
             if (nu__ecs_bitset_isset(&pool->bitset, i))
             {
                 // write entity
-                nu_ecs_id_t id = i + 1;
+                nu_ecs_id_t id = NU_ID_MAKE(i);
                 nu_seria_write_1u32(seria, id);
 
                 // write data
@@ -513,7 +513,7 @@ nu_ecs_dump (nu_ecs_t ecs)
 
     for (nu_size_t i = 0; i < nu_ecs_capacity(ecs); ++i)
     {
-        nu_ecs_id_t e = i + 1;
+        nu_ecs_id_t e = NU_ID_MAKE(i);
         if (nu_ecs_valid(ecs, e))
         {
             NU_INFO("  #%d", e);

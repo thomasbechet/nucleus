@@ -16,7 +16,7 @@ NU_DEFINE_OBJECT(nu_ecs_t);
 #define NU_ECS_COMPONENT(name, layout) \
     nu_ecs_register(NU_STR(#name), NU_SERIA_LAYOUT(layout))
 
-typedef nu_u32_t nu_ecs_id_t;
+NU_DEFINE_ID(nu_ecs_id_t);
 
 NU_API nu_ecs_id_t nu_ecs_register(nu_str_t name, nu_seria_layout_t layout);
 NU_API nu_ecs_id_t nu_ecs_find_component(nu_str_t name);

@@ -142,12 +142,12 @@ nu_seria_register_struct_field (nu_seria_layout_t layout,
     ++p->fields.count;
 }
 void
-nu_seria_register_struct_objref (nu_seria_layout_t layout,
-                                 nu_str_t          name,
-                                 nu_object_type_id_t  type,
-                                 nu_size_t         size,
-                                 nu_seria_flag_t   flags,
-                                 nu_size_t         offset)
+nu_seria_register_struct_objref (nu_seria_layout_t   layout,
+                                 nu_str_t            name,
+                                 nu_object_type_id_t type,
+                                 nu_size_t           size,
+                                 nu_seria_flag_t     flags,
+                                 nu_size_t           offset)
 {
     NU_ASSERT(layout);
     NU_ASSERT(type);
@@ -640,18 +640,18 @@ nu_seria_read_objref (nu_seria_t seria, nu_object_type_id_t type)
 }
 
 void
-nu_object_set_seria (nu_object_type_id_t       type,
+nu_object_set_seria (nu_object_type_id_t    type,
                      nu_object_seria_load_t load,
                      nu_object_seria_save_t save)
 {
-    nu__object_type_t *t = (nu__object_type_t *)type;
+    nu__object_type_t *t = nu__object_type(type);
     t->load              = load;
     t->save              = save;
 }
 nu_object_t
 nu_object_load (nu_object_type_id_t type, nu_seria_t seria)
 {
-    const nu__object_type_t *t = (const nu__object_type_t *)type;
+    const nu__object_type_t *t = nu__object_type(type);
     NU_ASSERT(t && t->load);
     nu_object_t object = nu_object_new(type);
     t->load(seria, object);
@@ -660,8 +660,7 @@ nu_object_load (nu_object_type_id_t type, nu_seria_t seria)
 void
 nu_object_save (nu_object_t object, nu_seria_t seria)
 {
-    const nu__object_type_t *t
-        = (const nu__object_type_t *)nu_object_type(object);
+    const nu__object_type_t *t = nu__object_type(nu_object_type(object));
     NU_ASSERT(t && t->save);
     t->save(seria, object);
 }
