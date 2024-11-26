@@ -110,12 +110,12 @@ NU_API void nu_seria_register_struct_field(nu_seria_layout_t layout,
                                            nu_size_t         size,
                                            nu_seria_flag_t   flags,
                                            nu_size_t         offset);
-NU_API void nu_seria_register_struct_objref(nu_seria_layout_t layout,
-                                            nu_str_t          name,
-                                            nu_object_type_id_t  type,
-                                            nu_size_t         size,
-                                            nu_seria_flag_t   flags,
-                                            nu_size_t         offset);
+NU_API void nu_seria_register_struct_objref(nu_seria_layout_t   layout,
+                                            nu_str_t            name,
+                                            nu_object_type_id_t type,
+                                            nu_size_t           size,
+                                            nu_seria_flag_t     flags,
+                                            nu_size_t           offset);
 NU_API nu_seria_layout_t nu_seria_register_enum(nu_str_t name, nu_size_t size);
 NU_API void              nu_seria_register_enum_value(nu_seria_layout_t type,
                                                       nu_str_t          name,
@@ -161,10 +161,10 @@ NU_API nu_str_t    nu_seria_read_str(nu_seria_t seria,
                                      nu_size_t  capacity,
                                      nu_byte_t *buffer);
 NU_API void        nu_seria_write_objref(nu_seria_t seria, nu_object_t objref);
-NU_API nu_object_t nu_seria_read_objref(nu_seria_t       seria,
+NU_API nu_object_t nu_seria_read_objref(nu_seria_t          seria,
                                         nu_object_type_id_t type);
 
-NU_API void        nu_object_set_seria(nu_object_type_id_t       type,
+NU_API void        nu_object_set_seria(nu_object_type_id_t    type,
                                        nu_object_seria_load_t load,
                                        nu_object_seria_save_t save);
 NU_API nu_object_t nu_object_load(nu_object_type_id_t type, nu_seria_t seria);

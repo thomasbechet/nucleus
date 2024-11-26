@@ -67,10 +67,10 @@ nu__seria_nbin_close (nu__seria_ctx_t *ctx)
 }
 
 static void
-nu__seria_nbin_write_objref (nu__seria_ctx_t   *ctx,
-                             nu_object_type_id_t   type,
-                             nu_size_t          size,
-                             const nu_object_t *objref)
+nu__seria_nbin_write_objref (nu__seria_ctx_t    *ctx,
+                             nu_object_type_id_t type,
+                             nu_size_t           size,
+                             const nu_object_t  *objref)
 {
     for (nu_size_t i = 0; i < size; ++i)
     {
@@ -209,10 +209,10 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
 }
 
 static void
-nu__seria_nbin_read_objref (nu__seria_ctx_t *ctx,
+nu__seria_nbin_read_objref (nu__seria_ctx_t    *ctx,
                             nu_object_type_id_t type,
-                            nu_size_t        size,
-                            nu_object_t     *objref)
+                            nu_size_t           size,
+                            nu_object_t        *objref)
 {
     for (nu_size_t i = 0; i < size; ++i)
     {

@@ -15,8 +15,8 @@ typedef struct
     nu_str_t name;
     union
     {
-        nu_seria_layout_t layout;
-        nu_object_type_id_t  type;
+        nu_seria_layout_t   layout;
+        nu_object_type_id_t type;
     };
     nu_size_t       offset;
     nu_size_t       size;

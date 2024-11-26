@@ -110,16 +110,15 @@ nu__scope_register (nu_str_t name, nu_size_t size, nu_bool_t auto_cleanup)
     }
     NU_DEBUG(
         "[register scope '" NU_STR_FMT "' size %llu]", NU_STR_ARGS(name), size);
-    nu__scope_t *s  = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
-    s->name         = name;
-    s->last_header  = NU_NULL;
-    s->ptr          = nu_alloc_a(&_ctx.core.allocator, size);
-    s->start        = s->ptr;
-    s->end          = s->start + size;
-    s->prev         = _ctx.core.scope.last_scope;
-    s->auto_cleanup = auto_cleanup;
-    nu_scope_id_t id
-        = NU_ID_MAKE(nu_scope_id_t, _ctx.core.scope.scopes_count - 1);
+    nu__scope_t *s   = &_ctx.core.scope.scopes[_ctx.core.scope.scopes_count++];
+    s->name          = name;
+    s->last_header   = NU_NULL;
+    s->ptr           = nu_alloc_a(&_ctx.core.allocator, size);
+    s->start         = s->ptr;
+    s->end           = s->start + size;
+    s->prev          = _ctx.core.scope.last_scope;
+    s->auto_cleanup  = auto_cleanup;
+    nu_scope_id_t id = NU_ID_MAKE(_ctx.core.scope.scopes_count - 1);
     _ctx.core.scope.last_scope = id;
     return id;
 }
@@ -146,7 +145,7 @@ nu_object_register (nu_str_t name, nu_size_t size, nu_object_cleanup_t cleanup)
     type->name    = name;
     type->size    = size;
     type->cleanup = cleanup;
-    return NU_ID_MAKE(nu_object_type_id_t, _ctx.core.scope.objects_count - 1);
+    return NU_ID_MAKE(_ctx.core.scope.objects_count - 1);
 }
 nu_object_type_id_t
 nu_object_find_type (nu_str_t name)
@@ -155,7 +154,7 @@ nu_object_find_type (nu_str_t name)
     {
         if (nu_str_eq(name, _ctx.core.scope.objects[i].name))
         {
-            return NU_ID_MAKE(nu_object_type_id_t, i);
+            return NU_ID_MAKE(i);
         }
     }
     return NU_NULL;
@@ -261,7 +260,7 @@ nu_scope_find (nu_str_t name)
     {
         if (nu_str_eq(name, _ctx.core.scope.scopes[i].name))
         {
-            return NU_ID_MAKE(nu_scope_id_t, i);
+            return NU_ID_MAKE(i);
         }
     }
     return NU_NULL;

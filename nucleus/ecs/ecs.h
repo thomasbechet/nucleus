@@ -35,7 +35,7 @@ typedef struct
 
 typedef struct
 {
-    nu_scope_id_t       scope;
+    nu_scope_id_t    scope;
     nu__ecs_bitset_t bitset;
     NU_FIXEDVEC(nu__ecs_component_pool_t) pools;
 } nu__ecs_instance_t;
