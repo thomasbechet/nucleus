@@ -13,8 +13,10 @@ NU_DEFINE_OBJECT(nu_ecs_t);
     for (nu_ecs_id_t(e) = nu_ecs_begin((ecs), (iter)); (e); \
          (e)            = nu_ecs_next((ecs), (iter)))
 
-#define NU_ECS_COMPONENT(name, layout) \
-    nu_ecs_register(NU_STR(#name), NU_SERIA_LAYOUT(layout))
+#define NU_ECS_COMPONENT(component, name, layout)             \
+    {                                                         \
+        (component) = nu_ecs_register(NU_STR(#name), layout); \
+    }
 
 NU_DEFINE_ID(nu_ecs_id_t);
 

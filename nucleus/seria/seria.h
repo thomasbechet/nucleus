@@ -12,42 +12,14 @@ typedef enum
 
 typedef struct
 {
-    nu_str_t name;
-    union
-    {
-        nu_seria_layout_t   layout;
-        nu_object_type_id_t type;
-    };
-    nu_size_t       offset;
-    nu_size_t       size;
-    nu_seria_flag_t flags;
-    nu_bool_t       is_objref;
-} nu__seria_struct_field_t;
-
-typedef struct
-{
-    nu_str_t name;
-    nu_u32_t value;
-} nu__seria_enum_value_t;
-
-typedef struct
-{
     nu__seria_kind_t kind;
     nu_str_t         name;
     nu_size_t        size;
     union
     {
         nu_seria_primitive_t primitive;
-        struct
-        {
-            nu_size_t start;
-            nu_size_t count;
-        } fields;
-        struct
-        {
-            nu_size_t start;
-            nu_size_t count;
-        } values;
+        NU_ARRAY(nu_seria_struct_field_t) fields;
+        NU_ARRAY(nu_seria_enum_value_t) values;
     };
 } nu__seria_layout_t;
 
@@ -65,10 +37,8 @@ typedef struct
 typedef struct
 {
     nu_object_type_id_t obj_seria;
-    NU_FIXEDVEC(nu__seria_layout_t) layouts;
-    NU_FIXEDVEC(nu__seria_struct_field_t) struct_fields;
-    NU_FIXEDVEC(nu__seria_enum_value_t) enum_values;
-    nu_seria_layout_t primitive_layouts[NU_SERIA_PRIMITIVE_COUNT];
+    nu_object_type_id_t obj_seria_layout;
+    nu_seria_layout_t   primitive_layouts[NU_SERIA_PRIMITIVE_COUNT];
 } nu__seria_t;
 
 static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);

@@ -160,11 +160,10 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
             for (nu_size_t i = 0; i < size; ++i)
             {
                 nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.count; ++f)
+                for (nu_size_t f = 0; f < layout->fields.size; ++f)
                 {
-                    const nu__seria_struct_field_t *field
-                        = _ctx.seria.struct_fields.data + layout->fields.start
-                          + f;
+                    const nu_seria_struct_field_t *field
+                        = layout->fields.data + f;
                     const nu_byte_t *data = ptr + field->offset;
                     if (field->is_objref)
                     {
@@ -188,16 +187,12 @@ nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
             {
                 nu_u32_t value
                     = *(nu_u32_t *)((nu_byte_t *)data + layout->size * i);
-                for (nu_size_t v = 0; v < layout->values.count; ++v)
+                for (nu_size_t v = 0; v < layout->values.size; ++v)
                 {
-                    if (value
-                        == _ctx.seria.enum_values.data[layout->values.start + v]
-                               .value)
+                    if (value == layout->values.data[v].value)
                     {
                         nu_u32_t hash
-                            = nu_str_hash(_ctx.seria.enum_values
-                                              .data[layout->values.start + v]
-                                              .name);
+                            = nu_str_hash(layout->values.data[v].name);
                         nu__seria_write_4b(ctx, nu__seria_u32_le(hash));
                         break;
                     }
@@ -307,11 +302,10 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
             for (nu_size_t i = 0; i < size; ++i)
             {
                 nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.count; ++f)
+                for (nu_size_t f = 0; f < layout->fields.size; ++f)
                 {
-                    const nu__seria_struct_field_t *field
-                        = _ctx.seria.struct_fields.data + layout->fields.start
-                          + f;
+                    const nu_seria_struct_field_t *field
+                        = layout->fields.data + f;
                     nu_byte_t *data = ptr + field->offset;
                     if (field->is_objref)
                     {
@@ -335,16 +329,11 @@ nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
                 nu_byte_t *ptr   = (nu_byte_t *)data + layout->size * i;
                 nu_u32_t  *value = (nu_u32_t *)ptr;
                 nu_u32_t   hash  = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                for (nu_size_t v = 0; v < layout->values.count; ++v)
+                for (nu_size_t v = 0; v < layout->values.size; ++v)
                 {
-                    if (hash
-                        == nu_str_hash(_ctx.seria.enum_values
-                                           .data[layout->values.start + v]
-                                           .name))
+                    if (hash == nu_str_hash(layout->values.data[v].name))
                     {
-                        *value = _ctx.seria.enum_values
-                                     .data[layout->values.start + v]
-                                     .value;
+                        *value = layout->values.data[v].value;
                         break;
                     }
                 }

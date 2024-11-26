@@ -46,8 +46,8 @@ nu__seria_write_bytes (nu_str_t         filename,
 
 #define NU__REGISTER_CORE(enum, ident, type)                                 \
     {                                                                        \
-        nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);  \
-        NU_ASSERT(layout);                                                   \
+        nu__seria_layout_t *layout                                           \
+            = nu_object_new(_ctx.seria.obj_seria_layout);                    \
         layout->kind                       = NU__SERIA_PRIMITIVE;            \
         layout->name                       = nu_seria_primitive_names[enum]; \
         layout->size                       = sizeof(type);                   \
@@ -83,9 +83,8 @@ nu__seria_init (void)
 {
     _ctx.seria.obj_seria = nu_object_register(
         NU_STR(NU_SERIA), sizeof(nu__seria_ctx_t), nu__seria_cleanup);
-    NU_FIXEDVEC_ALLOC(&_ctx.seria.layouts, NU_SERIA_LAYOUT_MAX);
-    NU_FIXEDVEC_ALLOC(&_ctx.seria.struct_fields, NU_SERIA_STRUCT_FIELD_MAX);
-    NU_FIXEDVEC_ALLOC(&_ctx.seria.enum_values, NU_SERIA_ENUM_VALUE_MAX);
+    _ctx.seria.obj_seria_layout = nu_object_register(
+        NU_STR(NU_SERIA_LAYOUT), sizeof(nu__seria_layout_t), NU_NULL);
     nu__seria_register_primitive_layouts();
 }
 
@@ -99,114 +98,37 @@ nu_seria_new (void)
 }
 
 nu_seria_layout_t
-nu_seria_register_struct (nu_str_t name, nu_size_t size)
+nu_seria_register_struct (nu_str_t                       name,
+                          nu_size_t                      size,
+                          const nu_seria_struct_field_t *fields,
+                          nu_size_t                      field_count)
 {
-    nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);
+    nu__seria_layout_t *layout = nu_object_new(_ctx.seria.obj_seria_layout);
     if (!layout)
     {
         NU_ERROR("max seria layout count reached");
         return NU_NULL;
     }
-    layout->kind         = NU__SERIA_STRUCT;
-    layout->name         = name;
-    layout->size         = size;
-    layout->fields.start = _ctx.seria.struct_fields.size;
-    layout->fields.count = 0;
+    layout->kind = NU__SERIA_STRUCT;
+    layout->name = name;
+    layout->size = size;
+    NU_ARRAY_ALLOC(&layout->fields, field_count);
+    nu_memcpy(layout->fields.data, fields, sizeof(*fields) * field_count);
     return (nu_seria_layout_t)layout;
 }
-void
-nu_seria_register_struct_field (nu_seria_layout_t layout,
-                                nu_str_t          name,
-                                nu_seria_layout_t field_layout,
-                                nu_size_t         size,
-                                nu_seria_flag_t   flags,
-                                nu_size_t         offset)
-{
-    NU_ASSERT(layout);
-    NU_ASSERT(field_layout);
-    NU_ASSERT(size);
-    nu__seria_layout_t       *p = (nu__seria_layout_t *)layout;
-    nu__seria_struct_field_t *a = NU_FIXEDVEC_PUSH(&_ctx.seria.struct_fields);
-    if (!a)
-    {
-        NU_ERROR("max struct field count reached");
-        return;
-    }
-    NU_ASSERT(p->kind == NU__SERIA_STRUCT);
-    a->is_objref = NU_FALSE;
-    a->name      = name;
-    a->size      = size;
-    a->layout    = field_layout;
-    a->offset    = offset;
-    a->flags     = flags;
-    ++p->fields.count;
-}
-void
-nu_seria_register_struct_objref (nu_seria_layout_t   layout,
-                                 nu_str_t            name,
-                                 nu_object_type_id_t type,
-                                 nu_size_t           size,
-                                 nu_seria_flag_t     flags,
-                                 nu_size_t           offset)
-{
-    NU_ASSERT(layout);
-    NU_ASSERT(type);
-    NU_ASSERT(size);
-    nu__seria_layout_t       *p = (nu__seria_layout_t *)layout;
-    nu__seria_struct_field_t *a = NU_FIXEDVEC_PUSH(&_ctx.seria.struct_fields);
-    if (!a)
-    {
-        NU_ERROR("max struct field count reached");
-        return;
-    }
-    NU_ASSERT(p->kind == NU__SERIA_STRUCT);
-    a->is_objref = NU_TRUE;
-    a->name      = name;
-    a->size      = size;
-    a->type      = type;
-    a->offset    = offset;
-    a->flags     = flags;
-    ++p->fields.count;
-}
 nu_seria_layout_t
-nu_seria_register_enum (nu_str_t name, nu_size_t size)
+nu_seria_register_enum (nu_str_t                     name,
+                        nu_size_t                    size,
+                        const nu_seria_enum_value_t *values,
+                        nu_size_t                    value_count)
 {
-    nu__seria_layout_t *layout = NU_FIXEDVEC_PUSH(&_ctx.seria.layouts);
+    nu__seria_layout_t *layout = nu_object_new(_ctx.seria.obj_seria_layout);
     layout->kind               = NU__SERIA_ENUM;
     layout->name               = name;
     layout->size               = size;
-    layout->values.start       = _ctx.seria.enum_values.size;
-    layout->values.count       = 0;
+    NU_ARRAY_ALLOC(&layout->values, value_count);
+    nu_memcpy(layout->values.data, values, sizeof(*values) * value_count);
     return (nu_seria_layout_t)layout;
-}
-void
-nu_seria_register_enum_value (nu_seria_layout_t layout,
-                              nu_str_t          name,
-                              nu_u32_t          value)
-{
-    nu__seria_layout_t     *p = (nu__seria_layout_t *)layout;
-    nu__seria_enum_value_t *v = NU_FIXEDVEC_PUSH(&_ctx.seria.enum_values);
-    if (!v)
-    {
-        NU_ERROR("max seria enum value reached");
-        return;
-    }
-    NU_ASSERT(p->kind == NU__SERIA_ENUM);
-    v->name  = name;
-    v->value = value;
-    ++p->values.count;
-}
-nu_seria_layout_t
-nu_seria_find_layout (nu_str_t name)
-{
-    for (nu_size_t i = 0; i < _ctx.seria.layouts.size; ++i)
-    {
-        if (NU_MATCH(name, _ctx.seria.layouts.data[i].name))
-        {
-            return (nu_seria_layout_t)(_ctx.seria.layouts.data + i);
-        }
-    }
-    return NU_NULL;
 }
 nu_str_t
 nu_seria_name (nu_seria_layout_t layout)
@@ -222,71 +144,65 @@ nu_seria_size (nu_seria_layout_t layout)
 }
 
 void
-nu_seria_dump_layouts (void)
+nu_seria_dump_layout (nu_seria_layout_t layout)
 {
-    for (nu_size_t i = 0; i < _ctx.seria.layouts.size; ++i)
+    nu__seria_layout_t *p = (nu__seria_layout_t *)layout;
+    switch (p->kind)
     {
-        nu__seria_layout_t *p = _ctx.seria.layouts.data + i;
-        switch (p->kind)
-        {
-            case NU__SERIA_PRIMITIVE:
-                // don't print core types
-                break;
-            case NU__SERIA_STRUCT:
-                NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
-                for (nu_size_t f = 0; f < p->fields.count; ++f)
+        case NU__SERIA_PRIMITIVE:
+            // don't print core types
+            break;
+        case NU__SERIA_STRUCT:
+            NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
+            for (nu_size_t f = 0; f < p->fields.size; ++f)
+            {
+                const nu_seria_struct_field_t *field = p->fields.data + f;
+                const char                    *flags;
+                if (field->flags == NU_SERIA_REQUIRED)
                 {
-                    nu__seria_struct_field_t *field
-                        = _ctx.seria.struct_fields.data + p->fields.start + f;
-                    const char *flags;
-                    if (field->flags == NU_SERIA_REQUIRED)
-                    {
-                        flags = "REQ";
-                    }
-                    else
-                    {
-                        flags = "OPT";
-                    }
-                    if (field->is_objref)
-                    {
-                        NU_INFO("   " NU_STR_FMT " ref " NU_STR_FMT
-                                " [%d] %s = <%d,%d>",
-                                NU_STR_ARGS(field->name),
-                                NU_STR_ARGS(nu_object_type_name(field->type)),
-                                field->size,
-                                flags,
-                                field->offset,
-                                sizeof(nu_object_t) * field->size);
-                    }
-                    else
-                    {
-                        nu__seria_layout_t *subtype
-                            = (nu__seria_layout_t *)field->layout;
-                        NU_INFO("   " NU_STR_FMT " " NU_STR_FMT
-                                " [%d] %s = <%d,%d>",
-                                NU_STR_ARGS(field->name),
-                                NU_STR_ARGS(subtype->name),
-                                field->size,
-                                flags,
-                                field->offset,
-                                subtype->size * field->size);
-                    }
+                    flags = "REQ";
                 }
-                NU_INFO("}");
-                break;
-            case NU__SERIA_ENUM:
-                NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
-                for (nu_size_t v = 0; v < p->values.count; ++v)
+                else
                 {
-                    nu__seria_enum_value_t *pv
-                        = _ctx.seria.enum_values.data + p->values.start + v;
-                    NU_INFO("   " NU_STR_FMT " = %d",
-                            NU_STR_ARGS(pv->name),
-                            pv->value);
+                    flags = "OPT";
                 }
-                NU_INFO("}");
-                break;
-        }
+                if (field->is_objref)
+                {
+                    NU_INFO("   " NU_STR_FMT " ref " NU_STR_FMT
+                            " [%d] %s = <%d,%d>",
+                            NU_STR_ARGS(field->name),
+                            NU_STR_ARGS(nu_object_type_name(field->type)),
+                            field->size,
+                            flags,
+                            field->offset,
+                            sizeof(nu_object_t) * field->size);
+                }
+                else
+                {
+                    nu__seria_layout_t *subtype
+                        = (nu__seria_layout_t *)field->layout;
+                    NU_INFO("   " NU_STR_FMT " " NU_STR_FMT
+                            " [%d] %s = <%d,%d>",
+                            NU_STR_ARGS(field->name),
+                            NU_STR_ARGS(subtype->name),
+                            field->size,
+                            flags,
+                            field->offset,
+                            subtype->size * field->size);
+                }
+            }
+            NU_INFO("}");
+            break;
+        case NU__SERIA_ENUM:
+            NU_INFO(NU_STR_FMT " <%d> {", NU_STR_ARGS(p->name), p->size);
+            for (nu_size_t v = 0; v < p->values.size; ++v)
+            {
+                const nu_seria_enum_value_t *pv = p->values.data + v;
+                NU_INFO(
+                    "   " NU_STR_FMT " = %d", NU_STR_ARGS(pv->name), pv->value);
+            }
+            NU_INFO("}");
+            break;
     }
 }
 static void
@@ -352,10 +268,9 @@ nu__seria_dump (nu_size_t         depth,
                 break;
             case NU__SERIA_STRUCT: {
                 nu__seria_print_with_depth(depth, NU_STR("{"));
-                for (nu_size_t f = 0; f < p->fields.count; ++f)
+                for (nu_size_t f = 0; f < p->fields.size; ++f)
                 {
-                    nu__seria_struct_field_t *field
-                        = _ctx.seria.struct_fields.data + p->fields.start + f;
+                    const nu_seria_struct_field_t *field = p->fields.data + f;
                     if (field->is_objref)
                     {
                         nu__seria_print_with_depth(
@@ -398,17 +313,12 @@ nu__seria_dump (nu_size_t         depth,
             case NU__SERIA_ENUM: {
                 nu_u32_t  value = *(nu_u32_t *)ptr;
                 nu_bool_t found = NU_FALSE;
-                for (nu_size_t e = 0; e < p->values.count; ++e)
+                for (nu_size_t e = 0; e < p->values.size; ++e)
                 {
-                    if (value
-                        == _ctx.seria.enum_values.data[p->values.start + e]
-                               .value)
+                    if (value == p->values.data[e].value)
                     {
                         nu__seria_print_with_depth(
-                            depth,
-                            NU_STR("%s"),
-                            _ctx.seria.enum_values.data[p->values.start + e]
-                                .name);
+                            depth, NU_STR("%s"), p->values.data[e].name);
                         found = NU_TRUE;
                         break;
                     }

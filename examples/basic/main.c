@@ -108,6 +108,11 @@ typedef struct
     nu_image_t image;
 } player_t;
 
+static nu_seria_layout_t COMPONENT_LAYOUT;
+static nu_seria_layout_t SUBTYPE_LAYOUT;
+static nu_seria_layout_t TRANSFORM_LAYOUT;
+static nu_seria_layout_t PLAYER_LAYOUT;
+
 void
 init (void)
 {
@@ -120,28 +125,35 @@ init (void)
     // nu_resource_save_group(NU_UID("import"), seria);
     // nu_seria_close(seria);
 
-    NU_SERIA_ENUM(component_t, NU_SERIA_VALUE("transform", COMP_TRANSFORM);
-                  NU_SERIA_VALUE("player", COMP_PLAYER););
+    NU_SERIA_ENUM(COMPONENT_LAYOUT,
+                  component_t,
+                  NU_SERIA_VALUE("transform", COMP_TRANSFORM),
+                  NU_SERIA_VALUE("player", COMP_PLAYER));
+    NU_SERIA_STRUCT(SUBTYPE_LAYOUT,
+                    subtype_t,
+                    NU_SERIA_FIELD(hello, NU_SERIA_U32, 1),
+                    NU_SERIA_FIELD(vector, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1),
+                    NU_SERIA_FIELD(component, COMPONENT_LAYOUT, 1));
+    NU_SERIA_STRUCT(TRANSFORM_LAYOUT,
+                    transform_t,
+                    NU_SERIA_FIELD(position, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1),
+                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD(subtype, SUBTYPE_LAYOUT, 1));
     NU_SERIA_STRUCT(
-        subtype_t, NU_SERIA_FIELD(hello, NU_SERIA_U32, 1);
-        NU_SERIA_FIELD(vector, NU_SERIA_V3, 1);
-        NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1);
-        NU_SERIA_FIELD(component, NU_SERIA_LAYOUT(component_t), 1););
-    NU_SERIA_STRUCT(transform_t, NU_SERIA_FIELD(position, NU_SERIA_V3, 1);
-                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1);
-                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1);
-                    NU_SERIA_FIELD(subtype, NU_SERIA_LAYOUT(subtype_t), 1););
-    NU_SERIA_STRUCT(
-        player_t, NU_SERIA_FIELD(stat, NU_SERIA_U32, 1);
-        NU_SERIA_FIELD(v, NU_SERIA_V3, 1);
-        NU_SERIA_OBJREF(image, nu_object_find_type(NU_STR("image")), 1););
+        PLAYER_LAYOUT,
+        player_t,
+        NU_SERIA_FIELD(stat, NU_SERIA_U32, 1),
+        NU_SERIA_FIELD(v, NU_SERIA_V3, 1),
+        NU_SERIA_OBJREF(image, nu_object_find_type(NU_STR("image")), 1));
 
     player_t player;
     player.image = NU_NULL;
     player.v     = NU_V3_ONES;
     player.stat  = 123;
-    nu_seria_dump_layouts();
-    nu_seria_dump_values(NU_SERIA_LAYOUT(player_t), 1, &player);
+    nu_seria_dump_layout(PLAYER_LAYOUT);
+    nu_seria_dump_values(PLAYER_LAYOUT, 1, &player);
 
     // Configure inputs
     draw        = nu_input_new();
@@ -382,4 +394,5 @@ nu_app (void)
     nu_app_surface_size(WIDTH, HEIGHT);
     nu_app_init_callback(init);
     nu_app_update_callback(update);
+    nu_app_log_level(NU_LOG_DEBUG);
 }

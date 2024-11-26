@@ -16,8 +16,7 @@
 static nu_error_t
 nu__core_init (void)
 {
-    _ctx.core.allocator    = nu__allocator_stdlib();
-    _ctx.core.logger.level = NU_LOG_INFO;
+    _ctx.core.allocator = nu__allocator_stdlib();
     nu__scope_init();
     _ctx.core.obj_fixedloop = nu_object_register(
         NU_STR(NU_FIXEDLOOP), sizeof(nu__fixedloop_t), nu__fixedloop_cleanup);

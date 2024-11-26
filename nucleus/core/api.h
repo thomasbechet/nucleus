@@ -701,6 +701,7 @@ NU_API void *nu_scope_alloc(nu_size_t size);
 NU_API void nu_app_init_callback(nu_app_callback_t callback);
 NU_API void nu_app_free_callback(nu_app_callback_t callback);
 NU_API void nu_app_update_callback(nu_app_callback_t callback);
+NU_API void nu_app_log_level(nu_log_level_t level);
 
 NU_API void nu_panic(nu_str_t source, nu_str_t format, ...);
 NU_API void nu_vpanic(nu_str_t source, nu_str_t format, va_list args);

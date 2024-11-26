@@ -18,6 +18,11 @@ nu_app_update_callback (nu_app_callback_t callback)
 {
     _ctx.core.app.update = callback;
 }
+void
+nu_app_log_level (nu_log_level_t level)
+{
+    _ctx.core.logger.level = level;
+}
 
 nu_bool_t
 nu_exit_requested (void)
@@ -47,6 +52,7 @@ main (int argc, char *argv[])
     _ctx.core.app.update          = NU_NULL;
     _ctx.core.app.deltatime       = 0;
     _ctx.core.app.close_requested = NU_FALSE;
+    _ctx.core.logger.level        = NU_LOG_INFO;
 #ifdef NU_BUILD_PLATFORM
     _ctx.platform.size = nu_v2u(640, 400);
 #endif
