@@ -20,8 +20,8 @@ typedef struct
 
 typedef struct
 {
-    NU_FIXEDVEC(nu__resource_type_t) types;
-    NU_FIXEDVEC(nu__resource_entry_t) entries;
+    NU_VEC(nu__resource_type_t) types;
+    NU_VEC(nu__resource_entry_t) entries;
 } nu__resource_t;
 
 static nu_error_t nu__resource_init(void);

@@ -69,7 +69,7 @@ nu_ui_new (void)
 {
     nu__ui_instance_t *ui = nu_object_new(_ctx.ui.obj_ui);
 
-    NU_FIXEDVEC_ALLOC(&ui->styles, NU_UI_STYLE_STACK_MAX);
+    NU_VEC_ALLOC(&ui->styles, NU_UI_STYLE_STACK_MAX);
     ui->active_style      = NU_NULL;
     ui->active_id         = 0;
     ui->hot_id            = 0;
@@ -132,7 +132,7 @@ void
 nu_ui_push_style (nu_ui_t handle, nu_ui_style_t style)
 {
     nu__ui_instance_t *ui     = (nu__ui_instance_t *)handle;
-    nu_ui_style_t     *pushed = NU_FIXEDVEC_PUSH(&ui->styles);
+    nu_ui_style_t     *pushed = NU_VEC_PUSH(&ui->styles);
     if (!pushed)
     {
         NU_ERROR("max ui style stack count reached");
@@ -145,7 +145,7 @@ void
 nu_ui_pop_style (nu_ui_t handle)
 {
     nu__ui_instance_t *ui    = (nu__ui_instance_t *)handle;
-    nu_ui_style_t     *style = NU_FIXEDVEC_POP(&ui->styles);
+    nu_ui_style_t     *style = NU_VEC_POP(&ui->styles);
     if (style)
     {
         ui->active_style = *style;

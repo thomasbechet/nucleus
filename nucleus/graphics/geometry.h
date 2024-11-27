@@ -10,10 +10,10 @@ typedef struct
     {
         struct
         {
-            NU_FIXEDVEC(nu_v3_t) positions;
-            NU_FIXEDVEC(nu_v2_t) uvs;
-            NU_FIXEDVEC(nu_u16_t) positions_indices;
-            NU_FIXEDVEC(nu_u16_t) uvs_indices;
+            NU_VEC(nu_v3_t) positions;
+            NU_VEC(nu_v2_t) uvs;
+            NU_VEC(nu_u16_t) positions_indices;
+            NU_VEC(nu_u16_t) uvs_indices;
             nu_primitive_t primitive;
         } mesh;
     };

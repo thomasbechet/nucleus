@@ -4,17 +4,17 @@
 #include <nucleus/internal.h>
 
 void
-nu_app_init_callback (nu_app_callback_t callback)
+nu_app_init_callback (nu_app_pfn_t callback)
 {
     _ctx.core.app.init = callback;
 }
 void
-nu_app_free_callback (nu_app_callback_t callback)
+nu_app_free_callback (nu_app_pfn_t callback)
 {
     _ctx.core.app.free = callback;
 }
 void
-nu_app_update_callback (nu_app_callback_t callback)
+nu_app_update_callback (nu_app_pfn_t callback)
 {
     _ctx.core.app.update = callback;
 }

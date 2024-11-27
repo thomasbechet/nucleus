@@ -7,7 +7,7 @@ static void
 nu__append_position (nu__geometry_t *g, nu_v3_t pos)
 {
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
-    nu_v3_t *p = NU_FIXEDVEC_PUSH(&g->mesh.positions);
+    nu_v3_t *p = NU_VEC_PUSH(&g->mesh.positions);
     NU_CHECK_PANIC(p, "out of geometry positions");
     *p = pos;
 }
@@ -15,7 +15,7 @@ static void
 nu__append_uv (nu__geometry_t *g, nu_v2_t uv)
 {
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
-    nu_v2_t *p = NU_FIXEDVEC_PUSH(&g->mesh.uvs);
+    nu_v2_t *p = NU_VEC_PUSH(&g->mesh.uvs);
     NU_CHECK_PANIC(p, "out of geometry uvs");
     *p = uv;
 }
@@ -23,8 +23,8 @@ static void
 nu__append_vertex (nu__geometry_t *g, nu_u16_t ip, nu_u16_t iu)
 {
     NU_ASSERT(g->type == NU_GEOMETRY_MESH);
-    nu_u16_t *pp = NU_FIXEDVEC_PUSH(&g->mesh.positions_indices);
-    nu_u16_t *pu = NU_FIXEDVEC_PUSH(&g->mesh.uvs_indices);
+    nu_u16_t *pp = NU_VEC_PUSH(&g->mesh.positions_indices);
+    nu_u16_t *pu = NU_VEC_PUSH(&g->mesh.uvs_indices);
     NU_CHECK_PANIC(pp, "out of geometry mesh indices");
     *pp = ip;
     *pu = iu;
@@ -278,10 +278,10 @@ nu_geometry_new_mesh (nu_primitive_t primitive,
     g->type = NU_GEOMETRY_MESH;
 
     g->mesh.primitive = primitive;
-    NU_FIXEDVEC_ALLOC(&g->mesh.positions, position_capacity);
-    NU_FIXEDVEC_ALLOC(&g->mesh.uvs, uv_capacity);
-    NU_FIXEDVEC_ALLOC(&g->mesh.positions_indices, vertex_capacity);
-    NU_FIXEDVEC_ALLOC(&g->mesh.uvs_indices, vertex_capacity);
+    NU_VEC_ALLOC(&g->mesh.positions, position_capacity);
+    NU_VEC_ALLOC(&g->mesh.uvs, uv_capacity);
+    NU_VEC_ALLOC(&g->mesh.positions_indices, vertex_capacity);
+    NU_VEC_ALLOC(&g->mesh.uvs_indices, vertex_capacity);
 
     return (nu_geometry_t)g;
 }
@@ -292,10 +292,10 @@ nu_geometry_clear (nu_geometry_t geometry)
     switch (g->type)
     {
         case NU_GEOMETRY_MESH: {
-            NU_FIXEDVEC_CLEAR(&g->mesh.positions);
-            NU_FIXEDVEC_CLEAR(&g->mesh.uvs);
-            NU_FIXEDVEC_CLEAR(&g->mesh.positions_indices);
-            NU_FIXEDVEC_CLEAR(&g->mesh.uvs_indices);
+            NU_VEC_CLEAR(&g->mesh.positions);
+            NU_VEC_CLEAR(&g->mesh.uvs);
+            NU_VEC_CLEAR(&g->mesh.positions_indices);
+            NU_VEC_CLEAR(&g->mesh.uvs_indices);
         }
         break;
     }
@@ -360,9 +360,9 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
             // append indices (destination indices must be updated)
             nu_size_t first_pos_index = d->mesh.positions_indices.size;
             nu_size_t first_uv_index  = d->mesh.uvs_indices.size;
-            NU_FIXEDVEC_APPEND(&d->mesh.positions_indices,
-                               &s->mesh.positions_indices);
-            NU_FIXEDVEC_APPEND(&d->mesh.uvs_indices, &s->mesh.uvs_indices);
+            NU_VEC_APPEND(&d->mesh.positions_indices,
+                          &s->mesh.positions_indices);
+            NU_VEC_APPEND(&d->mesh.uvs_indices, &s->mesh.uvs_indices);
             for (nu_size_t j = first_pos_index;
                  j < d->mesh.positions_indices.size;
                  ++j)
@@ -372,8 +372,8 @@ nu_geometry_merge (nu_geometry_t dst, nu_geometry_t src)
             }
 
             // append data
-            NU_FIXEDVEC_APPEND(&d->mesh.positions, &s->mesh.positions);
-            NU_FIXEDVEC_APPEND(&d->mesh.uvs, &s->mesh.uvs);
+            NU_VEC_APPEND(&d->mesh.positions, &s->mesh.positions);
+            NU_VEC_APPEND(&d->mesh.uvs, &s->mesh.uvs);
         }
         break;
     }

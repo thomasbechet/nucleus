@@ -38,13 +38,13 @@
 #define NU_SERIA_VALUE(value_name, enum_value) \
     { .name = NU_STR(#value_name), .value = enum_value }
 
-#define NU_FIXEDVEC_READ(v, seria, layout)                    \
+#define NU_VEC_READ(v, seria, layout)                         \
     {                                                         \
         nu_u32_t size = nu_seria_read_u32((seria));           \
-        NU_FIXEDVEC_RESIZE(v, size);                          \
+        NU_VEC_RESIZE(v, size);                               \
         nu_seria_read((ser), (layout), (v)->size, (v)->data); \
     }
-#define NU_FIXEDVEC_WRITE(v, seria, layout)                      \
+#define NU_VEC_WRITE(v, seria, layout)                           \
     {                                                            \
         nu_seria_write_u32((v)->size);                           \
         nu_seria_write((seria), (layout), (v)->size, (v)->data); \

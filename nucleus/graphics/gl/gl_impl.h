@@ -141,8 +141,8 @@ nugl__init (void)
     nu__gl_t *gl = &_ctx.graphics.gl;
 
     // Initialize containers
-    NU_FIXEDVEC_ALLOC(&gl->targets, 16);
-    NU_FIXEDVEC_ALLOC(&gl->passes_order, 64);
+    NU_VEC_ALLOC(&gl->targets, 16);
+    NU_VEC_ALLOC(&gl->passes_order, 64);
 
     // Initialize GL functions
     if (!gladLoadGL((GLADloadfunc)RGFW_getProcAddress))
@@ -253,7 +253,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     glUseProgram(0);
 
     // Reset for next frame
-    NU_FIXEDVEC_CLEAR(&gl->passes_order);
+    NU_VEC_CLEAR(&gl->passes_order);
 
     return NU_ERROR_NONE;
 }

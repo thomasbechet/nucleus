@@ -42,7 +42,7 @@ typedef struct
     nu_renderpass_t    active_renderpass;
     nu_ui_controller_t controllers[NU_UI_CONTROLLER_MAX];
 
-    NU_FIXEDVEC(nu_ui_style_t) styles;
+    NU_VEC(nu_ui_style_t) styles;
     nu_ui_style_t active_style;
 
     nu_u32_t next_id;

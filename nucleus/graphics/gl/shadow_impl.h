@@ -6,12 +6,12 @@
 static void
 nugl__shadow_reset (nugl__renderpass_shadow_t *pass)
 {
-    NU_FIXEDVEC_CLEAR(&pass->cmds);
+    NU_VEC_CLEAR(&pass->cmds);
 }
 static void
 nugl__shadow_init (nugl__renderpass_shadow_t *pass)
 {
-    NU_FIXEDVEC_ALLOC(&pass->cmds, 128);
+    NU_VEC_ALLOC(&pass->cmds, 128);
     nugl__shadow_reset(pass);
 }
 static void

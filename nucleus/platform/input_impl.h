@@ -269,7 +269,7 @@ nu__first_binding_from_axis (nuext_axis_t axis)
 static nu__binding_t *
 nu__add_binding (nu_u32_t *first_binding, nu_input_t input)
 {
-    nu__binding_t *binding = NU_FIXEDVEC_PUSH(&_ctx.platform.bindings);
+    nu__binding_t *binding = NU_VEC_PUSH(&_ctx.platform.bindings);
     if (!binding)
     {
         NU_ERROR("max binding count reached");
@@ -277,7 +277,7 @@ nu__add_binding (nu_u32_t *first_binding, nu_input_t input)
     }
     binding->input = input;
     binding->next  = *first_binding;
-    *first_binding = NU_FIXEDVEC_INDEX(&_ctx.platform.bindings, binding);
+    *first_binding = NU_VEC_INDEX(&_ctx.platform.bindings, binding);
     return binding;
 }
 

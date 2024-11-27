@@ -332,26 +332,26 @@
         ? &(pool)->data[NU_HANDLE_INDEX(handle)].value        \
         : NU_NULL;
 
-#define NU_FIXEDVEC(type)   \
+#define NU_VEC(type)        \
     struct                  \
     {                       \
         type     *data;     \
         nu_size_t capacity; \
         nu_size_t size;     \
     }
-#define NU_FIXEDVEC_ALLOC(v, capa)                                   \
+#define NU_VEC_ALLOC(v, capa)                                        \
     {                                                                \
         NU_ASSERT((capa));                                           \
         (v)->data     = nu_scope_alloc(sizeof(*(v)->data) * (capa)); \
         (v)->capacity = (capa);                                      \
         (v)->size     = 0;                                           \
     }
-#define NU_FIXEDVEC_PUSH(v) \
+#define NU_VEC_PUSH(v) \
     (v)->size >= (v)->capacity ? NU_NULL : &(v)->data[(v)->size++]
-#define NU_FIXEDVEC_POP(v)      (v)->size ? &(v)->data[(v)->size--] : NU_NULL
-#define NU_FIXEDVEC_CLEAR(v)    (v)->size = 0
-#define NU_FIXEDVEC_INDEX(v, p) ((p) - (v)->data)
-#define NU_FIXEDVEC_SWAP(v, a, b)                                            \
+#define NU_VEC_POP(v)      (v)->size ? &(v)->data[(v)->size--] : NU_NULL
+#define NU_VEC_CLEAR(v)    (v)->size = 0
+#define NU_VEC_INDEX(v, p) ((p) - (v)->data)
+#define NU_VEC_SWAP(v, a, b)                                                 \
     {                                                                        \
         NU_ASSERT((a) < (v)->size && (b) < (v)->size);                       \
         if ((a) != (b))                                                      \
@@ -359,18 +359,17 @@
             nu_memswp((v)->data + (a), (v)->data + (b), sizeof(*(v)->data)); \
         }                                                                    \
     }
-#define NU_FIXEDVEC_SWAP_REMOVE(v, i)                  \
-    {                                                  \
-        NU_ASSERT((i) < (v)->size);                    \
-        if ((i) < (v)->size - 1)                       \
-        {                                              \
-            NU_FIXEDVEC_SWAP((v), (i), (v)->size - 1); \
-        }                                              \
-        NU_FIXEDVEC_POP((v));                          \
+#define NU_VEC_SWAP_REMOVE(v, i)                  \
+    {                                             \
+        NU_ASSERT((i) < (v)->size);               \
+        if ((i) < (v)->size - 1)                  \
+        {                                         \
+            NU_VEC_SWAP((v), (i), (v)->size - 1); \
+        }                                         \
+        NU_VEC_POP((v));                          \
     }
-#define NU_FIXEDVEC_SWAP_REMOVE_PTR(v, p) \
-    NU_FIXEDVEC_SWAP_REMOVE(v, NU_FIXEDVEC_INDEX(v, p))
-#define NU_FIXEDVEC_APPEND(dst, src)                             \
+#define NU_VEC_SWAP_REMOVE_PTR(v, p) NU_VEC_SWAP_REMOVE(v, NU_VEC_INDEX(v, p))
+#define NU_VEC_APPEND(dst, src)                                  \
     do                                                           \
     {                                                            \
         NU_ASSERT(sizeof(*(dst)->data) == sizeof(*(src)->data)); \
@@ -385,7 +384,7 @@
                       sizeof(*(src)->data) * src_size);          \
         }                                                        \
     } while (0)
-#define NU_FIXEDVEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
+#define NU_VEC_LAST(v) ((v)->size ? (v)->data + ((v)->size - 1) : NU_NULL)
 
 #define NU_ARRAY(type)  \
     struct              \
@@ -428,7 +427,7 @@ typedef nu_u32_t      nu_uid_t;
 typedef nu_i32_t      nu_wchar_t;
 typedef void         *nu_object_t;
 
-typedef void (*nu_fixedloop_callback_t)(nu_f32_t timestep);
+typedef void (*nu_fixedloop_pfn_t)(nu_f32_t timestep);
 
 typedef enum
 {
@@ -664,22 +663,22 @@ typedef struct
     nu_size_t  size;
 } nu_str_t;
 
-typedef NU_FIXEDVEC(nu_v2_t) nu_v2_vec_t;
-typedef NU_FIXEDVEC(nu_v3_t) nu_v3_vec_t;
-typedef NU_FIXEDVEC(nu_bool_t) nu_bool_vec_t;
-typedef NU_FIXEDVEC(nu_u32_t) nu_u32_vec_t;
-typedef NU_FIXEDVEC(nu_size_t) nu_size_vec_t;
+typedef NU_VEC(nu_v2_t) nu_v2_vec_t;
+typedef NU_VEC(nu_v3_t) nu_v3_vec_t;
+typedef NU_VEC(nu_bool_t) nu_bool_vec_t;
+typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
+typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
-typedef void (*nu_app_callback_t)(void);
+typedef void (*nu_app_pfn_t)(void);
 
 NU_DEFINE_ID(nu_scope_id_t);
 NU_DEFINE_ID(nu_object_type_id_t);
 
-typedef void (*nu_object_cleanup_t)(void *data);
+typedef void (*nu_object_cleanup_pfn_t)(void *data);
 
-NU_API nu_object_type_id_t nu_object_register(nu_str_t            name,
-                                              nu_size_t           size,
-                                              nu_object_cleanup_t cleanup);
+NU_API nu_object_type_id_t nu_object_register(nu_str_t                name,
+                                              nu_size_t               size,
+                                              nu_object_cleanup_pfn_t cleanup);
 NU_API nu_object_type_id_t nu_object_find_type(nu_str_t name);
 NU_API nu_object_t         nu_object_new(nu_object_type_id_t type);
 NU_API nu_uid_t            nu_object_uid(nu_object_t obj);
@@ -698,9 +697,9 @@ NU_API void          nu_scope_pop(void);
 
 NU_API void *nu_scope_alloc(nu_size_t size);
 
-NU_API void nu_app_init_callback(nu_app_callback_t callback);
-NU_API void nu_app_free_callback(nu_app_callback_t callback);
-NU_API void nu_app_update_callback(nu_app_callback_t callback);
+NU_API void nu_app_init_callback(nu_app_pfn_t callback);
+NU_API void nu_app_free_callback(nu_app_pfn_t callback);
+NU_API void nu_app_update_callback(nu_app_pfn_t callback);
 NU_API void nu_app_log_level(nu_log_level_t level);
 
 NU_API void nu_panic(nu_str_t source, nu_str_t format, ...);
@@ -734,8 +733,8 @@ NU_API nu_u32_t  nu_time_seconds(const nu_time_t *time);
 NU_API void     nu_timer_reset(nu_timer_t *timer);
 NU_API nu_f32_t nu_timer_elapsed(nu_timer_t *timer);
 
-NU_API nu_fixedloop_t nu_fixedloop_new(nu_fixedloop_callback_t callback,
-                                       nu_f32_t                timestep);
+NU_API nu_fixedloop_t nu_fixedloop_new(nu_fixedloop_pfn_t callback,
+                                       nu_f32_t           timestep);
 NU_API void           nu_fixedloop_delete(nu_fixedloop_t loop);
 NU_API void           nu_fixedloop_update(nu_f32_t dt);
 

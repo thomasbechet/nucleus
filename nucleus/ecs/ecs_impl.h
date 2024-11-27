@@ -111,8 +111,8 @@ nu__ecs_bitset_capacity (const nu__ecs_bitset_t *bitset)
 static void
 nu__ecs_init (void)
 {
-    NU_FIXEDVEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
-    NU_FIXEDVEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
+    NU_VEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
+    NU_VEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
     _ctx.ecs.obj_ecs = nu_object_register(
         NU_STR(NU_ECS), sizeof(nu__ecs_instance_t), NU_NULL);
 }
@@ -121,7 +121,7 @@ nu_ecs_id_t
 nu_ecs_register (nu_str_t name, nu_seria_layout_t layout)
 {
     NU_ASSERT(layout);
-    nu__ecs_component_t *comp = NU_FIXEDVEC_PUSH(&_ctx.ecs.components);
+    nu__ecs_component_t *comp = NU_VEC_PUSH(&_ctx.ecs.components);
     if (!comp)
     {
         NU_ERROR("max ecs component count reached");
@@ -151,8 +151,8 @@ nu_ecs_new (nu_size_t capacity)
 {
     nu__ecs_instance_t *ins = nu_object_new(_ctx.ecs.obj_ecs);
     ins->scope              = nu_scope_active();
-    NU_FIXEDVEC_ALLOC(&ins->pools, _ctx.ecs.components.size);
-    NU_FIXEDVEC_ALLOC(&ins->bitset, (capacity / NU__ECS_ENTITY_PER_MASK) + 1);
+    NU_VEC_ALLOC(&ins->pools, _ctx.ecs.components.size);
+    NU_VEC_ALLOC(&ins->bitset, (capacity / NU__ECS_ENTITY_PER_MASK) + 1);
     return (nu_ecs_t)ins;
 }
 nu_ecs_id_t
@@ -219,9 +219,9 @@ nu_ecs_clear (nu_ecs_t ecs)
     for (nu_size_t i = 0; i < ins->pools.size; ++i)
     {
         nu__ecs_component_pool_t *pool = ins->pools.data + i;
-        NU_FIXEDVEC_CLEAR(&pool->bitset);
+        NU_VEC_CLEAR(&pool->bitset);
     }
-    NU_FIXEDVEC_CLEAR(&ins->bitset);
+    NU_VEC_CLEAR(&ins->bitset);
 }
 
 void *
@@ -250,8 +250,8 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
                 = nu_seria_size(_ctx.ecs.components.data[i].layout);
             nu__ecs_component_pool_t *pool = ins->pools.data + i;
             pool->component_size           = component_size;
-            NU_FIXEDVEC_ALLOC(&pool->chunks, ins->bitset.capacity);
-            NU_FIXEDVEC_ALLOC(&pool->bitset, ins->bitset.capacity);
+            NU_VEC_ALLOC(&pool->chunks, ins->bitset.capacity);
+            NU_VEC_ALLOC(&pool->bitset, ins->bitset.capacity);
             for (nu_size_t i = 0; i < ins->bitset.capacity; ++i)
             {
                 pool->chunks.data[i] = NU_NULL;
@@ -324,14 +324,14 @@ nu_ecs_has (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
 nu_ecs_id_t
 nu_ecs_iter (nu_size_t include_count, nu_size_t exclude_count)
 {
-    nu__ecs_iter_t *it = NU_FIXEDVEC_PUSH(&_ctx.ecs.iters);
+    nu__ecs_iter_t *it = NU_VEC_PUSH(&_ctx.ecs.iters);
     if (!it)
     {
         NU_ERROR("max ecs iter count reached");
         return NU_NULL;
     }
-    NU_FIXEDVEC_ALLOC(&it->includes, include_count);
-    NU_FIXEDVEC_ALLOC(&it->excludes, exclude_count);
+    NU_VEC_ALLOC(&it->includes, include_count);
+    NU_VEC_ALLOC(&it->excludes, exclude_count);
     return NU_ID_MAKE(_ctx.ecs.iters.size - 1);
 }
 void
@@ -339,7 +339,7 @@ nu_ecs_includes (nu_ecs_id_t iter, nu_ecs_id_t c)
 {
     NU_ASSERT(c);
     nu__ecs_iter_t *it   = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
-    nu_ecs_id_t    *incl = NU_FIXEDVEC_PUSH(&it->includes);
+    nu_ecs_id_t    *incl = NU_VEC_PUSH(&it->includes);
     NU_ASSERT(incl);
     *incl = c;
 }
@@ -348,7 +348,7 @@ nu_ecs_excludes (nu_ecs_id_t iter, nu_ecs_id_t c)
 {
     NU_ASSERT(c);
     nu__ecs_iter_t *it   = _ctx.ecs.iters.data + NU_ID_INDEX(iter);
-    nu_ecs_id_t    *excl = NU_FIXEDVEC_PUSH(&it->excludes);
+    nu_ecs_id_t    *excl = NU_VEC_PUSH(&it->excludes);
     NU_ASSERT(excl);
     *excl = c;
 }

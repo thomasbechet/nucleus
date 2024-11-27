@@ -19,7 +19,7 @@ nugl__submesh_draw_instanced (nugl__mesh_command_buffer_t *cmds,
     nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     for (nu_size_t i = 0; i < instance_count; ++i)
     {
-        nugl__mesh_command_t *cmd = NU_FIXEDVEC_PUSH(cmds);
+        nugl__mesh_command_t *cmd = NU_VEC_PUSH(cmds);
         NU_CHECK_PANIC(cmd, "out of draw mesh command");
         cmd->transform = transforms[i];
         cmd->vao       = pmesh->gl.vao;
@@ -85,7 +85,7 @@ nugl__find_or_create_framebuffer (GLuint color, GLuint depth)
 
     NU_DEBUG("new framebuffer created for color: %d depth: %d", color, depth);
 
-    nugl__rendertarget_t *target = NU_FIXEDVEC_PUSH(&gl->targets);
+    nugl__rendertarget_t *target = NU_VEC_PUSH(&gl->targets);
     NU_CHECK_PANIC(target, "out of render target");
     target->color = color;
     target->depth = depth;
@@ -173,7 +173,7 @@ nugl__renderpass_submit (nu_renderpass_t pass)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
 
-    nu_renderpass_t *pushed = NU_FIXEDVEC_PUSH(&gl->passes_order);
+    nu_renderpass_t *pushed = NU_VEC_PUSH(&gl->passes_order);
     if (!pushed)
     {
         NU_ERROR("max renderpass submitted count reached");

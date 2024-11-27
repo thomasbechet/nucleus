@@ -98,8 +98,7 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
             }
 
             // Append asset
-            nu__model_gltf_resource_t *cache
-                = NU_FIXEDVEC_PUSH(&loader->resources);
+            nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
             NU_CHECK_PANIC(cache, "out of loader resource cache");
             cache->ptr    = mesh;
             cache->handle = handle;
@@ -123,7 +122,7 @@ nu__load_texture (nu__model_gltf_loader_t *loader, const cgltf_texture *texture)
     nu_texture_t handle = nu_texture_new_from_image(NU_TEXTURE_COLORMAP, image);
 
     // Append asset
-    nu__model_gltf_resource_t *cache = NU_FIXEDVEC_PUSH(&loader->resources);
+    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
     NU_CHECK_PANIC(cache, "out of loader resource cache");
     cache->ptr    = texture;
     cache->handle = handle;
@@ -159,7 +158,7 @@ nu__load_material (nu__model_gltf_loader_t *loader,
     nu_material_set_texture(handle, texture);
 
     // Append asset
-    nu__model_gltf_resource_t *cache = NU_FIXEDVEC_PUSH(&loader->resources);
+    nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
     NU_CHECK_PANIC(cache, "out of loader resource cache");
     cache->ptr    = material;
     cache->handle = handle;
@@ -184,7 +183,7 @@ nu__load_material_default (nu__model_gltf_loader_t *loader)
 static void
 nu__model_gltf_loader_init (void)
 {
-    NU_FIXEDVEC_ALLOC(&_ctx.importer.model_gltf_loader.resources, 512);
+    NU_VEC_ALLOC(&_ctx.importer.model_gltf_loader.resources, 512);
 }
 static void
 nu__model_gltf_loader_free (void)
@@ -201,7 +200,7 @@ nu__model_gltf_load (nu__model_gltf_loader_t *loader, nu_str_t filename)
     nu_error_t   error;
 
     // Reset cache
-    NU_FIXEDVEC_CLEAR(&loader->resources);
+    NU_VEC_CLEAR(&loader->resources);
     loader->default_material = NU_NULL;
 
     // Parse file and load buffers

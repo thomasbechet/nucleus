@@ -52,7 +52,7 @@ nu__platform_init (void)
     _ctx.platform.mouse_motion_previous = NU_V2_ZEROS;
 
     // Initialize inputs
-    NU_FIXEDVEC_ALLOC(&_ctx.platform.bindings, 32);
+    NU_VEC_ALLOC(&_ctx.platform.bindings, 32);
     for (nu_u32_t i = 0; i < NU__MAX_KEY_COUNT; ++i)
     {
         _ctx.platform.key_to_first_binding[i] = NU__ID_NONE;

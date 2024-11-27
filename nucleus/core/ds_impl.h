@@ -36,13 +36,13 @@
 // nu__pool_add (nu_size_t  tsize,
 //               void      *data,
 //               nu_size_t *capacity,
-//               NU_FIXEDVEC(nu_size_t) * freelist,
+//               NU_VEC(nu_size_t) * freelist,
 //               nu_size_t *pindex)
 // {
 //     NU_ASSERT(data && capacity && freelist && pindex);
 //     if (freelist->size)
 //     {
-//         nu_size_t *pop = NU_FIXEDVEC_POP(freelist);
+//         nu_size_t *pop = NU_VEC_POP(freelist);
 //         *pindex        = *pop;
 //         return data;
 //     }
@@ -57,7 +57,7 @@
 //
 //     for (nu_size_t i = 0; i < (new_capacity - *capacity - 1); ++i)
 //     {
-//         nu_size_t *push = NU_FIXEDVEC_PUSH(freelist);
+//         nu_size_t *push = NU_VEC_PUSH(freelist);
 //         NU_CHECK(push, return NU_NULL);
 //         *push = new_capacity - i - 1;
 //     }

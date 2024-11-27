@@ -65,7 +65,7 @@ typedef struct
     nu_object_type_id_t obj_input;
     nu__input_t        *last_input;
 
-    NU_FIXEDVEC(nu__binding_t) bindings;
+    NU_VEC(nu__binding_t) bindings;
     nu_u32_t key_to_first_binding[NU__MAX_KEY_COUNT];
     nu_u32_t mouse_button_to_first_binding[NU__MAX_MOUSE_BUTTON_COUNT];
     nu_u32_t mouse_x_first_binding;

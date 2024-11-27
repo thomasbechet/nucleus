@@ -31,7 +31,7 @@ typedef struct
     nu_material_t material;
 } nugl__mesh_command_t;
 
-typedef NU_FIXEDVEC(nugl__mesh_command_t) nugl__mesh_command_buffer_t;
+typedef NU_VEC(nugl__mesh_command_t) nugl__mesh_command_buffer_t;
 
 typedef enum
 {
@@ -54,7 +54,7 @@ typedef struct
     };
 } nugl__canvas_command_t;
 
-typedef NU_FIXEDVEC(nugl__canvas_command_t) nugl__canvas_command_buffer_t;
+typedef NU_VEC(nugl__canvas_command_t) nugl__canvas_command_buffer_t;
 
 typedef struct
 {
@@ -64,7 +64,7 @@ typedef struct
     nu_f32_t depth;
 } nugl__gpu_blit_t;
 
-typedef NU_FIXEDVEC(nugl__gpu_blit_t) nugl__gpu_blit_buffer_t;
+typedef NU_VEC(nugl__gpu_blit_t) nugl__gpu_blit_buffer_t;
 
 typedef struct
 {
@@ -125,8 +125,8 @@ typedef struct
     GLuint shadow_program;
     GLuint nearest_sampler;
 
-    NU_FIXEDVEC(nugl__rendertarget_t) targets;
-    NU_FIXEDVEC(nu_renderpass_t) passes_order;
+    NU_VEC(nugl__rendertarget_t) targets;
+    NU_VEC(nu_renderpass_t) passes_order;
 } nu__gl_t;
 
 #endif

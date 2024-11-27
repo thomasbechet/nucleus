@@ -109,8 +109,8 @@ nu__resource_handler (nu_resource_action_t action,
 static nu_error_t
 nu__resource_init (void)
 {
-    NU_FIXEDVEC_ALLOC(&_ctx.resource.types, 32);
-    NU_FIXEDVEC_ALLOC(&_ctx.resource.entries, 32);
+    NU_VEC_ALLOC(&_ctx.resource.types, 32);
+    NU_VEC_ALLOC(&_ctx.resource.entries, 32);
 
     // register base types
     NU__REGISTER(NU_RES_IMAGE, image);
@@ -126,8 +126,7 @@ nu__resource_free (void)
 {
     while (_ctx.resource.entries.size)
     {
-        const nu__resource_entry_t *res
-            = NU_FIXEDVEC_LAST(&_ctx.resource.entries);
+        const nu__resource_entry_t *res = NU_VEC_LAST(&_ctx.resource.entries);
         nu_resource_delete(res->uid);
     }
     return NU_ERROR_NONE;
@@ -175,7 +174,7 @@ nu_resource_register (nu_uid_t              uid,
         return;
     }
 
-    nu__resource_type_t *t = NU_FIXEDVEC_PUSH(&_ctx.resource.types);
+    nu__resource_type_t *t = NU_VEC_PUSH(&_ctx.resource.types);
     NU_CHECK_PANIC(t, "out of resource types");
     t->uid     = uid;
     t->name    = name;
@@ -201,7 +200,7 @@ nu_resource_insert (nu_uid_t    type,
         return;
     }
 
-    nu__resource_entry_t *res = NU_FIXEDVEC_PUSH(&_ctx.resource.entries);
+    nu__resource_entry_t *res = NU_VEC_PUSH(&_ctx.resource.entries);
     NU_CHECK_PANIC(res, "out of resource entries");
     res->type   = type;
     res->uid    = uid;
@@ -221,7 +220,7 @@ nu__resource_remove_index (nu_size_t index)
     // delete resource
     t->handler(NU_RES_DELETE, res->type, res->handle, NU_NULL);
 
-    NU_FIXEDVEC_SWAP_REMOVE(&_ctx.resource.entries, index);
+    NU_VEC_SWAP_REMOVE(&_ctx.resource.entries, index);
 }
 void
 nu_resource_delete (nu_uid_t uid)

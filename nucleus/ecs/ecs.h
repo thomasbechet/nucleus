@@ -7,7 +7,7 @@
 #define NU__ECS_COMPONENT_NAME_LEN 64
 
 typedef nu_u32_t nu__ecs_mask_t;
-typedef NU_FIXEDVEC(nu__ecs_mask_t) nu__ecs_bitset_t;
+typedef NU_VEC(nu__ecs_mask_t) nu__ecs_bitset_t;
 
 typedef struct
 {
@@ -18,16 +18,16 @@ typedef struct
 typedef struct
 {
     nu_size_t capa;
-    NU_FIXEDVEC(void *) chunks;
+    NU_VEC(void *) chunks;
     nu_size_t        component_size;
     nu__ecs_bitset_t bitset;
 } nu__ecs_component_pool_t;
 
 typedef struct
 {
-    NU_FIXEDVEC(nu_ecs_id_t)
+    NU_VEC(nu_ecs_id_t)
     includes;
-    NU_FIXEDVEC(nu_ecs_id_t) excludes;
+    NU_VEC(nu_ecs_id_t) excludes;
     nu__ecs_mask_t mask;
     nu_size_t      mask_index;
     nu_size_t      mask_offset;
@@ -37,13 +37,13 @@ typedef struct
 {
     nu_scope_id_t    scope;
     nu__ecs_bitset_t bitset;
-    NU_FIXEDVEC(nu__ecs_component_pool_t) pools;
+    NU_VEC(nu__ecs_component_pool_t) pools;
 } nu__ecs_instance_t;
 
 typedef struct
 {
-    NU_FIXEDVEC(nu__ecs_component_t) components;
-    NU_FIXEDVEC(nu__ecs_iter_t) iters;
+    NU_VEC(nu__ecs_component_t) components;
+    NU_VEC(nu__ecs_iter_t) iters;
     nu_object_type_id_t obj_ecs;
 } nu__ecs_t;
 

@@ -124,7 +124,7 @@ nu__scope_register (nu_str_t name, nu_size_t size, nu_bool_t auto_cleanup)
 }
 
 nu_object_type_id_t
-nu_object_register (nu_str_t name, nu_size_t size, nu_object_cleanup_t cleanup)
+nu_object_register (nu_str_t name, nu_size_t size, nu_object_cleanup_pfn_t cleanup)
 {
     if (_ctx.core.scope.objects_count >= NU_OBJECT_MAX)
     {

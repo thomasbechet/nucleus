@@ -11,15 +11,15 @@ nu__fixedloop_cleanup (void *data)
     {
         if (handle == _ctx.core.fixedloops.data[i])
         {
-            NU_FIXEDVEC_SWAP_REMOVE(&_ctx.core.fixedloops, i);
+            NU_VEC_SWAP_REMOVE(&_ctx.core.fixedloops, i);
         }
     }
 }
 
 nu_fixedloop_t
-nu_fixedloop_new (nu_fixedloop_callback_t callback, nu_f32_t timestep)
+nu_fixedloop_new (nu_fixedloop_pfn_t callback, nu_f32_t timestep)
 {
-    nu_fixedloop_t *handle = NU_FIXEDVEC_PUSH(&_ctx.core.fixedloops);
+    nu_fixedloop_t *handle = NU_VEC_PUSH(&_ctx.core.fixedloops);
     if (!handle)
     {
         NU_ERROR("max fixedloop count reached");
