@@ -51,18 +51,20 @@ init (void)
 
     NU_ECS_COMPONENT(COMP_TRANSFORM, transform, TRANSFORM_LAYOUT);
     NU_ECS_COMPONENT(COMP_PLAYER, player, PLAYER_LAYOUT);
-    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_4M);
+    SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_16M);
     nu_scope_set_active(SCOPE);
 
     ecs = nu_ecs_new(512);
 
-    nu_ecs_id_t  e = nu_ecs_add(ecs);
-    transform_t *p = nu_ecs_set(ecs, e, COMP_TRANSFORM);
-    p->scale       = NU_V3_ONES;
-    p->position    = NU_V3_ONES;
-    p->rotation    = nu_q4_identity();
-    nu_ecs_set(ecs, e, COMP_PLAYER);
-    e = nu_ecs_add(ecs);
+    nu_ecs_id_t  e     = nu_ecs_add(ecs);
+    transform_t *p     = nu_ecs_set(ecs, e, COMP_TRANSFORM);
+    p->scale           = NU_V3_ONES;
+    p->position        = NU_V3_ONES;
+    p->rotation        = nu_q4_identity();
+    nu_ecs_id_t ep     = e;
+    player_t   *player = nu_ecs_set(ecs, e, COMP_PLAYER);
+    player->stat       = 0xFFFFFFFF;
+    e                  = nu_ecs_add(ecs);
     nu_ecs_set(ecs, e, COMP_TRANSFORM);
 
     nu_seria_dump_layout(PLAYER_LAYOUT);
@@ -70,14 +72,15 @@ init (void)
     NU_INFO("saved:");
     nu_ecs_dump(ecs);
 
-    nu_seria_t ser = nu_seria_new();
-    nu_seria_open_file(ser, NU_SERIA_WRITE, NU_STR("dump.bin"), NU_MEM_4M);
+    nu_scope_push();
+    nu_seria_t ser
+        = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_WRITE, NU_MEM_4M);
     nu_ecs_save(ecs, ser);
-    nu_size_t n = nu_seria_close(ser);
+    nu_scope_pop();
 
-    nu_seria_open_file(ser, NU_SERIA_READ, NU_STR("dump.bin"), NU_MEM_4M);
-    ecs = nu_ecs_load(ser);
-    nu_seria_close(ser);
+    ser    = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
+    ecs    = nu_ecs_load(ser);
+    player = nu_ecs_get(ecs, ep, COMP_PLAYER);
 
     NU_INFO("loaded:");
     nu_ecs_dump(ecs);
@@ -87,4 +90,5 @@ void
 nu_app (void)
 {
     nu_app_init_callback(init);
+    nu_app_log_level(NU_LOG_DEBUG);
 }

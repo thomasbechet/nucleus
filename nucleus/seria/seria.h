@@ -25,7 +25,6 @@ typedef struct
 
 typedef struct
 {
-    nu_bool_t       opened;
     nu_bool_t       fileopen;
     nu_str_t        filename;
     nu_seria_mode_t mode;

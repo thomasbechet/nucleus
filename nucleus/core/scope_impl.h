@@ -83,8 +83,8 @@ nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
     nu__object_type_t *object = nu__object_type(header->object_type);
     if (object)
     {
-        void *data
-            = header + sizeof(nu__scope_header_t) + sizeof(nu__object_header_t);
+        void *data = (nu_byte_t *)header + sizeof(nu__scope_header_t)
+                     + sizeof(nu__object_header_t);
         NU_DEBUG("[cleanup '" NU_STR_FMT "' obj '" NU_STR_FMT "' %p]",
                  NU_STR_ARGS(scope->name),
                  NU_STR_ARGS(object->name),

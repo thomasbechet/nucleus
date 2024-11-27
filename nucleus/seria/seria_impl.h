@@ -71,11 +71,17 @@ nu__seria_register_primitive_layouts (void)
 static void
 nu__seria_cleanup (void *data)
 {
-    nu__seria_ctx_t *s = data;
-    if (s->opened)
+    nu__seria_ctx_t *ctx  = data;
+    nu_size_t        size = 0;
+    if (ctx->mode == NU_SERIA_WRITE)
     {
-        nu_seria_close((nu_seria_t)s);
+        size = ctx->ptr - ctx->bytes;
+        if (ctx->fileopen)
+        {
+            nu__seria_write_bytes(ctx->filename, ctx->bytes, size);
+        }
     }
+    nu__seria_nbin_close(ctx);
 }
 
 static void
@@ -86,15 +92,6 @@ nu__seria_init (void)
     _ctx.seria.obj_seria_layout = nu_object_register(
         NU_STR(NU_SERIA_LAYOUT), sizeof(nu__seria_layout_t), NU_NULL);
     nu__seria_register_primitive_layouts();
-}
-
-nu_seria_t
-nu_seria_new (void)
-{
-    nu__seria_ctx_t *s = nu_object_new(_ctx.seria.obj_seria);
-    s->opened          = NU_FALSE;
-    s->bytes           = NU_NULL;
-    return (nu_seria_t)s;
 }
 
 nu_seria_layout_t
@@ -383,21 +380,15 @@ nu__seria_write_4b (nu__seria_ctx_t *ctx, nu_u32_t v)
     nu__seria_write(ctx, &v, sizeof(nu_u32_t));
 }
 
-void
-nu_seria_open_file (nu_seria_t      seria,
-                    nu_seria_mode_t mode,
-                    nu_str_t        filename,
-                    nu_size_t       buffer_size)
+nu_seria_t
+nu_seria_new_file (nu_str_t        filename,
+                   nu_seria_mode_t mode,
+                   nu_size_t       buffer_size)
 {
-    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    if (ctx->opened)
-    {
-        nu_seria_close(seria);
-    }
-    ctx->opened   = NU_TRUE;
-    ctx->fileopen = NU_TRUE;
-    ctx->filename = filename;
-    ctx->mode     = mode;
+    nu__seria_ctx_t *ctx = nu_object_new(_ctx.seria.obj_seria);
+    ctx->fileopen        = NU_TRUE;
+    ctx->filename        = filename;
+    ctx->mode            = mode;
 
     // load file
     if (mode == NU_SERIA_READ)
@@ -417,47 +408,23 @@ nu_seria_open_file (nu_seria_t      seria,
     }
 
     nu__seria_nbin_open(ctx);
+
+    return (nu_seria_t)ctx;
 }
-void
-nu_seria_open_bytes (nu_seria_t      seria,
-                     nu_seria_mode_t mode,
-                     nu_byte_t      *bytes,
-                     nu_size_t       size)
+nu_seria_t
+nu_seria_new_bytes (nu_seria_mode_t mode, nu_byte_t *bytes, nu_size_t size)
 {
-    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    if (ctx->opened)
-    {
-        nu_seria_close(seria);
-    }
-    ctx->opened   = NU_TRUE;
-    ctx->fileopen = NU_FALSE;
-    ctx->mode     = mode;
+    nu__seria_ctx_t *ctx = nu_object_new(_ctx.seria.obj_seria);
+    ctx->fileopen        = NU_FALSE;
+    ctx->mode            = mode;
 
     ctx->bytes = bytes;
     ctx->end   = ctx->bytes + size;
     ctx->ptr   = ctx->bytes;
 
     nu__seria_nbin_open(ctx);
-}
-nu_size_t
-nu_seria_close (nu_seria_t seria)
-{
-    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    if (ctx->mode == NU_SERIA_WRITE)
-    {
-        nu_size_t size = ctx->ptr - ctx->bytes;
-        if (ctx->fileopen)
-        {
-            nu__seria_write_bytes(ctx->filename, ctx->bytes, size);
-        }
-        return size;
-    }
-    if (ctx->opened)
-    {
-        nu__seria_nbin_close(ctx);
-        ctx->opened = NU_FALSE;
-    }
-    return 0;
+
+    return (nu_seria_t)ctx;
 }
 
 void

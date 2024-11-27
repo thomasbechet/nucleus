@@ -12,18 +12,20 @@
                                             struct##_fields,                 \
                                             NU_ARRAY_SIZE(struct##_fields)); \
     }
-#define NU_SERIA_FIELD(field, field_layout, field_size)                     \
-    {                                                                       \
-        .name = NU_STR(#field), .layout = field_layout, .size = field_size, \
-        .flags = NU_SERIA_REQUIRED, .offset = offsetof(sstruct, field),     \
-        .is_objref = NU_FALSE                                               \
-    }
-#define NU_SERIA_OBJREF(field, object_type, field_size)                  \
-    {                                                                    \
-        .name = NU_STR(#field), .type = object_type, .size = field_size, \
-        .flags = NU_SERIA_REQUIRED, .offset = offsetof(sstruct, field),  \
-        .is_objref = NU_TRUE                                             \
-    }
+#define NU_SERIA_FIELD(field, field_layout, field_size) \
+    { .name      = NU_STR(#field),                      \
+      .layout    = field_layout,                        \
+      .size      = field_size,                          \
+      .flags     = NU_SERIA_REQUIRED,                   \
+      .offset    = offsetof(sstruct, field),            \
+      .is_objref = NU_FALSE }
+#define NU_SERIA_OBJREF(field, object_type, field_size) \
+    { .name      = NU_STR(#field),                      \
+      .type      = object_type,                         \
+      .size      = field_size,                          \
+      .flags     = NU_SERIA_REQUIRED,                   \
+      .offset    = offsetof(sstruct, field),            \
+      .is_objref = NU_TRUE }
 
 #define NU_SERIA_ENUM(layout, enum, ...)                                 \
     {                                                                    \
@@ -33,10 +35,8 @@
                                           enum##_values,                 \
                                           NU_ARRAY_SIZE(enum##_values)); \
     }
-#define NU_SERIA_VALUE(value_name, enum_value)           \
-    {                                                    \
-        .name = NU_STR(#value_name), .value = enum_value \
-    }
+#define NU_SERIA_VALUE(value_name, enum_value) \
+    { .name = NU_STR(#value_name), .value = enum_value }
 
 #define NU_FIXEDVEC_READ(v, seria, layout)                    \
     {                                                         \
@@ -117,8 +117,6 @@ typedef struct
     nu_u32_t value;
 } nu_seria_enum_value_t;
 
-NU_API nu_seria_t nu_seria_new(void);
-
 NU_API nu_seria_layout_t
 nu_seria_register_struct(nu_str_t                       name,
                          nu_size_t                      size,
@@ -138,15 +136,12 @@ NU_API void nu_seria_dump_values(nu_seria_layout_t layout,
                                  nu_size_t         size,
                                  void             *data);
 
-NU_API void      nu_seria_open_file(nu_seria_t      seria,
+NU_API nu_seria_t nu_seria_new_file(nu_str_t        filename,
                                     nu_seria_mode_t mode,
-                                    nu_str_t        filename,
                                     nu_size_t       buffer_size);
-NU_API void      nu_seria_open_bytes(nu_seria_t      seria,
-                                     nu_seria_mode_t mode,
+NU_API nu_seria_t nu_seria_new_bytes(nu_seria_mode_t mode,
                                      nu_byte_t      *bytes,
                                      nu_size_t       size);
-NU_API nu_size_t nu_seria_close(nu_seria_t seria);
 
 NU_API void nu_seria_write(nu_seria_t        seria,
                            nu_seria_layout_t layout,
