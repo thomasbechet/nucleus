@@ -108,10 +108,10 @@ typedef struct
     nu_image_t image;
 } player_t;
 
-static nu_seria_layout_t COMPONENT_LAYOUT;
-static nu_seria_layout_t SUBTYPE_LAYOUT;
-static nu_seria_layout_t TRANSFORM_LAYOUT;
-static nu_seria_layout_t PLAYER_LAYOUT;
+static nu_seria_struct_t COMPONENT_LAYOUT;
+static nu_seria_struct_t SUBTYPE_LAYOUT;
+static nu_seria_struct_t TRANSFORM_LAYOUT;
+static nu_seria_struct_t PLAYER_LAYOUT;
 
 void
 init (void)
@@ -152,7 +152,7 @@ init (void)
     player.image = NU_NULL;
     player.v     = NU_V3_ONES;
     player.stat  = 123;
-    nu_seria_dump_layout(PLAYER_LAYOUT);
+    nu_seria_dump_struct_type(PLAYER_LAYOUT);
     nu_seria_dump_values(PLAYER_LAYOUT, 1, &player);
 
     // Configure inputs

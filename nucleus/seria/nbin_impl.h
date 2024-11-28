@@ -67,279 +67,286 @@ nu__seria_nbin_close (nu__seria_ctx_t *ctx)
 }
 
 static void
-nu__seria_nbin_write_objref (nu__seria_ctx_t    *ctx,
-                             nu_object_type_id_t type,
-                             nu_size_t           size,
-                             const nu_object_t  *objref)
+nu__nbin_seria_begin (nu__seria_ctx_t *ctx)
 {
-    for (nu_size_t i = 0; i < size; ++i)
+}
+static void
+nu__seria_nbin_end (nu__seria_ctx_t *ctx)
+{
+}
+
+static void
+nu__seria_nbin_write_struct (nu__seria_ctx_t    *ctx,
+                             nu_str_t            name,
+                             nu__seria_struct_t *s,
+                             nu_size_t           count,
+                             const void         *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
     {
-        if (objref[i])
+        nu_byte_t *ptr = (nu_byte_t *)data + s->size * i;
+        for (nu_size_t f = 0; f < s->fields.size; ++f)
+        {
+            const nu_seria_struct_field_t *field = s->fields.data + f;
+            const nu_byte_t               *data  = ptr + field->offset;
+            if (field->is_objref)
+            {
+                nu__seria_nbin_write_objref(
+                    ctx, field->type, field->count, (const nu_object_t *)data);
+            }
+            else
+            {
+                const nu__seria_struct_t *subtype
+                    = (const nu__seria_struct_t *)field->layout;
+                nu__seria_nbin_write(ctx, subtype, field->count, data);
+            }
+        }
+    }
+}
+static void
+nu__seria_nbin_read_struct (nu__seria_ctx_t    *ctx,
+                            nu_str_t            name,
+                            nu__seria_struct_t *s,
+                            nu_size_t           count,
+                            void               *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_byte_t *ptr = (nu_byte_t *)data + s->size * i;
+        for (nu_size_t f = 0; f < s->fields.size; ++f)
+        {
+            const nu_seria_struct_field_t *field = s->fields.data + f;
+            nu_byte_t                     *data  = ptr + field->offset;
+            if (field->is_objref)
+            {
+                nu__seria_nbin_read_objref(
+                    ctx, field->type, field->count, (nu_object_t *)data);
+            }
+            else
+            {
+                const nu__seria_struct_t *field_layout
+                    = (const nu__seria_struct_t *)field->layout;
+                nu__seria_nbin_read(ctx, field_layout, field->count, data);
+            }
+        }
+    }
+}
+static void
+nu__seria_nbin_write_enum (nu__seria_ctx_t  *ctx,
+                           nu_str_t          name,
+                           nu__seria_enum_t *e,
+                           nu_size_t         count,
+                           const void       *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_u32_t value = *(nu_u32_t *)((nu_byte_t *)data + e->size * i);
+        for (nu_size_t v = 0; v < e->values.size; ++v)
+        {
+            if (value == e->values.data[v].value)
+            {
+                nu_u32_t hash = nu_str_hash(e->values.data[v].name);
+                nu__seria_write_4b(ctx, nu__seria_u32_le(hash));
+                break;
+            }
+        }
+    }
+}
+static void
+nu__seria_nbin_read_enum (nu__seria_ctx_t  *ctx,
+                          nu_str_t          name,
+                          nu__seria_enum_t *e,
+                          nu_size_t         count,
+                          void             *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_byte_t *p     = (nu_byte_t *)data + e->size * i;
+        nu_u32_t  *value = (nu_u32_t *)p;
+        nu_u32_t   hash  = nu__seria_u32_le(nu__seria_read_4b(ctx));
+        for (nu_size_t v = 0; v < e->values.size; ++v)
+        {
+            if (hash == nu_str_hash(e->values.data[v].name))
+            {
+                *value = e->values.data[v].value;
+                break;
+            }
+        }
+    }
+}
+static void
+nu__seria_nbin_write_primitive (nu__seria_ctx_t     *ctx,
+                                nu_str_t             name,
+                                nu_seria_primitive_t primitive,
+                                nu_size_t            count,
+                                const void          *data)
+{
+    switch (primitive)
+    {
+        case NU_SERIA_BYTE: {
+            const nu_byte_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                nu__seria_write_1b(ctx, p[i]);
+            }
+        }
+        break;
+        case NU_SERIA_U32: {
+            const nu_u32_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i]));
+            }
+        }
+        break;
+        case NU_SERIA_F32: {
+            const nu_f32_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i]));
+            }
+        }
+        break;
+        case NU_SERIA_V3: {
+            const nu_v3_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].x));
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].y));
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].z));
+            }
+        }
+        break;
+        case NU_SERIA_Q4: {
+            const nu_q4_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].x));
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].y));
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].z));
+                nu__seria_write_4b(ctx, nu__seria_u32_le(p[i].w));
+            }
+        }
+        break;
+    }
+}
+static void
+nu__seria_nbin_read_primitive (nu__seria_ctx_t     *ctx,
+                               nu_str_t             name,
+                               nu_seria_primitive_t primitive,
+                               nu_size_t            count,
+                               void                *data)
+{
+    switch (primitive)
+    {
+        case NU_SERIA_BYTE: {
+            nu_byte_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                p[i] = nu__seria_read_1b(ctx);
+            }
+        }
+        break;
+        case NU_SERIA_U32: {
+            nu_u32_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                p[i] = nu__seria_u32_le(nu__seria_read_4b(ctx));
+            }
+        }
+        break;
+        case NU_SERIA_F32: {
+            nu_f32_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                p[i] = nu__seria_u32_le(nu__seria_read_4b(ctx));
+            }
+        }
+        break;
+        case NU_SERIA_V3: {
+            nu_v3_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                p[i].x = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                p[i].y = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                p[i].z = nu__seria_u32_le(nu__seria_read_4b(ctx));
+            }
+        }
+        break;
+        case NU_SERIA_Q4: {
+            nu_q4_t *p = data;
+            for (nu_size_t i = 0; i < count; ++i)
+            {
+                p[i].x = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                p[i].y = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                p[i].z = nu__seria_u32_le(nu__seria_read_4b(ctx));
+                p[i].w = nu__seria_u32_le(nu__seria_read_4b(ctx));
+            }
+        }
+        break;
+    }
+}
+static void
+nu__seria_nbin_write_ref (nu__seria_ctx_t   *ctx,
+                          nu_str_t           name,
+                          nu_size_t          count,
+                          const nu_object_t *ref)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        if (ref[i])
         {
             nu__seria_write_4b(ctx, NU_NULL);
         }
         else
         {
-            nu__seria_write_4b(ctx, nu_object_uid(objref[i]));
+            nu__seria_write_4b(ctx, nu_object_uid(ref[i]));
         }
     }
 }
 static void
-nu__seria_nbin_write (nu__seria_ctx_t          *ctx,
-                      const nu__seria_layout_t *layout,
-                      nu_size_t                 size,
-                      const void               *data)
+nu__seria_nbin_read_ref (nu__seria_ctx_t    *ctx,
+                         nu_str_t            name,
+                         nu_object_type_id_t type,
+                         nu_size_t           count,
+                         nu_object_t        *ref)
 {
-    switch (layout->kind)
-    {
-        case NU__SERIA_PRIMITIVE: {
-            switch (layout->primitive)
-            {
-                case NU_SERIA_PRIMITIVE_BYTE: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_byte_t value = *((nu_byte_t *)data + i);
-                        nu__seria_write_1b(ctx, value);
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_U32: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_u32_t value = *((nu_u32_t *)data + i);
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(value));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_F32: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_f32_t value = *((nu_f32_t *)data + i);
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(value));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_STR: {
-                    nu_byte_t *value = (nu_byte_t *)data;
-                    nu_size_t  len   = nu_cstr_len(value, size);
-                    nu__seria_write_4b(ctx, nu__seria_u32_le(len));
-                    for (nu_size_t i = 0; i < len; ++i)
-                    {
-                        nu__seria_write_1b(ctx, *(value + i));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_V3: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        const nu_v3_t *v = (const nu_v3_t *)data + i;
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(v->x));
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(v->y));
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(v->z));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_Q4: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        const nu_q4_t *q = (const nu_q4_t *)data + i;
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(q->x));
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(q->y));
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(q->z));
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(q->w));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_COUNT:
-                    NU_UNREACHABLE();
-                    break;
-            }
-        }
-        break;
-        case NU__SERIA_STRUCT: {
-            for (nu_size_t i = 0; i < size; ++i)
-            {
-                nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.size; ++f)
-                {
-                    const nu_seria_struct_field_t *field
-                        = layout->fields.data + f;
-                    const nu_byte_t *data = ptr + field->offset;
-                    if (field->is_objref)
-                    {
-                        nu__seria_nbin_write_objref(ctx,
-                                                    field->type,
-                                                    field->size,
-                                                    (const nu_object_t *)data);
-                    }
-                    else
-                    {
-                        const nu__seria_layout_t *subtype
-                            = (const nu__seria_layout_t *)field->layout;
-                        nu__seria_nbin_write(ctx, subtype, field->size, data);
-                    }
-                }
-            }
-        }
-        break;
-        case NU__SERIA_ENUM: {
-            for (nu_size_t i = 0; i < size; ++i)
-            {
-                nu_u32_t value
-                    = *(nu_u32_t *)((nu_byte_t *)data + layout->size * i);
-                for (nu_size_t v = 0; v < layout->values.size; ++v)
-                {
-                    if (value == layout->values.data[v].value)
-                    {
-                        nu_u32_t hash
-                            = nu_str_hash(layout->values.data[v].name);
-                        nu__seria_write_4b(ctx, nu__seria_u32_le(hash));
-                        break;
-                    }
-                }
-            }
-        }
-        break;
-    }
-}
-
-static void
-nu__seria_nbin_read_objref (nu__seria_ctx_t    *ctx,
-                            nu_object_type_id_t type,
-                            nu_size_t           size,
-                            nu_object_t        *objref)
-{
-    for (nu_size_t i = 0; i < size; ++i)
+    for (nu_size_t i = 0; i < count; ++i)
     {
         nu_uid_t uid = nu__seria_read_4b(ctx);
         if (uid)
         {
-            objref[i] = nu_object_find(type, uid);
+            ref[i] = nu_object_find(type, uid);
         }
         else
         {
-            objref[i] = NU_NULL;
+            ref[i] = NU_NULL;
         }
     }
 }
 static void
-nu__seria_nbin_read (nu__seria_ctx_t          *ctx,
-                     const nu__seria_layout_t *layout,
-                     nu_size_t                 size,
-                     void                     *data)
+nu__seria_nbin_write_str (nu__seria_ctx_t *ctx, nu_str_t name, nu_str_t str)
 {
-    switch (layout->kind)
+    nu_byte_t *value = (nu_byte_t *)data;
+    nu_size_t  len   = nu_cstr_len(value, size);
+    nu__seria_write_4b(ctx, nu__seria_u32_le(len));
+    for (nu_size_t i = 0; i < len; ++i)
     {
-        case NU__SERIA_PRIMITIVE: {
-            switch (layout->primitive)
-            {
-                case NU_SERIA_PRIMITIVE_BYTE: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                        *ptr           = nu__seria_read_1b(ctx);
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_U32: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_u32_t *ptr = (nu_u32_t *)((nu_byte_t *)data
-                                                     + layout->size * i);
-                        *ptr = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_F32: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_f32_t *ptr = (nu_f32_t *)((nu_byte_t *)data
-                                                     + layout->size * i);
-                        *ptr = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_STR: {
-                    nu_u32_t length = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                    NU_ASSERT(length < size);
-                    nu_memset(data, 0, size);
-                    for (nu_size_t i = 0; i < length; ++i)
-                    {
-                        *((nu_byte_t *)data + i) = nu__seria_read_1b(ctx);
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_V3: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_v3_t *v
-                            = (nu_v3_t *)((nu_byte_t *)data + layout->size * i);
-                        v->x = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                        v->y = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                        v->z = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_Q4: {
-                    for (nu_size_t i = 0; i < size; ++i)
-                    {
-                        nu_q4_t *q
-                            = (nu_q4_t *)((nu_byte_t *)data + layout->size * i);
-                        q->x = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                        q->y = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                        q->z = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                        q->w = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                    }
-                }
-                break;
-                case NU_SERIA_PRIMITIVE_COUNT:
-                    NU_UNREACHABLE();
-                    break;
-            }
-        }
-        break;
-        case NU__SERIA_STRUCT: {
-            for (nu_size_t i = 0; i < size; ++i)
-            {
-                nu_byte_t *ptr = (nu_byte_t *)data + layout->size * i;
-                for (nu_size_t f = 0; f < layout->fields.size; ++f)
-                {
-                    const nu_seria_struct_field_t *field
-                        = layout->fields.data + f;
-                    nu_byte_t *data = ptr + field->offset;
-                    if (field->is_objref)
-                    {
-                        nu__seria_nbin_read_objref(
-                            ctx, field->type, field->size, (nu_object_t *)data);
-                    }
-                    else
-                    {
-                        const nu__seria_layout_t *field_layout
-                            = (const nu__seria_layout_t *)field->layout;
-                        nu__seria_nbin_read(
-                            ctx, field_layout, field->size, data);
-                    }
-                }
-            }
-        }
-        break;
-        case NU__SERIA_ENUM: {
-            for (nu_size_t i = 0; i < size; ++i)
-            {
-                nu_byte_t *ptr   = (nu_byte_t *)data + layout->size * i;
-                nu_u32_t  *value = (nu_u32_t *)ptr;
-                nu_u32_t   hash  = nu__seria_u32_le(nu__seria_read_4b(ctx));
-                for (nu_size_t v = 0; v < layout->values.size; ++v)
-                {
-                    if (hash == nu_str_hash(layout->values.data[v].name))
-                    {
-                        *value = layout->values.data[v].value;
-                        break;
-                    }
-                }
-            }
-        }
-        break;
+        nu__seria_write_1b(ctx, *(value + i));
+    }
+}
+static nu_str_t
+nu__seria_nbin_read_str (nu__seria_ctx_t *ctx,
+                         nu_str_t         name,
+                         nu_size_t        capacity,
+                         nu_byte_t       *buffer)
+{
+    nu_u32_t length = nu__seria_u32_le(nu__seria_read_4b(ctx));
+    NU_ASSERT(length < size);
+    nu_memset(data, 0, size);
+    for (nu_size_t i = 0; i < length; ++i)
+    {
+        *((nu_byte_t *)data + i) = nu__seria_read_1b(ctx);
     }
 }
 

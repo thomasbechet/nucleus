@@ -118,7 +118,7 @@ nu__ecs_init (void)
 }
 
 nu_ecs_id_t
-nu_ecs_register (nu_str_t name, nu_seria_layout_t layout)
+nu_ecs_register (nu_str_t name, nu_seria_struct_t layout)
 {
     NU_ASSERT(layout);
     nu__ecs_component_t *comp = NU_VEC_PUSH(&_ctx.ecs.components);
@@ -454,7 +454,7 @@ nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
 
                 // write data
                 void *data = nu_ecs_get(ecs, id, cid);
-                nu_seria_write(seria, comp->layout, 1, data);
+                nu_seria_write_struct(seria, comp->layout, 1, data);
             }
         }
     }
@@ -485,7 +485,7 @@ nu_ecs_load (nu_seria_t seria)
         NU_ASSERT(component_count > 0);
 
         // find component layout
-        nu_seria_layout_t layout
+        nu_seria_struct_t layout
             = _ctx.ecs.components.data[NU_ID_INDEX(cid)].layout;
         NU_ASSERT(layout);
 
@@ -506,7 +506,7 @@ nu_ecs_load (nu_seria_t seria)
             void *data = nu_ecs_set(ecs, e, cid);
 
             // read component
-            nu_seria_read(seria, layout, 1, data);
+            nu_seria_read_struct(seria, layout, 1, data);
         }
     }
 

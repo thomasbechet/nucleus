@@ -20,7 +20,7 @@ NU_DEFINE_OBJECT(nu_ecs_t);
 
 NU_DEFINE_ID(nu_ecs_id_t);
 
-NU_API nu_ecs_id_t nu_ecs_register(nu_str_t name, nu_seria_layout_t layout);
+NU_API nu_ecs_id_t nu_ecs_register(nu_str_t name, nu_seria_struct_t layout);
 NU_API nu_ecs_id_t nu_ecs_find_component(nu_str_t name);
 
 NU_API nu_ecs_t    nu_ecs_new(nu_size_t capacity);

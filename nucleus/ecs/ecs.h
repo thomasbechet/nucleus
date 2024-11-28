@@ -12,7 +12,7 @@ typedef NU_VEC(nu__ecs_mask_t) nu__ecs_bitset_t;
 typedef struct
 {
     nu_byte_t         name[NU__ECS_COMPONENT_NAME_LEN];
-    nu_seria_layout_t layout;
+    nu_seria_struct_t layout;
 } nu__ecs_component_t;
 
 typedef struct

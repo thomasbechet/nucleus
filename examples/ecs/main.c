@@ -23,9 +23,9 @@ typedef struct
 
 static nu_ecs_t ecs;
 
-static nu_seria_layout_t SUBTYPE_LAYOUT;
-static nu_seria_layout_t TRANSFORM_LAYOUT;
-static nu_seria_layout_t PLAYER_LAYOUT;
+static nu_seria_struct_t SUBTYPE_LAYOUT;
+static nu_seria_struct_t TRANSFORM_LAYOUT;
+static nu_seria_struct_t PLAYER_LAYOUT;
 
 static nu_ecs_id_t   COMP_TRANSFORM;
 static nu_ecs_id_t   COMP_PLAYER;
@@ -67,7 +67,7 @@ init (void)
     e                  = nu_ecs_add(ecs);
     nu_ecs_set(ecs, e, COMP_TRANSFORM);
 
-    nu_seria_dump_layout(PLAYER_LAYOUT);
+    nu_seria_dump_struct_type(PLAYER_LAYOUT);
 
     NU_INFO("saved:");
     nu_ecs_dump(ecs);

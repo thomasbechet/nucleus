@@ -3,25 +3,19 @@
 
 #include <nucleus/seria/api.h>
 
-typedef enum
+typedef struct
 {
-    NU__SERIA_PRIMITIVE,
-    NU__SERIA_STRUCT,
-    NU__SERIA_ENUM,
-} nu__seria_kind_t;
+    nu_str_t  name;
+    nu_size_t size;
+    NU_ARRAY(nu_seria_struct_field_t) fields;
+} nu__seria_struct_t;
 
 typedef struct
 {
-    nu__seria_kind_t kind;
-    nu_str_t         name;
-    nu_size_t        size;
-    union
-    {
-        nu_seria_primitive_t primitive;
-        NU_ARRAY(nu_seria_struct_field_t) fields;
-        NU_ARRAY(nu_seria_enum_value_t) values;
-    };
-} nu__seria_layout_t;
+    nu_str_t  name;
+    nu_size_t size;
+    NU_ARRAY(nu_seria_enum_value_t) values;
+} nu__seria_enum_t;
 
 typedef struct
 {
@@ -36,8 +30,8 @@ typedef struct
 typedef struct
 {
     nu_object_type_id_t obj_seria;
-    nu_object_type_id_t obj_seria_layout;
-    nu_seria_layout_t   primitive_layouts[NU_SERIA_PRIMITIVE_COUNT];
+    nu_object_type_id_t obj_seria_struct;
+    nu_object_type_id_t obj_seria_enum;
 } nu__seria_t;
 
 static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);
