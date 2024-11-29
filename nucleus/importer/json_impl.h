@@ -13,7 +13,7 @@ nu__json_parse (nu_str_t json, nu_size_t *size, nu_size_t *count)
 {
     nu_scope_push();
     nu_size_t   cap  = 256;
-    jsmntok_t  *toks = (jsmntok_t *)nu_scope_alloc(sizeof(*toks) * cap);
+    jsmntok_t  *toks = (jsmntok_t *)nu_malloc(sizeof(*toks) * cap);
     jsmn_parser parser;
     jsmn_init(&parser);
     int r = jsmn_parse(&parser, (const char *)json.data, json.size, toks, cap);
@@ -22,7 +22,7 @@ nu__json_parse (nu_str_t json, nu_size_t *size, nu_size_t *count)
         cap *= 2;
         nu_scope_pop();
         nu_scope_push();
-        toks = (jsmntok_t *)nu_scope_alloc(sizeof(*toks) * cap);
+        toks = (jsmntok_t *)nu_malloc(sizeof(*toks) * cap);
         r = jsmn_parse(&parser, (const char *)json.data, json.size, toks, cap);
     }
     NU_CHECK(r >= 1, goto cleanup0);

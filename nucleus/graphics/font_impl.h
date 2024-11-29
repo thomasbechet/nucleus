@@ -26,7 +26,7 @@ nu_font_new_default (void)
     font->glyphs_count = font->max_char - font->min_char + 1;
     font->glyph_size   = nu_v2u(NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
     font->glyphs
-        = (nu_b2i_t *)nu_scope_alloc(sizeof(nu_b2i_t) * font->glyphs_count);
+        = (nu_b2i_t *)nu_malloc(sizeof(nu_b2i_t) * font->glyphs_count);
     NU_CHECK(font->glyphs, return NU_NULL);
 
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);

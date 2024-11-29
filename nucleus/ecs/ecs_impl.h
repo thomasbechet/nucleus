@@ -273,7 +273,7 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         if (!pool->chunks.data[mask])
         {
             // allocate new chunk
-            pool->chunks.data[mask] = nu_scope_alloc(pool->component_size
+            pool->chunks.data[mask] = nu_malloc(pool->component_size
                                                      * NU__ECS_ENTITY_PER_MASK);
             // expect zero memory by default
             nu_memset(pool->chunks.data[mask],

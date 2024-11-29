@@ -6,61 +6,17 @@
 #ifdef NU_STDLIB
 
 static void *
-nu__stdlib_alloctor_callback (
-    void *p, nu_size_t s, nu_size_t n, nu_size_t a, void *u)
+nu__malloc (nu_size_t n)
 {
-    NU_UNUSED(s);
-    NU_UNUSED(a);
-    NU_UNUSED(u);
-    if (p && n)
-    {
-        return realloc(p, n);
-    }
-    else if (n)
-    {
-        return malloc(n);
-    }
-    else
-    {
-        free(p);
-        return NU_NULL;
-    }
+    return malloc(n);
 }
-
-static nu_allocator_t
-nu__allocator_stdlib (void)
+static void
+nu__free (void *p)
 {
-    nu_allocator_t a;
-    a.callback = nu__stdlib_alloctor_callback;
-    a.userdata = NU_NULL;
-    return a;
+    free(p);
 }
 
 #endif
-
-void *
-nu_alloc_a (nu_allocator_t *a, nu_size_t n)
-{
-    return a->callback(NU_NULL, 0, n, NU_DEFAULT_ALIGN, a->userdata);
-}
-void *
-nu_realloc_a (nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n)
-{
-    if (s == n)
-    {
-        return p;
-    }
-    return a->callback(p, s, n, NU_DEFAULT_ALIGN, a->userdata);
-}
-void
-nu_free_a (nu_allocator_t *a, void *p, nu_size_t s)
-{
-    if (!p)
-    {
-        return;
-    }
-    a->callback(p, s, 0, NU_DEFAULT_ALIGN, a->userdata);
-}
 
 nu_int_t
 nu_memcmp (const void *p0, const void *p1, nu_size_t n)

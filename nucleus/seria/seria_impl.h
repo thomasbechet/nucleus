@@ -22,7 +22,7 @@ nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
     fseek(f, 0, SEEK_END);
     nu_size_t fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
-    nu_byte_t *bytes = (nu_byte_t *)nu_scope_alloc(fsize);
+    nu_byte_t *bytes = (nu_byte_t *)nu_malloc(fsize);
     fread(bytes, fsize, 1, f);
     *size = fsize;
     return bytes;
@@ -423,7 +423,7 @@ nu_seria_new_file (nu_str_t        filename,
     }
     else
     {
-        ctx->bytes = nu_scope_alloc(buffer_size);
+        ctx->bytes = nu_malloc(buffer_size);
         NU_ASSERT(ctx->bytes);
         ctx->ptr = ctx->bytes;
         ctx->end = ctx->bytes + buffer_size;

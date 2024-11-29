@@ -3,6 +3,7 @@
 
 #include <nucleus/core/api.h>
 
-static nu_allocator_t nu__allocator_stdlib(void);
+static void *nu__malloc(nu_size_t size);
+static void  nu__free(void *p);
 
 #endif

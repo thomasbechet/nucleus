@@ -22,7 +22,7 @@ nugl__compile_shader (nu_str_t source, GLuint shader_type, GLuint *shader)
         nu_scope_push();
         GLint max_length = 0;
         glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &max_length);
-        GLchar *log = (GLchar *)nu_scope_alloc(sizeof(GLchar) * max_length);
+        GLchar *log = (GLchar *)nu_malloc(sizeof(GLchar) * max_length);
         glGetShaderInfoLog(*shader, max_length, &max_length, log);
         NU_ERROR("%s", log);
         nu_scope_pop();
@@ -56,7 +56,7 @@ nugl__compile_program (nu_str_t vert, nu_str_t frag, GLuint *program)
         GLint max_length = 0;
         glGetProgramiv(*program, GL_INFO_LOG_LENGTH, &max_length);
         nu_scope_push();
-        GLchar *log = (GLchar *)nu_scope_alloc(sizeof(GLchar) * max_length);
+        GLchar *log = (GLchar *)nu_malloc(sizeof(GLchar) * max_length);
         glGetProgramInfoLog(*program, max_length, &max_length, log);
         NU_ERROR("%s", log);
         nu_scope_pop();

@@ -146,7 +146,7 @@ init (void)
         player_t,
         NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
         NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1),
-        NU_SERIA_FIELD_REF(image, nu_object_find_type(NU_STR("image")), 1));
+        NU_SERIA_FIELD_REF(image, nu_object_find_type(NU_OBJECT_IMAGE), 1));
 
     player_t player;
     player.image = NU_NULL;

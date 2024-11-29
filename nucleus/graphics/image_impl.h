@@ -12,7 +12,7 @@ nu_image_new (nu_image_type_t type, nu_v3u_t size, nu_size_t layer)
     im->size        = size;
     im->layer       = layer;
     im->data
-        = (nu_byte_t *)nu_scope_alloc(4 * size.x * size.y * size.z * layer);
+        = (nu_byte_t *)nu_malloc(4 * size.x * size.y * size.z * layer);
     return (nu_image_t)im;
 }
 nu_byte_t *

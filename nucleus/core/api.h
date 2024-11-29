@@ -339,12 +339,12 @@
         nu_size_t capacity; \
         nu_size_t size;     \
     }
-#define NU_VEC_ALLOC(v, capa)                                        \
-    {                                                                \
-        NU_ASSERT((capa));                                           \
-        (v)->data     = nu_scope_alloc(sizeof(*(v)->data) * (capa)); \
-        (v)->capacity = (capa);                                      \
-        (v)->size     = 0;                                           \
+#define NU_VEC_ALLOC(v, capa)                                   \
+    {                                                           \
+        NU_ASSERT((capa));                                      \
+        (v)->data     = nu_malloc(sizeof(*(v)->data) * (capa)); \
+        (v)->capacity = (capa);                                 \
+        (v)->size     = 0;                                      \
     }
 #define NU_VEC_PUSH(v) \
     (v)->size >= (v)->capacity ? NU_NULL : &(v)->data[(v)->size++]
@@ -392,10 +392,10 @@
         type     *data; \
         nu_size_t size; \
     }
-#define NU_ARRAY_ALLOC(a, ss)                                \
-    {                                                        \
-        (a)->data = nu_scope_alloc(sizeof(*(a)->data) * ss); \
-        (a)->size = ss;                                      \
+#define NU_ARRAY_ALLOC(a, ss)                           \
+    {                                                   \
+        (a)->data = nu_malloc(sizeof(*(a)->data) * ss); \
+        (a)->size = ss;                                 \
     }
 
 //////////////////////////////////////////////////////////////////////////
@@ -465,16 +465,6 @@ typedef enum
     NUEXT_EXTENSION_JSON,
     NUEXT_EXTENSION_UNKNOWN,
 } nuext_extension_t;
-
-typedef struct
-{
-    void *(*callback)(void     *p, // pointer (NULL if malloc)
-                      nu_size_t s, // current size (0 if malloc)
-                      nu_size_t n, // new size (0 if free)
-                      nu_size_t a, // alignment
-                      void     *u);    // userdata
-    void *userdata;
-} nu_allocator_t;
 
 typedef struct
 {
@@ -695,7 +685,7 @@ NU_API void          nu_scope_set_active(nu_scope_id_t scope);
 NU_API void          nu_scope_push(void);
 NU_API void          nu_scope_pop(void);
 
-NU_API void *nu_scope_alloc(nu_size_t size);
+NU_API void *nu_malloc(nu_size_t size);
 
 NU_API void nu_app_init_callback(nu_app_pfn_t callback);
 NU_API void nu_app_free_callback(nu_app_pfn_t callback);
@@ -714,10 +704,6 @@ NU_API void nu_vlog(nu_log_level_t level,
                     nu_str_t       source,
                     nu_str_t       format,
                     va_list        args);
-
-NU_API void *nu_alloc_a(nu_allocator_t *a, nu_size_t n);
-NU_API void *nu_realloc_a(nu_allocator_t *a, void *p, nu_size_t s, nu_size_t n);
-NU_API void  nu_free_a(nu_allocator_t *a, void *p, nu_size_t s);
 
 NU_API nu_int_t nu_memcmp(const void *p0, const void *p1, nu_size_t n);
 NU_API void    *nu_memset(void *dst, nu_word_t c, nu_size_t n);
@@ -770,13 +756,6 @@ NU_API void *nu__pool_add(nu_size_t      tsize,
                           nu_size_t     *capacity,
                           nu_size_vec_t *freelist,
                           nu_size_t     *pindex);
-
-// NU_API void     *nu__vec_push(nu_allocator_t *alloc,
-//                               nu_size_t       tsize,
-//                               void           *data,
-//                               nu_size_t      *size,
-//                               nu_size_t      *capacity);
-// NU_API nu_bool_t nu__vec_pop(nu_size_t *size);
 
 NU_API nu_bool_t nu_is_power_of_two(nu_size_t n);
 NU_API nu_size_t nu_log2(nu_size_t n);
