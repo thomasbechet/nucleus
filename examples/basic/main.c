@@ -108,10 +108,10 @@ typedef struct
     nu_image_t image;
 } player_t;
 
-static nu_seria_struct_t COMPONENT_LAYOUT;
-static nu_seria_struct_t SUBTYPE_LAYOUT;
-static nu_seria_struct_t TRANSFORM_LAYOUT;
-static nu_seria_struct_t PLAYER_LAYOUT;
+static nu_seria_struct_t STRUCT_COMPONENT;
+static nu_seria_struct_t STRUCT_SUBTYPE;
+static nu_seria_struct_t STRUCT_TRANSFORM;
+static nu_seria_struct_t STRUCT_PLAYER;
 
 void
 init (void)
@@ -125,35 +125,35 @@ init (void)
     // nu_resource_save_group(NU_UID("import"), seria);
     // nu_seria_close(seria);
 
-    NU_SERIA_ENUM(COMPONENT_LAYOUT,
+    NU_SERIA_ENUM(STRUCT_COMPONENT,
                   component_t,
                   NU_SERIA_VALUE("transform", COMP_TRANSFORM),
                   NU_SERIA_VALUE("player", COMP_PLAYER));
-    NU_SERIA_STRUCT(SUBTYPE_LAYOUT,
+    NU_SERIA_STRUCT(STRUCT_SUBTYPE,
                     subtype_t,
-                    NU_SERIA_FIELD(hello, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD(vector, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD(component, COMPONENT_LAYOUT, 1));
-    NU_SERIA_STRUCT(TRANSFORM_LAYOUT,
+                    NU_SERIA_FIELD_PRIMITIVE(hello, NU_SERIA_U32, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(vector, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(quat, NU_SERIA_Q4, 1),
+                    NU_SERIA_FIELD_STRUCT(component, STRUCT_COMPONENT, 1));
+    NU_SERIA_STRUCT(STRUCT_TRANSFORM,
                     transform_t,
-                    NU_SERIA_FIELD(position, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD(subtype, SUBTYPE_LAYOUT, 1));
+                    NU_SERIA_FIELD_PRIMITIVE(position, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(rotation, NU_SERIA_Q4, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(scale, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD_STRUCT(subtype, STRUCT_SUBTYPE, 1));
     NU_SERIA_STRUCT(
-        PLAYER_LAYOUT,
+        STRUCT_PLAYER,
         player_t,
-        NU_SERIA_FIELD(stat, NU_SERIA_U32, 1),
-        NU_SERIA_FIELD(v, NU_SERIA_V3, 1),
-        NU_SERIA_OBJREF(image, nu_object_find_type(NU_STR("image")), 1));
+        NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
+        NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1),
+        NU_SERIA_FIELD_REF(image, nu_object_find_type(NU_STR("image")), 1));
 
     player_t player;
     player.image = NU_NULL;
     player.v     = NU_V3_ONES;
     player.stat  = 123;
-    nu_seria_dump_struct_type(PLAYER_LAYOUT);
-    nu_seria_dump_values(PLAYER_LAYOUT, 1, &player);
+    nu_seria_dump_struct_type(STRUCT_PLAYER);
+    nu_seria_dump_struct(STRUCT_PLAYER, 1, &player);
 
     // Configure inputs
     draw        = nu_input_new();

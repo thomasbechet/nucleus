@@ -64,11 +64,11 @@ static void
 nu__seria_init (void)
 {
     _ctx.seria.obj_seria = nu_object_register(
-        NU_STR(NU_OBJECT_SERIA), sizeof(nu__seria_ctx_t), nu__seria_cleanup);
+        NU_OBJECT_SERIA, sizeof(nu__seria_ctx_t), nu__seria_cleanup);
     _ctx.seria.obj_seria_struct = nu_object_register(
-        NU_STR(NU_OBJECT_SERIA_STRUCT), sizeof(nu__seria_struct_t), NU_NULL);
+        NU_OBJECT_SERIA_STRUCT, sizeof(nu__seria_struct_t), NU_NULL);
     _ctx.seria.obj_seria_enum = nu_object_register(
-        NU_STR(NU_OBJECT_SERIA_ENUM), sizeof(nu__seria_enum_t), NU_NULL);
+        NU_OBJECT_SERIA_ENUM, sizeof(nu__seria_enum_t), NU_NULL);
 }
 
 nu_seria_struct_t
@@ -117,6 +117,11 @@ nu_seria_primitive_size (nu_seria_primitive_t primitive)
             return 4 * 4;
     }
     return 0;
+}
+nu_size_t
+nu_seria_struct_size (nu_seria_struct_t sstruct)
+{
+    return ((nu__seria_struct_t *)sstruct)->size;
 }
 
 void
@@ -260,7 +265,7 @@ nu__seria_dump_primitive (nu_size_t            depth,
             case NU_SERIA_Q4: {
                 nu_q4_t *v = (nu_q4_t *)p;
                 nu__seria_print_with_depth(
-                    depth, NU_STR("[ " NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
+                    depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
             }
             break;
         }
@@ -342,14 +347,14 @@ nu__seria_dump_struct (nu_size_t         depth,
     }
 }
 void
-nu_seria_dump_struct (nu_seria_struct_t s, nu_size_t size, void *data)
+nu_seria_dump_struct (nu_seria_struct_t s, nu_size_t count, void *data)
 {
-    nu__seria_dump_struct(0, s, size, data);
+    nu__seria_dump_struct(0, s, count, data);
 }
 void
-nu_seria_dump_enum (nu_seria_enum_t e, nu_size_t size, void *data)
+nu_seria_dump_enum (nu_seria_enum_t e, nu_size_t count, void *data)
 {
-    nu__seria_dump_enum(0, e, size, data);
+    nu__seria_dump_enum(0, e, count, data);
 }
 
 static nu_byte_t
@@ -445,17 +450,26 @@ nu_seria_new_bytes (nu_seria_mode_t mode, nu_byte_t *bytes, nu_size_t size)
 }
 
 void
+nu_seria_begin (nu_seria_t seria)
+{
+}
+void
+nu_seria_end (nu_seria_t seria)
+{
+}
+
+void
 nu_seria_write_struct (nu_seria_t        seria,
                        nu_str_t          name,
                        nu_seria_struct_t sstruct,
-                       nu_size_t         size,
+                       nu_size_t         count,
                        const void       *data)
 {
     NU_ASSERT(seria);
     nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
     const nu__seria_struct_t *s   = (const nu__seria_struct_t *)sstruct;
     NU_ASSERT(ctx->mode == NU_SERIA_WRITE);
-    nu__seria_nbin_write(ctx, s, size, data);
+    nu__seria_nbin_write_struct(ctx, name, s, count, data);
 }
 void
 nu_seria_read_struct (nu_seria_t        seria,
@@ -468,7 +482,7 @@ nu_seria_read_struct (nu_seria_t        seria,
     nu__seria_ctx_t          *ctx = (nu__seria_ctx_t *)seria;
     const nu__seria_struct_t *s   = (const nu__seria_struct_t *)sstruct;
     NU_ASSERT(ctx->mode == NU_SERIA_READ);
-    nu__seria_nbin_read(ctx, s, count, data);
+    nu__seria_nbin_read_struct(ctx, name, s, count, data);
 }
 void
 nu_seria_write_enum (nu_seria_t      seria,
@@ -477,8 +491,8 @@ nu_seria_write_enum (nu_seria_t      seria,
                      nu_size_t       count,
                      const void     *data)
 {
-    nu__seria_ctx_t  *ctx = (nu__seria_ctx_t *)seria;
-    nu__seria_enum_t *e   = (nu__seria_enum_t *)senum;
+    nu__seria_ctx_t        *ctx = (nu__seria_ctx_t *)seria;
+    const nu__seria_enum_t *e   = (const nu__seria_enum_t *)senum;
     nu__seria_nbin_write_enum(ctx, name, e, count, data);
 }
 void
@@ -488,9 +502,9 @@ nu_seria_read_enum (nu_seria_t      seria,
                     nu_size_t       count,
                     void           *data)
 {
-    nu__seria_ctx_t  *ctx = (nu__seria_ctx_t *)seria;
-    nu__seria_enum_t *e   = (nu__seria_enum_t *)senum;
-    nu__seria_nbin_read_enum(seria, name, e, count, data);
+    nu__seria_ctx_t        *ctx = (nu__seria_ctx_t *)seria;
+    const nu__seria_enum_t *e   = (const nu__seria_enum_t *)senum;
+    nu__seria_nbin_read_enum(ctx, name, e, count, data);
 }
 void
 nu_seria_write_primitive (nu_seria_t           seria,
@@ -532,41 +546,68 @@ nu_seria_read_ref (nu_seria_t          seria,
     nu__seria_nbin_read_ref(ctx, name, type, count, ref);
 }
 void
-nu_seria_write_str (nu_seria_t seria, nu_str_t name, nu_str_t str)
+nu_seria_write_str (nu_seria_t       seria,
+                    nu_str_t         name,
+                    nu_size_t        capacity,
+                    nu_size_t        count,
+                    const nu_byte_t *buffer)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    nu__seria_nbin_write_str(ctx, name, str);
+    nu__seria_nbin_write_str(ctx, name, capacity, count, buffer);
 }
-nu_str_t
+void
 nu_seria_read_str (nu_seria_t seria,
                    nu_str_t   name,
                    nu_size_t  capacity,
+                   nu_size_t  count,
                    nu_byte_t *buffer)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    return nu__seria_nbin_read_str(ctx, name, capacity, buffer);
+    nu__seria_nbin_read_str(ctx, name, capacity, count, buffer);
 }
 
-#define NU_IMPL_SERIA_PRIMITIVE(enum, ident, type)                             \
-    void nu_seria_read_##ident(nu_seria_t seria, nu_size_t size, type *data)   \
-    {                                                                          \
-        nu_seria_read(seria, _ctx.seria.primitive_layouts[enum], size, data);  \
-    }                                                                          \
-    void nu_seria_write_##ident(                                               \
-        nu_seria_t seria, nu_size_t size, const type *data)                    \
-    {                                                                          \
-        nu_seria_write(seria, _ctx.seria.primitive_layouts[enum], size, data); \
-    }                                                                          \
-    type nu_seria_read_1##ident(nu_seria_t seria)                              \
-    {                                                                          \
-        type v;                                                                \
-        nu_seria_read(seria, _ctx.seria.primitive_layouts[enum], 1, &v);       \
-        return v;                                                              \
-    }                                                                          \
-    void nu_seria_write_1##ident(nu_seria_t seria, type v)                     \
-    {                                                                          \
-        nu_seria_write(seria, _ctx.seria.primitive_layouts[enum], 1, &v);      \
+#define NU_IMPL_SERIA_PRIMITIVE(enum, ident, type)                          \
+    void nu_seria_read_##ident(                                             \
+        nu_seria_t seria, nu_str_t name, nu_size_t count, type *data)       \
+    {                                                                       \
+        nu_seria_read_primitive(seria, name, enum, count, data);            \
+    }                                                                       \
+    void nu_seria_write_##ident(                                            \
+        nu_seria_t seria, nu_str_t name, nu_size_t count, const type *data) \
+    {                                                                       \
+        nu_seria_write_primitive(seria, name, enum, count, data);           \
+    }                                                                       \
+    type nu_seria_read_1##ident(nu_seria_t seria, nu_str_t name)            \
+    {                                                                       \
+        type v;                                                             \
+        nu_seria_read_primitive(seria, name, enum, 1, &v);                  \
+        return v;                                                           \
+    }                                                                       \
+    void nu_seria_write_1##ident(nu_seria_t seria, nu_str_t name, type v)   \
+    {                                                                       \
+        nu_seria_write_primitive(seria, name, enum, 1, &v);                 \
     }
+
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_BYTE, byte, nu_byte_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_U32, u32, nu_u32_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_F32, f32, nu_f32_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_V3, v3, nu_v3_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_Q4, q4, nu_q4_t);
+
+void
+nu_seria_write_1str (nu_seria_t seria, nu_str_t name, nu_str_t str)
+{
+    nu_seria_write_str(seria, name, str.size, 1, str.data);
+}
+nu_str_t
+nu_seria_read_1str (nu_seria_t seria,
+                    nu_str_t   name,
+                    nu_size_t  capacity,
+                    nu_byte_t *buffer)
+{
+    nu_seria_read_str(seria, name, capacity, 1, buffer);
+    return nu_str_from_cstr(buffer);
+}
 
 void
 nu_object_set_seria (nu_object_type_id_t    type,

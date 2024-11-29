@@ -15,17 +15,17 @@ NU_DEFINE_OBJECT(nu_light_t);
 NU_DEFINE_OBJECT(nu_lightenv_t);
 NU_DEFINE_OBJECT(nu_renderpass_t);
 
-#define NU_IMAGE      "image"
-#define NU_GEOMETRY   "geometry"
-#define NU_CAMERA     "camera"
-#define NU_TEXTURE    "texture"
-#define NU_MODEL      "model"
-#define NU_FONT       "font"
-#define NU_MESH       "mesh"
-#define NU_MATERIAL   "material"
-#define NU_LIGHT      "light"
-#define NU_LIGHTENV   "lightenv"
-#define NU_RENDERPASS "renderpass"
+#define NU_OBJECT_IMAGE      NU_STR("image")
+#define NU_OBJECT_GEOMETRY   NU_STR("geometry")
+#define NU_OBJECT_CAMERA     NU_STR("camera")
+#define NU_OBJECT_TEXTURE    NU_STR("texture")
+#define NU_OBJECT_MODEL      NU_STR("model")
+#define NU_OBJECT_FONT       NU_STR("font")
+#define NU_OBJECT_MESH       NU_STR("mesh")
+#define NU_OBJECT_MATERIAL   NU_STR("material")
+#define NU_OBJECT_LIGHT      NU_STR("light")
+#define NU_OBJECT_LIGHTENV   NU_STR("lightenv")
+#define NU_OBJECT_RENDERPASS NU_STR("renderpass")
 
 #define NU_CUBEMAP_FACE_COUNT 6
 

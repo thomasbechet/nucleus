@@ -4,7 +4,7 @@
 #include <nucleus/seria/api.h>
 
 NU_DEFINE_OBJECT(nu_ecs_t);
-#define NU_ECS "ecs"
+#define NU_OBJECT_ECS NU_STR("ecs")
 
 #define NU_ECS_COMPONENT_MAX 32
 #define NU_ECS_ITER_MAX      32

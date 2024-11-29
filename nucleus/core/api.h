@@ -403,7 +403,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 NU_DEFINE_OBJECT(nu_fixedloop_t);
-#define NU_FIXEDLOOP "fixedloop"
+#define NU_OBJECT_FIXEDLOOP NU_STR("fixedloop")
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;

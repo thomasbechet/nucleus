@@ -30,9 +30,9 @@ typedef struct
     float    d; // distance
 } distance_constraint_t;
 
-typedef NU_FIXEDVEC(point_mass_t) point_mass_vec_t;
-typedef NU_FIXEDVEC(collision_constraint_t) collision_constraint_vec_t;
-typedef NU_FIXEDVEC(distance_constraint_t) distance_constraint_vec_t;
+typedef NU_VEC(point_mass_t) point_mass_vec_t;
+typedef NU_VEC(collision_constraint_t) collision_constraint_vec_t;
+typedef NU_VEC(distance_constraint_t) distance_constraint_vec_t;
 
 static nu_input_t quit;
 static nu_input_t move_x;
@@ -77,7 +77,7 @@ static context_t ctx;
 static nu_u32_t
 add_pm (nu_v3_t pos, nu_v3_t vel)
 {
-    point_mass_t *pm = NU_FIXEDVEC_PUSH(&ctx.point_masses);
+    point_mass_t *pm = NU_VEC_PUSH(&ctx.point_masses);
     NU_ASSERT(pm);
     pm->x = pos;
     pm->v = vel;
@@ -90,7 +90,7 @@ add_pm (nu_v3_t pos, nu_v3_t vel)
 static void
 add_distance_constraint (nu_u32_t a, nu_u32_t b, float distance)
 {
-    distance_constraint_t *c = NU_FIXEDVEC_PUSH(&ctx.distance_constraints);
+    distance_constraint_t *c = NU_VEC_PUSH(&ctx.distance_constraints);
     NU_ASSERT(c);
     c->a = a;
     c->b = b;
@@ -155,9 +155,9 @@ shoot_context (nu_v3_t pos, nu_v3_t dir)
 static void
 init_context (void)
 {
-    NU_FIXEDVEC_ALLOC(&ctx.point_masses, 1024);
-    NU_FIXEDVEC_ALLOC(&ctx.collision_constraints, 1024);
-    NU_FIXEDVEC_ALLOC(&ctx.distance_constraints, 1024);
+    NU_VEC_ALLOC(&ctx.point_masses, 1024);
+    NU_VEC_ALLOC(&ctx.collision_constraints, 1024);
+    NU_VEC_ALLOC(&ctx.distance_constraints, 1024);
 }
 static nu_v3_t
 compute_sum_forces (point_mass_t *pm)
@@ -191,7 +191,7 @@ update_context (float dt)
         }
 
         // (8) generate collision constraints
-        NU_FIXEDVEC_CLEAR(&ctx.collision_constraints);
+        NU_VEC_CLEAR(&ctx.collision_constraints);
         for (nu_size_t i = 0; i < ctx.point_masses.size; ++i)
         {
             point_mass_t *pm = ctx.point_masses.data + i;
@@ -201,7 +201,7 @@ update_context (float dt)
             if (pm->x.y < ground)
             {
                 collision_constraint_t *c
-                    = NU_FIXEDVEC_PUSH(&ctx.collision_constraints);
+                    = NU_VEC_PUSH(&ctx.collision_constraints);
                 NU_ASSERT(c);
                 c->q = nu_v3(pm->x.x, ground, pm->x.z);
                 c->n = NU_V3_UP;
@@ -267,7 +267,7 @@ update_context (float dt)
                     }
 
                     collision_constraint_t *c
-                        = NU_FIXEDVEC_PUSH(&ctx.collision_constraints);
+                        = NU_VEC_PUSH(&ctx.collision_constraints);
                     NU_ASSERT(c);
                     c->q = q;
                     c->n = n;

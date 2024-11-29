@@ -8,8 +8,8 @@
 
 typedef struct
 {
-    nu_str_t            name;
-    nu_size_t           size;
+    nu_str_t                name;
+    nu_size_t               size;
     nu_object_cleanup_pfn_t cleanup;
 #ifdef NU_BUILD_SERIA
     nu_object_seria_load_t load;

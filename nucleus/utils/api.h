@@ -9,6 +9,8 @@
 
 NU_DEFINE_OBJECT(nu_controller_t);
 
+#define NU_OBJECT_CONTROLLER NU_STR("controller")
+
 typedef enum
 {
     NU_GEOMETRY_MESH,

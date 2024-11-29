@@ -19,7 +19,7 @@ nu__core_init (void)
     _ctx.core.allocator = nu__allocator_stdlib();
     nu__scope_init();
     _ctx.core.obj_fixedloop = nu_object_register(
-        NU_STR(NU_FIXEDLOOP), sizeof(nu__fixedloop_t), nu__fixedloop_cleanup);
+        NU_OBJECT_FIXEDLOOP, sizeof(nu__fixedloop_t), nu__fixedloop_cleanup);
     NU_VEC_ALLOC(&_ctx.core.fixedloops, 10);
     return NU_ERROR_NONE;
 }

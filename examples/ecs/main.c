@@ -23,9 +23,9 @@ typedef struct
 
 static nu_ecs_t ecs;
 
-static nu_seria_struct_t SUBTYPE_LAYOUT;
-static nu_seria_struct_t TRANSFORM_LAYOUT;
-static nu_seria_struct_t PLAYER_LAYOUT;
+static nu_seria_struct_t STRUCT_SUBTYPE;
+static nu_seria_struct_t STRUCT_TRANSFORM;
+static nu_seria_struct_t STRUCT_PLAYER;
 
 static nu_ecs_id_t   COMP_TRANSFORM;
 static nu_ecs_id_t   COMP_PLAYER;
@@ -34,23 +34,23 @@ static nu_scope_id_t SCOPE;
 void
 init (void)
 {
-    NU_SERIA_STRUCT(SUBTYPE_LAYOUT,
+    NU_SERIA_STRUCT(STRUCT_SUBTYPE,
                     subtype_t,
-                    NU_SERIA_FIELD(hello, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD(vector, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD(quat, NU_SERIA_Q4, 1));
-    NU_SERIA_STRUCT(TRANSFORM_LAYOUT,
+                    NU_SERIA_FIELD_PRIMITIVE(hello, NU_SERIA_U32, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(vector, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(quat, NU_SERIA_Q4, 1));
+    NU_SERIA_STRUCT(STRUCT_TRANSFORM,
                     transform_t,
-                    NU_SERIA_FIELD(position, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD(rotation, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD(scale, NU_SERIA_V3, 1));
-    NU_SERIA_STRUCT(PLAYER_LAYOUT,
+                    NU_SERIA_FIELD_PRIMITIVE(position, NU_SERIA_V3, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(rotation, NU_SERIA_Q4, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(scale, NU_SERIA_V3, 1));
+    NU_SERIA_STRUCT(STRUCT_PLAYER,
                     player_t,
-                    NU_SERIA_FIELD(stat, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD(v, NU_SERIA_V3, 1));
+                    NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
+                    NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1));
 
-    NU_ECS_COMPONENT(COMP_TRANSFORM, transform, TRANSFORM_LAYOUT);
-    NU_ECS_COMPONENT(COMP_PLAYER, player, PLAYER_LAYOUT);
+    NU_ECS_COMPONENT(COMP_TRANSFORM, transform, STRUCT_TRANSFORM);
+    NU_ECS_COMPONENT(COMP_PLAYER, player, STRUCT_PLAYER);
     SCOPE = nu_scope_register(NU_STR("main"), NU_MEM_16M);
     nu_scope_set_active(SCOPE);
 
@@ -67,7 +67,7 @@ init (void)
     e                  = nu_ecs_add(ecs);
     nu_ecs_set(ecs, e, COMP_TRANSFORM);
 
-    nu_seria_dump_struct_type(PLAYER_LAYOUT);
+    nu_seria_dump_struct_type(STRUCT_PLAYER);
 
     NU_INFO("saved:");
     nu_ecs_dump(ecs);
