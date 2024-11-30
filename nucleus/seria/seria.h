@@ -29,9 +29,9 @@ typedef struct
 
 typedef struct
 {
-    nu_object_type_id_t obj_seria;
-    nu_object_type_id_t obj_seria_struct;
-    nu_object_type_id_t obj_seria_enum;
+    nu_object_type_t obj_seria;
+    nu_object_type_t obj_seria_struct;
+    nu_object_type_t obj_seria_enum;
 } nu__seria_t;
 
 static nu_byte_t *nu__seria_load_bytes(nu_str_t filename, nu_size_t *size);

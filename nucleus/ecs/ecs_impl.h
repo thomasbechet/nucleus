@@ -113,8 +113,8 @@ nu__ecs_init (void)
 {
     NU_VEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
     NU_VEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
-    _ctx.ecs.obj_ecs = nu_object_register(
-        NU_OBJECT_ECS, sizeof(nu__ecs_instance_t), NU_NULL);
+    _ctx.ecs.obj_ecs = nu_object_type_new(
+        NU_STR("ecs"), sizeof(nu__ecs_instance_t), NU_NULL);
 }
 
 nu_ecs_id_t
@@ -273,8 +273,8 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         if (!pool->chunks.data[mask])
         {
             // allocate new chunk
-            pool->chunks.data[mask] = nu_malloc(pool->component_size
-                                                     * NU__ECS_ENTITY_PER_MASK);
+            pool->chunks.data[mask]
+                = nu_malloc(pool->component_size * NU__ECS_ENTITY_PER_MASK);
             // expect zero memory by default
             nu_memset(pool->chunks.data[mask],
                       0,

@@ -62,8 +62,8 @@ typedef struct nu__input
 
 typedef struct
 {
-    nu_object_type_id_t obj_input;
-    nu__input_t        *last_input;
+    nu_object_type_t obj_input;
+    nu__input_t     *last_input;
 
     NU_VEC(nu__binding_t) bindings;
     nu_u32_t key_to_first_binding[NU__MAX_KEY_COUNT];

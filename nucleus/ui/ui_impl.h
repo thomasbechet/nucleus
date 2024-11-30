@@ -280,9 +280,9 @@ static nu_error_t
 nu__ui_init (void)
 {
     _ctx.ui.obj_ui
-        = nu_object_register(NU_OBJECT_UI, sizeof(nu__ui_instance_t), NU_NULL);
-    _ctx.ui.obj_ui_style = nu_object_register(
-        NU_OBJECT_UI_STYLE, sizeof(nu__ui_style_t), NU_NULL);
+        = nu_object_type_new(NU_STR("ui"), sizeof(nu__ui_instance_t), NU_NULL);
+    _ctx.ui.obj_ui_style = nu_object_type_new(
+        NU_STR("ui_style"), sizeof(nu__ui_style_t), NU_NULL);
     return NU_ERROR_NONE;
 }
 

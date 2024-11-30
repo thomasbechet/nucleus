@@ -35,7 +35,7 @@ typedef struct
 
 typedef struct
 {
-    nu_scope_id_t    scope;
+    nu_scope_t       scope;
     nu__ecs_bitset_t bitset;
     NU_VEC(nu__ecs_component_pool_t) pools;
 } nu__ecs_instance_t;
@@ -44,7 +44,7 @@ typedef struct
 {
     NU_VEC(nu__ecs_component_t) components;
     NU_VEC(nu__ecs_iter_t) iters;
-    nu_object_type_id_t obj_ecs;
+    nu_object_type_t obj_ecs;
 } nu__ecs_t;
 
 static void nu__ecs_init(void);

@@ -7,7 +7,6 @@
 #endif
 
 NU_DEFINE_OBJECT(nu_input_t);
-#define NU_OBJECT_INPUT NU_STR("input")
 
 #define NU_INPUT_PRESSED       1.0f
 #define NU_INPUT_RELEASED      0.0f

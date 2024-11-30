@@ -6,9 +6,6 @@
 NU_DEFINE_OBJECT(nu_ui_t);
 NU_DEFINE_OBJECT(nu_ui_style_t);
 
-#define NU_OBJECT_UI       NU_STR("ui")
-#define NU_OBJECT_UI_STYLE NU_STR("ui_style")
-
 #define NU_UI_CONTROLLER_MAX  4
 #define NU_UI_STYLE_STACK_MAX 8
 

@@ -15,18 +15,6 @@ NU_DEFINE_OBJECT(nu_light_t);
 NU_DEFINE_OBJECT(nu_lightenv_t);
 NU_DEFINE_OBJECT(nu_renderpass_t);
 
-#define NU_OBJECT_IMAGE      NU_STR("image")
-#define NU_OBJECT_GEOMETRY   NU_STR("geometry")
-#define NU_OBJECT_CAMERA     NU_STR("camera")
-#define NU_OBJECT_TEXTURE    NU_STR("texture")
-#define NU_OBJECT_MODEL      NU_STR("model")
-#define NU_OBJECT_FONT       NU_STR("font")
-#define NU_OBJECT_MESH       NU_STR("mesh")
-#define NU_OBJECT_MATERIAL   NU_STR("material")
-#define NU_OBJECT_LIGHT      NU_STR("light")
-#define NU_OBJECT_LIGHTENV   NU_STR("lightenv")
-#define NU_OBJECT_RENDERPASS NU_STR("renderpass")
-
 #define NU_CUBEMAP_FACE_COUNT 6
 
 typedef enum
@@ -234,13 +222,14 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_material_t   material,
                         nu_m4_t         transform);
 
-NU_API nu_image_t nu_image_new(nu_image_type_t type,
-                               nu_v3u_t        size,
-                               nu_size_t       layer);
-NU_API nu_byte_t *nu_image_data(nu_image_t image, nu_size_t layer);
-NU_API nu_v3u_t   nu_image_size(nu_image_t image);
-NU_API nu_image_t nu_image_load(nu_seria_t seria);
-NU_API void       nu_image_save(nu_image_t image, nu_seria_t seria);
+NU_API nu_image_t       nu_image_new(nu_image_type_t type,
+                                     nu_v3u_t        size,
+                                     nu_size_t       layer);
+NU_API nu_object_type_t nu_image_type(void);
+NU_API nu_byte_t       *nu_image_data(nu_image_t image, nu_size_t layer);
+NU_API nu_v3u_t         nu_image_size(nu_image_t image);
+NU_API nu_image_t       nu_image_load(nu_seria_t seria);
+NU_API void             nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_geometry_t nu_geometry_new_mesh(nu_primitive_t primitive,
                                           nu_size_t      position_capacity,

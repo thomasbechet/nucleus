@@ -26,17 +26,17 @@ typedef struct
     nu_texture_t             surface_color;
     nu__graphics_immediate_t im;
 
-    nu_object_type_id_t obj_font;
-    nu_object_type_id_t obj_image;
-    nu_object_type_id_t obj_geometry;
-    nu_object_type_id_t obj_model;
-    nu_object_type_id_t obj_camera;
-    nu_object_type_id_t obj_texture;
-    nu_object_type_id_t obj_material;
-    nu_object_type_id_t obj_mesh;
-    nu_object_type_id_t obj_light;
-    nu_object_type_id_t obj_lightenv;
-    nu_object_type_id_t obj_renderpass;
+    nu_object_type_t obj_font;
+    nu_object_type_t obj_image;
+    nu_object_type_t obj_geometry;
+    nu_object_type_t obj_model;
+    nu_object_type_t obj_camera;
+    nu_object_type_t obj_texture;
+    nu_object_type_t obj_material;
+    nu_object_type_t obj_mesh;
+    nu_object_type_t obj_light;
+    nu_object_type_t obj_lightenv;
+    nu_object_type_t obj_renderpass;
 
 #ifdef NU_BUILD_GRAPHICS_GL
     nu__gl_t gl;

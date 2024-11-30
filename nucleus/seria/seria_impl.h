@@ -63,12 +63,12 @@ nu__seria_cleanup (void *data)
 static void
 nu__seria_init (void)
 {
-    _ctx.seria.obj_seria = nu_object_register(
-        NU_OBJECT_SERIA, sizeof(nu__seria_ctx_t), nu__seria_cleanup);
-    _ctx.seria.obj_seria_struct = nu_object_register(
-        NU_OBJECT_SERIA_STRUCT, sizeof(nu__seria_struct_t), NU_NULL);
-    _ctx.seria.obj_seria_enum = nu_object_register(
-        NU_OBJECT_SERIA_ENUM, sizeof(nu__seria_enum_t), NU_NULL);
+    _ctx.seria.obj_seria = nu_object_type_new(
+        NU_STR("seria"), sizeof(nu__seria_ctx_t), nu__seria_cleanup);
+    _ctx.seria.obj_seria_struct = nu_object_type_new(
+        NU_STR("seria_struct"), sizeof(nu__seria_struct_t), NU_NULL);
+    _ctx.seria.obj_seria_enum = nu_object_type_new(
+        NU_STR("seria_enum"), sizeof(nu__seria_enum_t), NU_NULL);
 }
 
 nu_seria_struct_t
@@ -272,10 +272,10 @@ nu__seria_dump_primitive (nu_size_t            depth,
     }
 }
 static void
-nu__seria_dump_ref (nu_size_t           depth,
-                    nu_object_type_id_t type,
-                    nu_size_t           count,
-                    nu_byte_t          *data)
+nu__seria_dump_ref (nu_size_t        depth,
+                    nu_object_type_t type,
+                    nu_size_t        count,
+                    nu_byte_t       *data)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {
@@ -283,8 +283,9 @@ nu__seria_dump_ref (nu_size_t           depth,
         nu_object_t *obj = (nu_object_t *)p;
         if (*obj)
         {
-            nu__seria_print_with_depth(
-                depth, NU_STR("%llu"), nu_object_uid(obj));
+            nu_uid_t uid = nu_object_get_tag(obj);
+            NU_ASSERT(uid);
+            nu__seria_print_with_depth(depth, NU_STR("%llu"), uid);
         }
         else
         {
@@ -536,11 +537,11 @@ nu_seria_write_ref (nu_seria_t         seria,
     nu__seria_nbin_write_ref(ctx, name, count, obj);
 }
 void
-nu_seria_read_ref (nu_seria_t          seria,
-                   nu_str_t            name,
-                   nu_object_type_id_t type,
-                   nu_size_t           count,
-                   nu_object_t        *ref)
+nu_seria_read_ref (nu_seria_t       seria,
+                   nu_str_t         name,
+                   nu_object_type_t type,
+                   nu_size_t        count,
+                   nu_object_t     *ref)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     nu__seria_nbin_read_ref(ctx, name, type, count, ref);
@@ -610,7 +611,7 @@ nu_seria_read_1str (nu_seria_t seria,
 }
 
 void
-nu_object_set_seria (nu_object_type_id_t    type,
+nu_object_set_seria (nu_object_type_t       type,
                      nu_object_seria_load_t load,
                      nu_object_seria_save_t save)
 {
@@ -619,7 +620,7 @@ nu_object_set_seria (nu_object_type_id_t    type,
     t->save              = save;
 }
 nu_object_t
-nu_object_load (nu_object_type_id_t type, nu_seria_t seria)
+nu_object_load (nu_object_type_t type, nu_seria_t seria)
 {
     const nu__object_type_t *t = nu__object_type(type);
     NU_ASSERT(t && t->load);

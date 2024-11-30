@@ -236,9 +236,6 @@
 
 #define NU_V4_ZEROS nu_vec4(0, 0, 0, 0)
 
-#define NU_OBJECT_MAX 128
-#define NU_SCOPE_MAX  64
-
 #define NU_MEM_1K   (1 << 10)
 #define NU_MEM_2K   (1 << 11)
 #define NU_MEM_4K   (1 << 12)
@@ -402,8 +399,9 @@
 //////                          Core Types                          //////
 //////////////////////////////////////////////////////////////////////////
 
+NU_DEFINE_OBJECT(nu_object_type_t);
+NU_DEFINE_OBJECT(nu_scope_t);
 NU_DEFINE_OBJECT(nu_fixedloop_t);
-#define NU_OBJECT_FIXEDLOOP NU_STR("fixedloop")
 
 // TODO: use stdint types
 typedef unsigned char  nu_u8_t;
@@ -660,30 +658,26 @@ typedef NU_VEC(nu_u32_t) nu_u32_vec_t;
 typedef NU_VEC(nu_size_t) nu_size_vec_t;
 
 typedef void (*nu_app_pfn_t)(void);
-
-NU_DEFINE_ID(nu_scope_id_t);
-NU_DEFINE_ID(nu_object_type_id_t);
-
 typedef void (*nu_object_cleanup_pfn_t)(void *data);
 
-NU_API nu_object_type_id_t nu_object_register(nu_str_t                name,
-                                              nu_size_t               size,
-                                              nu_object_cleanup_pfn_t cleanup);
-NU_API nu_object_type_id_t nu_object_find_type(nu_str_t name);
-NU_API nu_object_t         nu_object_new(nu_object_type_id_t type);
-NU_API nu_uid_t            nu_object_uid(nu_object_t obj);
-NU_API nu_object_type_id_t nu_object_type(nu_object_t obj);
-NU_API nu_object_t nu_object_find(nu_object_type_id_t type, nu_uid_t uid);
-NU_API void        nu_object_set_uid(nu_object_t obj, nu_uid_t uid);
-NU_API nu_str_t    nu_object_type_name(nu_object_type_id_t type);
+NU_API nu_object_t      nu_object_new(nu_object_type_t type);
+NU_API nu_object_type_t nu_object_type(nu_object_t obj);
+NU_API nu_object_t      nu_object_find(nu_uid_t uid);
+NU_API void             nu_object_set_tag(nu_object_t obj, nu_uid_t uid);
+NU_API nu_uid_t         nu_object_get_tag(nu_object_t obj);
+NU_API void             nu_object_untag(nu_object_t obj);
 
-NU_API nu_scope_id_t nu_scope_register(nu_str_t name, nu_size_t size);
-NU_API void          nu_scope_cleanup(nu_scope_id_t scope);
-NU_API nu_scope_id_t nu_scope_find(nu_str_t name);
-NU_API nu_scope_id_t nu_scope_active(void);
-NU_API void          nu_scope_set_active(nu_scope_id_t scope);
-NU_API void          nu_scope_push(void);
-NU_API void          nu_scope_pop(void);
+NU_API nu_object_type_t nu_object_type_new(nu_str_t                name,
+                                           nu_size_t               size,
+                                           nu_object_cleanup_pfn_t cleanup);
+NU_API nu_str_t         nu_object_type_name(nu_object_type_t type);
+
+NU_API nu_scope_t nu_scope_new(nu_str_t name, nu_size_t size);
+NU_API void       nu_scope_cleanup(nu_scope_t scope);
+NU_API nu_scope_t nu_scope_active(void);
+NU_API void       nu_scope_set_active(nu_scope_t scope);
+NU_API void       nu_scope_push(void);
+NU_API void       nu_scope_pop(void);
 
 NU_API void *nu_malloc(nu_size_t size);
 
