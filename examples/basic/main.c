@@ -168,6 +168,9 @@ init (void)
     g_view_roll   = nu_input_new();
     g_switch_mode = nu_input_new();
 
+    nu_object_set_tag(g_draw, NU_UID("draw"));
+    NU_INFO("%llu", nu_object_get_tag(g_draw));
+
     // Create camera controller
     g_controller = nu_controller_new(g_view_pitch,
                                      g_view_yaw,
@@ -402,5 +405,5 @@ nu_app (void)
     nu_app_surface_size(WIDTH, HEIGHT);
     nu_app_init_callback(init);
     nu_app_update_callback(update);
-    nu_app_log_level(NU_LOG_DEBUG);
+    // nu_app_log_level(NU_LOG_DEBUG);
 }
