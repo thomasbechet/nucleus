@@ -240,7 +240,7 @@ nu__seria_nbin_write_ref_data (nu__seria_ctx_t *ctx,
         }
         else
         {
-            nu_uid_t tag = nu_object_get_tag(ref[i]);
+            nu_uid_t tag = nu_object_get_uid(ref[i]);
             NU_ASSERT(tag);
             nu__seria_write_4b(ctx, tag);
         }
@@ -258,7 +258,7 @@ nu__seria_nbin_read_ref_data (nu__seria_ctx_t *ctx,
         nu_uid_t uid = nu__seria_read_4b(ctx);
         if (uid)
         {
-            ref[i] = nu_object_find(uid);
+            ref[i] = nu_object_find(type, uid);
         }
         else
         {
@@ -446,23 +446,6 @@ nu__seria_nbin_read_primitive (nu__seria_ctx_t     *ctx,
     nu__seria_nbin_read_primitive_data(ctx, primitive, count, data);
 }
 void
-nu__seria_nbin_write_ref (nu__seria_ctx_t *ctx,
-                          nu_str_t         name,
-                          nu_size_t        count,
-                          const void      *data)
-{
-    nu__seria_nbin_write_ref_data(ctx, count, data);
-}
-void
-nu__seria_nbin_read_ref (nu__seria_ctx_t *ctx,
-                         nu_str_t         name,
-                         nu_object_type_t type,
-                         nu_size_t        count,
-                         void            *data)
-{
-    nu__seria_nbin_read_ref_data(ctx, type, count, data);
-}
-void
 nu__seria_nbin_write_str (nu__seria_ctx_t *ctx,
                           nu_str_t         name,
                           nu_size_t        capacity,
@@ -479,6 +462,23 @@ nu__seria_nbin_read_str (nu__seria_ctx_t *ctx,
                          void            *data)
 {
     nu__seria_nbin_read_str_data(ctx, capacity, count, data);
+}
+void
+nu__seria_nbin_write_ref (nu__seria_ctx_t *ctx,
+                          nu_str_t         name,
+                          nu_size_t        count,
+                          const void      *data)
+{
+    nu__seria_nbin_write_ref_data(ctx, count, data);
+}
+void
+nu__seria_nbin_read_ref (nu__seria_ctx_t *ctx,
+                         nu_str_t         name,
+                         nu_object_type_t type,
+                         nu_size_t        count,
+                         void            *data)
+{
+    nu__seria_nbin_read_ref_data(ctx, type, count, data);
 }
 
 #endif

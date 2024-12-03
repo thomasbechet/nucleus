@@ -15,7 +15,7 @@ nu_image_new (nu_image_type_t type, nu_v3u_t size, nu_size_t layer)
     return (nu_image_t)im;
 }
 nu_object_type_t
-nu_image_type (void)
+nu_image (void)
 {
     return _ctx.graphics.obj_image;
 }

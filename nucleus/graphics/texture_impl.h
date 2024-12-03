@@ -12,11 +12,16 @@ nu__texture_cleanup (void *data)
     nugl__texture_free(tex);
 #endif
 }
+nu_object_type_t
+nu_texture (void)
+{
+    return _ctx.graphics.obj_texture;
+}
 nu_texture_t
 nu_texture_new (nu_texture_type_t type, nu_v3u_t size, nu_size_t layer)
 {
     NU_ASSERT(size.x && size.y && size.z && layer);
-    nu__texture_t *ptex   = nu_object_new(_ctx.graphics.obj_texture);
+    nu__texture_t *ptex   = nu_object_new(nu_texture());
     nu_texture_t   handle = (nu_texture_t)ptex;
 
     ptex->type  = type;

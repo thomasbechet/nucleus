@@ -610,11 +610,12 @@ nu_geometry_bounds (nu_geometry_t geometry)
 }
 #ifdef NU_BUILD_UTILS_SERIA
 void
-nu_geometry_write (nu_geometry_t geometry, nu_seria_t seria)
+nu_geometry_load (nu_geometry_t geometry, nu_seria_t seria)
 {
+    nu__geometry_t *g = (nu__geometry_t *)geometry;
 }
 void
-nu_geometry_read (nu_geometry_t geometry, nu_seria_t seria)
+nu_geometry_save (nu_geometry_t geometry, nu_seria_t seria)
 {
 }
 #endif

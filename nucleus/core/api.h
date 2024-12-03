@@ -174,6 +174,8 @@
     nu_byte_t name##_data[size]; \
     nu_str_t  name = nu_str(name##_data, size);
 
+#define NU_UID_FMT "0x%08X"
+
 #define NU_DEBUG(format, ...) \
     nu_log(NU_LOG_DEBUG, NU_STR(__SOURCE__), NU_STR(format), ##__VA_ARGS__)
 #define NU_INFO(format, ...) \
@@ -661,15 +663,17 @@ typedef void (*nu_app_pfn_t)(void);
 typedef void (*nu_object_cleanup_pfn_t)(void *data);
 
 NU_API nu_object_t      nu_object_new(nu_object_type_t type);
+NU_API nu_object_t      nu_object_find(nu_object_type_t type, nu_uid_t uid);
 NU_API nu_object_type_t nu_object_get_type(nu_object_t obj);
-NU_API nu_object_t      nu_object_find(nu_uid_t uid);
-NU_API void             nu_object_set_tag(nu_object_t obj, nu_uid_t uid);
-NU_API nu_uid_t         nu_object_get_tag(nu_object_t obj);
+NU_API nu_uid_t         nu_object_get_uid(nu_object_t obj);
+NU_API void             nu_object_set_uid(nu_object_t obj, nu_uid_t uid);
 
+NU_API nu_object_type_t nu_object_type(void);
 NU_API nu_object_type_t nu_object_type_new(nu_str_t                name,
                                            nu_size_t               size,
                                            nu_object_cleanup_pfn_t cleanup);
 NU_API nu_str_t         nu_object_type_name(nu_object_type_t type);
+NU_API nu_object_type_t nu_object_type_find(nu_uid_t uid);
 
 NU_API nu_scope_t nu_scope_new(nu_str_t name, nu_size_t size);
 NU_API void       nu_scope_cleanup(nu_scope_t scope);

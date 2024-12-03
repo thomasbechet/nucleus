@@ -19,7 +19,7 @@ typedef struct
 
 typedef enum
 {
-    NU__OBJECT_TAGGED = 1,
+    NU__OBJECT_HASUID = 1,
 } nu__object_flag_t;
 
 typedef struct nu__scope_header
@@ -43,15 +43,15 @@ typedef struct nu_scope
 typedef struct
 {
     nu_object_t object;
-    nu_uid_t    tag;
-} nu__object_tag_t;
+    nu_uid_t    uid;
+} nu__object_uid_t;
 
 typedef struct
 {
     nu_scope_t last_scope;
     nu_scope_t core_scope;
     nu_scope_t active_scope; // TODO: per thread scope
-    NU_VEC(nu__object_tag_t) tags;
+    NU_VEC(nu__object_uid_t) uids;
     nu_object_type_t obj_object_type;
     nu_object_type_t obj_scope;
 } nu__object_manager_t;

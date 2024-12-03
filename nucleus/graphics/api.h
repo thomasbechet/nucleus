@@ -104,6 +104,7 @@ NU_API void      nu_mesh_set_colors(nu_mesh_t         mesh,
                                     const nu_color_t *data);
 NU_API size_t    nu_mesh_capacity(nu_mesh_t mesh);
 
+NU_API nu_object_type_t  nu_texture(void);
 NU_API nu_texture_t      nu_texture_new(nu_texture_type_t type,
                                         nu_v3u_t          size,
                                         nu_size_t         layer);
@@ -222,10 +223,10 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_material_t   material,
                         nu_m4_t         transform);
 
+NU_API nu_object_type_t nu_image(void);
 NU_API nu_image_t       nu_image_new(nu_image_type_t type,
                                      nu_v3u_t        size,
                                      nu_size_t       layer);
-NU_API nu_object_type_t nu_image_type(void);
 NU_API nu_byte_t       *nu_image_data(nu_image_t image, nu_size_t layer);
 NU_API nu_v3u_t         nu_image_size(nu_image_t image);
 NU_API nu_image_t       nu_image_load(nu_seria_t seria);
@@ -251,16 +252,17 @@ NU_API nu_b3_t       nu_geometry_bounds(nu_geometry_t geometry);
 NU_API nu_mesh_t     nu_mesh_new_geometry(nu_geometry_t geometry);
 NU_API nu_mesh_t     nu_mesh_new_geometry_normals(nu_geometry_t geometry);
 #ifdef NU_BUILD_UTILS_SERIA
-NU_API void nu_geometry_write(nu_geometry_t geometry, nu_seria_t seria);
-NU_API void nu_geometry_read(nu_geometry_t geometry, nu_seria_t seria);
+NU_API void nu_geometry_load(nu_geometry_t geometry, nu_seria_t seria);
+NU_API void nu_geometry_save(nu_geometry_t geometry, nu_seria_t seria);
 #endif
 
-NU_API nu_model_t nu_model_new(nu_size_t node_count);
-NU_API void       nu_model_set(nu_model_t    model,
-                               nu_size_t     index,
-                               nu_mesh_t     mesh,
-                               nu_material_t material,
-                               nu_m4_t       transform);
+NU_API nu_object_type_t nu_model(void);
+NU_API nu_model_t       nu_model_new(nu_size_t node_count);
+NU_API void             nu_model_set(nu_model_t    model,
+                                     nu_size_t     index,
+                                     nu_mesh_t     mesh,
+                                     nu_material_t material,
+                                     nu_m4_t       transform);
 
 NU_API nu_font_t nu_font_new_default(void);
 

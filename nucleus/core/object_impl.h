@@ -30,7 +30,7 @@ nu__object_init (void)
     _ctx.core.object.obj_object_type = (nu_object_type_t)type;
 
     // initialize tags
-    NU_VEC_ALLOC(&_ctx.core.object.tags, 1024);
+    NU_VEC_ALLOC(&_ctx.core.object.uids, 1024);
 
     // register scope type
     _ctx.core.object.obj_scope
@@ -85,7 +85,8 @@ nu__scope_alloc (nu__scope_t *scope, nu_size_t size)
 {
     if (scope->ptr + size >= scope->end)
     {
-        NU_ERROR("scope out of memory '" NU_STR_FMT "' allocating %llu bytes",
+        NU_ERROR("scope out of memory scope=" NU_STR_FMT
+                 " allocating %llu bytes",
                  NU_STR_ARGS(scope->name),
                  size);
         return NU_NULL;
@@ -102,21 +103,34 @@ nu__scope_active (void)
 static void
 nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
 {
-    nu__object_type_t *object = nu__object_type(header->type);
-    if (object)
+    nu__object_type_t *type = nu__object_type(header->type);
+    if (type)
     {
         void *data = (nu_byte_t *)header + sizeof(nu__scope_header_t);
-        NU_DEBUG("[cleanup '" NU_STR_FMT "' obj '" NU_STR_FMT "' %p]",
-                 NU_STR_ARGS(scope->name),
-                 NU_STR_ARGS(object->name),
-                 data);
-        if (object->cleanup)
+        if (nu_object_get_uid(data))
         {
-            object->cleanup(data);
+            NU_DEBUG("[cleanup obj=%p type=" NU_STR_FMT " scope=" NU_STR_FMT
+                     " uid=" NU_UID_FMT "]",
+                     data,
+                     NU_STR_ARGS(type->name),
+                     NU_STR_ARGS(scope->name),
+                     nu_object_get_uid(data));
         }
-        if (header->flags & NU__OBJECT_TAGGED)
+        else
         {
-            nu_object_set_tag((nu_object_t)data, NU_NULL);
+            NU_DEBUG("[cleanup obj=%p type=" NU_STR_FMT " scope=" NU_STR_FMT
+                     " uid=null]",
+                     data,
+                     NU_STR_ARGS(type->name),
+                     NU_STR_ARGS(scope->name));
+        }
+        if (type->cleanup)
+        {
+            type->cleanup(data);
+        }
+        if (header->flags & NU__OBJECT_HASUID)
+        {
+            nu_object_set_uid((nu_object_t)data, NU_NULL);
         }
     }
 }
@@ -124,7 +138,7 @@ static nu_scope_t
 nu__scope_new (nu_str_t name, nu_size_t size, nu_bool_t auto_cleanup)
 {
     NU_DEBUG(
-        "[register scope '" NU_STR_FMT "' size %llu]", NU_STR_ARGS(name), size);
+        "[register scope=" NU_STR_FMT " size %llu]", NU_STR_ARGS(name), size);
     nu__scope_t *s              = nu_object_new(_ctx.core.object.obj_scope);
     s->name                     = name;
     s->last_header              = NU_NULL;
@@ -152,16 +166,30 @@ nu_object_new (nu_object_type_t type)
     s->last_header      = scope_header;
 
     void *data = nu__scope_alloc(s, t->size);
-    NU_DEBUG("[alloc '" NU_STR_FMT "' obj '" NU_STR_FMT
-             "' s:%llu p:%p u:%.2lf%]",
-             NU_STR_ARGS(s->name),
+    NU_DEBUG("[new addr=%p type=" NU_STR_FMT " scope=" NU_STR_FMT
+             " size=%llu usage=%.2lf%]",
+             data,
              NU_STR_ARGS(t->name),
+             NU_STR_ARGS(s->name),
              t->size,
              data,
              nu__scope_usage(s));
     return data;
 }
-nu__scope_header_t *
+nu_object_t
+nu_object_find (nu_object_type_t type, nu_uid_t tag)
+{
+    for (nu_size_t i = 0; i < _ctx.core.object.uids.size; ++i)
+    {
+        if (_ctx.core.object.uids.data[i].uid == tag)
+        {
+            nu_object_t obj = _ctx.core.object.uids.data[i].object;
+            return nu_object_get_type(obj) == type ? obj : NU_NULL;
+        }
+    }
+    return NU_NULL;
+}
+static nu__scope_header_t *
 nu__scope_header (nu_object_t obj)
 {
     return (nu__scope_header_t *)((nu_byte_t *)obj
@@ -172,73 +200,66 @@ nu_object_get_type (nu_object_t obj)
 {
     return nu__scope_header(obj)->type;
 }
-nu_object_t
-nu_object_find (nu_uid_t tag)
+nu_uid_t
+nu_object_get_uid (nu_object_t obj)
 {
-    for (nu_size_t i = 0; i < _ctx.core.object.tags.size; ++i)
+    nu__scope_header_t *header = nu__scope_header(obj);
+    if (header->flags & NU__OBJECT_HASUID)
     {
-        if (_ctx.core.object.tags.data[i].tag == tag)
+        for (nu_size_t i = 0; i < _ctx.core.object.uids.size; ++i)
         {
-            return _ctx.core.object.tags.data[i].object;
+            if (_ctx.core.object.uids.data[i].object == obj)
+            {
+                return _ctx.core.object.uids.data[i].uid;
+            }
         }
+        NU_UNREACHABLE();
     }
     return NU_NULL;
 }
 void
-nu_object_set_tag (nu_object_t obj, nu_uid_t tag)
+nu_object_set_uid (nu_object_t obj, nu_uid_t tag)
 {
     if (tag)
     {
-        if (nu_object_find(tag))
+        if (nu_object_find(nu_object_get_type(obj), tag))
         {
             NU_ERROR("object tag already exists '%p'", tag);
             return;
         }
-        nu__object_tag_t *t = NU_VEC_PUSH(&_ctx.core.object.tags);
+        nu__object_uid_t *t = NU_VEC_PUSH(&_ctx.core.object.uids);
         if (!t)
         {
             NU_ERROR("max tag count reached");
             return;
         }
         t->object = obj;
-        t->tag    = tag;
+        t->uid    = tag;
 
         nu__scope_header_t *header = nu__scope_header(obj);
-        header->flags              = header->flags | NU__OBJECT_TAGGED;
+        header->flags              = header->flags | NU__OBJECT_HASUID;
     }
     else
     {
         nu__scope_header_t *header = nu__scope_header(obj);
-        header->flags              = header->flags & ~NU__OBJECT_TAGGED;
-        for (nu_size_t i = 0; i < _ctx.core.object.tags.size; ++i)
+        header->flags              = header->flags & ~NU__OBJECT_HASUID;
+        for (nu_size_t i = 0; i < _ctx.core.object.uids.size; ++i)
         {
-            if (_ctx.core.object.tags.data[i].object == obj)
+            if (_ctx.core.object.uids.data[i].object == obj)
             {
-                NU_VEC_SWAP_REMOVE(&_ctx.core.object.tags, i);
+                NU_VEC_SWAP_REMOVE(&_ctx.core.object.uids, i);
                 return;
             }
         }
         NU_UNREACHABLE();
     }
 }
-nu_uid_t
-nu_object_get_tag (nu_object_t obj)
-{
-    nu__scope_header_t *header = nu__scope_header(obj);
-    if (header->flags & NU__OBJECT_TAGGED)
-    {
-        for (nu_size_t i = 0; i < _ctx.core.object.tags.size; ++i)
-        {
-            if (_ctx.core.object.tags.data[i].object == obj)
-            {
-                return _ctx.core.object.tags.data[i].tag;
-            }
-        }
-        NU_UNREACHABLE();
-    }
-    return NU_NULL;
-}
 
+nu_object_type_t
+nu_object_type (void)
+{
+    return _ctx.core.object.obj_object_type;
+}
 nu_object_type_t
 nu_object_type_new (nu_str_t                name,
                     nu_size_t               size,
@@ -254,7 +275,7 @@ nu_object_type_new (nu_str_t                name,
 
     // Build object type uid
     nu_uid_t type_uid = nu_str_hash(name);
-    nu_object_set_tag((nu_object_t)type, type_uid);
+    nu_object_set_uid((nu_object_t)type, type_uid);
 
     return (nu_object_type_t)type;
 }
@@ -262,6 +283,11 @@ nu_str_t
 nu_object_type_name (nu_object_type_t type)
 {
     return ((nu__object_type_t *)type)->name;
+}
+nu_object_type_t
+nu_object_type_find (nu_uid_t uid)
+{
+    return nu_object_find(_ctx.core.object.obj_object_type, uid);
 }
 
 nu_scope_t
@@ -339,10 +365,9 @@ nu_malloc (nu_size_t size)
     NU_ASSERT(size);
     nu__scope_t *s = nu__scope_active();
     void        *p = nu__scope_alloc(s, size);
-    NU_DEBUG("[alloc '" NU_STR_FMT "' raw s:%llu p:%p u:%.2lf%]",
+    NU_DEBUG("[malloc scope=" NU_STR_FMT " size=%llu usage=%.2lf%]",
              NU_STR_ARGS(s->name),
              size,
-             p,
              nu__scope_usage(s));
     return p;
 }

@@ -3,11 +3,16 @@
 
 #include <nucleus/internal.h>
 
+nu_object_type_t
+nu_model (void)
+{
+    return _ctx.graphics.obj_model;
+}
 nu_model_t
 nu_model_new (nu_size_t node_count)
 {
     NU_ASSERT(node_count);
-    nu__model_t *m = nu_object_new(_ctx.graphics.obj_model);
+    nu__model_t *m = nu_object_new(nu_model());
     NU_ARRAY_ALLOC(&m->nodes, node_count);
     for (nu_size_t i = 0; i < m->nodes.size; ++i)
     {

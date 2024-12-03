@@ -31,6 +31,7 @@ nu__platform_init (void)
     // Create window
     _ctx.platform.win = RGFW_createWindow(
         "nucleus", RGFW_RECT(0, 0, width, height), RGFW_CENTER);
+    RGFW_window_swapInterval(_ctx.platform.win, 1);
 
     // Initialize viewport
     _ctx.platform.viewport.mode     = NUEXT_VIEWPORT_STRETCH_KEEP_ASPECT;

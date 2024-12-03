@@ -145,7 +145,7 @@ init (void)
                     player_t,
                     NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
                     NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_REF(image, nu_image_type(), 1));
+                    NU_SERIA_FIELD_REF(image, nu_image(), 1));
 
     player_t player;
     player.image = NU_NULL;
@@ -168,8 +168,8 @@ init (void)
     g_view_roll   = nu_input_new();
     g_switch_mode = nu_input_new();
 
-    nu_object_set_tag(g_draw, NU_UID("draw"));
-    NU_INFO("%llu", nu_object_get_tag(g_draw));
+    nu_object_set_uid(g_draw, NU_UID("draw"));
+    NU_INFO(NU_UID_FMT, nu_object_get_uid(g_draw));
 
     // Create camera controller
     g_controller = nu_controller_new(g_view_pitch,
@@ -234,8 +234,8 @@ init (void)
     }
 
     // Load resources
-    g_texture     = nu_resource_get(NU_RES_IMAGE_TEXTURE, NU_UID("brick"));
-    g_texture_gui = nu_resource_get(NU_RES_IMAGE_TEXTURE, NU_UID("GUI"));
+    g_texture     = nu_object_find(nu_texture(), NU_UID("brick"));
+    g_texture_gui = nu_object_find(nu_texture(), NU_UID("GUI"));
 
     // Create material
     g_material = nu_material_new(NU_MATERIAL_SURFACE);
@@ -248,12 +248,12 @@ init (void)
     nu_material_set_wrap_mode(g_material_gui, NU_TEXTURE_WRAP_CLAMP);
 
     // Load temple
-    g_temple_model = nu_resource_get(NU_RES_MODEL, NU_UID("temple"));
-    g_ariane_model = nu_resource_get(NU_RES_MODEL, NU_UID("ariane"));
-    g_castle       = nu_resource_get(NU_RES_MODEL, NU_UID("castle"));
+    g_temple_model = nu_object_find(nu_model(), NU_UID("temple"));
+    g_ariane_model = nu_object_find(nu_model(), NU_UID("ariane"));
+    g_castle       = nu_object_find(nu_model(), NU_UID("castle"));
 
     // Load cubemap
-    g_skybox = nu_resource_get(NU_RES_IMAGE_TEXTURE, NU_UID("skybox"));
+    g_skybox = nu_object_find(nu_texture(), NU_UID("skybox"));
 
     // Create lightenv
 
@@ -278,6 +278,7 @@ init (void)
     nu_renderpass_set_shade(g_main_pass, NU_SHADE_UNLIT);
 
     g_gui_pass = nu_renderpass_new(NU_RENDERPASS_CANVAS);
+
     nu_renderpass_set_color_target(g_gui_pass, g_surface_tex);
 
     g_wireframe_pass = nu_renderpass_new(NU_RENDERPASS_FORWARD);
@@ -342,10 +343,6 @@ init (void)
     // Main loop
     nu_bool_t drawing = NU_FALSE;
     nu_bool_t running = NU_TRUE;
-
-    nu_scope_push();
-    nu_image_new(NU_IMAGE_RGBA, nu_v3u(100, 100, 100), 1);
-    nu_scope_pop();
 }
 
 void

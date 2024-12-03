@@ -201,15 +201,6 @@ NU_API void nu_seria_read_primitive(nu_seria_t           seria,
                                     nu_seria_primitive_t primitive,
                                     nu_size_t            count,
                                     void                *data);
-NU_API void nu_seria_write_ref(nu_seria_t         seria,
-                               nu_str_t           name,
-                               nu_size_t          count,
-                               const nu_object_t *ref);
-NU_API void nu_seria_read_ref(nu_seria_t       seria,
-                              nu_str_t         name,
-                              nu_object_type_t type,
-                              nu_size_t        count,
-                              nu_object_t     *ref);
 NU_API void nu_seria_write_str(nu_seria_t       seria,
                                nu_str_t         name,
                                nu_size_t        capacity,
@@ -220,6 +211,15 @@ NU_API void nu_seria_read_str(nu_seria_t seria,
                               nu_size_t  capacity,
                               nu_size_t  count,
                               nu_byte_t *buffer);
+NU_API void nu_seria_write_ref(nu_seria_t         seria,
+                               nu_str_t           name,
+                               nu_size_t          count,
+                               const nu_object_t *ref);
+NU_API void nu_seria_read_ref(nu_seria_t       seria,
+                              nu_str_t         name,
+                              nu_object_type_t type,
+                              nu_size_t        count,
+                              nu_object_t     *ref);
 
 NU_DEFINE_SERIA_PRIMITIVE(byte, nu_byte_t);
 NU_DEFINE_SERIA_PRIMITIVE(u32, nu_u32_t);

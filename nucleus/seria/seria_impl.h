@@ -141,12 +141,11 @@ nu_seria_dump_struct_type (nu_seria_struct_t sstruct)
         {
             flags = "OPT";
         }
-        nu_str_t pretype;
+        nu_str_t pretype = NU_STR("");
         nu_str_t fieldtype;
         switch (field->type.kind)
         {
             case NU_SERIA_PRIMITIVE: {
-                pretype   = NU_STR("");
                 fieldtype = nu_seria_primitive_names[field->type.p];
             }
             break;
@@ -283,7 +282,7 @@ nu__seria_dump_ref (nu_size_t        depth,
         nu_object_t *obj = (nu_object_t *)p;
         if (*obj)
         {
-            nu_uid_t uid = nu_object_get_tag(obj);
+            nu_uid_t uid = nu_object_get_uid(obj);
             NU_ASSERT(uid);
             nu__seria_print_with_depth(depth, NU_STR("%llu"), uid);
         }
@@ -528,25 +527,6 @@ nu_seria_read_primitive (nu_seria_t           seria,
     nu__seria_nbin_read_primitive(ctx, name, primitive, count, data);
 }
 void
-nu_seria_write_ref (nu_seria_t         seria,
-                    nu_str_t           name,
-                    nu_size_t          count,
-                    const nu_object_t *obj)
-{
-    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    nu__seria_nbin_write_ref(ctx, name, count, obj);
-}
-void
-nu_seria_read_ref (nu_seria_t       seria,
-                   nu_str_t         name,
-                   nu_object_type_t type,
-                   nu_size_t        count,
-                   nu_object_t     *ref)
-{
-    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
-    nu__seria_nbin_read_ref(ctx, name, type, count, ref);
-}
-void
 nu_seria_write_str (nu_seria_t       seria,
                     nu_str_t         name,
                     nu_size_t        capacity,
@@ -565,6 +545,25 @@ nu_seria_read_str (nu_seria_t seria,
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     nu__seria_nbin_read_str(ctx, name, capacity, count, buffer);
+}
+void
+nu_seria_write_ref (nu_seria_t         seria,
+                    nu_str_t           name,
+                    nu_size_t          count,
+                    const nu_object_t *obj)
+{
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
+    nu__seria_nbin_write_ref(ctx, name, count, obj);
+}
+void
+nu_seria_read_ref (nu_seria_t       seria,
+                   nu_str_t         name,
+                   nu_object_type_t type,
+                   nu_size_t        count,
+                   nu_object_t     *ref)
+{
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
+    nu__seria_nbin_read_ref(ctx, name, type, count, ref);
 }
 
 #define NU_IMPL_SERIA_PRIMITIVE(enum, ident, type)                          \
