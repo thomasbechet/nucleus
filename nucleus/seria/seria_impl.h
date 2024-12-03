@@ -631,7 +631,7 @@ nu_object_load (nu_object_type_t type, nu_seria_t seria)
 void
 nu_object_save (nu_object_t object, nu_seria_t seria)
 {
-    const nu__object_type_t *t = nu__object_type(nu_object_type(object));
+    const nu__object_type_t *t = nu__object_type(nu_object_get_type(object));
     NU_ASSERT(t && t->save);
     t->save(seria, object);
 }

@@ -661,7 +661,7 @@ typedef void (*nu_app_pfn_t)(void);
 typedef void (*nu_object_cleanup_pfn_t)(void *data);
 
 NU_API nu_object_t      nu_object_new(nu_object_type_t type);
-NU_API nu_object_type_t nu_object_type(nu_object_t obj);
+NU_API nu_object_type_t nu_object_get_type(nu_object_t obj);
 NU_API nu_object_t      nu_object_find(nu_uid_t uid);
 NU_API void             nu_object_set_tag(nu_object_t obj, nu_uid_t uid);
 NU_API nu_uid_t         nu_object_get_tag(nu_object_t obj);

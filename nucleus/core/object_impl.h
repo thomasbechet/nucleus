@@ -168,7 +168,7 @@ nu__scope_header (nu_object_t obj)
                                   - sizeof(nu__scope_header_t));
 }
 nu_object_type_t
-nu_object_type (nu_object_t obj)
+nu_object_get_type (nu_object_t obj)
 {
     return nu__scope_header(obj)->type;
 }
@@ -251,6 +251,11 @@ nu_object_type_new (nu_str_t                name,
     type->name    = name;
     type->size    = size;
     type->cleanup = cleanup;
+
+    // Build object type uid
+    nu_uid_t type_uid = nu_str_hash(name);
+    nu_object_set_tag((nu_object_t)type, type_uid);
+
     return (nu_object_type_t)type;
 }
 nu_str_t
