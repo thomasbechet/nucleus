@@ -665,7 +665,6 @@ NU_API nu_object_type_t nu_object_type(nu_object_t obj);
 NU_API nu_object_t      nu_object_find(nu_uid_t uid);
 NU_API void             nu_object_set_tag(nu_object_t obj, nu_uid_t uid);
 NU_API nu_uid_t         nu_object_get_tag(nu_object_t obj);
-NU_API void             nu_object_untag(nu_object_t obj);
 
 NU_API nu_object_type_t nu_object_type_new(nu_str_t                name,
                                            nu_size_t               size,

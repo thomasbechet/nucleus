@@ -116,7 +116,7 @@ nu__scope_cleanup_object (nu__scope_t *scope, nu__scope_header_t *header)
         }
         if (header->flags & NU__OBJECT_TAGGED)
         {
-            nu_object_untag((nu_object_t)data);
+            nu_object_set_tag((nu_object_t)data, NU_NULL);
         }
     }
 }
@@ -187,22 +187,39 @@ nu_object_find (nu_uid_t tag)
 void
 nu_object_set_tag (nu_object_t obj, nu_uid_t tag)
 {
-    if (nu_object_find(tag))
+    if (tag)
     {
-        NU_ERROR("object tag already exists '%p'", tag);
-        return;
-    }
-    nu__object_tag_t *t = NU_VEC_PUSH(&_ctx.core.object.tags);
-    if (!t)
-    {
-        NU_ERROR("max tag count reached");
-        return;
-    }
-    t->object = obj;
-    t->tag    = tag;
+        if (nu_object_find(tag))
+        {
+            NU_ERROR("object tag already exists '%p'", tag);
+            return;
+        }
+        nu__object_tag_t *t = NU_VEC_PUSH(&_ctx.core.object.tags);
+        if (!t)
+        {
+            NU_ERROR("max tag count reached");
+            return;
+        }
+        t->object = obj;
+        t->tag    = tag;
 
-    nu__scope_header_t *header = nu__scope_header(obj);
-    header->flags              = header->flags | NU__OBJECT_TAGGED;
+        nu__scope_header_t *header = nu__scope_header(obj);
+        header->flags              = header->flags | NU__OBJECT_TAGGED;
+    }
+    else
+    {
+        nu__scope_header_t *header = nu__scope_header(obj);
+        header->flags              = header->flags & ~NU__OBJECT_TAGGED;
+        for (nu_size_t i = 0; i < _ctx.core.object.tags.size; ++i)
+        {
+            if (_ctx.core.object.tags.data[i].object == obj)
+            {
+                NU_VEC_SWAP_REMOVE(&_ctx.core.object.tags, i);
+                return;
+            }
+        }
+        NU_UNREACHABLE();
+    }
 }
 nu_uid_t
 nu_object_get_tag (nu_object_t obj)
@@ -220,21 +237,6 @@ nu_object_get_tag (nu_object_t obj)
         NU_UNREACHABLE();
     }
     return NU_NULL;
-}
-void
-nu_object_untag (nu_object_t obj)
-{
-    nu__scope_header_t *header = nu__scope_header(obj);
-    header->flags              = header->flags & ~NU__OBJECT_TAGGED;
-    for (nu_size_t i = 0; i < _ctx.core.object.tags.size; ++i)
-    {
-        if (_ctx.core.object.tags.data[i].object == obj)
-        {
-            NU_VEC_SWAP_REMOVE(&_ctx.core.object.tags, i);
-            return;
-        }
-    }
-    NU_UNREACHABLE();
 }
 
 nu_object_type_t

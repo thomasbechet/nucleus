@@ -525,7 +525,7 @@ nu_ecs_dump (nu_ecs_t ecs)
         nu_ecs_id_t e = NU_ID_MAKE(i);
         if (nu_ecs_valid(ecs, e))
         {
-            NU_INFO("  #%d", e);
+            NU_INFO("#%d", e);
             for (nu_size_t c = 0; c < ins->pools.size; ++c)
             {
                 nu_ecs_id_t cid = NU_ID_MAKE(c);
@@ -534,7 +534,7 @@ nu_ecs_dump (nu_ecs_t ecs)
                     const nu__ecs_component_t *comp
                         = _ctx.ecs.components.data + c;
                     NU_INFO(
-                        "  " NU_STR_FMT,
+                        NU_STR_FMT,
                         NU_STR_ARGS(nu_str_from_cstr((nu_byte_t *)comp->name)));
                     void *data = nu_ecs_get(ecs, e, cid);
                     nu_seria_dump_struct(comp->layout, 1, data);
