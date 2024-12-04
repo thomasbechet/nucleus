@@ -4,9 +4,9 @@
 #include <nucleus/internal.h>
 #include <nucleus/seria/nbin_impl.h>
 
-static nu_str_t nu_seria_primitive_names[] = {
-    NU_STR("byte"), NU_STR("u32"), NU_STR("str"), NU_STR("v3"), NU_STR("q4")
-};
+static nu_str_t nu_seria_primitive_names[]
+    = { NU_STR("byte"), NU_STR("u32"), NU_STR("str"),
+        NU_STR("v3"),   NU_STR("q4"),  NU_STR("m4") };
 
 static nu_byte_t *
 nu__seria_load_bytes (nu_str_t filename, nu_size_t *size)
@@ -115,6 +115,8 @@ nu_seria_primitive_size (nu_seria_primitive_t primitive)
             return 4 * 3;
         case NU_SERIA_Q4:
             return 4 * 4;
+        case NU_SERIA_M4:
+            return 4 * 16;
     }
     return 0;
 }
@@ -265,6 +267,12 @@ nu__seria_dump_primitive (nu_size_t            depth,
                 nu_q4_t *v = (nu_q4_t *)p;
                 nu__seria_print_with_depth(
                     depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
+            }
+            break;
+            case NU_SERIA_M4: {
+                nu_m4_t *m = (nu_m4_t *)p;
+                nu__seria_print_with_depth(
+                    depth, NU_STR("[" NU_M4_FMT "]"), NU_M4_ARGS(*m));
             }
             break;
         }
@@ -593,6 +601,7 @@ NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_U32, u32, nu_u32_t);
 NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_F32, f32, nu_f32_t);
 NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_V3, v3, nu_v3_t);
 NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_Q4, q4, nu_q4_t);
+NU_IMPL_SERIA_PRIMITIVE(NU_SERIA_M4, m4, nu_m4_t);
 
 void
 nu_seria_write_1str (nu_seria_t seria, nu_str_t name, nu_str_t str)

@@ -51,5 +51,26 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
         }
     }
 }
+nu_model_t
+nu_model_load (nu_seria_t seria)
+{
+    nu_seria_begin(seria);
+    nu_size_t  node_count = nu_seria_read_1u32(seria, NU_STR("count"));
+    nu_model_t model      = nu_model_new(node_count);
+    for (nu_size_t i = 0; i < node_count; ++i)
+    {
+        nu_object_t mesh, material;
+        nu_seria_read_ref(seria, NU_STR("mesh"), nu_mesh(), 1, &mesh);
+        nu_seria_read_ref(
+            seria, NU_STR("material"), nu_material(), 1, &material);
+        nu_seria_read_1m4(seria, NU_STR("transform"));
+        nu_model_set(model, i, mesh, material, transform);
+    }
+    nu_seria_end(seria);
+}
+void
+nu_model_save (nu_model_t model, nu_seria_t seria)
+{
+}
 
 #endif

@@ -263,6 +263,8 @@ NU_API void             nu_model_set(nu_model_t    model,
                                      nu_mesh_t     mesh,
                                      nu_material_t material,
                                      nu_m4_t       transform);
+NU_API nu_model_t       nu_model_load(nu_seria_t seria);
+NU_API void             nu_model_save(nu_model_t model, nu_seria_t seria);
 
 NU_API nu_font_t nu_font_new_default(void);
 
