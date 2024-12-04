@@ -260,19 +260,19 @@ nu__seria_dump_primitive (nu_size_t            depth,
             case NU_SERIA_V3: {
                 nu_v3_t *v = (nu_v3_t *)p;
                 nu__seria_print_with_depth(
-                    depth, NU_STR("[" NU_V3_FMT "]"), NU_V3_ARGS(*v));
+                    depth, NU_STR("[" NU_V3_FMT "]"), NU_V3_ARGS(v));
             }
             break;
             case NU_SERIA_Q4: {
                 nu_q4_t *v = (nu_q4_t *)p;
                 nu__seria_print_with_depth(
-                    depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(*v));
+                    depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(v));
             }
             break;
             case NU_SERIA_M4: {
                 nu_m4_t *m = (nu_m4_t *)p;
                 nu__seria_print_with_depth(
-                    depth, NU_STR("[" NU_M4_FMT "]"), NU_M4_ARGS(*m));
+                    depth, NU_STR("[" NU_M4_FMT "]"), NU_M4_ARGS(m));
             }
             break;
         }

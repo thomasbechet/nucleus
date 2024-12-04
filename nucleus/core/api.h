@@ -160,19 +160,19 @@
 #endif
 
 #define NU_V2_FMT     "%lf %lf"
-#define NU_V2_ARGS(v) (v).x, (v).y
+#define NU_V2_ARGS(v) (v)->x, (v)->y
 #define NU_V3_FMT     "%lf %lf %lf"
-#define NU_V3_ARGS(v) (v).x, (v).y, (v).z
+#define NU_V3_ARGS(v) (v)->x, (v)->y, (v)->z
 #define NU_V4_FMT     "%lf %lf %lf %lf"
-#define NU_V4_ARGS(v) (v).x, (v).y, (v).z, (v).w
+#define NU_V4_ARGS(v) (v)->x, (v)->y, (v)->z, (v)->w
 #define NU_Q4_FMT     NU_V4_FMT
 #define NU_Q4_ARGS(q) NU_V4_ARGS(q)
 #define NU_M4_FMT     NU_V4_FMT NU_V4_FMT NU_V4_FMT NU_V4_FMT
-#define NU_M4_ARGS(m)                         \
-    NU_V4_ARGS((nu_v4_t *)((m).data + 0))     \
-    NU_V4_ARGS((nu_v4_t *)((m).data + 4))     \
-        NU_V4_ARGS((nu_v4_t *)((m).data + 8)) \
-            NU_V4_ARGS((nu_v4_t *)((m).data + 12))
+#define NU_M4_ARGS(m)                      \
+    NU_V4_ARGS((nu_v4_t *)((m)->data + 0)) \
+    NU_V4_ARGS((nu_v4_t *)((m)->data + 4)) \
+    NU_V4_ARGS((nu_v4_t *)((m)->data + 8)) \
+    NU_V4_ARGS((nu_v4_t *)((m)->data + 12))
 
 #define NU_STR_FMT       "%.*s"
 #define NU_STR_ARGS(str) (int)str.size, str.data
