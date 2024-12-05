@@ -8,12 +8,33 @@
 #define NU__ECS_ATTR_COMPID(id)         (id >> 16)
 
 static nu_size_t
+nu__ecs_primitive_size (nu_ecs_primitive_t primitive)
+{
+    switch (primitive)
+    {
+        case NU_ECS_BYTE:
+            return 1;
+        case NU_ECS_U32:
+            return 4;
+        case NU_ECS_F32:
+            return 4;
+        case NU_ECS_V3:
+            return 4 * 3;
+        case NU_ECS_Q4:
+            return 4 * 4;
+        case NU_ECS_M4:
+            return 4 * 16;
+    }
+    return 0;
+}
+
+static nu_size_t
 nu__ecs_attr_size (nu_ecs_attribute_t attr)
 {
     switch (attr.kind)
     {
         case NU_ECS_ATTR_PRIMITIVE:
-            return nu_seria_primitive_size(attr.p);
+            return nu__ecs_primitive_size(attr.p);
         case NU_ECS_ATTR_COMPONENT:
             return nu_ecs_component_size(attr.c);
         case NU_ECS_ATTR_OBJECT:
@@ -641,38 +662,38 @@ nu__ecs_dump_object (nu_size_t        depth,
     }
 }
 static void
-nu__ecs_dump_primitive (nu_size_t            depth,
-                        nu_seria_primitive_t primitive,
-                        nu_size_t            count,
-                        const nu_byte_t     *data)
+nu__ecs_dump_primitive (nu_size_t          depth,
+                        nu_ecs_primitive_t primitive,
+                        nu_size_t          count,
+                        const nu_byte_t   *data)
 {
     for (nu_size_t i = 0; i < count; ++i)
     {
-        const nu_byte_t *p = data + nu_seria_primitive_size(primitive) * i;
+        const nu_byte_t *p = data + nu__ecs_primitive_size(primitive) * i;
         switch (primitive)
         {
-            case NU_SERIA_BYTE:
+            case NU_ECS_BYTE:
                 nu__ecs_print_with_depth(depth, NU_STR("%d"), *(nu_u8_t *)p);
                 break;
-            case NU_SERIA_U32:
+            case NU_ECS_U32:
                 nu__ecs_print_with_depth(depth, NU_STR("%d"), *(nu_u32_t *)p);
                 break;
-            case NU_SERIA_F32:
+            case NU_ECS_F32:
                 nu__ecs_print_with_depth(depth, NU_STR("%lf"), *(nu_f32_t *)p);
                 break;
-            case NU_SERIA_V3: {
+            case NU_ECS_V3: {
                 nu_v3_t *v = (nu_v3_t *)p;
                 nu__ecs_print_with_depth(
                     depth, NU_STR("[" NU_V3_FMT "]"), NU_V3_ARGS(v));
             }
             break;
-            case NU_SERIA_Q4: {
+            case NU_ECS_Q4: {
                 nu_q4_t *v = (nu_q4_t *)p;
                 nu__ecs_print_with_depth(
                     depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(v));
             }
             break;
-            case NU_SERIA_M4: {
+            case NU_ECS_M4: {
                 nu_m4_t *m = (nu_m4_t *)p;
                 nu__ecs_print_with_depth(
                     depth, NU_STR("[" NU_M4_FMT "]"), NU_M4_ARGS(m));

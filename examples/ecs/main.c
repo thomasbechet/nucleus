@@ -33,15 +33,14 @@ init (void)
 
     g_transform = NU_ECS_COMPONENT(transform, transform_t);
     g_transform_position
-        = NU_ECS_APRIMITIVE(g_transform, transform_t, position, NU_SERIA_V3, 1);
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, position, NU_ECS_V3, 1);
     g_transform_rotation
-        = NU_ECS_APRIMITIVE(g_transform, transform_t, rotation, NU_SERIA_Q4, 1);
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, rotation, NU_ECS_Q4, 1);
     g_transform_scale
-        = NU_ECS_APRIMITIVE(g_transform, transform_t, scale, NU_SERIA_V3, 1);
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, scale, NU_ECS_V3, 1);
 
-    g_player = NU_ECS_COMPONENT(player, player_t);
-    g_player_stat
-        = NU_ECS_APRIMITIVE(g_player, player_t, stat, NU_SERIA_U32, 1);
+    g_player      = NU_ECS_COMPONENT(player, player_t);
+    g_player_stat = NU_ECS_APRIMITIVE(g_player, player_t, stat, NU_ECS_U32, 1);
     g_player_transform
         = NU_ECS_ACOMPONENT(g_player, player_t, transform, g_transform, 1);
 

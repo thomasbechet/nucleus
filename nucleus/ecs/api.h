@@ -38,6 +38,16 @@ NU_DEFINE_OBJECT(nu_ecs_t);
 
 NU_DEFINE_ID(nu_ecs_id_t);
 
+typedef enum
+{
+    NU_ECS_BYTE,
+    NU_ECS_U32,
+    NU_ECS_F32,
+    NU_ECS_V3,
+    NU_ECS_Q4,
+    NU_ECS_M4,
+} nu_ecs_primitive_t;
+
 typedef struct
 {
     enum
@@ -49,10 +59,10 @@ typedef struct
     } kind;
     union
     {
-        nu_seria_primitive_t p;
-        nu_ecs_id_t          c;
-        nu_object_type_t     o;
-        nu_size_t            s; // string capacity
+        nu_ecs_primitive_t p;
+        nu_ecs_id_t        c;
+        nu_object_type_t   o;
+        nu_size_t          s; // string capacity
     };
 } nu_ecs_attribute_t;
 
