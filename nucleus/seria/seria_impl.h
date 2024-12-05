@@ -458,15 +458,6 @@ nu_seria_new_bytes (nu_seria_mode_t mode, nu_byte_t *bytes, nu_size_t size)
 }
 
 void
-nu_seria_begin (nu_seria_t seria)
-{
-}
-void
-nu_seria_end (nu_seria_t seria)
-{
-}
-
-void
 nu_seria_write_struct (nu_seria_t        seria,
                        nu_str_t          name,
                        nu_seria_struct_t sstruct,
