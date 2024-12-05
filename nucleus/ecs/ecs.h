@@ -11,16 +11,25 @@ typedef NU_VEC(nu__ecs_mask_t) nu__ecs_bitset_t;
 
 typedef struct
 {
-    nu_byte_t         name[NU__ECS_COMPONENT_NAME_LEN];
-    nu_seria_struct_t layout;
+    nu_ecs_id_t        component;
+    nu_byte_t          name[NU__ECS_COMPONENT_NAME_LEN];
+    nu_ecs_attribute_t info;
+    nu_size_t          offset;
+    nu_size_t          count;
+} nu__ecs_attribute_t;
+
+typedef struct
+{
+    nu_byte_t name[NU__ECS_COMPONENT_NAME_LEN];
+    nu_size_t size; // sum of aligned attributes size
 } nu__ecs_component_t;
 
 typedef struct
 {
     nu_size_t capa;
     NU_VEC(void *) chunks;
-    nu_size_t        component_size;
     nu__ecs_bitset_t bitset;
+    nu_size_t        comp_size;
 } nu__ecs_component_pool_t;
 
 typedef struct
@@ -43,6 +52,7 @@ typedef struct
 typedef struct
 {
     NU_VEC(nu__ecs_component_t) components;
+    NU_VEC(nu__ecs_attribute_t) attributes;
     NU_VEC(nu__ecs_iter_t) iters;
     nu_object_type_t obj_ecs;
 } nu__ecs_t;

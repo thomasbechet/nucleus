@@ -12,33 +12,37 @@
                                             struct##_fields,                 \
                                             NU_ARRAY_SIZE(struct##_fields)); \
     }
-#define NU_SERIA_FIELD_STRUCT(field, field_struct, field_count)  \
-    {                                                            \
-        .name  = NU_STR(#field),                                 \
-        .type  = { .kind = NU_SERIA_STRUCT, .s = field_struct }, \
-        .count = field_count, .flags = NU_SERIA_REQUIRED,        \
-        .offset = offsetof(sstruct, field),                      \
+#define NU_SERIA_FIELD_STRUCT(field, field_struct, field_count)   \
+    {                                                             \
+        .name   = NU_STR(#field),                                 \
+        .type   = { .kind = NU_SERIA_STRUCT, .s = field_struct }, \
+        .count  = field_count,                                    \
+        .flags  = NU_SERIA_REQUIRED,                              \
+        .offset = offsetof(sstruct, field),                       \
     }
-#define NU_SERIA_FIELD_ENUM(field, field_enum, field_count)  \
-    {                                                        \
-        .name  = NU_STR(#field),                             \
-        .type  = { .kind = NU_SERIA_ENUM, .e = field_enum }, \
-        .count = field_count, .flags = NU_SERIA_REQUIRED,    \
-        .offset = offsetof(sstruct, field),                  \
+#define NU_SERIA_FIELD_ENUM(field, field_enum, field_count)   \
+    {                                                         \
+        .name   = NU_STR(#field),                             \
+        .type   = { .kind = NU_SERIA_ENUM, .e = field_enum }, \
+        .count  = field_count,                                \
+        .flags  = NU_SERIA_REQUIRED,                          \
+        .offset = offsetof(sstruct, field),                   \
     }
-#define NU_SERIA_FIELD_PRIMITIVE(field, field_primitive, field_count)  \
-    {                                                                  \
-        .name  = NU_STR(#field),                                       \
-        .type  = { .kind = NU_SERIA_PRIMITIVE, .p = field_primitive }, \
-        .count = field_count, .flags = NU_SERIA_REQUIRED,              \
-        .offset = offsetof(sstruct, field),                            \
+#define NU_SERIA_FIELD_PRIMITIVE(field, field_primitive, field_count)   \
+    {                                                                   \
+        .name   = NU_STR(#field),                                       \
+        .type   = { .kind = NU_SERIA_PRIMITIVE, .p = field_primitive }, \
+        .count  = field_count,                                          \
+        .flags  = NU_SERIA_REQUIRED,                                    \
+        .offset = offsetof(sstruct, field),                             \
     }
-#define NU_SERIA_FIELD_REF(field, field_ref, field_count)  \
-    {                                                      \
-        .name  = NU_STR(#field),                           \
-        .type  = { .kind = NU_SERIA_REF, .r = field_ref }, \
-        .count = field_count, .flags = NU_SERIA_REQUIRED,  \
-        .offset = offsetof(sstruct, field),                \
+#define NU_SERIA_FIELD_REF(field, field_ref, field_count)   \
+    {                                                       \
+        .name   = NU_STR(#field),                           \
+        .type   = { .kind = NU_SERIA_REF, .r = field_ref }, \
+        .count  = field_count,                              \
+        .flags  = NU_SERIA_REQUIRED,                        \
+        .offset = offsetof(sstruct, field),                 \
     }
 
 #define NU_SERIA_ENUM(layout, enum, ...)                                 \
@@ -49,10 +53,8 @@
                                           enum##_values,                 \
                                           NU_ARRAY_SIZE(enum##_values)); \
     }
-#define NU_SERIA_VALUE(value_name, enum_value)           \
-    {                                                    \
-        .name = NU_STR(#value_name), .value = enum_value \
-    }
+#define NU_SERIA_VALUE(value_name, enum_value) \
+    { .name = NU_STR(#value_name), .value = enum_value }
 
 #define NU_VEC_READ(v, seria, layout)                         \
     {                                                         \

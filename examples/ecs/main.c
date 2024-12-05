@@ -3,13 +3,6 @@
 
 typedef struct
 {
-    int     hello;
-    nu_v3_t vector;
-    nu_q4_t quat;
-} subtype_t;
-
-typedef struct
-{
     nu_v3_t position;
     nu_q4_t rotation;
     nu_v3_t scale;
@@ -17,57 +10,54 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t stat;
-    nu_v3_t  v;
+    nu_u32_t    stat;
+    nu_v3_t     v;
+    transform_t transform;
 } player_t;
 
-static nu_ecs_t g_ecs;
-
-static nu_seria_struct_t g_struct_subtype;
-static nu_seria_struct_t g_struct_transform;
-static nu_seria_struct_t g_struct_player;
-
-static nu_ecs_id_t g_comp_transform;
-static nu_ecs_id_t g_comp_player;
+static nu_ecs_id_t g_transform;
+static nu_ecs_id_t g_transform_position;
+static nu_ecs_id_t g_transform_rotation;
+static nu_ecs_id_t g_transform_scale;
+static nu_ecs_id_t g_player;
+static nu_ecs_id_t g_player_stat;
+static nu_ecs_id_t g_player_transform;
+static nu_ecs_t    g_ecs;
 static nu_scope_t  g_scope;
 
 void
 init (void)
 {
-    NU_SERIA_STRUCT(g_struct_subtype,
-                    subtype_t,
-                    NU_SERIA_FIELD_PRIMITIVE(hello, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(vector, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(quat, NU_SERIA_Q4, 1));
-    NU_SERIA_STRUCT(g_struct_transform,
-                    transform_t,
-                    NU_SERIA_FIELD_PRIMITIVE(position, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(rotation, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(scale, NU_SERIA_V3, 1));
-    NU_SERIA_STRUCT(g_struct_player,
-                    player_t,
-                    NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1));
-
-    NU_ECS_COMPONENT(g_comp_transform, transform, g_struct_transform);
-    NU_ECS_COMPONENT(g_comp_player, player, g_struct_player);
     g_scope = nu_scope_new(NU_STR("main"), NU_MEM_16M);
     nu_scope_set_active(g_scope);
 
+    g_transform = NU_ECS_COMPONENT(transform, transform_t);
+    g_transform_position
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, position, NU_SERIA_V3, 1);
+    g_transform_rotation
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, rotation, NU_SERIA_Q4, 1);
+    g_transform_scale
+        = NU_ECS_APRIMITIVE(g_transform, transform_t, scale, NU_SERIA_V3, 1);
+
+    g_player = NU_ECS_COMPONENT(player, player_t);
+    g_player_stat
+        = NU_ECS_APRIMITIVE(g_player, player_t, stat, NU_SERIA_U32, 1);
+    g_player_transform
+        = NU_ECS_ACOMPONENT(g_player, player_t, transform, g_transform, 1);
+
     g_ecs = nu_ecs_new(512);
 
-    nu_ecs_id_t  e     = nu_ecs_add(g_ecs);
-    transform_t *p     = nu_ecs_set(g_ecs, e, g_comp_transform);
-    p->scale           = NU_V3_ONES;
-    p->position        = NU_V3_ONES;
-    p->rotation        = nu_q4_identity();
-    nu_ecs_id_t ep     = e;
-    player_t   *player = nu_ecs_set(g_ecs, e, g_comp_player);
-    player->stat       = 0xFFFFFFFF;
-    e                  = nu_ecs_add(g_ecs);
-    nu_ecs_set(g_ecs, e, g_comp_transform);
-
-    nu_seria_dump_struct_type(g_struct_player);
+    nu_ecs_id_t  e          = nu_ecs_add(g_ecs);
+    transform_t *p          = nu_ecs_set(g_ecs, e, g_transform);
+    p->scale                = NU_V3_ONES;
+    p->position             = NU_V3_ONES;
+    p->rotation             = nu_q4_identity();
+    nu_ecs_id_t ep          = e;
+    player_t   *player      = nu_ecs_set(g_ecs, e, g_player);
+    player->transform.scale = NU_V3_ONES;
+    player->stat            = 0xFFFFFFFF;
+    e                       = nu_ecs_add(g_ecs);
+    nu_ecs_set(g_ecs, e, g_transform);
 
     NU_INFO("saved:");
     nu_ecs_dump(g_ecs);
@@ -78,12 +68,12 @@ init (void)
     nu_ecs_save(g_ecs, ser);
     nu_scope_pop();
 
-    ser    = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
-    g_ecs  = nu_ecs_load(ser);
-    player = nu_ecs_get(g_ecs, ep, g_comp_player);
-
-    NU_INFO("loaded:");
-    nu_ecs_dump(g_ecs);
+    // ser    = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
+    // g_ecs  = nu_ecs_load(ser);
+    // player = nu_ecs_get(g_ecs, ep, g_player);
+    //
+    // NU_INFO("loaded:");
+    // nu_ecs_dump(g_ecs);
 }
 
 void

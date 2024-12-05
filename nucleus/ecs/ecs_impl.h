@@ -3,6 +3,27 @@
 
 #include <nucleus/internal.h>
 
+#define NU__ECS_ATTR_MAKE(comp, offset) (comp << 16 | offset)
+#define NU__ECS_ATTR_OFFSET(id)         (id & 0xFFFF)
+#define NU__ECS_ATTR_COMPID(id)         (id >> 16)
+
+static nu_size_t
+nu__ecs_attr_size (nu_ecs_attribute_t attr)
+{
+    switch (attr.kind)
+    {
+        case NU_ECS_ATTR_PRIMITIVE:
+            return nu_seria_primitive_size(attr.p);
+        case NU_ECS_ATTR_COMPONENT:
+            return nu_ecs_component_size(attr.c);
+        case NU_ECS_ATTR_OBJECT:
+            return sizeof(nu_object_t);
+        case NU_ECS_ATTR_STRING:
+            return attr.s;
+    }
+    return 0;
+}
+
 static void
 nu__ecs_mask_set (nu__ecs_mask_t *bitset, nu_size_t n)
 {
@@ -112,25 +133,52 @@ static void
 nu__ecs_init (void)
 {
     NU_VEC_ALLOC(&_ctx.ecs.components, NU_ECS_COMPONENT_MAX);
+    NU_VEC_ALLOC(&_ctx.ecs.attributes, NU_ECS_ATTRIBUTE_MAX);
     NU_VEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
     _ctx.ecs.obj_ecs = nu_object_type_new(
         NU_STR("ecs"), sizeof(nu__ecs_instance_t), NU_NULL);
 }
 
 nu_ecs_id_t
-nu_ecs_register (nu_str_t name, nu_seria_struct_t layout)
+nu_ecs_register_component (nu_str_t name, nu_size_t size)
 {
-    NU_ASSERT(layout);
     nu__ecs_component_t *comp = NU_VEC_PUSH(&_ctx.ecs.components);
     if (!comp)
     {
         NU_ERROR("max ecs component count reached");
         return NU_NULL;
     }
-    comp->layout = layout;
     nu_str_to_cstr(name, comp->name, NU__ECS_COMPONENT_NAME_LEN);
+    comp->size = size;
 
     return NU_ID_MAKE(_ctx.ecs.components.size - 1);
+}
+nu_ecs_id_t
+nu_ecs_register_attribute (nu_ecs_id_t        comp,
+                           nu_str_t           name,
+                           nu_ecs_attribute_t attribute,
+                           nu_size_t          offset,
+                           nu_size_t          count)
+{
+    nu__ecs_component_t *c = _ctx.ecs.components.data + NU_ID_INDEX(comp);
+    nu__ecs_attribute_t *a = NU_VEC_PUSH(&_ctx.ecs.attributes);
+    if (!a)
+    {
+        NU_ERROR("max ecs attribute count reached");
+        return NU_NULL;
+    }
+    nu_str_to_cstr(name, a->name, NU__ECS_COMPONENT_NAME_LEN);
+    a->component = comp;
+    a->count     = count;
+    a->info      = attribute;
+
+    // compute new attribute offset
+    nu_size_t asize = nu__ecs_attr_size(attribute);
+    NU_ASSERT(asize);
+    a->offset = offset;
+    NU_ASSERT(a->offset <= 0xFFFF);
+
+    return NU__ECS_ATTR_MAKE(comp, a->offset);
 }
 nu_ecs_id_t
 nu_ecs_find_component (nu_str_t name)
@@ -144,6 +192,13 @@ nu_ecs_find_component (nu_str_t name)
         }
     }
     return NU_NULL;
+}
+nu_size_t
+nu_ecs_component_size (nu_ecs_id_t c)
+{
+    NU_ASSERT(c);
+    const nu__ecs_component_t *comp = _ctx.ecs.components.data + NU_ID_INDEX(c);
+    return comp->size;
 }
 
 nu_ecs_t
@@ -239,17 +294,14 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
     {
         if (c_index >= ins->pools.capacity)
         {
-            NU_ERROR("invalid ecs component id");
-            return NU_NULL;
+            NU_PANIC("invalid ecs component id");
         }
         nu_size_t prev_size = ins->pools.size;
         ins->pools.size     = c_index + 1;
         for (nu_size_t i = prev_size; i < ins->pools.size; ++i)
         {
-            nu_size_t component_size
-                = nu_seria_struct_size(_ctx.ecs.components.data[i].layout);
             nu__ecs_component_pool_t *pool = ins->pools.data + i;
-            pool->component_size           = component_size;
+            pool->comp_size                = _ctx.ecs.components.data[i].size;
             NU_VEC_ALLOC(&pool->chunks, ins->bitset.capacity);
             NU_VEC_ALLOC(&pool->bitset, ins->bitset.capacity);
             for (nu_size_t i = 0; i < ins->bitset.capacity; ++i)
@@ -274,11 +326,11 @@ nu_ecs_set (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
         {
             // allocate new chunk
             pool->chunks.data[mask]
-                = nu_malloc(pool->component_size * NU__ECS_ENTITY_PER_MASK);
+                = nu_malloc(pool->comp_size * NU__ECS_ENTITY_PER_MASK);
             // expect zero memory by default
             nu_memset(pool->chunks.data[mask],
                       0,
-                      pool->component_size * NU__ECS_ENTITY_PER_MASK);
+                      pool->comp_size * NU__ECS_ENTITY_PER_MASK);
         }
     }
 
@@ -292,6 +344,16 @@ nu_ecs_unset (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
     nu_size_t                 index = NU_ID_INDEX(e);
     nu__ecs_component_pool_t *pool  = ins->pools.data + NU_ID_INDEX(c);
     nu__ecs_bitset_unset(&pool->bitset, index);
+}
+nu_bool_t
+nu_ecs_has (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
+{
+    NU_ASSERT(e);
+    NU_ASSERT(c);
+    nu__ecs_instance_t       *ins   = (nu__ecs_instance_t *)ecs;
+    nu_size_t                 index = NU_ID_INDEX(e);
+    nu__ecs_component_pool_t *pool  = ins->pools.data + NU_ID_INDEX(c);
+    return nu__ecs_bitset_isset(&pool->bitset, index);
 }
 void *
 nu_ecs_get (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
@@ -308,17 +370,19 @@ nu_ecs_get (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
     nu_size_t                 offset = index % NU__ECS_ENTITY_PER_MASK;
     nu__ecs_component_pool_t *pool   = ins->pools.data + NU_ID_INDEX(c);
     return (void *)((nu_size_t)pool->chunks.data[mask]
-                    + pool->component_size * offset);
+                    + pool->comp_size * offset);
 }
-nu_bool_t
-nu_ecs_has (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
+void *
+nu_ecs_get_a (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t a)
 {
     NU_ASSERT(e);
-    NU_ASSERT(c);
-    nu__ecs_instance_t       *ins   = (nu__ecs_instance_t *)ecs;
-    nu_size_t                 index = NU_ID_INDEX(e);
-    nu__ecs_component_pool_t *pool  = ins->pools.data + NU_ID_INDEX(c);
-    return nu__ecs_bitset_isset(&pool->bitset, index);
+    NU_ASSERT(a);
+    nu_byte_t *data = nu_ecs_get(ecs, e, NU__ECS_ATTR_COMPID(a));
+    if (data)
+    {
+        return data + NU__ECS_ATTR_OFFSET(a);
+    }
+    return NU_NULL;
 }
 
 nu_ecs_id_t
@@ -417,129 +481,264 @@ nu_ecs_next (nu_ecs_t ecs, nu_ecs_id_t iter)
 void
 nu_ecs_save (nu_ecs_t ecs, nu_seria_t seria)
 {
-    nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
-
-    // write ecs header
-    nu_seria_write_1u32(seria, NU_STR("capacity"), nu_ecs_capacity(ecs));
-    nu_seria_write_1u32(seria, NU_STR("count"), ins->pools.size);
-
-    // iterate pools
-    for (nu_size_t c = 0; c < ins->pools.size; ++c)
-    {
-        nu_ecs_id_t                     cid  = NU_ID_MAKE(c);
-        const nu__ecs_component_pool_t *pool = ins->pools.data + c;
-        nu_u32_t component_count = nu__ecs_bitset_count(&pool->bitset);
-        if (!component_count)
-        {
-            continue;
-        }
-        const nu__ecs_component_t *comp = _ctx.ecs.components.data + c;
-        nu_str_t component_name = nu_str_from_cstr((nu_byte_t *)comp->name);
-
-        // write component name
-        nu_seria_write_1str(seria, NU_STR("name"), component_name);
-
-        // write component count
-        nu_seria_write_1u32(seria, NU_STR("count"), component_count);
-
-        // write component data
-        nu_size_t entity_count = nu_ecs_count(ecs);
-        for (nu_size_t i = 0; i < entity_count; ++i)
-        {
-            if (nu__ecs_bitset_isset(&pool->bitset, i))
-            {
-                // write entity
-                nu_ecs_id_t id = NU_ID_MAKE(i);
-                nu_seria_write_1u32(seria, NU_STR("id"), id);
-
-                // write data
-                void *data = nu_ecs_get(ecs, id, cid);
-                nu_seria_write_struct(
-                    seria, NU_STR("data"), comp->layout, 1, data);
-            }
-        }
-    }
+    // nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
+    //
+    // // write ecs header
+    // nu_seria_write_1u32(seria, NU_STR("capacity"), nu_ecs_capacity(ecs));
+    // nu_seria_write_1u32(seria, NU_STR("count"), ins->pools.size);
+    //
+    // // iterate pools
+    // for (nu_size_t c = 0; c < ins->pools.size; ++c)
+    // {
+    //     nu_ecs_id_t                     cid  = NU_ID_MAKE(c);
+    //     const nu__ecs_component_pool_t *pool = ins->pools.data + c;
+    //     nu_u32_t component_count = nu__ecs_bitset_count(&pool->bitset);
+    //     if (!component_count)
+    //     {
+    //         continue;
+    //     }
+    //     const nu__ecs_component_t *comp = _ctx.ecs.components.data + c;
+    //     nu_str_t component_name = nu_str_from_cstr((nu_byte_t *)comp->name);
+    //
+    //     // write component name
+    //     nu_seria_write_1str(seria, NU_STR("name"), component_name);
+    //
+    //     // write component count
+    //     nu_seria_write_1u32(seria, NU_STR("count"), component_count);
+    //
+    //     // write component data
+    //     nu_size_t entity_count = nu_ecs_count(ecs);
+    //     for (nu_size_t i = 0; i < entity_count; ++i)
+    //     {
+    //         if (nu__ecs_bitset_isset(&pool->bitset, i))
+    //         {
+    //             // write entity
+    //             nu_ecs_id_t id = NU_ID_MAKE(i);
+    //             nu_seria_write_1u32(seria, NU_STR("id"), id);
+    //
+    //             // write data
+    //             void *data = nu_ecs_get(ecs, id, cid);
+    //             nu_seria_write_struct(
+    //                 seria, NU_STR("data"), comp->layout, 1, data);
+    //         }
+    //     }
+    // }
 }
 nu_ecs_t
 nu_ecs_load (nu_seria_t seria)
 {
-    // read ecs header
-    nu_size_t capacity   = nu_seria_read_1u32(seria, NU_STR("capacity"));
-    nu_u32_t  pool_count = nu_seria_read_1u32(seria, NU_STR("count"));
-
-    nu_ecs_t            ecs = nu_ecs_new(capacity);
-    nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
-
-    for (nu_size_t p = 0; p < pool_count; ++p)
+    // // read ecs header
+    // nu_size_t capacity   = nu_seria_read_1u32(seria, NU_STR("capacity"));
+    // nu_u32_t  pool_count = nu_seria_read_1u32(seria, NU_STR("count"));
+    //
+    // nu_ecs_t            ecs = nu_ecs_new(capacity);
+    // nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
+    //
+    // for (nu_size_t p = 0; p < pool_count; ++p)
+    // {
+    //     // read component name
+    //     nu_byte_t component_name_buf[NU__ECS_COMPONENT_NAME_LEN];
+    //     nu_str_t  component_name = nu_seria_read_1str(seria,
+    //                                                  NU_STR("name"),
+    //                                                  NU__ECS_COMPONENT_NAME_LEN,
+    //                                                  component_name_buf);
+    //
+    //     // find component
+    //     nu_ecs_id_t cid = nu_ecs_find_component(component_name);
+    //     NU_ASSERT(cid);
+    //
+    //     // read component count
+    //     nu_u32_t component_count = nu_seria_read_1u32(seria,
+    //     NU_STR("count")); NU_ASSERT(component_count > 0);
+    //
+    //     // find component layout
+    //     nu_seria_struct_t layout
+    //         = _ctx.ecs.components.data[NU_ID_INDEX(cid)].layout;
+    //     NU_ASSERT(layout);
+    //
+    //     // read component data
+    //     for (nu_size_t i = 0; i < component_count; ++i)
+    //     {
+    //         // read entity
+    //         nu_ecs_id_t e = nu_seria_read_1u32(seria, NU_STR("id"));
+    //         NU_ASSERT(e);
+    //
+    //         // create entity if needed
+    //         if (!nu_ecs_valid(ecs, e))
+    //         {
+    //             nu_ecs_add_at(ecs, e);
+    //         }
+    //
+    //         // set component
+    //         void *data = nu_ecs_set(ecs, e, cid);
+    //
+    //         // read component
+    //         nu_seria_read_struct(seria, NU_STR("data"), layout, 1, data);
+    //     }
+    // }
+    //
+    // return ecs;
+    return NU_NULL;
+}
+static void
+nu__ecs_print_with_depth (nu_size_t depth, nu_str_t format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    NU_STR_BUF(str, 256);
+    nu_str_vfmt(str, format, args);
+    NU_INFO("%*s%s", depth * 2, "", str);
+    va_end(args);
+}
+static void nu__ecs_dump_attribute(nu_size_t                  depth,
+                                   const nu__ecs_attribute_t *a,
+                                   const nu_byte_t           *data);
+static void
+nu__ecs_dump_component (nu_size_t        depth,
+                        nu_ecs_id_t      c,
+                        nu_size_t        count,
+                        const nu_byte_t *data)
+{
+    const nu__ecs_component_t *comp = _ctx.ecs.components.data + NU_ID_INDEX(c);
+    nu__ecs_print_with_depth(
+        depth,
+        NU_STR(NU_STR_FMT " {"),
+        NU_STR_ARGS(nu_str_from_cstr((nu_byte_t *)comp->name)));
+    for (nu_size_t i = 0; i < count; ++i)
     {
-        // read component name
-        nu_byte_t component_name_buf[NU__ECS_COMPONENT_NAME_LEN];
-        nu_str_t  component_name = nu_seria_read_1str(seria,
-                                                     NU_STR("name"),
-                                                     NU__ECS_COMPONENT_NAME_LEN,
-                                                     component_name_buf);
-
-        // find component
-        nu_ecs_id_t cid = nu_ecs_find_component(component_name);
-        NU_ASSERT(cid);
-
-        // read component count
-        nu_u32_t component_count = nu_seria_read_1u32(seria, NU_STR("count"));
-        NU_ASSERT(component_count > 0);
-
-        // find component layout
-        nu_seria_struct_t layout
-            = _ctx.ecs.components.data[NU_ID_INDEX(cid)].layout;
-        NU_ASSERT(layout);
-
-        // read component data
-        for (nu_size_t i = 0; i < component_count; ++i)
+        for (nu_size_t j = 0; j < _ctx.ecs.attributes.size; ++j)
         {
-            // read entity
-            nu_ecs_id_t e = nu_seria_read_1u32(seria, NU_STR("id"));
-            NU_ASSERT(e);
-
-            // create entity if needed
-            if (!nu_ecs_valid(ecs, e))
+            const nu__ecs_attribute_t *a = _ctx.ecs.attributes.data + j;
+            if (a->component == c)
             {
-                nu_ecs_add_at(ecs, e);
+                const nu_byte_t *p = data + a->offset;
+                nu__ecs_dump_attribute(depth + 1, a, data);
             }
-
-            // set component
-            void *data = nu_ecs_set(ecs, e, cid);
-
-            // read component
-            nu_seria_read_struct(seria, NU_STR("data"), layout, 1, data);
         }
     }
-
-    return ecs;
+    nu__ecs_print_with_depth(depth, NU_STR("}"));
+}
+static void
+nu__ecs_dump_object (nu_size_t        depth,
+                     nu_object_type_t type,
+                     nu_size_t        count,
+                     const nu_byte_t *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_byte_t   *p   = (nu_byte_t *)data + sizeof(nu_object_t) * i;
+        nu_object_t *obj = (nu_object_t *)p;
+        if (*obj)
+        {
+            nu_uid_t uid = nu_object_get_uid(obj);
+            NU_ASSERT(uid);
+            nu__ecs_print_with_depth(depth, NU_STR("%llu"), uid);
+        }
+        else
+        {
+            nu__ecs_print_with_depth(depth, NU_STR("null"));
+        }
+    }
+}
+static void
+nu__ecs_dump_primitive (nu_size_t            depth,
+                        nu_seria_primitive_t primitive,
+                        nu_size_t            count,
+                        const nu_byte_t     *data)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        const nu_byte_t *p = data + nu_seria_primitive_size(primitive) * i;
+        switch (primitive)
+        {
+            case NU_SERIA_BYTE:
+                nu__ecs_print_with_depth(depth, NU_STR("%d"), *(nu_u8_t *)p);
+                break;
+            case NU_SERIA_U32:
+                nu__ecs_print_with_depth(depth, NU_STR("%d"), *(nu_u32_t *)p);
+                break;
+            case NU_SERIA_F32:
+                nu__ecs_print_with_depth(depth, NU_STR("%lf"), *(nu_f32_t *)p);
+                break;
+            case NU_SERIA_V3: {
+                nu_v3_t *v = (nu_v3_t *)p;
+                nu__ecs_print_with_depth(
+                    depth, NU_STR("[" NU_V3_FMT "]"), NU_V3_ARGS(v));
+            }
+            break;
+            case NU_SERIA_Q4: {
+                nu_q4_t *v = (nu_q4_t *)p;
+                nu__ecs_print_with_depth(
+                    depth, NU_STR("[" NU_Q4_FMT "]"), NU_Q4_ARGS(v));
+            }
+            break;
+            case NU_SERIA_M4: {
+                nu_m4_t *m = (nu_m4_t *)p;
+                nu__ecs_print_with_depth(
+                    depth, NU_STR("[" NU_M4_FMT "]"), NU_M4_ARGS(m));
+            }
+            break;
+        }
+    }
+}
+static void
+nu__ecs_dump_attribute (nu_size_t                  depth,
+                        const nu__ecs_attribute_t *a,
+                        const nu_byte_t           *data)
+{
+    nu__ecs_print_with_depth(
+        depth,
+        NU_STR(NU_STR_FMT ":"),
+        NU_STR_ARGS(nu_str_from_cstr((nu_byte_t *)a->name)));
+    const nu_byte_t *p = data + a->offset;
+    switch (a->info.kind)
+    {
+        case NU_ECS_ATTR_PRIMITIVE:
+            nu__ecs_dump_primitive(depth + 1, a->info.p, a->count, p);
+            break;
+        case NU_ECS_ATTR_COMPONENT:
+            nu__ecs_dump_component(depth + 1, a->info.c, a->count, p);
+            break;
+        case NU_ECS_ATTR_OBJECT:
+            nu__ecs_dump_object(depth + 1, a->info.o, a->count, p);
+            break;
+        case NU_ECS_ATTR_STRING:
+            break;
+    }
+}
+void
+nu_ecs_dump_component (nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c)
+{
+    const nu__ecs_component_t *comp = _ctx.ecs.components.data + c;
+    const void                *data = nu_ecs_get(ecs, e, c);
+    nu__ecs_dump_component(0, c, 1, data);
+}
+void
+nu_ecs_dump_entity (nu_ecs_t ecs, nu_ecs_id_t e)
+{
+    const nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
+    NU_INFO("entity #%d {", e);
+    for (nu_size_t c = 0; c < ins->pools.size; ++c)
+    {
+        nu_ecs_id_t cid = NU_ID_MAKE(c);
+        if (nu_ecs_has(ecs, e, cid))
+        {
+            const void *data = nu_ecs_get(ecs, e, cid);
+            nu__ecs_dump_component(1, cid, 1, data);
+        }
+    }
+    NU_INFO("}");
 }
 void
 nu_ecs_dump (nu_ecs_t ecs)
 {
     const nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;
-
     for (nu_size_t i = 0; i < nu_ecs_capacity(ecs); ++i)
     {
         nu_ecs_id_t e = NU_ID_MAKE(i);
         if (nu_ecs_valid(ecs, e))
         {
-            NU_INFO("#%d", e);
-            for (nu_size_t c = 0; c < ins->pools.size; ++c)
-            {
-                nu_ecs_id_t cid = NU_ID_MAKE(c);
-                if (nu_ecs_has(ecs, e, cid))
-                {
-                    const nu__ecs_component_t *comp
-                        = _ctx.ecs.components.data + c;
-                    NU_INFO(
-                        NU_STR_FMT,
-                        NU_STR_ARGS(nu_str_from_cstr((nu_byte_t *)comp->name)));
-                    void *data = nu_ecs_get(ecs, e, cid);
-                    nu_seria_dump_struct(comp->layout, 1, data);
-                }
-            }
+            nu_ecs_dump_entity(ecs, e);
         }
     }
 }
