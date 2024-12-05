@@ -29,7 +29,7 @@ nu__object_init (void)
     type->cleanup                    = NU_NULL;
     _ctx.core.object.obj_object_type = (nu_object_type_t)type;
 
-    // initialize tags
+    // initialize uids
     NU_VEC_ALLOC(&_ctx.core.object.uids, 1024);
 
     // register scope type
@@ -177,11 +177,11 @@ nu_object_new (nu_object_type_t type)
     return data;
 }
 nu_object_t
-nu_object_find (nu_object_type_t type, nu_uid_t tag)
+nu_object_find (nu_object_type_t type, nu_uid_t uid)
 {
     for (nu_size_t i = 0; i < _ctx.core.object.uids.size; ++i)
     {
-        if (_ctx.core.object.uids.data[i].uid == tag)
+        if (_ctx.core.object.uids.data[i].uid == uid)
         {
             nu_object_t obj = _ctx.core.object.uids.data[i].object;
             return nu_object_get_type(obj) == type ? obj : NU_NULL;
@@ -218,23 +218,23 @@ nu_object_get_uid (nu_object_t obj)
     return NU_NULL;
 }
 void
-nu_object_set_uid (nu_object_t obj, nu_uid_t tag)
+nu_object_set_uid (nu_object_t obj, nu_uid_t uid)
 {
-    if (tag)
+    if (uid)
     {
-        if (nu_object_find(nu_object_get_type(obj), tag))
+        if (nu_object_find(nu_object_get_type(obj), uid))
         {
-            NU_ERROR("object tag already exists '%p'", tag);
+            NU_ERROR("object uid already exists '%p'", uid);
             return;
         }
         nu__object_uid_t *t = NU_VEC_PUSH(&_ctx.core.object.uids);
         if (!t)
         {
-            NU_ERROR("max tag count reached");
+            NU_ERROR("max uid count reached");
             return;
         }
         t->object = obj;
-        t->uid    = tag;
+        t->uid    = uid;
 
         nu__scope_header_t *header = nu__scope_header(obj);
         header->flags              = header->flags | NU__OBJECT_HASUID;
