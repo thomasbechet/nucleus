@@ -2,7 +2,6 @@
 #define NU_SERIA_IMPL_H
 
 #include <nucleus/internal.h>
-#include <nucleus/seria/nbin_impl.h>
 
 static nu_u16_t
 nu__seria_u16_le (nu_u16_t v)
@@ -111,7 +110,7 @@ nu__seria_read (nu__seria_ctx_t *ctx, nu_size_t n, nu_byte_t *p)
 {
     if (ctx->ptr + n >= ctx->end)
     {
-        NU_ERROR("invalid read");
+        NU_PANIC("invalid read");
     }
     nu_memcpy(p, ctx->ptr, n);
     ctx->ptr += n;
@@ -154,8 +153,6 @@ nu_seria_new_file (nu_str_t        filename,
         ctx->end = ctx->bytes + buffer_size;
     }
 
-    nu__seria_nbin_open(ctx);
-
     return (nu_seria_t)ctx;
 }
 nu_seria_t
@@ -169,25 +166,23 @@ nu_seria_new_bytes (nu_seria_mode_t mode, nu_byte_t *bytes, nu_size_t size)
     ctx->end   = ctx->bytes + size;
     ctx->ptr   = ctx->bytes;
 
-    nu__seria_nbin_open(ctx);
-
     return (nu_seria_t)ctx;
 }
 
-nu_size_t
-nu_byte_load (nu_seria_t seria, nu_size_t count, nu_byte_t *p)
+void
+nu_seria_read_byte (nu_seria_t seria, nu_size_t count, nu_byte_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     nu__seria_read(ctx, count, p);
 }
 void
-nu_byte_save (nu_seria_t seria, nu_size_t count, const nu_byte_t *p)
+nu_seria_write_byte (nu_seria_t seria, nu_size_t count, const nu_byte_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     nu__seria_write(ctx, count, p);
 }
-nu_size_t
-nu_u32_load (nu_seria_t seria, nu_size_t count, nu_u32_t *p)
+void
+nu_seria_read_u32 (nu_seria_t seria, nu_size_t count, nu_u32_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     for (nu_size_t i = 0; i < count; ++i)
@@ -199,7 +194,7 @@ nu_u32_load (nu_seria_t seria, nu_size_t count, nu_u32_t *p)
     }
 }
 void
-nu_u32_save (nu_seria_t seria, nu_size_t count, const nu_u32_t *p)
+nu_seria_write_u32 (nu_seria_t seria, nu_size_t count, const nu_u32_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
     for (nu_size_t i = 0; i < count; ++i)
@@ -208,37 +203,120 @@ nu_u32_save (nu_seria_t seria, nu_size_t count, const nu_u32_t *p)
         nu__seria_write(ctx, sizeof(b), (nu_byte_t *)&b);
     }
 }
-nu_size_t
-nu_f32_load (nu_seria_t seria, nu_size_t count, nu_f32_t *p)
+void
+nu_seria_read_f32 (nu_seria_t seria, nu_size_t count, nu_f32_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_u32_t b;
+        nu__seria_read(ctx, sizeof(b), (nu_byte_t *)&b);
+        b = nu__seria_u32_le(b);
+        nu_memcpy(p + i, &b, sizeof(b));
+    }
 }
 void
-nu_f32_save (nu_seria_t seria, nu_size_t count, const nu_f32_t *p)
+nu_seria_write_f32 (nu_seria_t seria, nu_size_t count, const nu_f32_t *p)
 {
     nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_u32_t b;
+        nu_memcpy(&b, p + i, sizeof(b));
+        b = nu__seria_u32_le(b);
+        nu__seria_write(ctx, sizeof(b), (nu_byte_t *)&b);
+    }
 }
-
+void
+nu_seria_read_v3 (nu_seria_t seria, nu_size_t count, nu_v3_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_read_f32(seria, NU_V3_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_write_v3 (nu_seria_t seria, nu_size_t count, const nu_v3_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_write_f32(seria, NU_V3_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_read_q4 (nu_seria_t seria, nu_size_t count, nu_q4_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_read_f32(seria, NU_Q4_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_write_q4 (nu_seria_t seria, nu_size_t count, const nu_q4_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_write_f32(seria, NU_Q4_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_read_m4 (nu_seria_t seria, nu_size_t count, nu_m4_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_read_f32(seria, NU_M4_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_write_m4 (nu_seria_t seria, nu_size_t count, const nu_m4_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_write_f32(seria, NU_M4_SIZE, p[i].data);
+    }
+}
+nu_object_t
+nu_seria_read_object (nu_seria_t seria, nu_object_type_t type)
+{
+    nu_uid_t uid;
+    nu_seria_read_u32(seria, 1, &uid);
+    return nu_object_find(type, uid);
+}
+void
+nu_seria_write_object (nu_seria_t seria, nu_object_t obj)
+{
+    nu_uid_t uid = nu_object_get_uid(obj);
+    nu_seria_write_u32(seria, 1, &uid);
+}
 nu_str_t
-nu_str_load (nu_seria_t seria, nu_size_t capacity, const nu_byte_t *buffer)
+nu_seria_read_str (nu_seria_t seria, nu_size_t capacity, nu_byte_t *buffer)
 {
+    nu_u32_t s;
+    nu_seria_read_u32(seria, 1, &s);
+    NU_ASSERT(s <= capacity);
+    nu_memset(buffer, 0, capacity);
+    nu_seria_read_byte(seria, s, buffer);
+    return nu_str_from_cstr(buffer);
 }
 void
-nu_str_save (nu_seria_t seria, nu_str_t str)
+nu_seria_write_str (nu_seria_t seria, nu_str_t str)
 {
+    nu_u32_t s = str.size;
+    nu_seria_write_u32(seria, 1, &s);
+    nu_seria_write_byte(seria, s, str.data);
 }
 
 void
 nu_object_set_seria (nu_object_type_t       type,
-                     nu_object_seria_load_t load,
-                     nu_object_seria_save_t save)
+                     nu_seria_load_object_t load,
+                     nu_seria_save_object_t save)
 {
     nu__object_type_t *t = nu__object_type(type);
     t->load              = load;
     t->save              = save;
 }
 nu_object_t
-nu_object_load (nu_seria_t seria, nu_object_type_t type)
+nu_seria_load_object (nu_seria_t seria, nu_object_type_t type)
 {
     const nu__object_type_t *t = nu__object_type(type);
     NU_ASSERT(t && t->load);
@@ -247,7 +325,7 @@ nu_object_load (nu_seria_t seria, nu_object_type_t type)
     return object;
 }
 void
-nu_object_save (nu_seria_t seria, nu_object_t object)
+nu_seria_save_object (nu_seria_t seria, nu_object_t object)
 {
     const nu__object_type_t *t = nu__object_type(nu_object_get_type(object));
     NU_ASSERT(t && t->save);

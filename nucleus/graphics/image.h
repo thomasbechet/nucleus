@@ -7,7 +7,7 @@ typedef struct
 {
     nu_image_type_t type;
     nu_v3u_t        size;
-    nu_size_t       layer;
+    nu_u32_t        layer;
     nu_byte_t      *data;
 } nu__image_t;
 

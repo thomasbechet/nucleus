@@ -12,8 +12,8 @@ typedef struct
     nu_size_t               size;
     nu_object_cleanup_pfn_t cleanup;
 #ifdef NU_BUILD_SERIA
-    nu_object_seria_load_t load;
-    nu_object_seria_save_t save;
+    nu_seria_load_object_t load;
+    nu_seria_save_object_t save;
 #endif
 } nu__object_type_t;
 

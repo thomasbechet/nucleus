@@ -59,6 +59,7 @@ typedef struct
 
 static void nu__ecs_init(void);
 
+static nu_size_t nu__ecs_primitive_size(nu_ecs_primitive_t primitive);
 static nu_size_t nu__ecs_bitset_count(const nu__ecs_bitset_t *bitset);
 static nu_bool_t nu__ecs_bitset_isset(const nu__ecs_bitset_t *bitset,
                                       nu_size_t               index);

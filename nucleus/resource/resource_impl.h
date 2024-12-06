@@ -16,23 +16,23 @@ nu__resource_free (void)
 nu_uid_t
 nu_resource_load (nu_seria_t seria)
 {
-    nu_uid_t group
-        = nu_seria_read_1u32(seria, NU_STR("group")); // read group uid
-    nu_size_t res_count
-        = nu_seria_read_1u32(seria, NU_STR("count")); // read resource count
+    nu_uid_t group;
+    nu_seria_read_u32(seria, 1, &group);
+    nu_u32_t res_count;
+    nu_seria_read_u32(seria, 1, &res_count); // read resource count
 
     for (nu_size_t i = 0; i < res_count; ++i)
     {
-        nu_uid_t type_uid
-            = nu_seria_read_1u32(seria, NU_STR("type_uid")); // read type uid
-        nu_uid_t uid
-            = nu_seria_read_1u32(seria, NU_STR("uid")); // read resource uid
+        nu_uid_t type_uid;
+        nu_seria_read_u32(seria, 1, &type_uid); // read type uid
+        nu_uid_t uid;
+        nu_seria_read_u32(seria, 1, &uid); // read resource uid
         NU_ASSERT(uid);
 
         nu_object_type_t type = nu_object_type_find(type_uid);
         NU_ASSERT(type);
 
-        nu_object_t obj = nu_object_load(type, seria);
+        nu_object_t obj = nu_seria_load_object(seria, type);
         NU_ASSERT(obj);
 
         nu_object_set_uid(obj, uid);

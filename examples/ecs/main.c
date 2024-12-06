@@ -44,6 +44,8 @@ init (void)
     g_player_transform
         = NU_ECS_ACOMPONENT(g_player, player_t, transform, g_transform, 1);
 
+// #define SAVE
+#ifdef SAVE
     g_ecs = nu_ecs_new(512);
 
     nu_ecs_id_t  e          = nu_ecs_add(g_ecs);
@@ -61,18 +63,16 @@ init (void)
     NU_INFO("saved:");
     nu_ecs_dump(g_ecs);
 
-    nu_scope_push();
     nu_seria_t ser
         = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_WRITE, NU_MEM_4M);
     nu_ecs_save(g_ecs, ser);
-    nu_scope_pop();
-
-    // ser    = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
-    // g_ecs  = nu_ecs_load(ser);
-    // player = nu_ecs_get(g_ecs, ep, g_player);
-    //
-    // NU_INFO("loaded:");
-    // nu_ecs_dump(g_ecs);
+#else
+    nu_seria_t ser
+        = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
+    g_ecs = nu_ecs_load(ser);
+    NU_INFO("loaded:");
+    nu_ecs_dump(g_ecs);
+#endif
 }
 
 void

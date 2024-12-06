@@ -54,25 +54,32 @@ nu_draw_model (nu_renderpass_t pass, nu_model_t model, nu_m4_t transform)
 nu_model_t
 nu_model_load (nu_seria_t seria)
 {
-    nu_seria_begin(seria);
-    nu_size_t  node_count = nu_seria_read_1u32(seria, NU_STR("count"));
-    nu_model_t model      = nu_model_new(node_count);
+    nu_u32_t node_count;
+    nu_seria_read_u32(seria, 1, &node_count);
+    nu_model_t model = nu_model_new(node_count);
     for (nu_size_t i = 0; i < node_count; ++i)
     {
-        nu_object_t mesh, material;
-        nu_seria_read_ref(seria, NU_STR("mesh"), nu_mesh(), 1, &mesh);
-        nu_seria_read_ref(
-            seria, NU_STR("material"), nu_material(), 1, &material);
-        nu_m4_t transform = nu_seria_read_1m4(seria, NU_STR("transform"));
+        nu_material_t material = nu_seria_read_object(seria, nu_material());
+        nu_mesh_t     mesh     = nu_seria_read_object(seria, nu_mesh());
+        NU_ASSERT(material && mesh);
+        nu_m4_t transform;
+        nu_seria_read_m4(seria, 1, &transform);
         nu_model_set(model, i, mesh, material, transform);
     }
-    nu_seria_end(seria);
     return model;
 }
 void
 nu_model_save (nu_model_t model, nu_seria_t seria)
 {
-    nu_seria_begin(seria);
+    nu__model_t *m    = (nu__model_t *)model;
+    nu_u32_t     size = m->nodes.size;
+    nu_seria_write_u32(seria, 1, &size);
+    for (nu_size_t i = 0; i < m->nodes.size; ++i)
+    {
+        nu_seria_write_object(seria, m->nodes.data[i].material);
+        nu_seria_write_object(seria, m->nodes.data[i].mesh);
+        nu_seria_write_m4(seria, 1, &m->nodes.data[i].transform);
+    }
 }
 
 #endif

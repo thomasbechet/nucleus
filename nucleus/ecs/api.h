@@ -99,6 +99,14 @@ NU_API nu_ecs_id_t nu_ecs_next(nu_ecs_t ecs, nu_ecs_id_t iter);
 
 NU_API void     nu_ecs_save(nu_ecs_t ecs, nu_seria_t seria);
 NU_API nu_ecs_t nu_ecs_load(nu_seria_t seria);
+NU_API void     nu_ecs_read_component(nu_ecs_t    ecs,
+                                      nu_ecs_id_t e,
+                                      nu_ecs_id_t c,
+                                      nu_seria_t  seria);
+NU_API void     nu_ecs_write_component(nu_ecs_t    ecs,
+                                       nu_ecs_id_t e,
+                                       nu_ecs_id_t c,
+                                       nu_seria_t  seria);
 
 NU_API void nu_ecs_dump_component(nu_ecs_t ecs, nu_ecs_id_t e, nu_ecs_id_t c);
 NU_API void nu_ecs_dump_entity(nu_ecs_t ecs, nu_ecs_id_t e);
