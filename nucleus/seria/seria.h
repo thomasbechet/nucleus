@@ -5,20 +5,6 @@
 
 typedef struct
 {
-    nu_str_t  name;
-    nu_size_t size;
-    NU_ARRAY(nu_seria_struct_field_t) fields;
-} nu__seria_struct_t;
-
-typedef struct
-{
-    nu_str_t  name;
-    nu_size_t size;
-    NU_ARRAY(nu_seria_enum_value_t) values;
-} nu__seria_enum_t;
-
-typedef struct
-{
     nu_bool_t       fileopen;
     nu_str_t        filename;
     nu_seria_mode_t mode;

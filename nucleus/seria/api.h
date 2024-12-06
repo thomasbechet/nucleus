@@ -23,19 +23,15 @@ NU_API nu_seria_t nu_seria_new_bytes(nu_seria_mode_t mode,
 
 NU_API nu_size_t nu_byte_load(nu_seria_t seria, nu_size_t count, nu_byte_t *p);
 NU_API void nu_byte_save(nu_seria_t seria, nu_size_t count, const nu_byte_t *p);
-
 NU_API nu_size_t nu_u32_load(nu_seria_t seria, nu_size_t count, nu_u32_t *p);
 NU_API void nu_u32_save(nu_seria_t seria, nu_size_t count, const nu_u32_t *p);
-
 NU_API nu_size_t nu_f32_load(nu_seria_t seria, nu_size_t count, nu_f32_t *p);
 NU_API void nu_f32_save(nu_seria_t seria, nu_size_t count, const nu_f32_t *p);
 
 NU_API nu_str_t nu_str_load(nu_seria_t       seria,
                             nu_size_t        capacity,
                             const nu_byte_t *buffer);
-NU_API void     nu_str_save(nu_seria_t seria,
-                            nu_size_t  capacity,
-                            nu_byte_t *buffer);
+NU_API void     nu_str_save(nu_seria_t seria, nu_str_t str);
 
 NU_API void        nu_object_set_seria(nu_object_type_t       type,
                                        nu_object_seria_load_t load,
