@@ -6,6 +6,8 @@
 static nu_error_t
 nu__resource_init (void)
 {
+    _ctx.resource.obj_bundle
+        = nu_object_type_new(NU_STR("bundle"), sizeof(nu__bundle_t), NU_NULL);
     return NU_ERROR_NONE;
 }
 static nu_error_t
@@ -13,15 +15,52 @@ nu__resource_free (void)
 {
     return NU_ERROR_NONE;
 }
-nu_uid_t
-nu_resource_load (nu_seria_t seria)
-{
-    nu_uid_t group;
-    nu_seria_read_u32(seria, 1, &group);
-    nu_u32_t res_count;
-    nu_seria_read_u32(seria, 1, &res_count); // read resource count
 
-    for (nu_size_t i = 0; i < res_count; ++i)
+nu_bundle_t
+nu_bundle_new (nu_size_t capacity)
+{
+    nu__bundle_t *b = nu_object_new(_ctx.resource.obj_bundle);
+    NU_VEC_ALLOC(&b->objects, capacity);
+    return (nu_bundle_t)b;
+}
+void
+nu_bundle_add (nu_bundle_t bundle, nu_object_t object)
+{
+    nu__bundle_t *b = (nu__bundle_t *)bundle;
+    for (nu_size_t i = 0; i < b->objects.size; ++i)
+    {
+        if (b->objects.data[i] == object)
+        {
+            NU_ERROR("adding existing object to bundle");
+            return;
+        }
+    }
+    NU_ASSERT(object);
+    *(NU_VEC_PUSH(&b->objects)) = object;
+}
+nu_size_t
+nu_bundle_size (nu_bundle_t bundle)
+{
+    nu__bundle_t *b = (nu__bundle_t *)bundle;
+    return b->objects.size;
+}
+nu_object_t
+nu_bundle_get (nu_bundle_t bundle, nu_size_t index)
+{
+    nu__bundle_t *b = (nu__bundle_t *)bundle;
+    NU_ASSERT(index < b->objects.size);
+    return b->objects.data[index];
+}
+nu_bundle_t
+nu_bundle_load (nu_seria_t seria)
+{
+    nu_u32_t count;
+    nu_seria_read_u32(seria, 1, &count); // read resource count
+    NU_ASSERT(count < 1024);
+
+    nu_bundle_t bundle = nu_bundle_new(count);
+
+    for (nu_size_t i = 0; i < count; ++i)
     {
         nu_uid_t type_uid;
         nu_seria_read_u32(seria, 1, &type_uid); // read type uid
@@ -31,44 +70,32 @@ nu_resource_load (nu_seria_t seria)
 
         nu_object_type_t type = nu_object_type_find(type_uid);
         NU_ASSERT(type);
-
         nu_object_t obj = nu_seria_load_object(seria, type);
         NU_ASSERT(obj);
 
         nu_object_set_uid(obj, uid);
+        nu_bundle_add(bundle, obj);
     }
-    return group;
+
+    return bundle;
 }
 void
-nu_resource_save (nu_uid_t uid, nu_seria_t seria)
+nu_bundle_save (nu_bundle_t bundle, nu_seria_t seria)
 {
-    // nu_seria_write_1u32(seria, NU_STR("group"), uid); // write group uid
-    // nu_size_t res_count = 0;
-    // for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
-    // {
-    //     const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
-    //     if (res->group == uid)
-    //     {
-    //         ++res_count;
-    //     }
-    // }
-    // nu_seria_write_1u32(
-    //     seria, NU_STR("count"), res_count); // write resource count
-    // for (nu_size_t i = 0; i < _ctx.resource.entries.size; ++i)
-    // {
-    //     const nu__resource_entry_t *res = _ctx.resource.entries.data + i;
-    //     if (res->group == uid)
-    //     {
-    //         const nu__resource_type_t *t = nu__resource_type_find(res->type);
-    //         NU_ASSERT(t);
-    //
-    //         nu_seria_write_1u32(
-    //             seria, NU_STR("type_uid"), t->uid); // write resource type
-    //         nu_seria_write_1u32(
-    //             seria, NU_STR("uid"), uid); // write resource uid
-    //         t->handler(NU_RES_SAVE, res->type, res->handle, seria);
-    //     }
-    // }
+    nu_u32_t count = nu_bundle_size(bundle);
+    nu_seria_write_u32(seria, 1, &count);
+
+    for (nu_size_t i = 0; i < nu_bundle_size(bundle); ++i)
+    {
+        nu_object_t obj      = nu_bundle_get(bundle, i);
+        nu_uid_t    type_uid = nu_object_get_uid(nu_object_get_type(obj));
+        NU_ASSERT(type_uid);
+        nu_seria_write_u32(seria, 1, &type_uid);
+
+        nu_uid_t uid = nu_object_get_uid(obj);
+        NU_ASSERT(uid);
+        nu_seria_write_u32(seria, 1, &uid);
+    }
 }
 
 #endif

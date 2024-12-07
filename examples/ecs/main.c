@@ -31,6 +31,8 @@ init (void)
     g_scope = nu_scope_new(NU_STR("main"), NU_MEM_16M);
     nu_scope_set_active(g_scope);
 
+    nu_bundle_t bundle = nu_bundle_new(10);
+
     g_transform = NU_ECS_COMPONENT(transform, transform_t);
     g_transform_position
         = NU_ECS_APRIMITIVE(g_transform, transform_t, position, NU_ECS_V3, 1);
