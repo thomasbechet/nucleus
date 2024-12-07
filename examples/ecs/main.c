@@ -44,35 +44,38 @@ init (void)
     g_player_transform
         = NU_ECS_ACOMPONENT(g_player, player_t, transform, g_transform, 1);
 
-// #define SAVE
-#ifdef SAVE
-    g_ecs = nu_ecs_new(512);
+    {
+        g_ecs = nu_ecs_new(512);
 
-    nu_ecs_id_t  e          = nu_ecs_add(g_ecs);
-    transform_t *p          = nu_ecs_set(g_ecs, e, g_transform);
-    p->scale                = NU_V3_ONES;
-    p->position             = NU_V3_ONES;
-    p->rotation             = nu_q4_identity();
-    nu_ecs_id_t ep          = e;
-    player_t   *player      = nu_ecs_set(g_ecs, e, g_player);
-    player->transform.scale = NU_V3_ONES;
-    player->stat            = 0xFFFFFFFF;
-    e                       = nu_ecs_add(g_ecs);
-    nu_ecs_set(g_ecs, e, g_transform);
+        nu_ecs_id_t  e          = nu_ecs_add(g_ecs);
+        transform_t *p          = nu_ecs_set(g_ecs, e, g_transform);
+        p->scale                = NU_V3_ONES;
+        p->position             = NU_V3_ONES;
+        p->position.x           = 123.0;
+        p->rotation             = nu_q4_identity();
+        nu_ecs_id_t ep          = e;
+        player_t   *player      = nu_ecs_set(g_ecs, e, g_player);
+        player->transform.scale = NU_V3_ONES;
+        player->stat            = 0xFFFFFFFF;
+        e                       = nu_ecs_add(g_ecs);
+        p                       = nu_ecs_set(g_ecs, e, g_transform);
+        p->position.x           = 123.0;
 
-    NU_INFO("saved:");
-    nu_ecs_dump(g_ecs);
+        NU_INFO("saved:");
+        nu_ecs_dump(g_ecs);
 
-    nu_seria_t ser
-        = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_WRITE, NU_MEM_4M);
-    nu_ecs_save(g_ecs, ser);
-#else
-    nu_seria_t ser
-        = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
-    g_ecs = nu_ecs_load(ser);
-    NU_INFO("loaded:");
-    nu_ecs_dump(g_ecs);
-#endif
+        nu_seria_t ser
+            = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_WRITE, NU_MEM_4M);
+        nu_ecs_save(g_ecs, ser);
+        nu_seria_flush(ser);
+    }
+    {
+        nu_seria_t ser
+            = nu_seria_new_file(NU_STR("dump.bin"), NU_SERIA_READ, NU_MEM_4M);
+        g_ecs = nu_ecs_load(ser);
+        NU_INFO("loaded:");
+        nu_ecs_dump(g_ecs);
+    }
 }
 
 void

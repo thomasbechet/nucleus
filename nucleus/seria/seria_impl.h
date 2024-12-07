@@ -88,13 +88,9 @@ nu__seria_cleanup (void *data)
 {
     nu__seria_ctx_t *ctx  = data;
     nu_size_t        size = 0;
-    if (ctx->mode == NU_SERIA_WRITE)
+    if (ctx->fileopen)
     {
-        size = ctx->ptr - ctx->bytes;
-        if (ctx->fileopen)
-        {
-            nu__seria_write_bytes(ctx->filename, ctx->bytes, size);
-        }
+        nu_seria_flush((nu_seria_t)ctx);
     }
 }
 
@@ -108,7 +104,7 @@ nu__seria_init (void)
 static void
 nu__seria_read (nu__seria_ctx_t *ctx, nu_size_t n, nu_byte_t *p)
 {
-    if (ctx->ptr + n >= ctx->end)
+    if (ctx->ptr + n > ctx->end)
     {
         NU_PANIC("invalid read");
     }
@@ -118,7 +114,7 @@ nu__seria_read (nu__seria_ctx_t *ctx, nu_size_t n, nu_byte_t *p)
 static void
 nu__seria_write (nu__seria_ctx_t *ctx, nu_size_t n, const nu_byte_t *p)
 {
-    if (ctx->ptr + n >= ctx->end)
+    if (ctx->ptr + n > ctx->end)
     {
         NU_PANIC("out of seria file buffer memory");
     }
@@ -167,6 +163,17 @@ nu_seria_new_bytes (nu_seria_mode_t mode, nu_byte_t *bytes, nu_size_t size)
     ctx->ptr   = ctx->bytes;
 
     return (nu_seria_t)ctx;
+}
+void
+nu_seria_flush (nu_seria_t seria)
+{
+    nu__seria_ctx_t *ctx = (nu__seria_ctx_t *)seria;
+    if (ctx->mode == NU_SERIA_WRITE && ctx->fileopen)
+    {
+        nu_size_t size = ctx->ptr - ctx->bytes;
+        nu__seria_write_bytes(ctx->filename, ctx->bytes, size);
+        ctx->ptr = ctx->bytes;
+    }
 }
 
 void

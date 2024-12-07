@@ -55,8 +55,10 @@ nu_ecs_load (nu_seria_t seria)
     // read ecs header
     nu_u32_t capacity;
     nu_seria_read_u32(seria, 1, &capacity);
+    NU_ASSERT(capacity < 1024);
     nu_u32_t pool_count;
     nu_seria_read_u32(seria, 1, &pool_count);
+    NU_ASSERT(pool_count < 1024);
 
     nu_ecs_t            ecs = nu_ecs_new(capacity);
     nu__ecs_instance_t *ins = (nu__ecs_instance_t *)ecs;

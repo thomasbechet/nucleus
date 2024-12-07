@@ -20,6 +20,7 @@ NU_API nu_seria_t nu_seria_new_file(nu_str_t        filename,
 NU_API nu_seria_t nu_seria_new_bytes(nu_seria_mode_t mode,
                                      nu_byte_t      *bytes,
                                      nu_size_t       size);
+NU_API void       nu_seria_flush(nu_seria_t seria);
 
 NU_API void nu_seria_read_byte(nu_seria_t seria, nu_size_t count, nu_byte_t *p);
 NU_API void nu_seria_write_byte(nu_seria_t       seria,

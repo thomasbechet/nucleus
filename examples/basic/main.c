@@ -108,11 +108,6 @@ typedef struct
     nu_image_t image;
 } player_t;
 
-static nu_seria_struct_t g_struct_component;
-static nu_seria_struct_t g_struct_subtype;
-static nu_seria_struct_t g_struct_transform;
-static nu_seria_struct_t g_struct_player;
-
 void
 init (void)
 {
@@ -124,35 +119,6 @@ init (void)
     // nu_seria_open_file(seria, NU_SERIA_WRITE, NU_STR("pkg.bin"), NU_MEM_64M);
     // nu_resource_save_group(NU_UID("import"), seria);
     // nu_seria_close(seria);
-
-    NU_SERIA_ENUM(g_struct_component,
-                  component_t,
-                  NU_SERIA_VALUE("transform", COMP_TRANSFORM),
-                  NU_SERIA_VALUE("player", COMP_PLAYER));
-    NU_SERIA_STRUCT(g_struct_subtype,
-                    subtype_t,
-                    NU_SERIA_FIELD_PRIMITIVE(hello, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(vector, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(quat, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD_STRUCT(component, g_struct_component, 1));
-    NU_SERIA_STRUCT(g_struct_transform,
-                    transform_t,
-                    NU_SERIA_FIELD_PRIMITIVE(position, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(rotation, NU_SERIA_Q4, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(scale, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_STRUCT(subtype, g_struct_subtype, 1));
-    NU_SERIA_STRUCT(g_struct_player,
-                    player_t,
-                    NU_SERIA_FIELD_PRIMITIVE(stat, NU_SERIA_U32, 1),
-                    NU_SERIA_FIELD_PRIMITIVE(v, NU_SERIA_V3, 1),
-                    NU_SERIA_FIELD_REF(image, nu_image(), 1));
-
-    player_t player;
-    player.image = NU_NULL;
-    player.v     = NU_V3_ONES;
-    player.stat  = 123;
-    nu_seria_dump_struct_type(g_struct_player);
-    nu_seria_dump_struct(g_struct_player, 1, &player);
 
     // Configure inputs
     g_draw        = nu_input_new();

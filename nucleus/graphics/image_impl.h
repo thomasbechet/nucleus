@@ -56,8 +56,9 @@ nu_image_save (nu_image_t image, nu_seria_t seria)
     nu_seria_write_u32(seria, 1, &ima->size.z);
     nu_seria_write_u32(seria, 1, &ima->layer);
     nu_seria_write_byte(seria,
-                       4 * ima->size.x * ima->size.y * ima->size.z * ima->layer,
-                       ima->data);
+                        4 * ima->size.x * ima->size.y * ima->size.z
+                            * ima->layer,
+                        ima->data);
 }
 
 #endif
