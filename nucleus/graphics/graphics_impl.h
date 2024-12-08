@@ -25,6 +25,7 @@ nu__graphics_init (void)
         = nu_object_type_new(NU_STR("image"), sizeof(nu__image_t), NU_NULL);
     gfx->obj_model
         = nu_object_type_new(NU_STR("model"), sizeof(nu__model_t), NU_NULL);
+    nu_object_set_seria(gfx->obj_model, nu__model_load, nu__model_save);
     gfx->obj_camera
         = nu_object_type_new(NU_STR("camera"), sizeof(nu__camera_t), NU_NULL);
     gfx->obj_texture = nu_object_type_new(

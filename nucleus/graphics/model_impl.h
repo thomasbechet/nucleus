@@ -8,6 +8,16 @@ nu_model (void)
 {
     return _ctx.graphics.obj_model;
 }
+static nu_object_t
+nu__model_load (nu_seria_t seria)
+{
+    return nu_model_load(seria);
+}
+static void
+nu__model_save (nu_seria_t seria, nu_object_t model)
+{
+    nu_model_save(model, seria);
+}
 nu_model_t
 nu_model_new (nu_size_t node_count)
 {
