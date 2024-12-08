@@ -164,7 +164,6 @@ nu__ecs_init (void)
     NU_VEC_ALLOC(&_ctx.ecs.iters, NU_ECS_ITER_MAX);
     _ctx.ecs.obj_ecs = nu_object_type_new(
         NU_STR("ecs"), sizeof(nu__ecs_instance_t), NU_NULL);
-    nu_object_set_seria(_ctx.ecs.obj_ecs, nu_ecs_load, nu_ecs_save);
 }
 
 nu_ecs_id_t
