@@ -33,6 +33,7 @@ nu__graphics_init (void)
         NU_STR("material"), sizeof(nu__material_t), NU_NULL);
     gfx->obj_mesh = nu_object_type_new(
         NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_cleanup);
+    nu_object_set_seria(gfx->obj_mesh, nu__mesh_load, nu__mesh_save);
     gfx->obj_light
         = nu_object_type_new(NU_STR("light"), sizeof(nu__light_t), NU_NULL);
     gfx->obj_lightenv = nu_object_type_new(
@@ -247,9 +248,10 @@ nu_draw_mesh_instanced (nu_renderpass_t pass,
                         const nu_m4_t  *transforms,
                         nu_size_t       instance_count)
 {
-    nu_size_t capacity = nu_mesh_capacity(mesh);
+    nu_size_t size = nu_mesh_size(mesh);
+    nu_mesh_update(mesh);
     nu_draw_submesh_instanced(
-        pass, mesh, 0, capacity, material, transforms, instance_count);
+        pass, mesh, 0, size, material, transforms, instance_count);
 }
 
 #endif

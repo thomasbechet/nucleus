@@ -11,8 +11,8 @@ typedef enum
     NU_SERIA_WRITE
 } nu_seria_mode_t;
 
-typedef void (*nu_seria_load_object_t)(nu_seria_t seria, void *data);
-typedef void (*nu_seria_save_object_t)(nu_seria_t seria, const void *data);
+typedef nu_object_t (*nu_seria_load_object_t)(nu_seria_t seria);
+typedef void (*nu_seria_save_object_t)(nu_seria_t seria, nu_object_t object);
 
 NU_API nu_seria_t nu_seria_new_file(nu_str_t        filename,
                                     nu_seria_mode_t mode,
@@ -34,6 +34,10 @@ NU_API void nu_seria_read_f32(nu_seria_t seria, nu_size_t count, nu_f32_t *p);
 NU_API void nu_seria_write_f32(nu_seria_t      seria,
                                nu_size_t       count,
                                const nu_f32_t *p);
+NU_API void nu_seria_read_v2(nu_seria_t seria, nu_size_t count, nu_v2_t *p);
+NU_API void nu_seria_write_v2(nu_seria_t     seria,
+                              nu_size_t      count,
+                              const nu_v2_t *p);
 NU_API void nu_seria_read_v3(nu_seria_t seria, nu_size_t count, nu_v3_t *p);
 NU_API void nu_seria_write_v3(nu_seria_t     seria,
                               nu_size_t      count,

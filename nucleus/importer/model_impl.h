@@ -9,28 +9,22 @@
 #endif
 
 static void
-nu__emplace_vertex (nu_mesh_t      mesh,
-                    const nu_v3_t *positions,
-                    const nu_v2_t *uvs,
-                    nu_u32_t       vertex_index,
-                    nu_u32_t       index)
+nu__emplace_index (nu_mesh_t      mesh,
+                   const nu_v3_t *positions,
+                   const nu_v2_t *uvs,
+                   nu_u16_t       index)
 {
-
-    nu_mesh_set_positions(mesh, vertex_index, 1, &positions[index]);
-    nu_v2_t uv = NU_V2_ZEROS;
-    if (uvs)
-    {
-        uv = uvs[index];
-    }
-    nu_mesh_set_uvs(mesh, vertex_index, 1, &uv);
+    const nu_v3_t *pos = positions + index;
+    const nu_v2_t *uv  = uvs ? uvs + index : NU_NULL;
+    nu_mesh_push(mesh, 1, pos, uv);
 }
 
-#define NU__EMPLACE_VERTEX(index_type)                             \
-    index_type *indices                                            \
-        = (index_type *)(data + view->offset + accessor->offset);  \
-    for (nu_size_t i = 0; i < indice_count; ++i)                   \
-    {                                                              \
-        nu__emplace_vertex(handle, positions, uvs, i, indices[i]); \
+#define NU__EMPLACE_VERTEX(index_type)                            \
+    index_type *indices                                           \
+        = (index_type *)(data + view->offset + accessor->offset); \
+    for (nu_size_t i = 0; i < indice_count; ++i)                  \
+    {                                                             \
+        nu__emplace_index(handle, positions, uvs, indices[i]);    \
     }
 
 static nu_error_t
@@ -73,9 +67,15 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
             nu_size_t          indice_count = accessor->count;
 
             // Create mesh
+            nu_mesh_attribute_t attributes = NU_MESH_POSITION;
+            if (uvs)
+            {
+                attributes |= NU_MESH_UV;
+            }
             nu_mesh_t handle
-                = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, indice_count);
+                = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, indice_count, attributes);
 
+            // Push vertices
             switch (accessor->component_type)
             {
                 case cgltf_component_type_r_8:

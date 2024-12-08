@@ -6,23 +6,23 @@
 static void
 nu__graphics_immediate_init (void)
 {
-    nu__graphics_immediate_reset();
-
     _ctx.graphics.im.points
-        = nu_mesh_new(NU_PRIMITIVE_POINTS, 1000, 1000, 1000);
-    _ctx.graphics.im.lines = nu_mesh_new(NU_PRIMITIVE_LINES, 5000, 5000, 5000);
+        = nu_mesh_new(NU_PRIMITIVE_POINTS, 1000, NU_MESH_POSITION);
+    _ctx.graphics.im.lines
+        = nu_mesh_new(NU_PRIMITIVE_LINES, 5000, NU_MESH_POSITION);
     _ctx.graphics.im.lines_strip
-        = nu_mesh_new(NU_PRIMITIVE_LINES_STRIP, 1000, 1000, 1000);
+        = nu_mesh_new(NU_PRIMITIVE_LINES_STRIP, 1000, NU_MESH_POSITION);
     _ctx.graphics.im.triangles
-        = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, 1000, 1000, 1000);
+        = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, 1000, NU_MESH_ALL);
+    nu__graphics_immediate_reset();
 }
 static void
 nu__graphics_immediate_reset (void)
 {
-    _ctx.graphics.im.points_count      = 0;
-    _ctx.graphics.im.lines_count       = 0;
-    _ctx.graphics.im.lines_strip_count = 0;
-    _ctx.graphics.im.triangles_count   = 0;
+    nu_mesh_clear(_ctx.graphics.im.points);
+    nu_mesh_clear(_ctx.graphics.im.lines);
+    nu_mesh_clear(_ctx.graphics.im.lines_strip);
+    nu_mesh_clear(_ctx.graphics.im.triangles);
 }
 
 void
@@ -33,9 +33,8 @@ nu_draw_points (nu_renderpass_t pass,
                 nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im    = &_ctx.graphics.im;
-    nu_size_t                 first = im->points_count;
-    im->points_count += count;
-    nu_mesh_set_positions(im->points, first, count, positions);
+    nu_size_t                 first = nu_mesh_size(im->points);
+    nu_mesh_push(im->points, count, positions, NU_NULL);
     nu_draw_submesh(pass, im->points, first, count, material, transform);
 }
 void
@@ -46,9 +45,8 @@ nu_draw_lines (nu_renderpass_t pass,
                nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im    = &_ctx.graphics.im;
-    nu_size_t                 first = im->lines_count;
-    im->lines_count += count;
-    nu_mesh_set_positions(im->lines, first, count, positions);
+    nu_size_t                 first = nu_mesh_size(im->lines);
+    nu_mesh_push(im->lines, count, positions, NU_NULL);
     nu_draw_submesh(pass, im->lines, first, count, material, transform);
 }
 void
@@ -59,9 +57,8 @@ nu_draw_lines_strip (nu_renderpass_t pass,
                      nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im    = &_ctx.graphics.im;
-    nu_size_t                 first = im->lines_strip_count;
-    im->lines_strip_count += count;
-    nu_mesh_set_positions(im->lines_strip, first, count, positions);
+    nu_size_t                 first = nu_mesh_size(im->lines_strip);
+    nu_mesh_push(im->lines, count, positions, NU_NULL);
     nu_draw_submesh(pass, im->lines_strip, first, count, material, transform);
 }
 void
@@ -73,10 +70,8 @@ nu_draw_triangles (nu_renderpass_t pass,
                    nu_m4_t         transform)
 {
     nu__graphics_immediate_t *im    = &_ctx.graphics.im;
-    nu_size_t                 first = im->triangles_count;
-    im->triangles_count += count;
-    nu_mesh_set_positions(im->triangles, first, count, positions);
-    nu_mesh_set_uvs(im->triangles, first, count, uvs);
+    nu_size_t                 first = nu_mesh_size(im->triangles);
+    nu_mesh_push(im->lines, count, positions, uvs);
     nu_draw_submesh(pass, im->triangles, first, count, material, transform);
 }
 static void

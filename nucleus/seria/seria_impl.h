@@ -235,6 +235,22 @@ nu_seria_write_f32 (nu_seria_t seria, nu_size_t count, const nu_f32_t *p)
     }
 }
 void
+nu_seria_read_v2 (nu_seria_t seria, nu_size_t count, nu_v2_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_read_f32(seria, NU_V2_SIZE, p[i].data);
+    }
+}
+void
+nu_seria_write_v2 (nu_seria_t seria, nu_size_t count, const nu_v2_t *p)
+{
+    for (nu_size_t i = 0; i < count; ++i)
+    {
+        nu_seria_write_f32(seria, NU_V2_SIZE, p[i].data);
+    }
+}
+void
 nu_seria_read_v3 (nu_seria_t seria, nu_size_t count, nu_v3_t *p)
 {
     for (nu_size_t i = 0; i < count; ++i)
@@ -327,9 +343,7 @@ nu_seria_load_object (nu_seria_t seria, nu_object_type_t type)
 {
     const nu__object_type_t *t = nu__object_type(type);
     NU_ASSERT(t && t->load);
-    nu_object_t object = nu_object_new(type);
-    t->load(seria, object);
-    return object;
+    return t->load(seria);
 }
 void
 nu_seria_save_object (nu_seria_t seria, nu_object_t object)

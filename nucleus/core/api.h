@@ -344,12 +344,11 @@
         nu_size_t capacity; \
         nu_size_t size;     \
     }
-#define NU_VEC_ALLOC(v, capa)                                   \
-    {                                                           \
-        NU_ASSERT((capa));                                      \
-        (v)->data     = nu_malloc(sizeof(*(v)->data) * (capa)); \
-        (v)->capacity = (capa);                                 \
-        (v)->size     = 0;                                      \
+#define NU_VEC_ALLOC(v, capa)                                                  \
+    {                                                                          \
+        (v)->data = (capa) ? nu_malloc(sizeof(*(v)->data) * (capa)) : NU_NULL; \
+        (v)->capacity = (capa);                                                \
+        (v)->size     = 0;                                                     \
     }
 #define NU_VEC_PUSH(v) \
     (v)->size >= (v)->capacity ? NU_NULL : &(v)->data[(v)->size++]
@@ -397,10 +396,10 @@
         type     *data; \
         nu_size_t size; \
     }
-#define NU_ARRAY_ALLOC(a, ss)                           \
-    {                                                   \
-        (a)->data = nu_malloc(sizeof(*(a)->data) * ss); \
-        (a)->size = ss;                                 \
+#define NU_ARRAY_ALLOC(a, ss)                                          \
+    {                                                                  \
+        (a)->data = ss ? nu_malloc(sizeof(*(a)->data) * ss) : NU_NULL; \
+        (a)->size = ss;                                                \
     }
 
 //////////////////////////////////////////////////////////////////////////

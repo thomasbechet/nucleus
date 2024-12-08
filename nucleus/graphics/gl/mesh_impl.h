@@ -41,7 +41,7 @@ nugl__mesh_write_uvs (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
         glBindVertexArray(mesh->gl.vao);
         glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.uvs);
         glBufferData(GL_ARRAY_BUFFER,
-                     mesh->indices.uvs.capacity * NU_V2_SIZE * sizeof(nu_f32_t),
+                     mesh->capacity * NU_V2_SIZE * sizeof(nu_f32_t),
                      NU_NULL,
                      GL_DYNAMIC_DRAW);
         glVertexAttribPointer(
@@ -53,13 +53,11 @@ nugl__mesh_write_uvs (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
     glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.uvs);
     nu_f32_t *ptr = (nu_f32_t *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     NU_ASSERT(ptr);
-    NU_ASSERT(first + count <= mesh->indices.uvs.size);
+    NU_ASSERT(first + count <= mesh->size);
     for (nu_size_t p = 0; p < count; ++p)
     {
-        ptr[(first + p) * NU_V2_SIZE + 0]
-            = mesh->uvs.data[mesh->indices.uvs.data[p]].x;
-        ptr[(first + p) * NU_V2_SIZE + 1]
-            = mesh->uvs.data[mesh->indices.uvs.data[p]].y;
+        ptr[(first + p) * NU_V2_SIZE + 0] = mesh->uvs[p].x;
+        ptr[(first + p) * NU_V2_SIZE + 1] = mesh->uvs[p].y;
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -75,8 +73,7 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
         glGenBuffers(1, &mesh->gl.positions);
         glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.positions);
         glBufferData(GL_ARRAY_BUFFER,
-                     mesh->indices.positions.capacity * NU_V3_SIZE
-                         * sizeof(nu_f32_t),
+                     mesh->capacity * NU_V3_SIZE * sizeof(nu_f32_t),
                      NU_NULL,
                      GL_DYNAMIC_DRAW);
         glVertexAttribPointer(
@@ -88,8 +85,7 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
             glGenBuffers(1, &mesh->gl.normals);
             glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.normals);
             glBufferData(GL_ARRAY_BUFFER,
-                         mesh->indices.positions.capacity * NU_V3_SIZE
-                             * sizeof(nu_f32_t),
+                         mesh->capacity * NU_V3_SIZE * sizeof(nu_f32_t),
                          NU_NULL,
                          GL_DYNAMIC_DRAW);
             glVertexAttribPointer(2,
@@ -110,12 +106,9 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
     NU_ASSERT(ptr);
     for (nu_size_t i = 0; i < count; ++i)
     {
-        ptr[(first + i) * NU_V3_SIZE + 0]
-            = mesh->positions.data[mesh->indices.positions.data[i]].x;
-        ptr[(first + i) * NU_V3_SIZE + 1]
-            = mesh->positions.data[mesh->indices.positions.data[i]].y;
-        ptr[(first + i) * NU_V3_SIZE + 2]
-            = mesh->positions.data[mesh->indices.positions.data[i]].z;
+        ptr[(first + i) * NU_V3_SIZE + 0] = mesh->positions[i].x;
+        ptr[(first + i) * NU_V3_SIZE + 1] = mesh->positions[i].y;
+        ptr[(first + i) * NU_V3_SIZE + 2] = mesh->positions[i].z;
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -129,13 +122,10 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
         for (nu_size_t t = 0; t < tricount; ++t)
         {
             const nu_size_t index = t * 3;
-            nu_v3_t         p0
-                = mesh->positions.data[mesh->indices.positions.data[index + 0]];
-            nu_v3_t p1
-                = mesh->positions.data[mesh->indices.positions.data[index + 1]];
-            nu_v3_t p2
-                = mesh->positions.data[mesh->indices.positions.data[index + 2]];
-            nu_v3_t n = nu_triangle_normal(p0, p1, p2);
+            nu_v3_t         p0    = mesh->positions[index + 0];
+            nu_v3_t         p1    = mesh->positions[index + 1];
+            nu_v3_t         p2    = mesh->positions[index + 2];
+            nu_v3_t         n     = nu_triangle_normal(p0, p1, p2);
 
             for (nu_size_t i = 0; i < 3; ++i)
             {
