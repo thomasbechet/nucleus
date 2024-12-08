@@ -11,11 +11,6 @@ NU_DEFINE_OBJECT(nu_controller_t);
 
 typedef enum
 {
-    NU_GEOMETRY_MESH,
-} nu_geometry_type_t;
-
-typedef enum
-{
     NU_CONTROLLER_FREEFLY_ALIGNED,
     NU_CONTROLLER_FREEFLY,
     NU_CONTROLLER_CHARACTER

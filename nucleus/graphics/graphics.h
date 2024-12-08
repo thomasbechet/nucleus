@@ -3,7 +3,6 @@
 
 #include <nucleus/graphics/font.h>
 #include <nucleus/graphics/image.h>
-#include <nucleus/graphics/geometry.h>
 #include <nucleus/graphics/model.h>
 #include <nucleus/graphics/immediate.h>
 #include <nucleus/graphics/camera.h>
@@ -28,7 +27,6 @@ typedef struct
 
     nu_object_type_t obj_font;
     nu_object_type_t obj_image;
-    nu_object_type_t obj_geometry;
     nu_object_type_t obj_model;
     nu_object_type_t obj_camera;
     nu_object_type_t obj_texture;

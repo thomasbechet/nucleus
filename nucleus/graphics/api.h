@@ -4,7 +4,6 @@
 #include <nucleus/seria/api.h>
 
 NU_DEFINE_OBJECT(nu_image_t);
-NU_DEFINE_OBJECT(nu_geometry_t);
 NU_DEFINE_OBJECT(nu_camera_t);
 NU_DEFINE_OBJECT(nu_texture_t);
 NU_DEFINE_OBJECT(nu_model_t);
@@ -90,20 +89,37 @@ NU_API void        nu_camera_set_view(nu_camera_t camera, nu_m4_t view);
 NU_API void        nu_camera_set_proj(nu_camera_t camera, nu_m4_t proj);
 
 NU_API nu_object_type_t nu_mesh(void);
-NU_API nu_mesh_t nu_mesh_new(nu_primitive_t primitive, nu_size_t capacity);
-NU_API void      nu_mesh_set_uvs(nu_mesh_t      mesh,
-                                 nu_size_t      first,
-                                 nu_size_t      count,
-                                 const nu_v2_t *data);
-NU_API void      nu_mesh_set_positions(nu_mesh_t      mesh,
-                                       nu_size_t      first,
-                                       nu_size_t      count,
-                                       const nu_v3_t *data);
-NU_API void      nu_mesh_set_colors(nu_mesh_t         mesh,
-                                    nu_size_t         first,
-                                    nu_size_t         count,
-                                    const nu_color_t *data);
-NU_API size_t    nu_mesh_capacity(nu_mesh_t mesh);
+NU_API nu_mesh_t        nu_mesh_new(nu_primitive_t primitive,
+                                    nu_size_t      position_capacity,
+                                    nu_size_t      uv_capacity,
+                                    nu_size_t      vertex_capacity);
+NU_API nu_mesh_t        nu_mesh_new_normals(nu_mesh_t mesh);
+NU_API nu_size_t        nu_mesh_capacity(nu_mesh_t mesh);
+NU_API nu_size_t        nu_mesh_size(nu_mesh_t mesh);
+NU_API void             nu_mesh_clear(nu_mesh_t mesh);
+NU_API void             nu_mesh_update(nu_mesh_t mesh);
+NU_API nu_v3_t         *nu_mesh_positions(nu_mesh_t mesh);
+NU_API nu_v2_t         *nu_mesh_uvs(nu_mesh_t mesh);
+NU_API nu_u16_t        *nu_mesh_position_indices(nu_mesh_t mesh);
+NU_API nu_u16_t        *nu_mesh_uv_indices(nu_mesh_t mesh);
+NU_API void nu_mesh_append_vertex(nu_mesh_t mesh, nu_v3_t position, nu_v2_t uv);
+NU_API void nu_mesh_append_vertices(nu_mesh_t      mesh,
+                                    const nu_v3_t *positions,
+                                    const nu_v2_t *uv);
+NU_API void nu_mesh_cube(nu_mesh_t mesh, nu_f32_t unit);
+NU_API void nu_mesh_plane(nu_mesh_t mesh, nu_f32_t width, nu_f32_t height);
+NU_API void nu_mesh_grid(nu_mesh_t mesh,
+                         nu_u32_t  width,
+                         nu_u32_t  height,
+                         nu_f32_t  unit,
+                         nu_f32_t  uv_scale);
+NU_API void nu_mesh_transform(nu_mesh_t mesh, nu_m4_t m);
+NU_API void nu_mesh_merge(nu_mesh_t dst, nu_mesh_t src);
+NU_API nu_b3_t nu_mesh_bounds(nu_mesh_t mesh);
+#ifdef NU_BUILD_UTILS_SERIA
+NU_API void nu_mesh_load(nu_mesh_t mesh, nu_seria_t seria);
+NU_API void nu_mesh_save(nu_mesh_t mesh, nu_seria_t seria);
+#endif
 
 NU_API nu_object_type_t  nu_texture(void);
 NU_API nu_texture_t      nu_texture_new(nu_texture_type_t type,
@@ -233,30 +249,6 @@ NU_API nu_byte_t       *nu_image_data(nu_image_t image, nu_size_t layer);
 NU_API nu_v3u_t         nu_image_size(nu_image_t image);
 NU_API nu_image_t       nu_image_load(nu_seria_t seria);
 NU_API void             nu_image_save(nu_image_t image, nu_seria_t seria);
-
-NU_API nu_geometry_t nu_geometry_new_mesh(nu_primitive_t primitive,
-                                          nu_size_t      position_capacity,
-                                          nu_size_t      uv_capacity,
-                                          nu_size_t      vertex_capacity);
-NU_API void          nu_geometry_clear(nu_geometry_t geometry);
-NU_API void          nu_geometry_cube(nu_geometry_t geometry, nu_f32_t unit);
-NU_API void          nu_geometry_plane(nu_geometry_t geometry,
-                                       nu_f32_t      width,
-                                       nu_f32_t      height);
-NU_API void          nu_geometry_grid(nu_geometry_t geometry,
-                                      nu_u32_t      width,
-                                      nu_u32_t      height,
-                                      nu_f32_t      unit,
-                                      nu_f32_t      uv_scale);
-NU_API void          nu_geometry_transform(nu_geometry_t geometry, nu_m4_t m);
-NU_API void          nu_geometry_merge(nu_geometry_t dst, nu_geometry_t src);
-NU_API nu_b3_t       nu_geometry_bounds(nu_geometry_t geometry);
-NU_API nu_mesh_t     nu_mesh_new_geometry(nu_geometry_t geometry);
-NU_API nu_mesh_t     nu_mesh_new_geometry_normals(nu_geometry_t geometry);
-#ifdef NU_BUILD_UTILS_SERIA
-NU_API void nu_geometry_load(nu_geometry_t geometry, nu_seria_t seria);
-NU_API void nu_geometry_save(nu_geometry_t geometry, nu_seria_t seria);
-#endif
 
 NU_API nu_object_type_t nu_model(void);
 NU_API nu_model_t       nu_model_new(nu_size_t node_count);
