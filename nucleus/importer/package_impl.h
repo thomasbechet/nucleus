@@ -4,29 +4,18 @@
 #include <nucleus/internal.h>
 
 static void
-nu__import_image (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
-{
-    nu_image_t image = nuext_image_load_file(filename);
-    NU_ASSERT(image);
-    nu_object_set_uid(image, uid);
-}
-static void
 nu__import_colormap (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
 {
-    nu_image_t image = nuext_image_load_file(filename);
-    NU_ASSERT(image);
     nu_texture_t texture
-        = nu_texture_new_image_texture(NU_TEXTURE_COLORMAP, image);
+        = nuext_texture_load_file(NU_TEXTURE_COLORMAP, filename);
     NU_ASSERT(texture);
     nu_object_set_uid(texture, uid);
 }
 static void
 nu__import_cubemap (nu_str_t filename, nu_uid_t group, nu_uid_t uid)
 {
-    nu_image_t image = nuext_image_load_file(filename);
-    NU_ASSERT(image);
     nu_texture_t texture
-        = nu_texture_new_image_texture(NU_TEXTURE_CUBEMAP, image);
+        = nuext_texture_load_file(NU_TEXTURE_CUBEMAP, filename);
     NU_ASSERT(texture);
     nu_object_set_uid(texture, uid);
 }
@@ -124,10 +113,6 @@ nuext_import_package (nu_str_t filename, nu_uid_t group)
             else if (nu__json_eq(json, ttype, NU_STR("cubemap")))
             {
                 nu__import_cubemap(final_path, group, nu_str_hash(name));
-            }
-            else if (nu__json_eq(json, ttype, NU_STR("image")))
-            {
-                nu__import_image(final_path, group, nu_str_hash(name));
             }
             else if (nu__json_eq(json, ttype, NU_STR("input")))
             {

@@ -103,9 +103,9 @@ typedef struct
 
 typedef struct
 {
-    nu_u32_t   stat;
-    nu_v3_t    v;
-    nu_image_t image;
+    nu_u32_t     stat;
+    nu_v3_t      v;
+    nu_texture_t texture;
 } player_t;
 
 void

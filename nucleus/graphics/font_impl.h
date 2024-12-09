@@ -31,11 +31,11 @@ nu_font_new_default (void)
     NU_ASSERT(((sizeof(nu__font_data) * 8) / pixel_per_glyph) == char_count);
 
     // Load default font data into image
-    nu_v3u_t image_size
+    nu_v3u_t texture_size
         = nu_v3u(NU__FONT_DATA_WIDTH * char_count, NU__FONT_DATA_HEIGHT, 1);
     // TODO: avoid temporary image ?
-    nu_image_t image      = nu_image_new(NU_IMAGE_RGBA, image_size, 1);
-    nu_byte_t *image_data = nu_image_data(image, 0);
+    font->texture = nu_texture_new(NU_TEXTURE_COLORMAP, texture_size, 1);
+    nu_byte_t *texture_data = nu_texture_data(font->texture, 0);
 
     nu_b2i_t extent
         = nu_b2i_xywh(0, 0, NU__FONT_DATA_WIDTH, NU__FONT_DATA_HEIGHT);
@@ -50,23 +50,20 @@ nu_font_new_default (void)
 
             nu_size_t px = extent.min.x + p % NU__FONT_DATA_WIDTH;
             nu_size_t py = extent.min.y + p / NU__FONT_DATA_WIDTH;
-            nu_size_t pi = py * image_size.x + px;
+            nu_size_t pi = py * texture_size.x + px;
 
             nu_byte_t color = bit_set ? 0xFF : 0x00;
-            NU_ASSERT(pi < (image_size.x * image_size.y));
-            image_data[pi * 4 + 0] = color;
-            image_data[pi * 4 + 1] = color;
-            image_data[pi * 4 + 2] = color;
-            image_data[pi * 4 + 3] = color;
+            NU_ASSERT(pi < (texture_size.x * texture_size.y));
+            texture_data[pi * 4 + 0] = color;
+            texture_data[pi * 4 + 1] = color;
+            texture_data[pi * 4 + 2] = color;
+            texture_data[pi * 4 + 3] = color;
         }
         nu_size_t gi = nu__font_data_chars[ci] - font->min_char;
         NU_ASSERT(gi < font->glyphs_count);
         font->glyphs[gi] = extent;
         extent = nu_b2i_translate(extent, nu_v2i(NU__FONT_DATA_WIDTH, 0));
     }
-
-    // Create renderer image
-    font->texture = nu_texture_new_from_image(NU_TEXTURE_COLORMAP, image);
 
     // Create material
     font->material = nu_material_new(NU_MATERIAL_CANVAS);

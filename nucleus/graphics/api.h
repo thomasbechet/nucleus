@@ -3,7 +3,6 @@
 
 #include <nucleus/seria/api.h>
 
-NU_DEFINE_OBJECT(nu_image_t);
 NU_DEFINE_OBJECT(nu_camera_t);
 NU_DEFINE_OBJECT(nu_texture_t);
 NU_DEFINE_OBJECT(nu_model_t);
@@ -24,11 +23,6 @@ typedef enum
     NU_TEXTURE_SHADOWMAP_TARGET,
     NU_TEXTURE_CUBEMAP,
 } nu_texture_type_t;
-
-typedef enum
-{
-    NU_IMAGE_RGBA
-} nu_image_type_t;
 
 typedef enum
 {
@@ -133,15 +127,14 @@ NU_API nu_texture_t      nu_texture_new(nu_texture_type_t type,
                                         nu_v3u_t          size,
                                         nu_size_t         layer);
 NU_API nu_texture_t      nu_texture_new_from_color(nu_color_t color);
-NU_API nu_texture_t      nu_texture_new_from_image(nu_texture_type_t type,
-                                                   nu_image_t        image);
-NU_API nu_texture_t      nu_texture_new_image_texture(nu_texture_type_t type,
-                                                      nu_image_t        image);
 NU_API void              nu_texture_set_data(nu_texture_t     texture,
                                              nu_size_t        layer,
                                              const nu_byte_t *data);
+NU_API nu_v3u_t          nu_texture_size(nu_texture_t texture);
 NU_API nu_texture_type_t nu_texture_type(nu_texture_t texture);
-NU_API nu_image_t        nu_texture_image(nu_texture_t texture);
+NU_API nu_byte_t        *nu_texture_data(nu_texture_t texture, nu_size_t layer);
+NU_API nu_texture_t      nu_texture_load(nu_seria_t seria);
+NU_API void nu_texture_save(nu_texture_t texture, nu_seria_t seria);
 
 NU_API nu_object_type_t nu_material(void);
 NU_API nu_material_t    nu_material_new(nu_material_type_t type);
@@ -247,15 +240,6 @@ NU_API void nu_draw_box(nu_renderpass_t pass,
                         nu_b3_t         box,
                         nu_material_t   material,
                         nu_m4_t         transform);
-
-NU_API nu_object_type_t nu_image(void);
-NU_API nu_image_t       nu_image_new(nu_image_type_t type,
-                                     nu_v3u_t        size,
-                                     nu_size_t       layer);
-NU_API nu_byte_t       *nu_image_data(nu_image_t image, nu_size_t layer);
-NU_API nu_v3u_t         nu_image_size(nu_image_t image);
-NU_API nu_image_t       nu_image_load(nu_seria_t seria);
-NU_API void             nu_image_save(nu_image_t image, nu_seria_t seria);
 
 NU_API nu_object_type_t nu_model(void);
 NU_API nu_model_t       nu_model_new(nu_size_t node_count);

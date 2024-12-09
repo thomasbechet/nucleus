@@ -115,11 +115,11 @@ nu__load_texture (nu__model_gltf_loader_t *loader, const cgltf_texture *texture)
     cgltf_buffer_view *tview = texture->image->buffer_view;
 
     // TODO: avoid temporary image ?
-    nu_image_t image = nuext_image_load_memory(
-        (const nu_byte_t *)tview->buffer->data + tview->offset, tview->size);
-
-    // Create texture
-    nu_texture_t handle = nu_texture_new_from_image(NU_TEXTURE_COLORMAP, image);
+    nu_texture_t handle = nuext_texture_load_memory(
+        NU_TEXTURE_COLORMAP,
+        (const nu_byte_t *)tview->buffer->data + tview->offset,
+        tview->size);
+    NU_ASSERT(handle);
 
     // Append asset
     nu__model_gltf_resource_t *cache = NU_VEC_PUSH(&loader->resources);
