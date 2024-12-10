@@ -5,9 +5,8 @@
 
 typedef struct
 {
-    nu_mesh_t     mesh;
-    nu_material_t material;
-    nu_m4_t       transform;
+    nugfx_mesh_t mesh;
+    nu_m4_t      transform;
 } nu__model_node_t;
 
 typedef struct

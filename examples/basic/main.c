@@ -79,18 +79,11 @@ draw_scene (nu_renderpass_t pass)
     nu_draw_box(pass, nu_b3(nu_v3s(-0.5), nu_v3s(0.5)), g_material, transform);
 }
 
-typedef enum
-{
-    COMP_TRANSFORM,
-    COMP_PLAYER
-} component_t;
-
 typedef struct
 {
-    int         hello;
-    nu_v3_t     vector;
-    nu_q4_t     quat;
-    component_t component;
+    int     hello;
+    nu_v3_t vector;
+    nu_q4_t quat;
 } subtype_t;
 
 typedef struct
@@ -173,8 +166,8 @@ init (void)
 
     // Create meshes
     {
-        g_custom_mesh = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, 10000, NU_MESH_ALL);
-        nu_mesh_t sub = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, 1000, NU_MESH_ALL);
+        g_custom_mesh = nu_mesh_new(NUGFX_TRIANGLES, 10000, NU_MESH_ALL);
+        nu_mesh_t sub = nu_mesh_new(NUGFX_TRIANGLES, 1000, NU_MESH_ALL);
         for (nu_size_t i = 0; i < 10; ++i)
         {
             nu_mesh_cube(sub, 1);

@@ -6,7 +6,7 @@
 typedef struct
 {
     nu_camera_t    camera;
-    nu_shademode_t mode;
+    nugfx_shademode_t mode;
     nu_lightenv_t  lightenv;
 } nu__renderpass_forward_t;
 

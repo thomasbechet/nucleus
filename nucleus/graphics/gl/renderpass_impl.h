@@ -25,16 +25,16 @@ nugl__submesh_draw_instanced (nugl__mesh_command_buffer_t *cmds,
         cmd->vao       = pmesh->gl.vao;
         switch (pmesh->primitive)
         {
-            case NU_PRIMITIVE_POINTS:
+            case NUGFX_POINTS:
                 cmd->primitive = GL_POINTS;
                 break;
-            case NU_PRIMITIVE_LINES:
+            case NUGFX_LINES:
                 cmd->primitive = GL_LINES;
                 break;
-            case NU_PRIMITIVE_LINES_STRIP:
+            case NUGFX_LINES_STRIP:
                 cmd->primitive = GL_LINE_STRIP;
                 break;
-            case NU_PRIMITIVE_TRIANGLES:
+            case NUGFX_TRIANGLES:
                 cmd->primitive = GL_TRIANGLES;
                 break;
         }

@@ -7,13 +7,13 @@ static void
 nu__graphics_immediate_init (void)
 {
     _ctx.graphics.im.points
-        = nu_mesh_new(NU_PRIMITIVE_POINTS, 1000, NU_MESH_POSITION);
+        = nu_mesh_new(NUGFX_POINTS, 1000, NU_MESH_POSITION);
     _ctx.graphics.im.lines
-        = nu_mesh_new(NU_PRIMITIVE_LINES, 5000, NU_MESH_POSITION);
+        = nu_mesh_new(NUGFX_LINES, 5000, NU_MESH_POSITION);
     _ctx.graphics.im.lines_strip
-        = nu_mesh_new(NU_PRIMITIVE_LINES_STRIP, 1000, NU_MESH_POSITION);
+        = nu_mesh_new(NUGFX_LINES_STRIP, 1000, NU_MESH_POSITION);
     _ctx.graphics.im.triangles
-        = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, 1000, NU_MESH_ALL);
+        = nu_mesh_new(NUGFX_TRIANGLES, 1000, NU_MESH_ALL);
     nu__graphics_immediate_reset();
 }
 static void

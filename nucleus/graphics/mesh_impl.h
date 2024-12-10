@@ -28,9 +28,9 @@ nu_mesh (void)
     return _ctx.graphics.obj_mesh;
 }
 nu_mesh_t
-nu_mesh_new (nu_primitive_t      primitive,
+nu_mesh_new (nugfx_primitive_t      primitive,
              nu_size_t           capacity,
-             nu_mesh_attribute_t attributes)
+             nugfx_attribute_t attributes)
 {
     nu__mesh_t *m = nu_object_new(_ctx.graphics.obj_mesh);
 
@@ -43,7 +43,7 @@ nu_mesh_new (nu_primitive_t      primitive,
     {
         m->positions = nu_malloc(sizeof(*m->positions) * capacity);
     }
-    if (attributes & NU_MESH_UV)
+    if (attributes & NUGFX_UV)
     {
         m->uvs = nu_malloc(sizeof(*m->uvs) * capacity);
     }
@@ -60,27 +60,6 @@ nu_mesh_capacity (nu_mesh_t mesh)
     NU_ASSERT(mesh);
     nu__mesh_t *m = (nu__mesh_t *)mesh;
     return m->capacity;
-}
-nu_size_t
-nu_mesh_size (nu_mesh_t mesh)
-{
-    NU_ASSERT(mesh);
-    nu__mesh_t *m = (nu__mesh_t *)mesh;
-    return m->size;
-}
-void
-nu_mesh_resize (nu_mesh_t mesh, nu_size_t size)
-{
-    nu__mesh_t *m = (nu__mesh_t *)mesh;
-    NU_ASSERT(size <= m->capacity);
-    m->size = size;
-}
-void
-nu_mesh_clear (nu_mesh_t mesh)
-{
-    nu__mesh_t *m = (nu__mesh_t *)mesh;
-    m->size       = 0;
-    nu_mesh_invalidate(mesh);
 }
 void
 nu_mesh_update (nu_mesh_t mesh)
@@ -131,11 +110,11 @@ nu__append_quad (nu__mesh_t *m, const nu_v3_t *positions, const nu_v2_t *uvs)
 {
     switch (m->primitive)
     {
-        case NU_PRIMITIVE_POINTS: {
+        case NUGFX_POINTS: {
             nu__append_vertices(m, 4, positions, uvs);
         }
         break;
-        case NU_PRIMITIVE_LINES: {
+        case NUGFX_LINES: {
             const nu_size_t indices[] = { 0, 1, 1, 2, 2, 3, 3, 0 };
             for (nu_size_t i = 0; i < NU_ARRAY_SIZE(indices); ++i)
             {
@@ -144,12 +123,12 @@ nu__append_quad (nu__mesh_t *m, const nu_v3_t *positions, const nu_v2_t *uvs)
             }
         }
         break;
-        case NU_PRIMITIVE_LINES_STRIP: {
+        case NUGFX_LINES_STRIP: {
             nu__append_vertices(m, 4, positions, uvs);
             nu__append_vertices(m, 1, positions, uvs);
         }
         break;
-        case NU_PRIMITIVE_TRIANGLES: {
+        case NUGFX_TRIANGLES: {
             const nu_size_t indices[] = { 0, 1, 2, 2, 3, 0 };
             for (nu_size_t i = 0; i < NU_ARRAY_SIZE(indices); ++i)
             {
@@ -167,10 +146,10 @@ nu__append_triangle (nu__mesh_t    *m,
 {
     switch (m->primitive)
     {
-        case NU_PRIMITIVE_POINTS:
+        case NUGFX_POINTS:
             nu__append_vertices(m, 3, positions, uvs);
             break;
-        case NU_PRIMITIVE_LINES: {
+        case NUGFX_LINES: {
             const nu_size_t indices[] = { 0, 1, 1, 2, 2, 0 };
             for (nu_size_t i = 0; i < NU_ARRAY_SIZE(indices); ++i)
             {
@@ -179,10 +158,10 @@ nu__append_triangle (nu__mesh_t    *m,
             }
         }
         break;
-        case NU_PRIMITIVE_LINES_STRIP:
+        case NUGFX_LINES_STRIP:
             nu__append_vertices(m, 3, positions, uvs);
             break;
-        case NU_PRIMITIVE_TRIANGLES:
+        case NUGFX_TRIANGLES:
             nu__append_vertices(m, 3, positions, uvs);
             break;
     }
@@ -253,11 +232,11 @@ nu__generate_cube (nu__mesh_t *m, nu_f32_t unit)
         = { nu_v2(0, 0), nu_v2(1, 0), nu_v2(1, 1), nu_v2(0, 1) };
     switch (m->primitive)
     {
-        case NU_PRIMITIVE_POINTS:
+        case NUGFX_POINTS:
             nu__append_vertices(
                 m, NU_ARRAY_SIZE(positions), positions, NU_NULL);
             break;
-        case NU_PRIMITIVE_LINES: {
+        case NUGFX_LINES: {
             const nu_u16_t position_indices[]
                 = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6,
                     6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };
@@ -268,10 +247,10 @@ nu__generate_cube (nu__mesh_t *m, nu_f32_t unit)
             }
         }
         break;
-        case NU_PRIMITIVE_LINES_STRIP: {
+        case NUGFX_LINES_STRIP: {
         }
         break;
-        case NU_PRIMITIVE_TRIANGLES: {
+        case NUGFX_TRIANGLES: {
             const nu_u16_t position_indices[4 * 6]
                 = { 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
                     3, 0, 4, 7, 4, 5, 6, 7, 3, 2, 1, 0 };
@@ -362,7 +341,7 @@ nu_mesh_t
 nu_mesh_new_normals (nu_mesh_t mesh)
 {
     nu__mesh_t *m = (nu__mesh_t *)mesh;
-    NU_ASSERT(m->primitive == NU_PRIMITIVE_TRIANGLES);
+    NU_ASSERT(m->primitive == NUGFX_TRIANGLES);
 
     nu_size_t tricount = m->size / 3;
     NU_ASSERT(tricount);
@@ -400,21 +379,21 @@ nu_mesh_bounds (nu_mesh_t mesh)
     return nu_b3(min, max);
 }
 #ifdef NU_BUILD_SERIA
-static nu_primitive_t nu__primitive_seria[] = { NU_PRIMITIVE_POINTS,
+static nugfx_primitive_t nu__primitive_seria[] = { NUGFX_POINTS,
                                                 NU_PRIMITIVE_LINES,
                                                 NU_PRIMITIVE_LINES_STRIP,
                                                 NU_PRIMITIVE_TRIANGLES };
 nu_mesh_t
 nu_mesh_load (nu_seria_t seria)
 {
-    nu_primitive_t primitive;
+    nugfx_primitive_t primitive;
     {
         nu_u32_t value = 0;
         nu_seria_read_u32(seria, 1, &primitive);
         NU_ASSERT(value < NU_ARRAY_SIZE(nu__primitive_seria));
         primitive = nu__primitive_seria[value];
     }
-    nu_mesh_attribute_t attributes;
+    nugfx_attribute_t attributes;
     {
         nu_u32_t value;
         nu_seria_read_u32(seria, 1, &value);
@@ -428,7 +407,7 @@ nu_mesh_load (nu_seria_t seria)
     {
         nu_seria_read_v3(seria, size, nu_mesh_positions(mesh));
     }
-    if (attributes & NU_MESH_UV)
+    if (attributes & NUGFX_UV)
     {
         nu_seria_read_v2(seria, size, nu_mesh_uvs(mesh));
     }
@@ -453,7 +432,7 @@ nu_mesh_save (nu_mesh_t mesh, nu_seria_t seria)
     {
         nu_u32_t value = 0;
         value |= nu_mesh_positions(mesh) ? NU_MESH_POSITION : 0;
-        value |= nu_mesh_uvs(mesh) ? NU_MESH_UV : 0;
+        value |= nu_mesh_uvs(mesh) ? NUGFX_UV : 0;
         nu_seria_write_u32(seria, 1, &value);
     }
     {

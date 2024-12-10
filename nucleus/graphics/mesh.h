@@ -5,9 +5,8 @@
 
 typedef struct
 {
-    nu_primitive_t primitive;
+    nugfx_primitive_t primitive;
     nu_size_t      capacity;
-    nu_size_t      size;
     nu_v3_t       *positions;
     nu_v2_t       *uvs;
     nu_color_t    *colors;

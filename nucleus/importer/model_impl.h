@@ -67,13 +67,13 @@ nu__load_mesh (nu__model_gltf_loader_t *loader, const cgltf_mesh *mesh)
             nu_size_t          indice_count = accessor->count;
 
             // Create mesh
-            nu_mesh_attribute_t attributes = NU_MESH_POSITION;
+            nugfx_attribute_t attributes = NU_MESH_POSITION;
             if (uvs)
             {
-                attributes |= NU_MESH_UV;
+                attributes |= NUGFX_UV;
             }
             nu_mesh_t handle
-                = nu_mesh_new(NU_PRIMITIVE_TRIANGLES, indice_count, attributes);
+                = nu_mesh_new(NUGFX_TRIANGLES, indice_count, attributes);
 
             // Push vertices
             switch (accessor->component_type)

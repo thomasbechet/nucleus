@@ -154,7 +154,7 @@ main (int argc, char *argv[])
     nu__importer_free();
 #endif
 #ifdef NU_BUILD_GRAPHICS
-    nu__graphics_free();
+    nugfx__free();
 #endif
 #ifdef NU_BUILD_PLATFORM
     nu__platform_free();

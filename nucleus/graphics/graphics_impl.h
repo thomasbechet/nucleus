@@ -1,9 +1,8 @@
 #ifndef NU_GRAPHICS_IMPL_H
 #define NU_GRAPHICS_IMPL_H
 
-#include <nucleus/graphics/backend_impl.h>
+// #include <nucleus/graphics/backend_impl.h>
 
-#include <nucleus/graphics/camera_impl.h>
 #include <nucleus/graphics/texture_impl.h>
 #include <nucleus/graphics/material_impl.h>
 #include <nucleus/graphics/mesh_impl.h>
@@ -14,42 +13,23 @@
 #include <nucleus/graphics/immediate_impl.h>
 
 static nu_error_t
-nu__graphics_init (void)
+nugfx__init (void)
 {
-    nu__graphics_t *gfx = &_ctx.graphics;
+    nugfx__module_t *gfx = &_ctx.graphics;
 
     gfx->obj_font
         = nu_object_type_new(NU_STR("font"), sizeof(nu__font_t), NU_NULL);
     gfx->obj_model
         = nu_object_type_new(NU_STR("model"), sizeof(nu__model_t), NU_NULL);
     nu_object_set_seria(gfx->obj_model, nu__model_load, nu__model_save);
-    gfx->obj_camera
-        = nu_object_type_new(NU_STR("camera"), sizeof(nu__camera_t), NU_NULL);
     gfx->obj_texture = nu_object_type_new(
         NU_STR("texture"), sizeof(nu__texture_t), nu__texture_cleanup);
-    gfx->obj_material = nu_object_type_new(
-        NU_STR("material"), sizeof(nu__material_t), NU_NULL);
     gfx->obj_mesh = nu_object_type_new(
         NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_cleanup);
     nu_object_set_seria(gfx->obj_mesh, nu__mesh_load, nu__mesh_save);
-    gfx->obj_light
-        = nu_object_type_new(NU_STR("light"), sizeof(nu__light_t), NU_NULL);
-    gfx->obj_lightenv = nu_object_type_new(
-        NU_STR("lightenv"), sizeof(nu__lightenv_t), NU_NULL);
-    gfx->obj_renderpass = nu_object_type_new(
-        NU_STR("renderpass"), sizeof(nu__renderpass_t), nu__renderpass_cleanup);
 
     // Initialize backend
     nu__renderer_init();
-
-    // Create surface texture
-    {
-        nu__texture_t *tex = nu_object_new(gfx->obj_texture);
-        tex->type          = NU_TEXTURE_COLORMAP_TARGET;
-        tex->size = nu_v3u(_ctx.platform.size.x, _ctx.platform.size.y, 0);
-        nugl__init_surface_texture(tex);
-        _ctx.graphics.surface_color = (nu_texture_t)tex;
-    }
 
     // Initialize immediate context
     nu__graphics_immediate_init();
@@ -57,14 +37,14 @@ nu__graphics_init (void)
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__graphics_free (void)
+nugfx__free (void)
 {
     nu__renderer_free();
 
     return NU_ERROR_NONE;
 }
 static nu_error_t
-nu__graphics_render (void)
+nugfx__render (void)
 {
     nu__renderer_render(_ctx.platform.viewport.extent,
                         _ctx.platform.viewport.viewport);

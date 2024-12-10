@@ -116,7 +116,7 @@ nu_renderpass_set_depth_target (nu_renderpass_t pass, nu_texture_t texture)
 #endif
 }
 void
-nu_renderpass_set_shade (nu_renderpass_t pass, nu_shademode_t mode)
+nu_renderpass_set_shade (nu_renderpass_t pass, nugfx_shademode_t mode)
 {
     nu__renderpass_t *p = (nu__renderpass_t *)pass;
     NU_ASSERT(p->type == NU_RENDERPASS_FORWARD);
@@ -151,16 +151,16 @@ nu_draw_submesh_instanced (nu_renderpass_t pass,
     nu__mesh_t *pmesh = (nu__mesh_t *)mesh;
     switch (pmesh->primitive)
     {
-        case NU_PRIMITIVE_POINTS:
+        case NUGFX_POINTS:
             _ctx.utils.stats.graphics_current.point_count += count;
             break;
-        case NU_PRIMITIVE_LINES:
+        case NUGFX_LINES:
             _ctx.utils.stats.graphics_current.line_count += count;
             break;
-        case NU_PRIMITIVE_LINES_STRIP:
+        case NUGFX_LINES_STRIP:
             _ctx.utils.stats.graphics_current.line_count += count;
             break;
-        case NU_PRIMITIVE_TRIANGLES:
+        case NUGFX_TRIANGLES:
             _ctx.utils.stats.graphics_current.triangle_count += count;
             break;
     }

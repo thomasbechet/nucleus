@@ -396,7 +396,7 @@ init (void)
     // Cube mesh
     {
         nu_geometry_t g
-            = nu_geometry_new_mesh(NU_PRIMITIVE_LINES, 1000, 1000, 10000);
+            = nu_geometry_new_mesh(NUGFX_LINES, 1000, 1000, 10000);
         nu_geometry_cube(g, 0.1);
         nu_geometry_transform(g, nu_m4_translate(nu_v3s(-0.05)));
         g_cube = nu_mesh_new_geometry(g);

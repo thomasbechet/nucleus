@@ -5,10 +5,10 @@
 
 typedef struct
 {
-    nu_mesh_t points;
-    nu_mesh_t lines;
-    nu_mesh_t lines_strip;
-    nu_mesh_t triangles;
+    nugfx_mesh_t points;
+    nugfx_mesh_t lines;
+    nugfx_mesh_t lines_strip;
+    nugfx_mesh_t triangles;
 } nu__graphics_immediate_t;
 
 static void nu__graphics_immediate_init(void);

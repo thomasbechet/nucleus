@@ -68,7 +68,7 @@ static void
 nu__platform_swap_buffers (void)
 {
 #ifdef NU_BUILD_GRAPHICS
-    nu__graphics_render();
+    nugfx__render();
 #endif
 #ifdef NU_BUILD_UTILS
     nu__stats_update();

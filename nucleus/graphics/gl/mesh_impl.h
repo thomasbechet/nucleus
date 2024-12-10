@@ -80,7 +80,7 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
             0, 3, GL_FLOAT, GL_FALSE, sizeof(nu_f32_t) * NU_V3_SIZE, (void *)0);
         glEnableVertexAttribArray(0);
 
-        if (mesh->primitive == NU_PRIMITIVE_TRIANGLES)
+        if (mesh->primitive == NUGFX_TRIANGLES)
         {
             glGenBuffers(1, &mesh->gl.normals);
             glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.normals);
@@ -113,7 +113,7 @@ nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
     // Normals must be updated as well
-    if (mesh->primitive == NU_PRIMITIVE_TRIANGLES)
+    if (mesh->primitive == NUGFX_TRIANGLES)
     {
         glBindBuffer(GL_ARRAY_BUFFER, mesh->gl.normals);
         nu_f32_t *ptr = (nu_f32_t *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
