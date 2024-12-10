@@ -254,4 +254,42 @@ NU_API void             nu_model_save(nu_model_t model, nu_seria_t seria);
 
 NU_API nu_font_t nu_font_new_default(void);
 
+typedef enum
+{
+    NUGFX_TEXTURE_512,
+    NUGFX_TEXTURE_256,
+    NUGFX_TEXTURE_128,
+    NUGFX_TEXTURE_64,
+} nugfx_texture_size_t;
+
+typedef enum
+{
+    NUGFX_VERTEX_UV    = 1,
+    NUGFX_VERTEX_COLOR = 2
+} nugfx_buffer_attribute_t;
+
+typedef enum
+{
+    NUGFX_MODE_FLAT
+} nugfx_mode_t;
+
+NU_API void     nugfx_push_transform(nu_m4_t m);
+NU_API void     nugfx_push_texture(nu_u16_t tex);
+NU_API void     nugfx_push_vertex(nu_u16_t vtx);
+NU_API void     nugfx_push_view(nu_m4_t m);
+NU_API void     nugfx_push_proj(nu_m4_t m);
+NU_API void     nugfx_draw(nu_u16_t vtx, nu_u16_t first, nu_u16_t count);
+NU_API void     nugfx_update_texture(nu_u16_t         vtx,
+                                     nu_u16_t         x,
+                                     nu_u16_t         y,
+                                     nu_u16_t         w,
+                                     nu_u16_t         h,
+                                     const nu_byte_t *data);
+NU_API void     nugfx_update_positions(nu_u16_t       vtx,
+                                       nu_u16_t       first,
+                                       nu_u16_t       count,
+                                       const nu_v3_t *data);
+NU_API nu_u16_t nugfx_new_texture(nugfx_texture_size_t size);
+NU_API nu_u16_t nugfx_new_vertex(nu_u16_t capacity, nu_u16_t attributes);
+
 #endif
