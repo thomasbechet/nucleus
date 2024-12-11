@@ -7,9 +7,34 @@
 static void
 nu__texture_cleanup (void *data)
 {
-    nu__texture_t *tex = data;
+    nugfx__texture_t *tex = data;
 #ifdef NU_BUILD_GRAPHICS_GL
     nugl__texture_free(tex);
+#endif
+}
+nugfx_texture_t
+nugfx_texture_new (nu_v3u_t size)
+{
+    nugfx__texture_t *texture = nu_object_new(_ctx.graphics.obj_texture);
+    texture->size             = size;
+    texture->data             = nu_malloc(4 * size.x * size.y * size.z);
+#ifdef NU_BUILD_GRAPHICS_GL
+    nugl__texture_init(texture);
+#endif
+    return (nugfx_texture_t)texture;
+}
+nu_byte_t *
+nugfx_texture_data (nugfx_texture_t texture)
+{
+    return ((nugfx__texture_t *)texture)->data;
+}
+void
+nugfx_texture_upload (nugfx_texture_t texture)
+{
+    nugfx__texture_t *tex = (nugfx__texture_t *)texture;
+    NU_ASSERT(tex->data);
+#ifdef NU_BUILD_GRAPHICS_GL
+    nugl__texture_upload(tex);
 #endif
 }
 nugfx_texture_t
@@ -21,15 +46,15 @@ nugfx__load_texture (nu_seria_t seria)
     nu_seria_read_u32(seria, 1, &z);
     nu_seria_read_u32(seria, 1, &layer);
     NU_ASSERT(layer);
-    nugfx_texture_t texture = nugfx_new_texture(nu_v3u(x, y, z));
+    nugfx_texture_t texture = nugfx_texture_new(nu_v3u(x, y, z));
     nu_seria_read_byte(
-        seria, 4 * x * y * z * layer, nu_texture_data(texture, 0));
+        seria, 4 * x * y * z * layer, nugfx_texture_data(texture));
     return texture;
 }
 void
 nugfx__save_texture (nugfx_texture_t texture, nu_seria_t seria)
 {
-    nu__texture_t *t = (nu__texture_t *)texture;
+    nugfx__texture_t *t = (nugfx__texture_t *)texture;
     nu_seria_write_u32(seria, 1, &t->size.x);
     nu_seria_write_u32(seria, 1, &t->size.y);
     nu_seria_write_u32(seria, 1, &t->size.z);

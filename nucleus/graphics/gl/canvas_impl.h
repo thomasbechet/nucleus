@@ -207,7 +207,7 @@ nugl__canvas_draw_blit (nu__renderpass_t *pass,
 
     nugl__canvas_command_t *last = NU_VEC_LAST(&pass->gl.canvas.cmds);
     NU_ASSERT(pmat->canvas.texture0);
-    const nu__texture_t *tex0    = (const nu__texture_t *)pmat->canvas.texture0;
+    const nugfx__texture_t *tex0    = (const nugfx__texture_t *)pmat->canvas.texture0;
     GLuint               texture = tex0->gl.texture;
     if (last && last->type == NUGL__CANVAS_BLIT
         && last->blit.texture == texture)

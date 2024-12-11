@@ -5,13 +5,14 @@
 
 typedef struct
 {
-    nugfx_mesh_t mesh;
-    nu_m4_t      transform;
-} nu__model_node_t;
+    nugfx_mesh_t    mesh;
+    nugfx_texture_t texture;
+    nu_m4_t         transform;
+} nugfx__model_node_t;
 
 typedef struct
 {
-    NU_ARRAY(nu__model_node_t) nodes;
-} nu__model_t;
+    NU_ARRAY(nugfx__model_node_t) nodes;
+} nugfx__model_t;
 
 #endif

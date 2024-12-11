@@ -19,7 +19,7 @@ nugl__shadow_set_depth_map (nu__renderpass_t *pass, nu_texture_t texture)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(texture);
-    nu__texture_t *ptex = (nu__texture_t *)texture;
+    nugfx__texture_t *ptex = (nugfx__texture_t *)texture;
     NU_ASSERT(ptex->type == NU_TEXTURE_SHADOWMAP_TARGET);
 
     if (pass->gl.fbo)
@@ -44,7 +44,7 @@ nugl__shadow_render (nu__renderpass_t *pass)
     nu__gl_t *gl = &_ctx.graphics.gl;
     NU_ASSERT(pass->shadow.camera && pass->depth_target);
     nu__camera_t  *pcam = (nu__camera_t *)pass->shadow.camera;
-    nu__texture_t *ptex = (nu__texture_t *)pass->depth_target;
+    nugfx__texture_t *ptex = (nugfx__texture_t *)pass->depth_target;
 
     if (!pass->gl.fbo)
     {

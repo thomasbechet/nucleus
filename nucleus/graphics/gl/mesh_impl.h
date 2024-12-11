@@ -4,7 +4,7 @@
 #include <nucleus/internal.h>
 
 static void
-nugl__mesh_init (nu__mesh_t *mesh)
+nugl__mesh_init (nugfx__mesh_t *mesh)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
 
@@ -16,7 +16,7 @@ nugl__mesh_init (nu__mesh_t *mesh)
     glGenVertexArrays(1, &mesh->gl.vao);
 }
 static void
-nugl__mesh_free (nu__mesh_t *mesh)
+nugl__mesh_free (nugfx__mesh_t *mesh)
 {
     glDeleteVertexArrays(1, &mesh->gl.vao);
     if (mesh->gl.positions)
@@ -33,7 +33,7 @@ nugl__mesh_free (nu__mesh_t *mesh)
     }
 }
 static void
-nugl__mesh_write_uvs (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
+nugl__mesh_write_uvs (nugfx__mesh_t *mesh, nu_size_t first, nu_size_t count)
 {
     if (!mesh->gl.uvs)
     {
@@ -64,7 +64,7 @@ nugl__mesh_write_uvs (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 static void
-nugl__mesh_write_positions (nu__mesh_t *mesh, nu_size_t first, nu_size_t count)
+nugl__mesh_write_positions (nugfx__mesh_t *mesh, nu_size_t first, nu_size_t count)
 {
     if (!mesh->gl.positions)
     {

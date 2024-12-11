@@ -67,7 +67,7 @@ nugl__forward_render (nu__renderpass_t *pass)
         const nu__lightenv_t *penv
             = (const nu__lightenv_t *)pass->forward.lightenv;
         NU_ASSERT(penv->shadowmap && penv->shadowmap_camera);
-        const nu__texture_t *shadowmap = (const nu__texture_t *)penv->shadowmap;
+        const nugfx__texture_t *shadowmap = (const nugfx__texture_t *)penv->shadowmap;
         const nu__camera_t  *shadowmap_camera
             = (const nu__camera_t *)penv->shadowmap_camera;
         NU_ASSERT(shadowmap->type == NU_TEXTURE_SHADOWMAP_TARGET);
@@ -136,7 +136,7 @@ nugl__forward_render (nu__renderpass_t *pass)
     {
         const nu__lightenv_t *penv
             = (const nu__lightenv_t *)pass->forward.lightenv;
-        nu__texture_t *cubemap = (nu__texture_t *)penv->skybox;
+        nugfx__texture_t *cubemap = (nugfx__texture_t *)penv->skybox;
 
         // Bind program
         glUseProgram(gl->skybox_program);

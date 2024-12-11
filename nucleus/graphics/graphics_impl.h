@@ -20,12 +20,12 @@ nugfx__init (void)
     gfx->obj_font
         = nu_object_type_new(NU_STR("font"), sizeof(nu__font_t), NU_NULL);
     gfx->obj_model
-        = nu_object_type_new(NU_STR("model"), sizeof(nu__model_t), NU_NULL);
+        = nu_object_type_new(NU_STR("model"), sizeof(nugfx__model_t), NU_NULL);
     nu_object_set_seria(gfx->obj_model, nu__model_load, nu__model_save);
     gfx->obj_texture = nu_object_type_new(
-        NU_STR("texture"), sizeof(nu__texture_t), nu__texture_cleanup);
+        NU_STR("texture"), sizeof(nugfx__texture_t), nu__texture_cleanup);
     gfx->obj_mesh = nu_object_type_new(
-        NU_STR("mesh"), sizeof(nu__mesh_t), nu__mesh_cleanup);
+        NU_STR("mesh"), sizeof(nugfx__mesh_t), nu__mesh_cleanup);
     nu_object_set_seria(gfx->obj_mesh, nu__mesh_load, nu__mesh_save);
 
     // Initialize backend

@@ -11,6 +11,6 @@ typedef struct
 #endif
     nu_v3u_t   size;
     nu_byte_t *data;
-} nu__texture_t;
+} nugfx__texture_t;
 
 #endif

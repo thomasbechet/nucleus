@@ -38,28 +38,26 @@ typedef enum
 } nugfx_attribute_t;
 
 // resource api
-NU_API nugfx_mesh_t nugfx_new_mesh(nu_size_t         capacity,
+NU_API nugfx_mesh_t nugfx_mesh_new(nu_size_t         capacity,
+                                   nugfx_primitive_t primitive,
                                    nugfx_attribute_t attributes);
-NU_API void         nugfx_update_positions(nugfx_mesh_t   mesh,
-                                           nu_size_t      first,
-                                           nu_size_t      count,
-                                           const nu_v3_t *data);
-NU_API void         nugfx_update_uvs(nugfx_mesh_t   mesh,
-                                     nu_size_t      first,
-                                     nu_size_t      count,
-                                     const nu_v2_t *data);
+NU_API nu_size_t    nugfx_mesh_capacity(nugfx_mesh_t mesh);
+NU_API nu_v3_t     *nugfx_mesh_positions(nugfx_mesh_t mesh);
+NU_API nu_v2_t     *nugfx_mesh_uvs(nugfx_mesh_t mesh);
+NU_API void         nugfx_mesh_upload(nugfx_mesh_t mesh,
+                                      nu_size_t    first,
+                                      nu_size_t    count);
 
-NU_API nugfx_texture_t nugfx_new_texture(nu_v3u_t size);
-NU_API void            nugfx_update_texture(nugfx_texture_t  texture,
-                                            const nu_byte_t *data);
+NU_API nugfx_texture_t nugfx_texture_new(nu_v3u_t size);
+NU_API nu_byte_t      *nugfx_texture_data(nugfx_texture_t texture);
+NU_API void            nugfx_texture_upload(nugfx_texture_t texture);
 
-NU_API nugfx_model_t nugfx_new_model(nu_size_t node_count);
-NU_API void          nugfx_update_node(nugfx_model_t model,
-                                       nu_size_t     index,
-                                       nugfx_mesh_t  mesh,
-                                       nu_m4_t       transform);
-
-NU_API nugfx_font_t nugfx_default_font(void);
+NU_API nugfx_model_t nugfx_model_new(nu_size_t node_count);
+NU_API void          nugfx_model_set(nugfx_model_t   model,
+                                     nu_size_t       index,
+                                     nugfx_mesh_t    mesh,
+                                     nugfx_texture_t texture,
+                                     nu_m4_t         transform);
 
 // state api
 NU_API void nugfx_push_shademode(nugfx_shademode_t mode);

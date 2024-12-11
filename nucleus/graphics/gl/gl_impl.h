@@ -248,7 +248,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     glClearColor(clear.x, clear.y, clear.z, clear.w);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(GL_TEXTURE_2D,
-                  ((nu__texture_t *)_ctx.graphics.surface_color)->gl.texture);
+                  ((nugfx__texture_t *)_ctx.graphics.surface_color)->gl.texture);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glUseProgram(0);
 
@@ -258,7 +258,7 @@ nugl__render (nu_b2i_t global_viewport, nu_b2i_t viewport)
     return NU_ERROR_NONE;
 }
 static void
-nugl__init_surface_texture (nu__texture_t *tex)
+nugl__init_surface_texture (nugfx__texture_t *tex)
 {
     nu__gl_t *gl = &_ctx.graphics.gl;
 
