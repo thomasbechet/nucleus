@@ -1,8 +1,0 @@
-{
-  "posx": "vz_clear_ocean_right.png",
-  "negx": "vz_clear_ocean_left.png",
-  "posy": "vz_clear_ocean_up.png",
-  "negy": "vz_clear_ocean_down.png",
-  "posz": "vz_clear_ocean_front.png",
-  "negz": "vz_clear_ocean_back.png"
-}

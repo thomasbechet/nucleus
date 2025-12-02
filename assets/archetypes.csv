@@ -1,0 +1,8 @@
+player,position,rotation,score
+,vec3,quat4,int
+skill_type,name,max_level,
+,ident,int,
+skill,target,type,level
+,$player,$skill_type,int
+model,transform,mesh,texture
+,transform,mesh,texture
